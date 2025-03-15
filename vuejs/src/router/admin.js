@@ -2,7 +2,7 @@
 const admin = [
     {
         path: "/admin",
-        component: () => import("../layouts/LayoutAdmin.vue"),
+        component: () => import("../components/layouts/LayoutAdmin.vue"),
         redirect: "/admin/dashboard",
         children: [
             {
