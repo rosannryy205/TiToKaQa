@@ -20,6 +20,8 @@ import 'bootstrap/dist/css/bootstrap-utilities.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
+import './assets/style.css'; // Import CSS toàn cục
+
 
 
 // Thêm dòng này để import Font Awesome 
