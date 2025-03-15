@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;700&display=swap');
+*{
+    margin: 0px;
+    padding: 0px;
+    text-decoration: none;
+}
+body {
+    background: url('../img/Background.png') no-repeat center center;
+    background-size: cover;
+    font-family: 'Barlow', sans-serif;
+}
+/*margin*/
+.custom-margin {
+    margin-top: 100px;
+}
+
+/*header*/
+.navbar-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+.icon-btn {
+    border: none;
+    background: none;
+    font-size: 1.2rem;
+}
+.logo-container {
+    text-align: center;
+}
+.logo {
+    max-height: 120px;
+}
+.navbar-bottom {
+    /* background-color: #fff; */
+    border-top: 1px solid #ddd;
+}
+.nav-link {
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 10px 15px;
+}
+.offcanvas {
+    width: 250px;
+}
+
+/*main*/
+.title-shops>span{
+    font-size: 70px;
+    color: #C92C3C;
+}
+@media (max-width: 768px) {
+    .title-shops>span {
+        font-size: 40px;
+    }
+}
+.images-foods-banner img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+}
+.images-foods-banner {
+    position: relative;
+}
+
+.detail-foods {
+    position: absolute;
+    bottom: 120px;  
+    right: 120px;   
+    color: rgb(0, 0, 0); 
+    font-size: 22px;
+}
+
