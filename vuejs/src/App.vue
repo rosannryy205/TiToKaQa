@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Header (ẩn khi ở trang admin hoặc admin-product) -->
     <Header v-if="
       route.path !== '/admin'
       && route.path !== '/admin-product'
