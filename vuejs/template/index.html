@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Header Bootstrap</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<section class="home">
+<!-- top header-->
+<div class="header">
+<div class="navbar-top container">
+    <div>
+        <button class="icon-btn me-3"><i class="bi bi-people"></i></button>
+        <button class="icon-btn"><i class="bi bi-search"></i></button>
+    </div>
+    <div class="logo-container">
+        <img src="./img/Black_and_White_Flat_Retro_BBQ_Grill_Vintage_Logo-removebg-preview.png" alt="Logo" class="logo">
+    </div>
+    <div>
+        <button class="icon-btn me-3"><i class="bi bi-telephone"></i></button>
+        <button class="icon-btn"><i class="bi bi-cart"></i></button>
+    </div>
+    
+</div>
+
+<!-- menu bottom -->
+<nav class="navbar navbar-expand-lg navbar-bottom">
+    <div class="container">
+        <!-- menu small screen  -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- menu -->
+        <div class="collapse navbar-collapse justify-content-center d-none d-lg-flex">
+            <ul class="navbar-nav fs-5">
+                <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Mì cay</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- offcanvas menu small screen -->
+<div class="offcanvas offcanvas-start" id="offcanvasMenu">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Mì cay</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
+        </ul>
+    </div>
+</div>
+</div>
+<!--main-home-->
+<section class="main d-flex justify-content-center align-items-center">
+    <div class="container text-center">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-4 d-none d-md-block pt-5 text-start">
+                <div class="title-foods fw-medium fs-5">
+                <span>Lẩu và Mỳ cay 7 cấp độ</span>
+                </div>
+                <div class="title-shops d-none d-md-block fw-bold">
+                <span>TITOKAQA</span>
+                </div>
+                <div class="title-infors fw-normal">
+                <span>TITOKAQA là chuỗi nhà hàng thương hiệu ẩm thực Hàn Quốc ra mắt vào năm 2025. Món “lẩu”, “mỳ cay” với 7 cung bậc cay đã trở thành cơn sốt đối với giới trẻ lúc bấy giờ. TITOKAQA đã trở thành một trong những lựa chọn hàng đầu của giới trẻ Việt Nam khi muốn thưởng thức lẩu nói riêng và ẩm thực Hàn Quốc nói chung</span>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="images-foods-banner">
+                    <img src="./img/Bannerfoods.webp" alt="foods-banner" class="img-fluid">
+                    <div class="detail-foods fw-bold d-none d-lg-block">
+                        <a class="text-black" href="#">Chi tiết --></a>
+                    </div>
+                </div>
+            </div>
+        </div>        
+      </div>
+    </div>
+</section>
+</section>
+</body>
+</html>
