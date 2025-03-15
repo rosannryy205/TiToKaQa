@@ -1,25 +1,26 @@
+
 const admin = [
     {
         path: "/admin",
         component: () => import("../layouts/LayoutAdmin.vue"),
+        redirect: "/admin/dashboard",
         children: [
             {
-                path: "users",
-                name: "admin-users",
-                component: () => import ("../pages/admin/users/UserHome.vue")
+                path: "dashboard",
+                name: "admin-dashboard",
+                component: () => import("../pages/admin/Dashboard/index.vue")
             },
-
             {
-                path: "roles",
-                name: "admin-roles",
-                component: () => import ("../pages/admin/roles/RoleHome.vue")
+                path: "categories",
+                name: "admin-categories",
+                component: () => import("../pages/admin/Categories/index.vue")
+            },
+            {
+                path: "products",
+                name: "admin-products",
+                component: () => import("../pages/admin/Products/list.vue")
             },
             
-            {
-                path: "settings",
-                name: "admin-settings",
-                component: () => import ("../pages/admin/settings/SettingHome.vue")
-            }
         ]
     }
 ]
