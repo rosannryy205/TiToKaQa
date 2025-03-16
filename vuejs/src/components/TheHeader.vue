@@ -1,42 +1,64 @@
 <template>
-  <div class="container-fluild">
-    <div class="row text-white" style="background-color: #0c713d; padding: 1rem;">
-      <div class="col-1 d-flex d-sm-none align-items-center justify-content-center">
-        <span @click="showDrawer">X</span>
+  <div class="header">
+      <div class="navbar-top container">
+          <div>
+              <button class="icon-btn me-3"><i class="bi bi-people"></i></button>
+              <button class="icon-btn"><i class="bi bi-search"></i></button>
+          </div>
+          <div class="logo-container">
+              <img src="/img/Black_and_White_Flat_Retro_BBQ_Grill_Vintage_Logo-removebg-preview.png"
+                  alt="Logo" class="logo">
+          </div>
+          <div>
+              <button class="icon-btn me-3"><i class="bi bi-telephone"></i></button>
+              <button class="icon-btn"><i class="bi bi-cart"></i></button>
+          </div>
+
       </div>
-      <div class="col-10 col-sm-9 d-flex align-items-center justify-content-center justify-content-sm-start">
-        <img src="../assets/logo.jpg" alt="Logo" height="30px" width="34px" style="border-radius: 30%" class="ms-3 me-3">
-        <span class="d-none d-sm-flex">Quản Trị</span>
+
+      <!-- menu bottom -->
+      <nav class="navbar navbar-expand-lg navbar-bottom">
+          <div class="container">
+              <!-- menu small screen  -->
+              <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
+                  <span class="navbar-toggler-icon"></span>
+              </button>
+
+              <!-- menu -->
+              <div class="collapse navbar-collapse justify-content-center d-none d-lg-flex">
+                  <ul class="navbar-nav fs-5">
+                      <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#">Mì cay</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
+                  </ul>
+              </div>
+          </div>
+      </nav>
+
+      <!-- offcanvas menu small screen -->
+      <div class="offcanvas offcanvas-start" id="offcanvasMenu">
+          <div class="offcanvas-header">
+              <h5 class="offcanvas-title">Menu</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+          </div>
+          <div class="offcanvas-body">
+              <ul class="navbar-nav">
+                  <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Mì cay</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
+              </ul>
+          </div>
       </div>
-      <div class="col-sm-3 d-none d-sm-flex align-items-center justify-content-sm-end">
-        <span>Admin</span>
-      </div>
-      <div class="col-1 d-flex d-sm-none align-items-center justify-content-center">
-        <span @click="showDrawerUser">X</span>
-      </div>
-    </div>
   </div>
-
-  <a-drawer v-model:open="open" title="DANH MỤC" placement="left">
-<TheMenu/>
-  </a-drawer>
-  <a-drawer v-model:open="openUser" title="TÀI KHOẢN" placement="right">
-    <TheMenu/>
-  </a-drawer>
+  <router-view></router-view>
 </template>
-
-<script setup>
-import { ref } from 'vue';
-import TheMenu from './TheMenu.vue';
-
-const open = ref(false);
-const openUser = ref(false);
-
-const showDrawer = () => {
-  open.value = true;
-};
-
-const showDrawerUser = () => {
-  openUser.value = true;
-};
-</script>
