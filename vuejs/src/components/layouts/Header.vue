@@ -2,7 +2,10 @@
     <div class="header">
         <div class="navbar-top container">
             <div>
-                <button class="icon-btn me-3"><i class="bi bi-people"></i></button>
+                <button class="icon-btn me-3" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    <i class="bi bi-people"></i>
+                </button>
+
                 <button class="icon-btn"><i class="bi bi-search"></i></button>
             </div>
             <div class="logo-container">
@@ -60,4 +63,94 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal đăng nhập -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Đăng nhập</h5>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="email" placeholder="Tên đăng nhập">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
+                        </div>
+                        <div class="mb-3">
+                            <div class="function-btn">
+                                <a href="">Quên mật khẩu</a>
+                                <a href="" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký</a>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-login form-control">Đăng nhập</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Đăng ký</h5>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="username" placeholder="Tên đăng nhập">
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="email" placeholder="Email">
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="phone" placeholder="Số điện thoại">
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="password" placeholder="Mật khẩu">
+                        </div>
+                        <div class="mb-3">
+                            <input type="password" class="form-control" id="password_confirm" placeholder="Nhập lại mật khẩu">
+                        </div>
+                        <div class="mb-3">
+                            <div class="function-btn">
+                                <a href="">Quên mật khẩu</a>
+                                <a href="" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký</a>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-login form-control">Đăng ký</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
+
+<style>
+.modal-body .btn-login {
+    background-color: #C92C3C;
+    color: white;
+}
+
+.modal-header .modal-title {
+    margin: auto;
+    font-weight:600;
+}
+.function-btn{
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.function-btn a {
+    text-decoration: none;
+}
+
+</style>
