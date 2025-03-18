@@ -10,7 +10,7 @@ import {
         message
  } from 'ant-design-vue';
 import App from './App.vue'
-
+import vSelect from "vue-select";
 
 // import 'ant-design-vue/dist/antd.css';
 import 'ant-design-vue/dist/reset.css';
@@ -19,6 +19,7 @@ import 'bootstrap/dist/css/bootstrap-grid.min.css'
 import 'bootstrap/dist/css/bootstrap-utilities.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import "vue-select/dist/vue-select.css";
 
 
 import './assets/style.css'; // Import CSS toàn cục
@@ -42,3 +43,4 @@ app.use(List);
 app.use(Menu);
 app.config.globalProperties.$message = message;
 app.mount('#app');
+app.component("v-select", vSelect); 
