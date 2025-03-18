@@ -1,137 +1,138 @@
 <template>
-    <div class="header">
-        <div class="navbar-top container">
-            <div>
-                <button class="icon-btn me-3" data-bs-toggle="modal" data-bs-target="#loginModal">
-                    <i class="bi bi-people"></i>
-                </button>
-                <button class="icon-btn"><i class="bi bi-search"></i></button>
-            </div>
-            <div class="logo-container">
-                <img src="/img/Black_and_White_Flat_Retro_BBQ_Grill_Vintage_Logo-removebg-preview.png" alt="Logo"
-                    class="logo">
-            </div>
-            <div>
-                <button class="icon-btn me-3"><i class="bi bi-telephone"></i></button>
-                <button class="icon-btn"><i class="bi bi-cart"></i></button>
-            </div>
+  <div class="header">
+    <div class="navbar-top container">
+      <div>
+        <button class="icon-btn me-3" data-bs-toggle="modal" data-bs-target="#loginModal">
+          <i class="bi bi-people"></i>
+        </button>
+        <button class="icon-btn"><i class="bi bi-search"></i></button>
+      </div>
+      <div class="logo-container">
+        <img src="/img/Black_and_White_Flat_Retro_BBQ_Grill_Vintage_Logo-removebg-preview.png" alt="Logo" class="logo">
+      </div>
+      <div>
+        <button class="icon-btn me-3"><i class="bi bi-telephone"></i></button>
+        <router-link to="/cart" class="icon-btn" style="color: black;">
+          <i class="bi bi-cart"></i>
+        </router-link>
+      </div>
 
-        </div>
-
-        <!-- menu bottom -->
-        <nav class="navbar navbar-expand-lg navbar-bottom">
-            <div class="container">
-                <!-- menu small screen  -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <!-- menu -->
-                <div class="collapse navbar-collapse justify-content-center d-none d-lg-flex">
-                    <ul class="navbar-nav fs-5">
-                        <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Mì cay</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-
-        <!-- offcanvas menu small screen -->
-        <div class="offcanvas offcanvas-start" id="offcanvasMenu">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title">Menu</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div class="offcanvas-body">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Mì cay</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
-                </ul>
-            </div>
-        </div>
     </div>
-    <!-- Modal đăng nhập -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="loginModalLabel">Đăng nhập</h5>
-                </div>
 
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <input type="text" class="form-control" id="email" placeholder="Tên đăng nhập">
-                        </div>
-                        <div class="mb-3">
-                            <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
-                        </div>
-                        <div class="mb-3">
-                            <div class="function-btn">
-                                <a href="">Quên mật khẩu</a>
-                                <a href="" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký</a>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <button type="button" class="btn btn-login form-control">Đăng nhập</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="registerModalLabel">Đăng ký</h5>
-                </div>
+    <!-- menu bottom -->
+    <nav class="navbar navbar-expand-lg navbar-bottom">
+      <div class="container">
+        <!-- menu small screen  -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <input type="text" class="form-control" id="username" placeholder="Tên đăng nhập">
-                        </div>
-                        <div class="mb-3">
-                            <input type="text" class="form-control" id="email" placeholder="Email">
-                        </div>
-                        <div class="mb-3">
-                            <input type="text" class="form-control" id="phone" placeholder="Số điện thoại">
-                        </div>
-                        <div class="mb-3">
-                            <input type="text" class="form-control" id="password" placeholder="Mật khẩu">
-                        </div>
-                        <div class="mb-3">
-                            <input type="password" class="form-control" id="password_confirm"
-                                placeholder="Nhập lại mật khẩu">
-                        </div>
-                        <div class="mb-3">
-                            <div class="function-btn">
-                                <a href="">Quên mật khẩu</a>
-                                <a href="" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký</a>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <button type="button" class="btn btn-login form-control">Đăng ký</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <!-- menu -->
+        <div class="collapse navbar-collapse justify-content-center d-none d-lg-flex">
+          <ul class="navbar-nav fs-5">
+            <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Mì cay</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
+          </ul>
         </div>
+      </div>
+    </nav>
+
+    <!-- offcanvas menu small screen -->
+    <div class="offcanvas offcanvas-start" id="offcanvasMenu">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Mì cay</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
+        </ul>
+      </div>
     </div>
-    <router-view></router-view>
+  </div>
+  <!-- Modal đăng nhập -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginModalLabel">Đăng nhập</h5>
+        </div>
+
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <input type="text" class="form-control" id="email" placeholder="Tên đăng nhập">
+            </div>
+            <div class="mb-3">
+              <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
+            </div>
+            <div class="mb-3">
+              <div class="function-btn">
+                <a href="">Quên mật khẩu</a>
+                <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký</a>
+              </div>
+            </div>
+            <div class="mb-3">
+              <button type="button" class="btn btn-login form-control">Đăng nhập</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered ">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="registerModalLabel">Đăng ký</h5>
+        </div>
+
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <input type="text" class="form-control" id="username" placeholder="Tên đăng nhập">
+            </div>
+            <div class="mb-3">
+              <input type="text" class="form-control" id="email" placeholder="Email">
+            </div>
+            <div class="mb-3">
+              <input type="text" class="form-control" id="phone" placeholder="Số điện thoại">
+            </div>
+            <div class="mb-3">
+              <input type="text" class="form-control" id="password" placeholder="Mật khẩu">
+            </div>
+            <div class="mb-3">
+              <input type="password" class="form-control" id="password_confirm" placeholder="Nhập lại mật khẩu">
+            </div>
+            <div class="mb-3">
+              <div class="function-btn">
+                <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Đã có tài
+                  khoản?</a>
+
+              </div>
+            </div>
+            <div class="mb-3">
+              <button type="button" class="btn btn-login form-control">Đăng ký</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <router-view></router-view>
 </template>
 <style>
 .modal-body .btn-login {
@@ -150,7 +151,29 @@
     justify-content: flex-end;
 }
 
-.function-btn a {
-    text-decoration: none;
-}
+/* .function-btn a {
+    text-decoration: none;@media (max-width: 576px) {
+        .modal-body {
+          padding: 1rem;
+        }
+
+        .modal-content {
+          border-radius: 0.5rem;
+        }
+
+        .form-control {
+          font-size: 14px;
+          padding: 8px 10px;
+        }
+
+        .modal-header .modal-title {
+          font-size: 18px;
+        }
+
+        .btn-login {
+          font-size: 16px;
+        }
+      }
+} */
+
 </style>
