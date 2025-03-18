@@ -151,7 +151,7 @@
     justify-content: flex-end;
 }
 
-/* .function-btn a {
+.function-btn a {
     text-decoration: none;@media (max-width: 576px) {
         .modal-body {
           padding: 1rem;
@@ -174,6 +174,6 @@
           font-size: 16px;
         }
       }
-} */
+}
 
 </style>
