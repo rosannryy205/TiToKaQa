@@ -87,12 +87,14 @@
             </div>
             <div class="mb-3">
               <button type="button" class="btn btn-login form-control">Đăng nhập</button>
+              <button type="button" class="btn btn-login-google form-control"><img src="../../public/img/png-transparent-google-logo-google-search-meng-meng-company-text-logo-thumbnail.png" height="22px" width="22px" alt=""></button>
             </div>
           </form>
         </div>
       </div>
     </div>
   </div>
+  <!-- Modal đăng ký -->
   <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered ">
       <div class="modal-content">
@@ -138,6 +140,33 @@
 .modal-body .btn-login {
     background-color: #C92C3C;
     color: white;
+}
+.btn-login-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* gap: 8px;
+  padding: 10px 16px; */
+  margin-top: 5px;
+  background-color: white;
+  color: #444;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.btn-login-google:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.btn-login-google:active {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(0);
 }
 
 .modal-header .modal-title {
