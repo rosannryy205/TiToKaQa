@@ -48,10 +48,7 @@
             <span><strong>Tổng tiền thanh toán</strong></span>
             <strong>92.000 VND</strong>
           </div>
-          <router-link to="/payment">
-            <button class="btn btn-checkout w-100 mt-4">Thanh toán ngay</button>
-          </router-link>
-
+          <button class="btn btn-checkout w-100 mt-4">Thanh toán ngay</button>
 
           <div class="mt-4 d-flex align-items-center flex-wrap">
             <i class="bi bi-telephone-fill me-2 fs-4"></i>
