@@ -77,36 +77,53 @@
 
   <!-- Modal đăng nhập -->
   <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered ">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="loginModalLabel">Đăng nhập</h5>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg rounded-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100 text-center fw-bold" id="loginModalLabel">Đăng nhập</h5>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body px-4 py-3">
           <form>
-            <div class="mb-3">
+            <div class="mb-3 input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
               <input type="text" class="form-control" id="email" placeholder="Tên đăng nhập">
             </div>
-            <div class="mb-3">
+
+            <div class="mb-3 input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
               <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
             </div>
-            <div class="mb-3">
-              <div class="function-btn">
-                <a href="">Quên mật khẩu</a>
-                <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal">Đăng ký</a>
-              </div>
+
+            <div class="mb-3 d-flex justify-content-end gap-3 small">
+              <a href="#" class="text-decoration-none">Quên mật khẩu</a>
+              <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal"
+                class="text-decoration-none">Đăng ký</a>
             </div>
+
             <div class="mb-3">
-              <button type="button" class="btn btn-login form-control">Đăng nhập</button>
+              <button type="button" class="btn btn-login form-control fw-semibold">Đăng nhập</button>
+            </div>
+
+            <div class="divider d-flex align-items-center mb-3">
+              <hr class="flex-grow-1">
+              <span class="px-2 text-muted small">hoặc</span>
+              <hr class="flex-grow-1">
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-google"></i></button>
+              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-facebook"></i></button>
+              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-twitter-x"></i></button>
             </div>
           </form>
         </div>
       </div>
     </div>
   </div>
+
   <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered ">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="registerModalLabel">Đăng ký</h5>
@@ -114,42 +131,64 @@
 
         <div class="modal-body">
           <form>
-            <div class="mb-3">
+            <div class="mb-3 input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
               <input type="text" class="form-control" id="username" placeholder="Tên đăng nhập">
             </div>
-            <div class="mb-3">
+            <div class="mb-3 input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
               <input type="text" class="form-control" id="email" placeholder="Email">
             </div>
-            <div class="mb-3">
+            <div class="mb-3 input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-telephone"></i></span>
               <input type="text" class="form-control" id="phone" placeholder="Số điện thoại">
             </div>
-            <div class="mb-3">
-              <input type="text" class="form-control" id="password" placeholder="Mật khẩu">
+            <div class="mb-3 input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
+              <input type="password" class="form-control" id="password" placeholder="Mật khẩu">
             </div>
-            <div class="mb-3">
+            <div class="mb-3 input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-lock-fill"></i></span>
               <input type="password" class="form-control" id="password_confirm" placeholder="Nhập lại mật khẩu">
             </div>
-            <div class="mb-3">
-              <div class="function-btn">
-                <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Đã có tài
-                  khoản?</a>
 
+            <div class="mb-3">
+              <div class="function-btn text-end">
+                <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Đã có tài
+                  khoản</a>
               </div>
             </div>
             <div class="mb-3">
               <button type="button" class="btn btn-login form-control">Đăng ký</button>
+            </div>
+            <div class="divider d-flex align-items-center mb-3">
+              <hr class="flex-grow-1">
+              <span class="px-2 text-muted small">hoặc</span>
+              <hr class="flex-grow-1">
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-google"></i></button>
+              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-facebook"></i></button>
+              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-twitter-x"></i></button>
             </div>
           </form>
         </div>
       </div>
     </div>
   </div>
+
   <router-view></router-view>
 </template>
 <style>
 .modal-body .btn-login {
-    background-color: #C92C3C;
-    color: white;
+  background-color: #C92C3C;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.modal-body .btn-login:hover {
+  background-color: #e04b5a;
 }
 
 .modal-header .modal-title {
@@ -186,6 +225,56 @@
           font-size: 16px;
         }
       }
+}
+
+
+.btn-login {
+  background-color: #C92C3C;
+  color: #fff;
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-login:hover {
+  background-color: #e4505f;
+}
+
+.input-group-text {
+  border-right: none;
+  background-color: #f8f9fa;
+}
+
+.input-group .form-control {
+  border-left: none;
+}
+
+.input-group:focus-within {
+  box-shadow: 0 0 0 0.2rem rgba(201, 44, 60, 0.25);
+}
+
+.divider hr {
+  border-top: 1px solid #ccc;
+  margin: 0;
+}
+
+.btn-social {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 18px;
+  color: #333;
+  transition: all 0.3s ease;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  /* Đảm bảo không bị đẩy icon */
+}
+.btn-social:hover {
+  background-color: #f1f1f1;
+  transform: scale(1.1);
 }
 
 </style>
