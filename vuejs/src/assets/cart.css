@@ -1,79 +1,46 @@
-.modal-body .btn-login {
+/* ===== Nút Đăng nhập ===== */
+.modal-body .btn-login,
+.btn-login {
   background-color: #b71c1c;
   color: white;
+  border-radius: 30px;
   transition: background-color 0.3s ease;
+  box-shadow: none;
+  font-weight: 500;
 }
 
-.modal-body .btn-login:hover {
-  background-color: #C92C3C;
+.modal-body .btn-login:hover,
+.btn-login:hover {
+  background-color: #e4505f;
+  box-shadow: none;
 }
 
+/* ===== Tiêu đề Modal ===== */
 .modal-header .modal-title {
-    margin: auto;
-    font-weight: 600;
+  margin: auto;
+  font-weight: 600;
+  font-size: 20px;
 }
 
+/* ===== Nút chức năng nhỏ ===== */
 .function-btn {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
 }
 
 .function-btn a {
-    text-decoration: none;@media (max-width: 576px) {
-        .modal-body {
-          padding: 1rem;
-        }
-
-        .modal-content {
-          border-radius: 0.5rem;
-        }
-
-        .form-control {
-          font-size: 14px;
-          padding: 8px 10px;
-        }
-
-        .modal-header .modal-title {
-          font-size: 18px;
-        }
-
-        .btn-login {
-          font-size: 16px;
-        }
-      }
+  text-decoration: none;
+  font-size: 14px;
 }
 
-
-.btn-login {
-  background-color: #b71c1c;
-  color: #fff;
-  border-radius: 30px;
-  transition: background-color 0.3s ease;
-}
-
-.btn-login:hover {
-  background-color: #e4505f;
-}
-
-.input-group-text {
-  border-right: none;
-  background-color: #f8f9fa;
-}
-
-.input-group .form-control {
-  border-left: none;
-}
-
-.input-group:focus-within {
-  box-shadow: 0 0 0 0.2rem rgba(201, 44, 60, 0.25);
-}
-
+/* ===== Divider trong modal ===== */
 .divider hr {
   border-top: 1px solid #ccc;
   margin: 0;
 }
 
+/* ===== Nút mạng xã hội ===== */
 .btn-social {
   width: 40px;
   height: 40px;
@@ -82,25 +49,75 @@
   font-size: 18px;
   color: #333;
   transition: all 0.3s ease;
-
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  /* Đảm bảo không bị đẩy icon */
+  box-shadow: none;
+  border-radius: 50%;
 }
+
 .btn-social:hover {
   background-color: #f1f1f1;
   transform: scale(1.1);
+  box-shadow: none;
 }
+
+/* ===== Input có icon bên trong ===== */
+.position-relative i {
+  color: #6c757d;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+input.form-control {
+  padding-left: 2.5rem;
+  height: 44px;
+  font-size: 15px;
+  border-radius: 8px;
+  box-shadow: none;
+  border: 1px solid #ced4da;
+}
+
+input.form-control:focus {
+  border-color: #b71c1c;
+  box-shadow: 0 0 0 0.15rem rgba(183, 28, 28, 0.25);
+  outline: none;
+}
+
+/* ===== Responsive Mobile ===== */
+@media (max-width: 576px) {
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .modal-content {
+    border-radius: 0.5rem;
+  }
+
+  .form-control {
+    font-size: 14px;
+    padding-left: 2.3rem;
+  }
+
+  .modal-header .modal-title {
+    font-size: 18px;
+  }
+
+  .btn-login {
+    font-size: 16px;
+  }
+}
+
 
 
 /* css trang thanh toán */
-.title-in4 {
-  margin-bottom: 30px;
-  margin-top: 30px;
+.title-in4-payment {
+  margin-top: 20px;
 }
-
+.col-in4-payment{
+  background-color: #e3dfdf;
+}
 .col-in4-customer {
   display: flex;
   justify-content: center;
@@ -332,8 +349,19 @@
     width: 100%;
   }
 
+  .col-in4-payment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
   /* Nội dung căn giữa */
   .box-in4-customer {
+    width: 100%;
+    max-width: 500px; /* hoặc tùy bạn muốn giới hạn */
+  }
+  .box-in4-payment {
     width: 100%;
     max-width: 500px; /* hoặc tùy bạn muốn giới hạn */
   }

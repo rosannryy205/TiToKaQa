@@ -9,7 +9,7 @@
         <div class="card mb-3" v-for="i in 1" :key="i">
           <div class="card-body d-flex align-items-center flex-wrap">
             <i class="bi bi-x-circle me-3 mb-2"></i>
-            <img src="../../../../public/img/food/mykimchihaisan.webp" class="cart-img me-3 mb-2"
+            <img src="/img/food/mykimchihaisan.webp" class="cart-img me-3 mb-2"
               alt="Mì kim chi Nha Trang" />
             <div class="flex-grow-1 mb-2">
               <h5 class="mb-1 product-title"><strong>Mì kim chi Nha Trang</strong></h5>
@@ -84,7 +84,7 @@
 }
 
 .payment-box {
-  background-color: #f0f0f0;
+  box-shadow: 2px 5px 8px rgb(212, 210, 210);
   padding: 20px;
   border-radius: 8px;
   position: sticky;

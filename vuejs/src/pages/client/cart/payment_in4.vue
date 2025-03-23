@@ -37,16 +37,16 @@
           </div>
         </div>
       </div>
-      <div style="background-color: #EABEB8;" class="col col-in4-payment">
+      <div class="col col-in4-payment">
         <div class="box-in4-payment">
-          <div class="title-in4">
+          <div class="title-in4-payment ">
             <h3>Đơn hàng (2 sản phẩm)</h3>
           </div>
           <hr>
           <div class="list-product">
             <div class="item">
               <div class="left-item">
-                <img src="../../../../public/img/food/mykimchihaisan.webp" height="100" width="100" alt="">
+                <img src="/img/food/mykimchihaisan.webp" height="100" width="100" alt="">
                 <div class="in4-item">
                   <span>Mì kim chi chả cá Nha Trang</span>
                   <span>Tên biến thể</span>
@@ -58,7 +58,7 @@
             </div>
             <div class="item">
               <div class="left-item">
-                <img src="../../../../public/img/food/mykimchihaisan.webp" height="100" width="100" alt="">
+                <img src="/img/food/mykimchihaisan.webp" height="100" width="100" alt="">
                 <div class="in4-item">
                   <span>Mì kim chi chả cá Nha Trang</span>
                   <span>Tên biến thể</span>
@@ -102,9 +102,9 @@
           </div>
           <div class="payment-method">
             <div class="content"><span class="left-content"><input type="radio"> Thanh toán qua VNPAY-QR</span><img
-                src="../../../../public/img/Logo-VNPAY-QR-1 (1).png" height="20px" width="60px" alt=""></div>
+                src="/img/Logo-VNPAY-QR-1 (1).png" height="20px" width="60px" alt=""></div>
             <div class="content"><span class="left-content"><input type="radio" checked> Thanh toán khi nhận hàng
-                (COD)</span><img src="../../../../public/img/cod.png" height="30px" width="30px" alt=""></div>
+                (COD)</span><img src="/img/cod.png" height="30px" width="30px" alt=""></div>
           </div>
         </div>
       </div>

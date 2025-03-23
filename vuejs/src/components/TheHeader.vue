@@ -20,7 +20,7 @@
         </div>
 
         <div class="logo-container">
-          <img src="../../public/img/logonew.png" alt="Logo" class="logo">
+          <img src="/img/logonew.png" alt="Logo" class="logo">
         </div>
 
         <div class="nav-icons d-none d-lg-block">
@@ -65,10 +65,14 @@
           <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
           <div class="icon">
-            <button class="icon-btn me-3"><i class="bi bi-people"></i></button>
+            <button class="icon-btn me-3" data-bs-toggle="modal" data-bs-target="#loginModal">
+              <i class="bi bi-people"></i>
+            </button>
             <button class="icon-btn"><i class="bi bi-search"></i></button>
             <button class="icon-btn me-3"><i class="bi bi-telephone"></i></button>
-            <button class="icon-btn"><i class="bi bi-cart"></i></button>
+            <router-link to="/cart" style="color: black;">
+              <button class="icon-btn"><i class="bi bi-cart"></i></button>
+            </router-link>
           </div>
         </ul>
       </div>
@@ -84,14 +88,14 @@
         </div>
         <div class="modal-body px-4 py-3">
           <form>
-            <div class="mb-3 input-group">
-              <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
-              <input type="text" class="form-control" id="email" placeholder="Tên đăng nhập">
+            <div class="mb-3 position-relative">
+              <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="text" class="form-control ps-5" id="email" placeholder="Tên đăng nhập">
             </div>
 
-            <div class="mb-3 input-group">
-              <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
-              <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
+            <div class="mb-3 position-relative">
+              <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="password" class="form-control ps-5" id="password" placeholder="Nhập mật khẩu">
             </div>
 
             <div class="mb-3 d-flex justify-content-end gap-3 small">
@@ -106,7 +110,7 @@
 
             <div class="divider d-flex align-items-center mb-3">
               <hr class="flex-grow-1">
-              <span class="px-2 text-muted small">hoặc</span>
+              <span class="px-2 text-muted small">hoặc đăng nhập</span>
               <hr class="flex-grow-1">
             </div>
 
@@ -129,25 +133,29 @@
         </div>
         <div class="modal-body">
           <form>
-            <div class="mb-3 input-group">
-              <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
-              <input type="text" class="form-control" id="username" placeholder="Tên đăng nhập">
+            <div class="mb-3 position-relative">
+              <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="text" class="form-control ps-5" id="username" placeholder="Tên đăng nhập">
             </div>
-            <div class="mb-3 input-group">
-              <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
-              <input type="text" class="form-control" id="email" placeholder="Email">
+
+            <div class="mb-3 position-relative">
+              <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="text" class="form-control ps-5" id="email" placeholder="Email">
             </div>
-            <div class="mb-3 input-group">
-              <span class="input-group-text bg-white"><i class="bi bi-telephone"></i></span>
-              <input type="text" class="form-control" id="phone" placeholder="Số điện thoại">
+
+            <div class="mb-3 position-relative">
+              <i class="bi bi-telephone position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="text" class="form-control ps-5" id="phone" placeholder="Số điện thoại">
             </div>
-            <div class="mb-3 input-group">
-              <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
-              <input type="password" class="form-control" id="password" placeholder="Mật khẩu">
+
+            <div class="mb-3 position-relative">
+              <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="password" class="form-control ps-5" id="password" placeholder="Mật khẩu">
             </div>
-            <div class="mb-3 input-group">
-              <span class="input-group-text bg-white"><i class="bi bi-lock-fill"></i></span>
-              <input type="password" class="form-control" id="password_confirm" placeholder="Nhập lại mật khẩu">
+
+            <div class="mb-3 position-relative">
+              <i class="bi bi-lock-fill position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="password" class="form-control ps-5" id="password_confirm" placeholder="Nhập lại mật khẩu">
             </div>
 
             <div class="mb-3">
