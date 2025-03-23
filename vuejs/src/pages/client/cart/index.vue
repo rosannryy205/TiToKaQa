@@ -48,7 +48,9 @@
             <span><strong>Tổng tiền thanh toán</strong></span>
             <strong>92.000 VND</strong>
           </div>
-          <button class="btn btn-checkout w-100 mt-4">Thanh toán ngay</button>
+          <router-link to="/payment_if">
+            <button class="btn btn-checkout w-100 mt-4">Thanh toán ngay</button>
+          </router-link>
 
           <div class="mt-4 d-flex align-items-center flex-wrap">
             <i class="bi bi-telephone-fill me-2 fs-4"></i>
@@ -90,12 +92,12 @@
 }
 
 .btn-checkout {
-  background-color: #d32f2f;
+  background-color: #b71c1c;
   color: white;
 }
 
 .btn-checkout:hover {
-  background-color: #b71c1c;
+  background-color: #C92C3C;
 }
 
 .product-title {

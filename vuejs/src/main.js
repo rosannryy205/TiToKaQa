@@ -2,11 +2,11 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import router from './router/index.js'
-import { 
+import {
         Menu,
         List,
         Drawer,
-        Button, 
+        Button,
         message
  } from 'ant-design-vue';
 import App from './App.vue'
@@ -23,10 +23,11 @@ import "vue-select/dist/vue-select.css";
 
 
 import './assets/style.css'; // Import CSS toàn cục
+import './assets/cart.css'; // Import CSS toàn cục
 
 
 
-// Thêm dòng này để import Font Awesome 
+// Thêm dòng này để import Font Awesome
 import "@fortawesome/fontawesome-free/css/all.min.css"
 
 
@@ -43,4 +44,4 @@ app.use(List);
 app.use(Menu);
 app.config.globalProperties.$message = message;
 app.mount('#app');
-app.component("v-select", vSelect); 
+app.component("v-select", vSelect);

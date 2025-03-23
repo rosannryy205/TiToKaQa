@@ -82,7 +82,6 @@
         <div class="modal-header border-0">
           <h5 class="modal-title w-100 text-center fw-bold" id="loginModalLabel">Đăng nhập</h5>
         </div>
-
         <div class="modal-body px-4 py-3">
           <form>
             <div class="mb-3 input-group">
@@ -124,11 +123,10 @@
 
   <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
+      <div class="modal-content shadow-lg rounded-4">
+        <div class="modal-header border-0">
           <h5 class="modal-title" id="registerModalLabel">Đăng ký</h5>
         </div>
-
         <div class="modal-body">
           <form>
             <div class="mb-3 input-group">
@@ -180,101 +178,3 @@
 
   <router-view></router-view>
 </template>
-<style>
-.modal-body .btn-login {
-  background-color: #C92C3C;
-  color: white;
-  transition: background-color 0.3s ease;
-}
-
-.modal-body .btn-login:hover {
-  background-color: #e04b5a;
-}
-
-.modal-header .modal-title {
-    margin: auto;
-    font-weight: 600;
-}
-
-.function-btn {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-.function-btn a {
-    text-decoration: none;@media (max-width: 576px) {
-        .modal-body {
-          padding: 1rem;
-        }
-
-        .modal-content {
-          border-radius: 0.5rem;
-        }
-
-        .form-control {
-          font-size: 14px;
-          padding: 8px 10px;
-        }
-
-        .modal-header .modal-title {
-          font-size: 18px;
-        }
-
-        .btn-login {
-          font-size: 16px;
-        }
-      }
-}
-
-
-.btn-login {
-  background-color: #C92C3C;
-  color: #fff;
-  border-radius: 30px;
-  transition: background-color 0.3s ease;
-}
-
-.btn-login:hover {
-  background-color: #e4505f;
-}
-
-.input-group-text {
-  border-right: none;
-  background-color: #f8f9fa;
-}
-
-.input-group .form-control {
-  border-left: none;
-}
-
-.input-group:focus-within {
-  box-shadow: 0 0 0 0.2rem rgba(201, 44, 60, 0.25);
-}
-
-.divider hr {
-  border-top: 1px solid #ccc;
-  margin: 0;
-}
-
-.btn-social {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  font-size: 18px;
-  color: #333;
-  transition: all 0.3s ease;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  /* Đảm bảo không bị đẩy icon */
-}
-.btn-social:hover {
-  background-color: #f1f1f1;
-  transform: scale(1.1);
-}
-
-</style>

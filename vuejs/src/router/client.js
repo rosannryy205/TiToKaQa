@@ -14,6 +14,11 @@ const client = [
                 name: "client-cart",
                 component: () => import("../pages/client/cart/index.vue")
             },
+            {
+                path: "payment_if",
+                name: "client-payment-information",
+                component: () => import("../pages/client/cart/payment_in4.vue")
+            },
         ]
     }
 ];
