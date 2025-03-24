@@ -19,6 +19,21 @@ const client = [
                 name: "client-payment-information",
                 component: () => import("../pages/client/cart/payment_in4.vue")
             },
+            {
+                path: "reservation",
+                name: "reservation",
+                component: () => import("../pages/client/reservation/reservation.vue")
+            },
+            {
+                path: "discount",
+                name: "discount",
+                component: () => import("../pages/client/discount/discount.vue")
+            },
+            {
+                path: "discountdetail",
+                name: "discountdetail",
+                component: () => import("../pages/client/discount/discountdetail.vue")
+            },
         ]
     }
 ];
