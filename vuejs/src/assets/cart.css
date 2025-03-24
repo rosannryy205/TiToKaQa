@@ -70,7 +70,7 @@
   pointer-events: none;
 }
 
-input.form-control {
+input.form-control-cart {
   padding-left: 2.5rem;
   height: 44px;
   font-size: 15px;
@@ -79,7 +79,7 @@ input.form-control {
   border: 1px solid #ced4da;
 }
 
-input.form-control:focus {
+input.form-control-cart:focus {
   border-color: #b71c1c;
   box-shadow: 0 0 0 0.15rem rgba(183, 28, 28, 0.25);
   outline: none;
@@ -95,7 +95,7 @@ input.form-control:focus {
     border-radius: 0.5rem;
   }
 
-  .form-control {
+  .form-control-cart {
     font-size: 14px;
     padding-left: 2.3rem;
   }
@@ -125,7 +125,7 @@ input.form-control:focus {
   border-radius: 10px;
 }
 
-.custom-row {
+.row-custom {
   display: flex;
   gap: 5px;
   margin-top: 50px;
@@ -335,7 +335,7 @@ input.form-control:focus {
 /* Giữ lại phần CSS bạn đã có ở trên rồi thêm tiếp phần này ở dưới cùng */
 
 @media (max-width: 992px) {
-  .custom-row {
+  .row-custom {
     flex-direction: column;
     gap: 30px;
     padding: 0;
@@ -435,6 +435,78 @@ input.form-control:focus {
 
   .discount-code label {
     font-size: 14px;
+  }
+}
+/* cart css */
+
+.cart-img {
+  width: 100px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.qty-control {
+  min-width: 90px;
+  width: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+.payment-box {
+  box-shadow: 2px 5px 8px rgb(212, 210, 210);
+  padding: 20px;
+  border-radius: 8px;
+  position: sticky;
+  top: 20px;
+}
+
+.btn-checkout {
+  background-color: #b71c1c;
+  color: white;
+}
+
+.btn-checkout:hover {
+  background-color: #C92C3C;
+}
+
+.product-title {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+
+  .payment-box .d-flex {
+    align-items: flex-start !important;
+    gap: 8px;
+  }
+
+  .qty-control {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 492px) {
+  .card-body {
+    align-items: flex-start !important;
+  }
+
+  .card-body .text-center {
+    margin-left: 300px;
+  }
+}
+
+@media (max-width: 767px) {
+  .price {
+    display: none;
   }
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div class="container-sm">
-    <div class="row custom-row">
+    <div class="row row-custom">
       <div class="col-7 col-in4-customer">
         <div class="box-in4-customer">
           <div class="title-in4">

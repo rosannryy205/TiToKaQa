@@ -36,7 +36,7 @@
         <div class="collapse navbar-collapse justify-content-center d-none d-lg-flex">
           <ul class="navbar-nav fs-5">
             <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Mì cay</a></li>
+            <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
