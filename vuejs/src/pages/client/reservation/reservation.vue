@@ -9,20 +9,20 @@
           <img class="img-reservation" src="/img/reservation/Rectangle 48.png" alt="Khuyến mãi Tết">
         </div>
         <div class="col-md-6  form-section mt-2">
-          <input type="text" class="form-control form-reservation mb-2" placeholder="Tên của bạn">
-          <input type="text" class="form-control form-reservation mb-2" placeholder="Số điện thoại">
-          <input type="number" class="form-control form-reservation mb-2" placeholder="Số lượng người">
+          <input type="text" class="form-control  mb-2" placeholder="Tên của bạn">
+          <input type="text" class="form-control  mb-2" placeholder="Số điện thoại">
+          <input type="number" class="form-control  mb-2" placeholder="Số lượng người">
           <div class="row g-2">
             <div class="col">
-              <input type="date" class="form-control form-reservation" placeholder="Chọn ngày">
+              <input type="date" class="form-control " placeholder="Chọn ngày">
             </div>
             <div class="col mb-2">
-              <input type="time" class="form-control form-reservation" placeholder="Giờ">
+              <input type="time" class="form-control " placeholder="Giờ">
             </div>
           </div>
 
-          <input type="text" class="form-control form-reservation mb-2" placeholder="Khu vực">
-          <input type="text" class="form-control form-reservation mb-2" placeholder="Ghi chú">
+          <input type="text" class="form-control  mb-2" placeholder="Khu vực">
+          <input type="text" class="form-control  mb-2" placeholder="Ghi chú">
           <button class="btn btn-custom mb-2" data-bs-toggle="modal" data-bs-target="#orderModal">
             Đặt món <span>+</span>
           </button>

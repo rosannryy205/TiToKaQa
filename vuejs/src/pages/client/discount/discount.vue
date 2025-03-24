@@ -26,7 +26,7 @@
                             </div>
 
                         </div>
-                        <a href="#" class="offer-link">Xem chi tiết -></a>
+                        <a href="/reservation" class="offer-link">Xem chi tiết -></a>
                     </div>
                 </div>
 
@@ -50,7 +50,7 @@
                             </div>
 
                         </div>
-                        <a href="#" class="offer-link">Xem chi tiết -></a>
+                        <a href="/reservation" class="offer-link">Xem chi tiết -></a>
                     </div>
                 </div>
 
@@ -74,7 +74,7 @@
                             </div>
 
                         </div>
-                        <a href="#" class="offer-link">Xem chi tiết -></a>
+                        <a href="/discount-detail" class="offer-link">Xem chi tiết -></a>
                     </div>
                 </div>
             </div>

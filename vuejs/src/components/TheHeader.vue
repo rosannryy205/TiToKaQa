@@ -42,7 +42,7 @@
             <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
+            <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
           </ul>
         </div>
       </nav>
@@ -63,7 +63,7 @@
           <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
+          <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
           <div class="icon">
             <button class="icon-btn me-3" data-bs-toggle="modal" data-bs-target="#loginModal">
               <i class="bi bi-people"></i>

@@ -37,7 +37,7 @@
                         <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
                     </ul>
                 </div>
             </div>
@@ -58,7 +58,7 @@
                     <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Đặt bàn</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
                 </ul>
             </div>
         </div>

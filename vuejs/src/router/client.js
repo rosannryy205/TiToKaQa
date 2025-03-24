@@ -30,8 +30,8 @@ const client = [
                 component: () => import("../pages/client/discount/discount.vue")
             },
             {
-                path: "discountdetail",
-                name: "discountdetail",
+                path: "discount-detail",
+                name: "discount-detail",
                 component: () => import("../pages/client/discount/discountdetail.vue")
             },
         ]
