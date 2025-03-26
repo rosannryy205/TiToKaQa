@@ -645,14 +645,15 @@ body > section > div > div > div.col-md-3 > span{
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  border: 1px solid #d9534f;
+  border: 1px solid #d9534f ;
   background-color: transparent;
-  color: #d9534f;
+  color: white;
+  background-color:#dc3545 ;
   padding: 10px;
   border-radius: 5px;
 }
 .btn-custom:hover {
-  background-color: #d9534f;
+  background-color: #bb2d3b;
   color: white;
 }
 
@@ -660,21 +661,6 @@ body > section > div > div > div.col-md-3 > span{
   margin: 0 20px;
 }
 
-option {
-
-  max-width: 100% !important;
-  color: white;
-  background-color: #C92C3C !important;
-
-}
-
-
-
-select {
-  background-color: #C92C3C !important;
-  color:white !important;;
-  box-shadow: none !important;
-}
 
 .row-select{
   border-bottom: 0.02px rgb(127, 127, 127) solid;
@@ -683,28 +669,38 @@ select {
 }
 /* Ẩn mũi tên mặc định */
 .form-select {
-  appearance: none;
+  /* background-color: #C92C3C !important;
+  color:white !important;;
+  box-shadow: none !important; */
+  /* appearance: none;
   -webkit-appearance: none;
-  -moz-appearance: none;
-  color: white;
+  -moz-appearance: none; */
+  color: black;
   padding: 10px;
   font-size: 16px;
   width: 100%;
   cursor: pointer;
   padding-right: 30px;
-  position: relative;
+  /* position: relative;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  background-size: 15px;
+  background-size: 15px; */
 
 }
 
 .form-select>option{
   max-width: 100%;
   overflow: hidden;
+  max-width: 100% !important;
+  color: black;
+  /* background-color: #C92C3C   !important; */
 }
-
+/*
+.form-select:focus {
+  background-color: #c7192a !important;
+  color: white !important;
+} */
 
 
 .form-section input{
@@ -717,6 +713,9 @@ select {
   box-shadow: none;
   border: 1px solid #ccc; /* Thêm viền nhẹ để tránh bị mất form */
 }
+
+/* Giảm độ trong suốt của modal chính khi mở popup phụ */
+
 
 /* end reservation page  */
 

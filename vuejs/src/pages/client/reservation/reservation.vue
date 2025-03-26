@@ -1,5 +1,3 @@
-
-
 <template>
 
   <body>
@@ -80,11 +78,17 @@
 
                     <div class="d-flex align-items-center mt-2">
                       <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        onclick="decreaseValue(this)"><b>-</b></button>
-                      <input type="text" class="form-control text-center mx-2" value="1" style="width: 100px;">
+                        @click="decreaseValue(0)">
+                        <b>-</b>
+                      </button>
+                      <input type="text" class="form-control text-center mx-2" v-model="quantities[0]"
+                        style="width: 100px;">
                       <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        onclick="increaseValue(this)"><b>+</b></button>
+                        @click="increaseValue(0)">
+                        <b>+</b>
+                      </button>
                     </div>
+
 
                     <button class="btn btn-danger mt-2 w-100">Đặt món</button>
                   </div>
@@ -111,11 +115,17 @@
 
                     <div class="d-flex align-items-center mt-2">
                       <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        onclick="decreaseValue(this)"><b>-</b></button>
-                      <input type="text" class="form-control text-center mx-2" value="1" style="width: 100px;">
+                        @click="decreaseValue(0)">
+                        <b>-</b>
+                      </button>
+                      <input type="text" class="form-control text-center mx-2" v-model="quantities[0]"
+                        style="width: 100px;">
                       <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        onclick="increaseValue(this)"><b>+</b></button>
+                        @click="increaseValue(0)">
+                        <b>+</b>
+                      </button>
                     </div>
+
 
                     <button class="btn btn-danger mt-2 w-100">Đặt món</button>
                   </div>
@@ -142,11 +152,17 @@
 
                     <div class="d-flex align-items-center mt-2">
                       <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        @click="decreaseValue(this)"><b>-</b></button>
-                      <input type="text" class="form-control text-center mx-2" value="1" style="width: 100px;">
+                        @click="decreaseValue(0)">
+                        <b>-</b>
+                      </button>
+                      <input type="text" class="form-control text-center mx-2" v-model="quantities[0]"
+                        style="width: 100px;">
                       <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        @click="increaseValue(this)"><b>+</b></button>
+                        @click="increaseValue(0)">
+                        <b>+</b>
+                      </button>
                     </div>
+
 
                     <button class="btn btn-danger mt-2 w-100">Đặt món</button>
                   </div>
@@ -165,18 +181,27 @@
   </body>
 </template>
 
-<script setup>
+<script>
 import { ref } from "vue";
 
-const count = ref(1);
+export default {
+  setup() {
+    // Tạo danh sách số lượng riêng cho từng món ăn
+    const quantities = ref([1, 1, 1]);
 
-const increaseValue = () => {
-  count.value += 1;
-};
+    const increaseValue = (index) => {
+      quantities.value[index]++;
+    };
 
-const decreaseValue = () => {
-  if (count.value > 1) {
-    count.value -= 1;
-  }
+    const decreaseValue = (index) => {
+      if (quantities.value[index] > 1) quantities.value[index]--;
+    };
+
+    return {
+      quantities,
+      increaseValue,
+      decreaseValue,
+    };
+  },
 };
 </script>
