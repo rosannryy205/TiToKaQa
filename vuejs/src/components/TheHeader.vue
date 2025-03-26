@@ -186,48 +186,4 @@
 
   <router-view></router-view>
 </template>
-<<<<<<< Updated upstream
-=======
-<style>
-.modal-body .btn-login {
-    background-color: #C92C3C;
-    color: white;
-}
 
-.modal-header .modal-title {
-    margin: auto;
-    font-weight: 600;
-}
-
-.function-btn {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-}
-
-.function-btn a {
-    text-decoration: none;@media (max-width: 576px) {
-        .modal-body {
-          padding: 1rem;
-        }
-
-        .modal-content {
-          border-radius: 0.5rem;
-        }
-
-        .form-control {
-          font-size: 14px;
-          padding: 8px 10px;
-        }
-
-        .modal-header .modal-title {
-          font-size: 18px;
-        }
-
-        .btn-login {
-          font-size: 16px;
-        }
-      }
-}
-</style>
->>>>>>> Stashed changes
