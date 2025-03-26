@@ -3,6 +3,7 @@
   margin: 0px;
   padding: 0px;
   text-decoration: none;
+  list-style: none;
 }
 body {
   background: url('../img/Background.png') no-repeat center center;
@@ -30,7 +31,7 @@ body > section > div.header > div > nav {
 .icon-btn {
   border: none;
   background: none;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   transition: 0.5s;
 }
 .logo-container {
@@ -42,7 +43,7 @@ body > section > div.header > div > nav {
 
 }
 .logo {
-  max-height: 105px;
+  max-height: 120px;
 }
 .nav-link {
   font-weight: bold;
@@ -546,6 +547,9 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 .popular-searches .badge {
   font-size: 14px;
 }
+.pots-section h2{
+  color: #c92c3c;
+}
 .pots-section img {
   width: 100%;
   height: auto;
@@ -596,10 +600,180 @@ body > section > footer > div > div:nth-child(1) > div.col-md-2.mb-4{
 }
 
 /*page food*/
-body > section > div > div > div.col-md-3 > span{
+#app > div > section.foods > div.main-page-foods.container > div.row.d-flex.align-items-center.justify-content-between > div.col-md-3.d-none.d-lg-flex{
   font-size: 70px;
   color: #c92c3c;
 }
+
+.menus-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 15px 50px;
+  list-style: none;
+  padding: 0;
+}
+.menus-list li {
+  display: flex;
+  align-items: center;
+}
+
+/*section dish-by-category*/
+/*bg banner*/
+.background-banner {
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  height: 500px;
+  background-image: url('../img/bg-banner.png'); 
+  background-size: cover; 
+  z-index: -1;
+}
+/**/
+body > section > section > div > div > div.col-12.images-dish.d-flex.justify-content-between{
+  height: 40vh;
+}
+#app > div > section.foods > div.main-page-foods.container > div.row.d-flex.align-items-center.justify-content-between > div.col-md-6.d-none.d-lg-flex.justify-content-center.align-items-center > span{
+  font-size: 70px;
+  color: #c92c3c;
+}
+.dish-by-category {
+  display: flex;
+  justify-content: center;
+}
+#app > div > section.foods > section > div > div > div.col-12.images-dish.d-flex.justify-content-between{
+  height: 25vh;
+}
+.img-dish img{
+position: absolute;
+left: 15%;
+top: 60%;
+}
+.title-dish p{
+margin-top: 20px;
+text-align: center;
+font-weight: bold;
+font-size: 60px;
+color: #c92c3c;
+}
+.custom-row {
+  background: white;
+  padding: 15px;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  margin-top: 150px;
+}
+.product-card {
+  text-align: center;
+  padding: 20px;
+  border-right: 1px solid #ccc;
+
+}
+.product-dish-title{
+  font-weight: bold;
+  color: #c92c3c;
+}
+
+@media (max-width: 1280px) {
+  .custom-row{
+    margin-top: 0px;
+  }
+  .img-dish img{
+    position: static !important;
+    width: 40%;
+}
+body > section > section > div > div > div > div > img{
+  width: 65%;
+}
+body > section > section > div > div > div.col-12.images-dish.d-flex.justify-content-between{
+  height: 25vh;
+}
+#app > div > section.foods > section > div > div > div > div{
+  border-right: none;
+}
+}
+@media (max-width: 900px) {
+  body > section > section > div > div > div > div > img{
+    width: 80%;
+  }
+}
+@media (max-width: 768px) {
+  .img-dish img{
+    position: static !important;
+    width: 90%;
+  
+  }
+  .title-dish p{
+    font-size: 30px;
+  }
+
+  .product-card img{
+    width: 65%;
+  }
+  #app > div > section.foods > section > div > div > div{
+  
+    border-bottom: 1px solid #ddd;
+  }
+}
+/*slide deals*/
+.banner-deals {
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  position: relative;
+  width: 100%;
+  padding: 20px 0;
+  margin-top: 20px;
+}
+.banner-deals img {
+  max-width: 85%;
+  height: auto;
+  display: block;
+}
+.trans-left,
+.trans-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background:#c92c3c; 
+  border: none;
+  padding: 10px 15px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.trans-left {
+  left: 10%;
+}
+
+.trans-right {
+  right: 10%;
+}
+@media (max-width: 1280px) {
+  #app > div > section.banner-deals{
+    margin: 0;
+    padding: 0;
+  }
+}
+/*modal*/
+.custom-modal {
+  background-color:#ffffff ; /* Màu nền giống nồi đất */
+  border-radius: 20px;
+  box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.5);
+  padding: 20px;
+}
+
+/**/
+.modal-body p,
+.modal-body h4,
+.modal-body label {
+  color: #c92c3c;
+}
+
+
+
+
+
 
 
 
