@@ -15,6 +15,7 @@ const client = [
                 component: () => import("../pages/client/cart/index.vue")
             },
             {
+<<<<<<< Updated upstream
                 path: "payment_if",
                 name: "client-payment-information",
                 component: () => import("../pages/client/cart/payment_in4.vue")
@@ -33,6 +34,11 @@ const client = [
                 path: "discount-detail",
                 name: "discount-detail",
                 component: () => import("../pages/client/discount/discountdetail.vue")
+=======
+                path: "food",
+                name: "client-food",
+                component: () => import("../pages/client/food/index.vue")
+>>>>>>> Stashed changes
             },
         ]
     }
