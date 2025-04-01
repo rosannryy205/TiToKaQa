@@ -767,6 +767,21 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
 .modal-body label {
   color: #c92c3c;
 }
+.topping-container {
+  width: 250px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.topping-list {
+  max-height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
 
 
 
