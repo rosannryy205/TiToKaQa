@@ -362,7 +362,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   flex: 2;
   max-width: 100%;
   background: white;
-  padding: 40px;
+  padding: 35px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   border-radius: 25px;
   position: absolute;
@@ -375,7 +375,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   font-size: 24px;
 }
 
-@media (max-width: 1208px) {
+@media (min-width: 1208px) {
   .food-box-left {
     flex-wrap: nowrap;
   }
@@ -400,20 +400,20 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
     font-size: 18px;
   }
 }
-@media (max-width: 780px) {
+@media (max-width: 1208px) {
   .food-box-left {
     flex-wrap: nowrap;
   }
 
   .food-box-left .col-md-4 {
     margin: 10px;
-    max-width: 50%;
+    max-width: 45%;
   }
 
   .food-box-left .col-md-8 {
-    right: 30px;
-    max-width: 80%;
-    padding: 15px;
+    right: 70px;
+    max-width: 70%;
+    padding: 30px;
   }
 
   .food-box-left .food-title {
@@ -424,6 +424,34 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   }
   .food-box-left .food-price {
     font-size: 14px;
+  }
+}
+@media (max-width: 768px) {
+  .food-box-left {
+    flex-wrap: nowrap;
+  }
+
+  .food-box-left .col-md-4 {
+    max-width: 45%;
+  }
+
+  .food-box-left .col-md-8 {
+    left: 70px;
+    max-width: 65%;
+    padding: 10px;
+  }
+
+  .food-box-left .food-title {
+    font-size: 8px;
+    margin-right: 10px;
+  }
+  .food-box-left .food-desc {
+    font-size: 6px;
+    margin-right: 10px;
+  }
+  .food-box-left .food-price {
+    font-size: 8px;
+    margin-right: 10px;
   }
 }
 /*right*/
@@ -451,7 +479,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   flex: 2;
   max-width: 100%;
   background: white;
-  padding: 40px;
+  padding: 35px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   border-radius: 25px;
   position: absolute;
@@ -464,7 +492,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   font-size: 24px;
 }
 
-@media (max-width: 1208px) {
+@media (min-width: 1208px) {
   .food-box-right {
     flex-wrap: nowrap;
   }
@@ -490,19 +518,19 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
     font-size: 18px;
   }
 }
-@media (max-width: 780px) {
+@media (max-width: 1208px) {
   .food-box-right {
     flex-wrap: nowrap;
   }
 
   .food-box-right .col-md-4 {
-    max-width: 50%;
+    max-width: 45%;
   }
 
   .food-box-right .col-md-8 {
-    left: 30px;
-    max-width: 80%;
-    padding: 15px;
+    left: 70px;
+    max-width: 70%;
+    padding: 30px;
   }
 
   .food-box-right .food-title {
@@ -513,6 +541,34 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   }
   .food-box-right .food-price {
     font-size: 14px;
+  }
+}
+@media (max-width: 768px) {
+  .food-box-right {
+    flex-wrap: nowrap;
+  }
+
+  .food-box-right .col-md-4 {
+    max-width: 45%;
+  }
+
+  .food-box-right .col-md-8 {
+    left: 70px;
+    max-width: 65%;
+    padding: 10px;
+  }
+
+  .food-box-right .food-title {
+    font-size: 8px;
+    margin-left: 10px;
+  }
+  .food-box-right .food-desc {
+    font-size: 6px;
+    margin-left: 10px;
+  }
+  .food-box-right .food-price {
+    font-size: 8px;
+    margin-left: 10px;
   }
 }
 #app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center.text-center{
