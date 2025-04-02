@@ -35,7 +35,7 @@
       <nav class="navbar navbar-expand-lg navbar-bottom">
         <div class="collapse navbar-collapse justify-content-center d-none d-lg-flex">
           <ul class="navbar-nav fs-5">
-            <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+            <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
             <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
             <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
@@ -224,6 +224,10 @@
         </div>
         <div class="modal-body">
           <form>
+            <div class="mb-3 d-flex justify-content-center gap-3 small">
+              <p class="text-black">Mã xác nhận đã được gửi về email. Vui lòng kiểm tra email.</p>
+            </div>
+
             <div class="d-flex justify-content-center gap-2 mb-3 position-relative">
               <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
                 style="width: 50px; height: 50px;">
@@ -278,4 +282,11 @@
   </div>
 
   <router-view></router-view>
+
 </template>
+
+<script setup>
+import { useCountdown } from "../assets/countDown";
+
+const { formattedTime, isCounting, startCountdown } = useCountdown(60);
+</script>
