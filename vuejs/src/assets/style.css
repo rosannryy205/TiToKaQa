@@ -96,7 +96,7 @@ body > section > div.header > div > nav {
 }
 /*icon menu small*/
 #offcanvasMenu > div.offcanvas-body > ul > div {
-  display: grid;
+  /* display: grid; */
   gap: 10px;
   justify-content: space-between;
   padding: 20px;
@@ -629,9 +629,6 @@ body > section > footer > div > div:nth-child(1) > div.col-md-2.mb-4{
   z-index: -1;
 }
 /**/
-body > section > section > div > div > div.col-12.images-dish.d-flex.justify-content-between{
-  height: 40vh;
-}
 #app > div > section.foods > div.main-page-foods.container > div.row.d-flex.align-items-center.justify-content-between > div.col-md-6.d-none.d-lg-flex.justify-content-center.align-items-center > span{
   font-size: 70px;
   color: #c92c3c;
@@ -641,26 +638,28 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
   justify-content: center;
 }
 #app > div > section.foods > section > div > div > div.col-12.images-dish.d-flex.justify-content-between{
-  height: 25vh;
+  height: 300px;
+  margin-bottom: 20px;
 }
 .img-dish img{
+width: 20%;
 position: absolute;
-left: 15%;
-top: 60%;
+left: 10%;
 }
 .title-dish p{
 margin-top: 20px;
 text-align: center;
 font-weight: bold;
-font-size: 60px;
+font-size: 75px;
 color: #c92c3c;
 }
 .custom-row {
+  position: relative;
   background: white;
   padding: 15px;
   border-radius: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 90%;
+  width: 100%;
   margin-top: 150px;
 }
 .product-card {
@@ -673,7 +672,6 @@ color: #c92c3c;
   font-weight: bold;
   color: #c92c3c;
 }
-
 @media (max-width: 1280px) {
   .custom-row{
     margin-top: 0px;
@@ -703,14 +701,16 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
     width: 90%;
   }
   .title-dish p{
-    font-size: 30px;
+    font-size: 35px;
   }
-
   .product-card img{
     width: 65%;
   }
   #app > div > section.foods > section > div > div > div{
     border-bottom: 1px solid #ddd;
+  }
+  #app > div > section.foods > section > div > div > div.col-12.images-dish.d-flex.justify-content-between{
+    height: 200px;
   }
 }
 /*slide deals*/
@@ -724,7 +724,7 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
   margin-top: 20px;
 }
 .banner-deals img {
-  max-width: 85%;
+  max-width: 100%;
   height: auto;
   display: block;
 }
@@ -739,11 +739,9 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
   border-radius: 50%;
   cursor: pointer;
 }
-
 .trans-left {
   left: 10%;
 }
-
 .trans-right {
   right: 10%;
 }
@@ -755,12 +753,39 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
 }
 /*modal*/
 .custom-modal {
-  background-color:#ffffff ; /* Màu nền giống nồi đất */
-  border-radius: 20px;
+  background-color:#ffffff ; 
+  border-radius: 0px;
   box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.5);
   padding: 20px;
+  position: relative;
 }
-
+.custom-modal .form-control:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: #ddd; 
+}
+.custom-modal select:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: #ddd;
+  background-color: #f5f5f5;
+}
+.custom-modal select{
+  border-radius: 0px;
+  background-color: white;
+}
+.modal-header{
+  margin: 0px;
+  padding: 5px;
+}
+body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > button.btn.btn-custom.mb-2{
+  padding: 10;
+  border-radius: 0;
+}
+body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > button.btn.btn-danger.w-100{
+  padding: 10px;
+  border-radius: 0;
+}
 /**/
 .modal-body p,
 .modal-body h4,
@@ -773,7 +798,6 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
 .topping-list {
   max-height: 150px;
   overflow-y: auto;
@@ -802,21 +826,15 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
   padding-bottom: 40px;
 }
 .booking-form {
-  /* background-color: white; */
   padding: 30px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.3);
-
 }
-
-/* .booking-form:hover{
-  transform: translateY(-2px);
-  box-shadow: 0px 0px 30px 10px rgba(0, 0, 0, 0.5);
-
-} */
-
+.booking-form input{
+  border-radius: 0px;
+}
 .booking-image img {
   width: 100%;
   max-width: 400px;
@@ -843,37 +861,21 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
   background-color: #bb2d3b;
   color: white;
 }
-
 .price {
   margin: 0 20px;
 }
-
-
 .row-select{
   border-bottom: 0.02px rgb(127, 127, 127) solid;
   margin-top: 10px;
   padding-bottom: 10px;
 }
-/* Ẩn mũi tên mặc định */
 .form-select {
-  /* background-color: #C92C3C !important;
-  color:white !important;;
-  box-shadow: none !important; */
-  /* appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none; */
   color: black;
   padding: 10px;
   font-size: 16px;
   width: 100%;
   cursor: pointer;
   padding-right: 30px;
-  /* position: relative;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='white'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 15px; */
-
 }
 
 .form-select>option{
@@ -881,15 +883,7 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
   overflow: hidden;
   max-width: 100% !important;
   color: black;
-  /* background-color: #C92C3C   !important; */
 }
-/*
-.form-select:focus {
-  background-color: #c7192a !important;
-  color: white !important;
-} */
-
-
 .form-section input{
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
   padding:10px ;
@@ -898,19 +892,8 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
 .form-section input:focus {
   outline: none;
   box-shadow: none;
-  border: 1px solid #ccc; /* Thêm viền nhẹ để tránh bị mất form */
+  border: 1px solid #ccc; 
 }
-
-/* Giảm độ trong suốt của modal chính khi mở popup phụ */
-
-
-/* end reservation page  */
-
-
-
-/* discount page  */
-
-
 .container-tong{
   display: flex;
 }
@@ -922,7 +905,6 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
 .offer-container {
   max-width: 1200px;
   margin: auto;
-  /* background: white; */
   padding: 20px;
   border-radius: 10px;
   z-index: 100;
@@ -971,14 +953,10 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
   text-decoration: underline;
   text-decoration-color:black;
 }
-
-
 .offer-item:first-child {
   display: flex;
   flex-direction: row-reverse;
 }
-
-
 /* Responsive */
 @media (max-width: 768px) {
 
@@ -1011,11 +989,6 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
       text-align: start;
       margin-left: 20px;
   }
-  /* .container-tong>img{
-      width: 20px;
-  } */
-
-
   .offer-item:first-child {
           flex-direction: column;
       }

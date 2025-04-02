@@ -57,7 +57,7 @@
       </div>
       <!---->
       <div class="background-banner"></div>
-      <section class="all-dish-by-category">
+      <section class="all-dish-by-category container">
         <div class="dish-by-category">
           <div class="row custom-row">
             <div class="col-12 images-dish d-flex justify-content-between">
@@ -193,7 +193,7 @@
       </section>
     </section>
 
-    <section class="banner-deals">
+    <section class="banner-deals container">
       <div class="banner-deals container-fluid">
         <img src="../../../../public/img/Banner (3).webp" alt="" class="img-fluid" style="border-radius: 25px" />
         <button class="trans-left d-none d-lg-block">
