@@ -57,6 +57,11 @@
   border-radius: 50%;
 }
 
+input.form-control:focus {
+  border-color: #b71c1c;
+  box-shadow: none !important;
+  outline: none;
+}
 .btn-social:hover {
   background-color: #f1f1f1;
   transform: scale(1.1);
@@ -81,7 +86,7 @@ input.form-control-cart {
 
 input.form-control-cart:focus {
   border-color: #b71c1c;
-  box-shadow: 0 0 0 0.15rem rgba(183, 28, 28, 0.25);
+  /* box-shadow: 0 0 0 0.15rem rgba(183, 28, 28, 0.25); */
   outline: none;
 }
 
@@ -116,7 +121,10 @@ input.form-control-cart:focus {
   margin-top: 20px;
 }
 .col-in4-payment{
-  background-color: #e3dfdf;
+  background-color: #f5f3f3;
+  padding-bottom: 20px ;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 .col-in4-customer {
   display: flex;
@@ -248,7 +256,7 @@ input.form-control-cart:focus {
 }
 
 .list-product {
-  background-color: white;
+  background-color: transparent;
   max-height: 120px;
   /* hoặc bạn có thể chọn chiều cao phù hợp như 400px, 500px */
   overflow-y: auto;

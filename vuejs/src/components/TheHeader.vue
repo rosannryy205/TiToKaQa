@@ -102,12 +102,13 @@
             <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
           </div>
 
-          <div class="mb-3 d-flex justify-content-end gap-3 small">
-            <a href="#" class="text-decoration-none">Quên mật khẩu</a>
-            <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal"
-              class="text-decoration-none">Đăng ký</a>
-          </div>
+            <div class="mb-3 d-flex justify-content-end gap-3 small">
+              <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal"
+                class="text-decoration-none">Quên mật khẩu</a>
 
+              <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal"
+                class="text-decoration-none">Đăng ký</a>
+            </div>
           <div class="mb-3">
             <button type="button" class="btn btn-login w-100">Đăng nhập</button>
           </div>
@@ -169,7 +170,7 @@
               </div>
             </div>
             <div class="mb-3">
-              <button type="button" class="btn btn-login form-control">Đăng ký</button>
+              <button type="button" class="btn btn-login form-control fw-semibold">Đăng ký</button>
             </div>
             <div class="divider d-flex align-items-center mb-3">
               <hr class="flex-grow-1">
@@ -181,6 +182,96 @@
               <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-google"></i></button>
               <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-facebook"></i></button>
               <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-twitter-x"></i></button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg rounded-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="forgotPasswordModalLabel">Quên mật khẩu</h5>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3 position-relative">
+              <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="text" class="form-control ps-5" id="email" placeholder="Nhập Email">
+            </div>
+
+            <div class="mb-3">
+              <button type="button" class="btn btn-login form-control fw-semibold" data-bs-dismiss="modal"
+                data-bs-toggle="modal" data-bs-target="#authenticationModal">
+                Gửi
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="authenticationModal" tabindex="-1" aria-labelledby="authenticationModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg rounded-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="authenticationModalLabel">Nhập mã xác nhận</h5>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="d-flex justify-content-center gap-2 mb-3 position-relative">
+              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
+                style="width: 50px; height: 50px;">
+              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
+                style="width: 50px; height: 50px;">
+              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
+                style="width: 50px; height: 50px;">
+              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
+                style="width: 50px; height: 50px;">
+              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
+                style="width: 50px; height: 50px;">
+              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
+                style="width: 50px; height: 50px;">
+            </div>
+
+            <div class="mb-3">
+              <button type="button" class="btn btn-login form-control fw-semibold" data-bs-dismiss="modal"
+                data-bs-toggle="modal" data-bs-target="#resetModal">
+                Xác nhận
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg rounded-4">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="resetModalLabel">Đặt lại mật khẩu</h5>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3 position-relative">
+              <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="password" class="form-control ps-5" id="password" placeholder="Mật khẩu">
+            </div>
+
+            <div class="mb-3 position-relative">
+              <i class="bi bi-lock-fill position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="password" class="form-control ps-5" id="password_confirm" placeholder="Nhập lại mật khẩu">
+            </div>
+            <div class="mb-3">
+              <button type="button" class="btn btn-login form-control fw-semibold">Xác nhận</button>
             </div>
           </form>
         </div>
