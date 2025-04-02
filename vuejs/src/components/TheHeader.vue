@@ -81,22 +81,26 @@
 
   <!-- Modal đăng nhập -->
   <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content shadow-lg rounded-4">
-        <div class="modal-header border-0">
-          <h5 class="modal-title w-100 text-center fw-bold" id="loginModalLabel">Đăng nhập</h5>
-        </div>
-        <div class="modal-body px-4 py-3">
-          <form>
-            <div class="mb-3 position-relative">
-              <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="text" class="form-control ps-5" id="email" placeholder="Tên đăng nhập">
-            </div>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content custom-modal">
+      <div class="modal-header border-0">
+        <h5 class="modal-title w-100 text-center fw-bold" id="loginModalLabel">Đăng nhập</h5>
+      </div>
+      <div class="modal-body px-4 py-3">
+        <form>
+          <div class="mb-3 position-relative input-group">
+            <span class="input-icon">
+              <i class="bi bi-person"></i>
+            </span>
+            <input type="text" class="form-control" id="email" placeholder="Tên đăng nhập">
+          </div>
 
-            <div class="mb-3 position-relative">
-              <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="password" class="form-control ps-5" id="password" placeholder="Nhập mật khẩu">
-            </div>
+          <div class="mb-3 position-relative input-group">
+            <span class="input-icon">
+              <i class="bi bi-lock"></i>
+            </span>
+            <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
+          </div>
 
             <div class="mb-3 d-flex justify-content-end gap-3 small">
               <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal"
@@ -105,31 +109,30 @@
               <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal"
                 class="text-decoration-none">Đăng ký</a>
             </div>
+          <div class="mb-3">
+            <button type="button" class="btn btn-login w-100">Đăng nhập</button>
+          </div>
 
-            <div class="mb-3">
-              <button type="button" class="btn btn-login form-control fw-semibold">Đăng nhập</button>
-            </div>
+          <div class="divider d-flex align-items-center mb-3">
+            <hr class="flex-grow-1">
+            <span class="px-2 text-muted small">hoặc đăng nhập</span>
+            <hr class="flex-grow-1">
+          </div>
 
-            <div class="divider d-flex align-items-center mb-3">
-              <hr class="flex-grow-1">
-              <span class="px-2 text-muted small">hoặc đăng nhập</span>
-              <hr class="flex-grow-1">
-            </div>
-
-            <div class="d-flex justify-content-center gap-3">
-              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-google"></i></button>
-              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-facebook"></i></button>
-              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-twitter-x"></i></button>
-            </div>
-          </form>
-        </div>
+          <div class="d-flex justify-content-center gap-3">
+            <button type="button" class="btn btn-social"><i class="bi bi-google"></i></button>
+            <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
+            <button type="button" class="btn btn-social"><i class="bi bi-twitter-x"></i></button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
+</div>
 
   <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content shadow-lg rounded-4">
+      <div class="modal-content custom-modal">
         <div class="modal-header border-0">
           <h5 class="modal-title" id="registerModalLabel">Đăng ký</h5>
         </div>

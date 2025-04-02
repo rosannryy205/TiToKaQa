@@ -1,8 +1,7 @@
 <template>
-
   <body>
-    <div class="container custom-container  ">
-      <div class="booking-form row w-75">
+    <div class="container custom-container">
+      <div class="booking-form row w-75" style="border-radius: 0px;">
         <div class="col-md-6 booking-image">
           <img class="img-reservation" src="/img/reservation/Rectangle 48.png" alt="Khuyến mãi Tết">
         </div>
@@ -22,21 +21,18 @@
           <input type="text" class="form-control  mb-2" placeholder="Khu vực">
           <input type="text" class="form-control  mb-2" placeholder="Ghi chú">
           <button class="btn btn-custom mb-2" data-bs-toggle="modal" data-bs-target="#orderModal">
-            Đặt món <span>+</span>
+            Đặt món <span>✚</span>
           </button>
           <button class="btn btn-danger w-100">Xác nhận</button>
         </div>
       </div>
     </div>
-
     <!-- Bootstrap Modal -->
     <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content custom-modal">
           <div class="modal-header">
-            <h5 class="modal-title" id="orderModalLabel">Đặt
-              món</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title" id="orderModalLabel">Đặt món</h5>
           </div>
           <div class="modal-body">
             <!-- Bộ lọc -->
@@ -66,7 +62,7 @@
                   <div class="col-6 text-start">
                     <h5 class="mb-1">Mì Kim Chi Đặc
                       Biệt</h5>
-                    <span class="badge bg-danger">Bò
+                    <span class="badge bg-danger m-1">Bò
                       thường</span>
                     <span class="badge bg-dark">Bò Mỹ</span>
                     <p class="mb-1 mt-3">Mì Chinnnoo, bò Mỹ, tôm,
@@ -103,7 +99,7 @@
                   <div class="col-6 text-start">
                     <h5 class="mb-1">Mì Kim Chi Đặc
                       Biệt</h5>
-                    <span class="badge bg-danger">Bò
+                    <span class="badge bg-danger m-1">Bò
                       thường</span>
                     <span class="badge bg-dark">Bò Mỹ</span>
                     <p class="mb-1 mt-3">Mì Chinnnoo, bò Mỹ, tôm,
@@ -140,7 +136,7 @@
                   <div class="col-6 text-start">
                     <h5 class="mb-1">Mì Kim Chi Đặc
                       Biệt</h5>
-                    <span class="badge bg-danger">Bò
+                    <span class="badge bg-danger m-1">Bò
                       thường</span>
                     <span class="badge bg-dark">Bò Mỹ</span>
                     <p class="mb-1 mt-3">Mì Chinnnoo, bò Mỹ, tôm,
