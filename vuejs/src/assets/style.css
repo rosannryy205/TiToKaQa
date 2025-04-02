@@ -16,6 +16,12 @@ body {
 }
 
 /*Header*/
+#app > div > div.header > div.container > div > nav > div > button{
+  padding: 5px;
+}
+#app > div > div.header > div.container > div > nav > div > button > span{
+  font-size: 1rem;
+}
 .navbar-top {
   display: flex;
   justify-content: space-between;
