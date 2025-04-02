@@ -81,26 +81,26 @@
 
   <!-- Modal đăng nhập -->
   <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content custom-modal">
-      <div class="modal-header border-0">
-        <h5 class="modal-title w-100 text-center fw-bold" id="loginModalLabel">Đăng nhập</h5>
-      </div>
-      <div class="modal-body px-4 py-3">
-        <form>
-          <div class="mb-3 position-relative input-group">
-            <span class="input-icon">
-              <i class="bi bi-person"></i>
-            </span>
-            <input type="text" class="form-control" id="email" placeholder="Tên đăng nhập">
-          </div>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content custom-modal">
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100 text-center fw-bold" id="loginModalLabel">Đăng nhập</h5>
+        </div>
+        <div class="modal-body px-4 py-3">
+          <form>
+            <div class="mb-3 position-relative input-group">
+              <span class="input-icon">
+                <i class="bi bi-person"></i>
+              </span>
+              <input type="text" class="form-control" id="email" placeholder="Tên đăng nhập">
+            </div>
 
-          <div class="mb-3 position-relative input-group">
-            <span class="input-icon">
-              <i class="bi bi-lock"></i>
-            </span>
-            <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
-          </div>
+            <div class="mb-3 position-relative input-group">
+              <span class="input-icon">
+                <i class="bi bi-lock"></i>
+              </span>
+              <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
+            </div>
 
             <div class="mb-3 d-flex justify-content-end gap-3 small">
               <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal"
@@ -109,26 +109,26 @@
               <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal"
                 class="text-decoration-none">Đăng ký</a>
             </div>
-          <div class="mb-3">
-            <button type="button" class="btn btn-login w-100">Đăng nhập</button>
-          </div>
+            <div class="mb-3">
+              <button type="button" class="btn btn-login w-100">Đăng nhập</button>
+            </div>
 
-          <div class="divider d-flex align-items-center mb-3">
-            <hr class="flex-grow-1">
-            <span class="px-2 text-muted small">hoặc đăng nhập</span>
-            <hr class="flex-grow-1">
-          </div>
+            <div class="divider d-flex align-items-center mb-3">
+              <hr class="flex-grow-1">
+              <span class="px-2 text-muted small">hoặc đăng nhập</span>
+              <hr class="flex-grow-1">
+            </div>
 
-          <div class="d-flex justify-content-center gap-3">
-            <button type="button" class="btn btn-social"><i class="bi bi-google"></i></button>
-            <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
-            <button type="button" class="btn btn-social"><i class="bi bi-twitter-x"></i></button>
-          </div>
-        </form>
+            <div class="d-flex justify-content-center gap-3">
+              <button type="button" class="btn btn-social"><i class="bi bi-google"></i></button>
+              <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
+              <button type="button" class="btn btn-social"><i class="bi bi-twitter-x"></i></button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
   <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -242,6 +242,14 @@
               <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
                 style="width: 50px; height: 50px;">
             </div>
+            <div class="mb-3 d-flex justify-content-center gap-3 small">
+              <a href="#" class="text-decoration-none" :class="{ 'disabled': isCounting }" @click="startCountdown">
+                Gửi lại
+              </a>
+            </div>
+            <div class="mb-3 d-flex justify-content-center gap-3 small">
+              <p class="text-black">{{ formattedTime }}</p>
+            </div>
             <div class="mb-3">
               <button type="button" class="btn btn-login form-control fw-semibold" data-bs-dismiss="modal"
                 data-bs-toggle="modal" data-bs-target="#resetModal">
@@ -286,7 +294,7 @@
 </template>
 
 <script setup>
-import { useCountdown } from "../assets/countDown";
+import { useCountdown } from "../stores/countDown";
 
 const { formattedTime, isCounting, startCountdown } = useCountdown(60);
 </script>
