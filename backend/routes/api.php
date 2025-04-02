@@ -11,5 +11,7 @@ use Illuminate\Support\Facades\Route;
 // });
 
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\HomeController;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
+Route::get('/home', [HomeController::class, 'index']);

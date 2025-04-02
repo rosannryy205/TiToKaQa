@@ -192,7 +192,7 @@
   <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content shadow-lg rounded-4">
+      <div class="modal-content custom-modal">
         <div class="modal-header border-0">
           <h5 class="modal-title" id="forgotPasswordModalLabel">Quên mật khẩu</h5>
         </div>
@@ -215,11 +215,10 @@
       </div>
     </div>
   </div>
-
   <div class="modal fade" id="authenticationModal" tabindex="-1" aria-labelledby="authenticationModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content shadow-lg rounded-4">
+      <div class="modal-content custom-modal">
         <div class="modal-header border-0">
           <h5 class="modal-title" id="authenticationModalLabel">Nhập mã xác nhận</h5>
         </div>
@@ -239,7 +238,6 @@
               <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
                 style="width: 50px; height: 50px;">
             </div>
-
             <div class="mb-3">
               <button type="button" class="btn btn-login form-control fw-semibold" data-bs-dismiss="modal"
                 data-bs-toggle="modal" data-bs-target="#resetModal">

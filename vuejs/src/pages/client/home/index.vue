@@ -97,7 +97,7 @@
               <div class="title-food-menu text-start m-3">
                 <span class="title-food-menu fw-bold">Mỳ Cay</span>
               </div>
-              <section class="foods-homepages">
+              <section v-for="(food, index) in foods" :key="index" class="foods-homepages" >
                 <div
                   class="food-box-left row align-items-center"
                   data-bs-toggle="modal"
@@ -111,9 +111,9 @@
                     />
                   </div>
                   <div class="col-md-8 food-content bg-white text-end">
-                    <h2 class="food-title fw-bold">Mì Kim Chi Thập Cẩm</h2>
-                    <p class="food-price fw-bold">69,000 VNĐ</p>
-                    <p class="food-desc">Mì Chinnoo, bò Mỹ, tôm, mực, chả cá Hàn Quốc...</p>
+                    <h2 class="food-title fw-bold">{{ food.name }}</h2>
+                    <p class="food-price fw-bold">{{ food.price }}</p>
+                    <p class="food-desc">{{ food.description.slice(0, 60) }}{{ food.description.length > 50 ? '...' : '' }}</p>
                   </div>
                 </div>
                 <div
@@ -122,37 +122,9 @@
                   data-bs-target="#productModal"
                 >
                   <div class="col-md-8 food-content bg-white text-start">
-                    <h2 class="food-title fw-bold">Mì Kim Chi Thập Cẩm</h2>
-                    <p class="food-price fw-bold">69,000 VNĐ</p>
-                    <p class="food-desc">Mì Chinnoo, bò Mỹ, tôm, mực, chả cá Hàn Quốc...</p>
-                  </div>
-                  <div class="col-md-4 food-image">
-                    <img
-                      src="../../../../public/img/food.jpg"
-                      alt="Mì Kim Chi Thập Cẩm"
-                      class="img-fluid"
-                    />
-                  </div>
-                </div>
-                <div class="food-box-left row align-items-center">
-                  <div class="col-md-4 food-image">
-                    <img
-                      src="../../../../public/img/food.jpg"
-                      alt="Mì Kim Chi Thập Cẩm"
-                      class="img-fluid"
-                    />
-                  </div>
-                  <div class="col-md-8 food-content bg-white text-end">
-                    <h2 class="food-title fw-bold">Mì Kim Chi Thập Cẩm</h2>
-                    <p class="food-price fw-bold">69,000 VNĐ</p>
-                    <p class="food-desc">Mì Chinnoo, bò Mỹ, tôm, mực, chả cá Hàn Quốc...</p>
-                  </div>
-                </div>
-                <div class="food-box-right row align-items-center">
-                  <div class="col-md-8 food-content bg-white text-start">
-                    <h2 class="food-title fw-bold">Mì Kim Chi Thập Cẩm</h2>
-                    <p class="food-price fw-bold">69,000 VNĐ</p>
-                    <p class="food-desc">Mì Chinnoo, bò Mỹ, tôm, mực, chả cá Hàn Quốc...</p>
+                    <h2 class="food-title fw-bold">{{ food.name }}</h2>
+                    <p class="food-price fw-bold">{{ food.price }}</p>
+                    <p class="food-desc">{{ food.description.slice(0, 60) }}{{ food.description.length > 50 ? '...' : '' }}</p>
                   </div>
                   <div class="col-md-4 food-image">
                     <img
@@ -261,4 +233,32 @@
     </div>
   </div>
 </template>
+<script>
+import axios from 'axios';
+import { ref, onMounted } from "vue";
+
+export default {
+  name: "FoodList",
+  setup() {
+    const foods = ref([]);
+
+    const getFood = async () => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/home`);
+        foods.value = res.data;
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    onMounted(() => {
+      getFood();
+    });
+
+    return {
+      foods,
+    };
+  },
+};
+</script>
 
