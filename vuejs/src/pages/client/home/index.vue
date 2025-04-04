@@ -99,36 +99,40 @@
               </div>
               <section v-for="(food, index) in foods" :key="index" class="foods-homepages" >
                 <div
+                 v-if="index % 2 !== 0"
                   class="food-box-left row align-items-center"
                   data-bs-toggle="modal"
                   data-bs-target="#productModal"
                 >
                   <div class="col-md-4 food-image">
                     <img
-                      src="../../../../public/img/food.jpg"
+                   :src="getImageUrl(food.image)"
                       alt="Mì Kim Chi Thập Cẩm"
                       class="img-fluid"
                     />
                   </div>
                   <div class="col-md-8 food-content bg-white text-end">
                     <h2 class="food-title fw-bold">{{ food.name }}</h2>
-                    <p class="food-price fw-bold">{{ food.price }}</p>
+                    <p class="food-price fw-bold">{{formatNumber(food.price) }} VNĐ</p>
                     <p class="food-desc">{{ food.description.slice(0, 60) }}{{ food.description.length > 50 ? '...' : '' }}</p>
                   </div>
                 </div>
-                <div
+                <div v-else
                   class="food-box-right row align-items-center"
                   data-bs-toggle="modal"
                   data-bs-target="#productModal"
                 >
                   <div class="col-md-8 food-content bg-white text-start">
                     <h2 class="food-title fw-bold">{{ food.name }}</h2>
-                    <p class="food-price fw-bold">{{ food.price }}</p>
-                    <p class="food-desc">{{ food.description.slice(0, 60) }}{{ food.description.length > 50 ? '...' : '' }}</p>
+                    <p class="food-price fw-bold">{{formatNumber(food.price) }} VNĐ</p>
+                    <p class="food-desc">
+                    <span class="d-none d-sm-inline">{{ food.description.slice(0, 60) }}{{ food.description.length > 50 ? '...' : '' }}</span>
+                    <span class="d-inline d-sm-none">{{ food.description.slice(0, 30) }}{{ food.description.length > 50 ? '...' : '' }}</span>
+                    </p>
                   </div>
                   <div class="col-md-4 food-image">
                     <img
-                      src="../../../../public/img/food.jpg"
+                    :src="getImageUrl(food.image)"
                       alt="Mì Kim Chi Thập Cẩm"
                       class="img-fluid"
                     />
@@ -207,7 +211,7 @@
               <div class="mb-3">
                 <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                 <select class="form-select" id="spicyLevel">
-                  <option value="1">Cấp độ 1 - Nhẹ</option>
+                  <option type="checkbox" value="1">Cấp độ 1 - Nhẹ</option>
                   <option value="2">Cấp độ 2 - Trung bình</option>
                   <option value="3">Cấp độ 3 - Cay</option>
                   <option value="4">Cấp độ 4 - Siêu Cay</option>
@@ -236,8 +240,17 @@
 <script>
 import axios from 'axios';
 import { ref, onMounted } from "vue";
+import numeral from "numeral";
 
 export default {
+  methods: {
+    formatNumber(value) {
+      return numeral(value).format("0,0.00");;
+    },
+    getImageUrl(image) {
+      return `/img/food/${image}`;
+    },
+  },
   name: "FoodList",
   setup() {
     const foods = ref([]);
