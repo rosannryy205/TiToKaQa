@@ -342,6 +342,13 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 .title-food-menu {
   font-size: 50px;
   color: #c92c3c;
+  text-shadow: 2px 2px 5px rgba(177, 177, 177, 0.5);
+}
+/*col9 food*/
+#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center.text-center{
+  margin: 0;
+  padding: 0;
+  gap: 0;
 }
 /*left*/
 .food-box-left {
@@ -351,6 +358,8 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   text-align: left;
   flex-wrap: nowrap;
   position: relative;
+  margin: 0;
+  padding: 0;
 }
 
 .food-box-left .col-md-4 {
@@ -368,7 +377,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   flex: 2;
   max-width: 100%;
   background: white;
-  padding: 35px;
+  padding: 40px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   border-radius: 25px;
   position: absolute;
@@ -393,7 +402,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   .food-box-left .col-md-8 {
     right: 100px;
     max-width: 100%;
-    padding: 40px;
+    padding: 45px;
   }
 
   .food-box-left .food-title {
@@ -468,6 +477,8 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   text-align: right;
   flex-wrap: nowrap;
   position: relative;
+  margin: 0;
+  padding: 0;
 }
 
 .food-box-right .col-md-4 {
@@ -485,7 +496,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   flex: 2;
   max-width: 100%;
   background: white;
-  padding: 35px;
+  padding: 40px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   border-radius: 25px;
   position: absolute;
@@ -511,7 +522,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   .food-box-right .col-md-8 {
     left: 100px;
     max-width: 100%;
-    padding: 40px;
+    padding: 45px;
   }
 
   .food-box-right .food-title {
@@ -577,6 +588,13 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
     margin-left: 10px;
   }
 }
+.title-food-menu {
+  position: sticky;
+  top: 0; 
+  z-index: 1000;
+  padding: 10px;
+}
+
 #app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center.text-center{
   max-height: 500px;
   overflow-y: auto;

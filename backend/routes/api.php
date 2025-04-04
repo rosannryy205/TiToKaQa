@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -11,7 +12,14 @@ use Illuminate\Support\Facades\Route;
 // });
 
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
+use App\Models\Category;
+use App\Models\Food;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
-Route::get('/home', [HomeController::class, 'index']);
+Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
+Route::get('/home/food/{id}', [FoodController::class, 'getFoodById']);
+//categories
+Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
+Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']);

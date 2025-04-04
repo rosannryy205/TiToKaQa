@@ -55,18 +55,10 @@
             <!--Menu -->
             <div class="col-md-3 d-none d-lg-block">
               <span class="title-menu fw-bold">THỰC ĐƠN</span>
-              <ul class="menu-list m-5">
+              <ul v-for="(category, index) in categories" :key="index" class="menu-list m-5">
                 <li>
-                  <input type="radio" id="mi-cay" name="menu" checked />
-                  <label for="mi-cay"><i class="fa-solid fa-o"></i> Mì Cay</label>
-                </li>
-                <li>
-                  <input type="radio" id="mi-tuong-den" name="menu" />
-                  <label for="mi-tuong-den"><i class="fa-solid fa-o"></i> Mì Tương Đen</label>
-                </li>
-                <li>
-                  <input type="radio" id="no-ne" name="menu" />
-                  <label for="no-ne"><i class="fa-solid fa-o"></i> No Nê</label>
+                  <input type="radio" id="{{ category.id }}" name="menu" checked />
+                  <label for="{{ category.name }}"><i class="fa-solid fa-o"></i> {{ category.name }} </label>
                 </li>
               </ul>
             </div>
@@ -101,8 +93,7 @@
                 <div
                  v-if="index % 2 !== 0"
                   class="food-box-left row align-items-center"
-                  data-bs-toggle="modal"
-                  data-bs-target="#productModal"
+                   @click="openModal(food.id)"
                 >
                   <div class="col-md-4 food-image">
                     <img
@@ -119,8 +110,7 @@
                 </div>
                 <div v-else
                   class="food-box-right row align-items-center"
-                  data-bs-toggle="modal"
-                  data-bs-target="#productModal"
+                  @click="openModal(food.id)"
                 >
                   <div class="col-md-8 food-content bg-white text-start">
                     <h2 class="food-title fw-bold">{{ food.name }}</h2>
@@ -195,18 +185,19 @@
         <div class="modal-body">
           <div class="row">
             <div class="col-md-5 d-flex justify-content-center align-items-center">
-              <img src="../../../../public/img/food.jpg" alt="Mì Cay Lẩu" width="100%" />
+              <img
+              :src="getImageUrl(foodDetail.image)"
+              :alt="foodDetail.name" width="100%" />
             </div>
             <div class="col-md-7 d-flex flex-column justify-content-center">
-              <h4 class="fw-bold">🔥 Mì Cay Lẩu Hải Sản 🔥</h4>
+              <h4 class="fw-bold">🔥{{ foodDetail.name }}🔥</h4>
               <p class="fw-bold text-dark">
-                <i class="fa-solid fa-star" style="color: #ffd43b"></i> 4.8/5 | 125 đánh giá
+                <i class="fa-solid fa-star" style="color: #ffd43b"></i> NULL
               </p>
-              <p class="text-danger fw-bold fs-4">79.000đ</p>
+              <p class="text-danger fw-bold fs-4">{{ formatNumber(foodDetail.price) }} VNĐ</p>
 
               <p class="text-secondary">
-                Thưởng thức vị cay nồng với sự kết hợp hoàn hảo của
-                <strong>tôm, mực, ngao</strong> và nước lẩu đậm đà!
+                {{ foodDetail.description }}
               </p>
               <div class="mb-3">
                 <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
@@ -241,6 +232,7 @@
 import axios from 'axios';
 import { ref, onMounted } from "vue";
 import numeral from "numeral";
+import { Modal } from 'bootstrap';
 
 export default {
   methods: {
@@ -254,22 +246,51 @@ export default {
   name: "FoodList",
   setup() {
     const foods = ref([]);
+    const categories = ref([]);
+    const foodDetail = ref({});
 
     const getFood = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home`);
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`);
         foods.value = res.data;
       } catch (error) {
         console.error(error);
       }
     };
+    const openModal = async (foodId) => {
+   try {
+     const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${foodId}`);
+     foodDetail.value = res.data;
+     console.log(foodDetail);
 
+     const modalElement = document.getElementById('productModal');
+     if (modalElement) {
+       const modal = new Modal(modalElement);
+       modal.show();
+     }
+
+   } catch (error) {
+     console.error(error);
+   }
+ };
+ const getCategory =  async () => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`);
+        categories.value = res.data;
+      } catch (error) {
+        console.error(error);
+      }
+    };
     onMounted(() => {
       getFood();
+      getCategory();
     });
 
     return {
       foods,
+      categories,
+      foodDetail,
+      openModal,
     };
   },
 };
