@@ -531,5 +531,28 @@ input.form-control-cart:focus {
   }
 }
 
+.section-title {
+  background-color: #d32f2f;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.card-payment {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: white;
+}
+.btn-danger {
+  width: 100%;
+}
+table th, table td {
+  vertical-align: middle;
+  text-align: center;
+}
+
 
 
