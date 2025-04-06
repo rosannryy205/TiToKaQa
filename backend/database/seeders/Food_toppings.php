@@ -19,7 +19,6 @@ class Food_toppings extends Seeder
                 'food_id' => 1,
                 'price' => null,
                 'description' => null
-
             ],
             [
                 'topping_id' => 13,

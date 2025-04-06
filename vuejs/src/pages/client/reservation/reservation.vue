@@ -1,203 +1,183 @@
 <template>
-  <body>
-    <div class="container custom-container">
-      <div class="booking-form row w-75" style="border-radius: 0px;">
-        <div class="col-md-6 booking-image">
-          <img class="img-reservation" src="/img/reservation/Rectangle 48.png" alt="Khuyến mãi Tết">
+  <div class="container custom-container">
+    <div class="booking-form row w-75" style="border-radius: 0px">
+      <div class="col-md-6 booking-image">
+        <img class="img-reservation" src="/img/reservation/Rectangle 48.png" alt="Khuyến mãi Tết" />
+      </div>
+      <div class="col-md-6 form-section mt-2">
+        <input type="text" class="form-control mb-2" placeholder="Tên của bạn" />
+        <input type="text" class="form-control mb-2" placeholder="Số điện thoại" />
+        <input type="email" class="form-control mb-2" placeholder="Email" />
+        <input type="number" class="form-control mb-2" placeholder="Số lượng người" />
+        <div class="row g-2">
+          <div class="col">
+            <input type="date" :min="today" class="form-control" placeholder="Chọn ngày" />
+          </div>
+          <select v-model="time" class="col mb-2 form-control custom-select">
+            <option value="">Chọn giờ</option>
+            <option v-for="t in timeOptions" :key="t" :value="t">{{ t }}</option>
+          </select>
         </div>
-        <div class="col-md-6  form-section mt-2">
-          <input type="text" class="form-control  mb-2" placeholder="Tên của bạn">
-          <input type="text" class="form-control  mb-2" placeholder="Số điện thoại">
-          <input type="number" class="form-control  mb-2" placeholder="Số lượng người">
-          <div class="row g-2">
+
+        <textarea cols="5" rows="3" class="form-control mb-2 custom-select" placeholder="Ghi chú"></textarea>
+        <button class="btn btn-custom mb-2" data-bs-toggle="modal" data-bs-target="#orderModal">
+          Đặt món <span>✚</span>
+        </button>
+        <button class="btn btn-danger w-100">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+  <!-- Bootstrap Modal -->
+  <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content custom-modal">
+        <div class="modal-header">
+          <h5 class="modal-title" id="orderModalLabel">Đặt món</h5>
+        </div>
+        <div class="modal-body">
+          <!-- Bộ lọc -->
+          <div class="row mb-3">
             <div class="col">
-              <input type="date" class="form-control " placeholder="Chọn ngày">
-            </div>
-            <div class="col mb-2">
-              <input type="time" class="form-control " placeholder="Giờ">
+              <select class="form-select" @change="getFoodByCategory($event.target.value)">
+                <option value="">Chọn danh mục</option>
+                <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
+                  {{ item.indent }}{{ item.name }}
+                </option>
+              </select>
             </div>
           </div>
 
-          <input type="text" class="form-control  mb-2" placeholder="Khu vực">
-          <input type="text" class="form-control  mb-2" placeholder="Ghi chú">
-          <button class="btn btn-custom mb-2" data-bs-toggle="modal" data-bs-target="#orderModal">
-            Đặt món <span>✚</span>
-          </button>
-          <button class="btn btn-danger w-100">Xác nhận</button>
-        </div>
-      </div>
-    </div>
-    <!-- Bootstrap Modal -->
-    <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content custom-modal">
-          <div class="modal-header">
-            <h5 class="modal-title" id="orderModalLabel">Đặt món</h5>
-          </div>
-          <div class="modal-body">
-            <!-- Bộ lọc -->
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <select class="form-select">
-                  <option selected>Mì cay</option>
-                  <option>Mì trộn</option>
-                  <option>Lẩu</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <select class="form-select">
-                  <option selected>Mặc định</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Danh sách món ăn -->
-            <div class="list-group">
-              <div class="container text-center">
-                <div class="row row-select">
-                  <div class="col">
-                    <img src="/img/reservation/Rectangle32.png" alt="Món ăn" class="img-fluid me-3"
-                      style="width: 130px;">
-                  </div>
-                  <div class="col-6 text-start">
-                    <h5 class="mb-1">Mì Kim Chi Đặc
-                      Biệt</h5>
-                    <span class="badge bg-danger m-1">Bò
-                      thường</span>
-                    <span class="badge bg-dark">Bò Mỹ</span>
-                    <p class="mb-1 mt-3">Mì Chinnnoo, bò Mỹ, tôm,
-                      mực, chả cá Hàn Quốc, cá viên, kim
-                      chi, cải thảo, nấm, bắp cải tím.</p>
-                  </div>
-                  <div class="col text-center d-flex flex-column align-items-center">
-                    <strong class="price">69,000 VNĐ</strong>
-
-                    <div class="d-flex align-items-center mt-2">
-                      <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        @click="decreaseValue(0)">
-                        <b>-</b>
-                      </button>
-                      <input type="text" class="form-control text-center mx-2" v-model="quantities[0]"
-                        style="width: 100px;">
-                      <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        @click="increaseValue(0)">
-                        <b>+</b>
-                      </button>
+          <!-- Danh sách món ăn -->
+          <div class="list-group">
+            <div class="container text-center">
+              <div class="row row-select" v-for="(food, index) in foods" :key="index">
+                <div class="col">
+                  <img :src="getImageUrl(food.image)" alt="Món ăn" class="img-fluid me-3" style="width: 130px" />
+                </div>
+                <div class="col-6 text-start">
+                  <h5 class="mb-1">{{ food.name }}</h5>
+                  <div class="row">
+                    <div :class="'col food-' + food.id">
+                      <label :for="'spicyLevel-' + food.id" class="form-label fw-bold">🌶 Mức độ cay:</label>
+                      <select class="form-select" :id="'spicyLevel-' + food.id" @click="openModal(food.id)">
+                        <option value="" selected>Chọn cấp độ</option>
+                        <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                          {{ item.name }}
+                        </option>
+                      </select>
                     </div>
 
 
-                    <button class="btn btn-danger mt-2 w-100">Đặt món</button>
-                  </div>
+                    <div class="col">
+                      <label for="spicyLevel" class="form-label fw-bold">🌶 Toppings:</label>
+                      <div class="topping-list">
+                        <button @click="openModal(food.id, `toppingModal-${food.id}`)" class="btn btn-success">
+                          Chọn toppings
+                        </button>
 
-                </div>
+                        <div class="modal fade" :id="`toppingModal-${food.id}`" tabindex="-1" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title">Danh sách các lựa chọn</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                  aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div><strong>Món thêm</strong></div>
+                                <div class="form-check">
+                                  <div class="form-check" v-for="toppings in toppingList" :key="toppings.id">
+                                    <input class="form-check-input" type="checkbox" id="topping2" name="topping[]"
+                                      :value="toppings.id">
+                                    <label class="form-check-label" for="topping2">{{ toppings.name }}</label>
+                                  </div>
 
-                <div class="row row-select">
-                  <div class="col">
-                    <img src="/img/reservation/Rectangle32.png" alt="Món ăn" class="img-fluid me-3"
-                      style="width: 130px;">
-                  </div>
-                  <div class="col-6 text-start">
-                    <h5 class="mb-1">Mì Kim Chi Đặc
-                      Biệt</h5>
-                    <span class="badge bg-danger m-1">Bò
-                      thường</span>
-                    <span class="badge bg-dark">Bò Mỹ</span>
-                    <p class="mb-1 mt-3">Mì Chinnnoo, bò Mỹ, tôm,
-                      mực, chả cá Hàn Quốc, cá viên, kim
-                      chi, cải thảo, nấm, bắp cải tím.</p>
-                  </div>
-                  <div class="col text-center d-flex flex-column align-items-center">
-                    <strong class="price">69,000 VNĐ</strong>
-
-                    <div class="d-flex align-items-center mt-2">
-                      <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        @click="decreaseValue(0)">
-                        <b>-</b>
-                      </button>
-                      <input type="text" class="form-control text-center mx-2" v-model="quantities[0]"
-                        style="width: 100px;">
-                      <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        @click="increaseValue(0)">
-                        <b>+</b>
-                      </button>
+                                </div>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                <button type="button" class="btn btn-primary">Lưu</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-
-
-                    <button class="btn btn-danger mt-2 w-100">Đặt món</button>
                   </div>
 
+                  <p class="mb-1 mt-3 description2">
+                    {{ food.description }}{{ food.description.length > 60 ? '...' : '' }}
+                  </p>
                 </div>
-
-                <div class="row row-select">
-                  <div class="col">
-                    <img src="/img/reservation/Rectangle32.png" alt="Món ăn" class="img-fluid me-3"
-                      style="width: 130px;">
+                <div class="col text-center d-flex flex-column align-items-center">
+                  <strong class="price">{{ formatNumber(food.price) }} VNĐ</strong>
+                  <div class="d-flex align-items-center mt-2">
+                    <button class="btn btn-outline-secondary btn-sm" style="width: 37px; height: 37px">
+                      <b>-</b>
+                    </button>
+                    <input type="text" value="1" class="form-control text-center mx-2" style="width: 100px" />
+                    <button class="btn btn-outline-secondary btn-sm" style="width: 37px; height: 37px">
+                      <b>+</b>
+                    </button>
                   </div>
-                  <div class="col-6 text-start">
-                    <h5 class="mb-1">Mì Kim Chi Đặc
-                      Biệt</h5>
-                    <span class="badge bg-danger m-1">Bò
-                      thường</span>
-                    <span class="badge bg-dark">Bò Mỹ</span>
-                    <p class="mb-1 mt-3">Mì Chinnnoo, bò Mỹ, tôm,
-                      mực, chả cá Hàn Quốc, cá viên, kim
-                      chi, cải thảo, nấm, bắp cải tím.</p>
-                  </div>
-                  <div class="col text-center d-flex flex-column align-items-center">
-                    <strong class="price">69,000 VNĐ</strong>
-
-                    <div class="d-flex align-items-center mt-2">
-                      <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        @click="decreaseValue(0)">
-                        <b>-</b>
-                      </button>
-                      <input type="text" class="form-control text-center mx-2" v-model="quantities[0]"
-                        style="width: 100px;">
-                      <button class="btn btn-outline-secondary btn-sm" style="width: 37px;height:37px"
-                        @click="increaseValue(0)">
-                        <b>+</b>
-                      </button>
-                    </div>
-
-
-                    <button class="btn btn-danger mt-2 w-100">Đặt món</button>
-                  </div>
-
+                  <button class="btn btn-danger mt-2 w-100">Đặt món</button>
                 </div>
-
-                <!-- Thêm các món khác tương tự -->
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <!-- Script để tăng giảm số lượng -->
-
-  </body>
+  </div>
 </template>
 
 <script>
-import { ref } from "vue";
-
+import { FoodList } from '@/stores/load_food'
+import { ref } from 'vue'
 export default {
+  components: {
+    FoodList,
+  },
   setup() {
-    // Tạo danh sách số lượng riêng cho từng món ăn
-    const quantities = ref([1, 1, 1]);
+    const time = ref('')
+    const today = new Date().toISOString().split('T')[0]
+    const timeOptions = []
 
-    const increaseValue = (index) => {
-      quantities.value[index]++;
-    };
+    for (let hour = 8; hour <= 19; hour++) {
+      let hourStr = hour < 10 ? '0' + hour : '' + hour
+      timeOptions.push(hourStr + ':00')
+      if (hour !== 19) {
+        timeOptions.push(hourStr + ':30')
+      }
+    }
 
-    const decreaseValue = (index) => {
-      if (quantities.value[index] > 1) quantities.value[index]--;
-    };
+    const {
+      foods,
+      categories,
+      getFoodByCategory,
+      openModal,
+      spicyLevel,
+      toppingList,
+      formatNumber,
+      getImageUrl,
+      flatCategoryList
+    } = FoodList.setup()
+
 
     return {
-      quantities,
-      increaseValue,
-      decreaseValue,
-    };
+      today,
+      time,
+      timeOptions,
+      foods,
+      categories,
+      getFoodByCategory,
+      openModal,
+      spicyLevel,
+      toppingList,
+      formatNumber,
+      getImageUrl,
+      flatCategoryList
+    }
   },
-};
+}
 </script>

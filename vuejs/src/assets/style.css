@@ -394,7 +394,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 /*col9 food*/
 .title-food-menu {
   position: sticky;
-  top: 0; 
+  top: 0;
   left: 40px;
   z-index: 1000;
   background-color: #ffffff62;
@@ -881,7 +881,7 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
 }
 /*modal*/
 .custom-modal {
-  background-color:#ffffff ; 
+  background-color:#ffffff ;
   border-radius: 0px;
   box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.5);
   padding: 20px;
@@ -890,7 +890,7 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
 .custom-modal .form-control:focus {
   outline: none;
   box-shadow: none;
-  border-color: #ddd; 
+  border-color: #ddd;
 }
 .custom-modal select:focus {
   outline: none;
@@ -1017,11 +1017,24 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   padding:10px ;
 }
 
-.form-section input:focus {
+.form-section input:focus{
   outline: none;
   box-shadow: none;
-  border: 1px solid #ccc; 
+  border: 1px solid #ccc;
 }
+
+.custom-select {
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  padding:10px;
+  border-radius: 0%;
+}
+
+.custom-select:focus{
+  outline: none;
+  box-shadow: none;
+  border: 1px solid #ccc;
+}
+
 .container-tong{
   display: flex;
 }
@@ -1087,7 +1100,9 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
 }
 /* Responsive */
 @media (max-width: 768px) {
-
+.description2{
+  display: none;
+}
   .booking-form{
     width: 100% !important;
   }
@@ -1106,8 +1121,6 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
       flex-direction: column;
       align-items: center;
   }
-
-
   .offer-details div{
       width: 90%;
       display: flex;
