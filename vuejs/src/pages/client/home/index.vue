@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-      <!--hôm nay-->
+      <!---->
       <div class="mid-banner container-fluid">
         <img
           src="../../../../public/img/Banner (3).webp"
@@ -55,27 +55,45 @@
             <!--Menu -->
             <div class="col-md-3 d-none d-lg-block">
               <span class="title-menu fw-bold">THỰC ĐƠN</span>
-              <ul class="menu-list m-5">
-                <li>
-                  <input type="radio" id="mi-cay" name="menu" checked />
-                  <label for="mi-cay"><i class="fa-solid fa-o"></i> Mì Cay</label>
-                </li>
-                <li>
-                  <input type="radio" id="mi-tuong-den" name="menu" />
-                  <label for="mi-tuong-den"><i class="fa-solid fa-o"></i> Mì Tương Đen</label>
-                </li>
-                <li>
-                  <input type="radio" id="no-ne" name="menu" />
-                  <label for="no-ne"><i class="fa-solid fa-o"></i> No Nê</label>
-                </li>
-              </ul>
+              <nav class="navbar px-0 py-2">
+                <ul class="navbar-nav flex-column w-100">
+                  <li
+                    v-for="parent in categories"
+                    :key="parent.id"
+                    class="nav-item dropdown position-relative"
+                  >
+                    <a
+                      @click.prevent="getFoodByCategory(parent.id)"
+                      class="nav-link fw-semibold text-start"
+                      href="#"
+                    >
+                      {{ parent.name }}
+                    </a>
+
+                    <ul
+                      v-if="parent.children && parent.children.length"
+                      class="dropdown-menu custom-dropdown"
+                    >
+                      <li v-for="child in parent.children" :key="child.id">
+                        <a
+                          @click.prevent="getFoodByCategory(child.id)"
+                          href="#"
+                          class="dropdown-item plain-text"
+                        >
+                          {{ child.name }}
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </nav>
             </div>
+
             <!-- small -->
             <div class="col-12 d-lg-none position-relative">
               <div
                 class="menu-header d-flex justify-content-between align-items-center"
-                data-bs-toggle="collapse"
-                data-bs-target="#menuDropdown"
+                @click="toggleDropdown"
               >
                 <h2 class="menu-title">Thực đơn</h2>
                 <div class="menu-icon d-flex align-items-center">
@@ -83,52 +101,92 @@
                   <span>Danh mục</span>
                 </div>
               </div>
-              <div id="menuDropdown" class="collapse menu-dropdown">
-                <ul class="list-group mb-3">
-                  <li class="list-group-item">Mì Cay</li>
-                  <li class="list-group-item">Lẩu Hàn Quốc</li>
-                  <li class="list-group-item">Cơm Trộn</li>
-                  <li class="list-group-item">Đồ Ăn Kèm</li>
+
+              <div
+                :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }"
+                class="menu-dropdown"
+              >
+                <ul class="list-group">
+                  <li
+                    v-for="parent in categories"
+                    :key="parent.id"
+                    class="list-group-item parent-category d-flex"
+                  >
+                    <a
+                      @click.prevent="getFoodByCategory(parent.id)"
+                      href="#"
+                      class="text-decoration-none text-start"
+                    >
+                      {{ parent.name }}
+                    </a>
+                    <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
+                      <li
+                        v-for="child in parent.children"
+                        :key="child.id"
+                        class="list-group-item child-category d-flex"
+                      >
+                        <a
+                          @click.prevent="getFoodByCategory(child.id)"
+                          href="#"
+                          class="text-decoration-none text-start"
+                        >
+                          🔻{{ child.name }}
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
                 </ul>
               </div>
             </div>
 
             <div class="col-lg-9 align-items-center text-center">
-              <div class="title-food-menu text-start m-3">
-                <span class="title-food-menu fw-bold">Mỳ Cay</span>
+              <div class="title-food-menu text-center d-flex">
+                <span class="title-food-menu fw-bold">{{ selectedCategoryName || 'Món Ăn' }}</span>
               </div>
-              <section v-for="(food, index) in foods" :key="index" class="foods-homepages" >
+              <section v-for="(food, index) in foods" :key="index" class="foods-homepages">
                 <div
+                  v-if="index % 2 !== 0"
                   class="food-box-left row align-items-center"
-                  data-bs-toggle="modal"
-                  data-bs-target="#productModal"
+                  @click="openModal(food.id)"
                 >
                   <div class="col-md-4 food-image">
                     <img
-                      src="../../../../public/img/food.jpg"
+                      :src="getImageUrl(food.image)"
                       alt="Mì Kim Chi Thập Cẩm"
                       class="img-fluid"
                     />
                   </div>
                   <div class="col-md-8 food-content bg-white text-end">
                     <h2 class="food-title fw-bold">{{ food.name }}</h2>
-                    <p class="food-price fw-bold">{{ food.price }}</p>
-                    <p class="food-desc">{{ food.description.slice(0, 60) }}{{ food.description.length > 50 ? '...' : '' }}</p>
+                    <p class="food-price fw-bold">{{ formatNumber(food.price) }} VNĐ</p>
+                    <p class="food-desc">
+                      {{ food.description.slice(0, 60)
+                      }}{{ food.description.length > 50 ? '...' : '' }}
+                    </p>
                   </div>
                 </div>
                 <div
+                  v-else
                   class="food-box-right row align-items-center"
-                  data-bs-toggle="modal"
-                  data-bs-target="#productModal"
+                  @click="openModal(food.id)"
                 >
                   <div class="col-md-8 food-content bg-white text-start">
                     <h2 class="food-title fw-bold">{{ food.name }}</h2>
-                    <p class="food-price fw-bold">{{ food.price }}</p>
-                    <p class="food-desc">{{ food.description.slice(0, 60) }}{{ food.description.length > 50 ? '...' : '' }}</p>
+                    <p class="food-price fw-bold">{{ formatNumber(food.price) }} VNĐ</p>
+                    <p class="food-desc">
+                      <span class="d-none d-sm-inline"
+                        >{{ food.description.slice(0, 60)
+                        }}{{ food.description.length > 50 ? '...' : '' }}</span
+                      >
+                      <span class="d-inline d-sm-none"
+                        >{{ food.description.slice(0, 30)
+                        }}{{ food.description.length > 50 ? '...' : '' }}</span
+                      >
+                    </p>
                   </div>
                   <div class="col-md-4 food-image">
                     <img
-                      src="../../../../public/img/food.jpg"
+                      :src="getImageUrl(food.image)"
                       alt="Mì Kim Chi Thập Cẩm"
                       class="img-fluid"
                     />
@@ -191,41 +249,43 @@
         <div class="modal-body">
           <div class="row">
             <div class="col-md-5 d-flex justify-content-center align-items-center">
-              <img src="../../../../public/img/food.jpg" alt="Mì Cay Lẩu" width="100%" />
+              <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" width="100%" />
             </div>
             <div class="col-md-7 d-flex flex-column justify-content-center">
-              <h4 class="fw-bold">🔥 Mì Cay Lẩu Hải Sản 🔥</h4>
+              <h4 class="fw-bold">{{ foodDetail.name }}</h4>
               <p class="fw-bold text-dark">
-                <i class="fa-solid fa-star" style="color: #ffd43b"></i> 4.8/5 | 125 đánh giá
+                <i class="fa-solid fa-star" style="color: #ffd43b"></i> NULL
               </p>
-              <p class="text-danger fw-bold fs-4">79.000đ</p>
+              <p class="text-danger fw-bold fs-4">{{ formatNumber(foodDetail.price) }} VNĐ</p>
 
               <p class="text-secondary">
-                Thưởng thức vị cay nồng với sự kết hợp hoàn hảo của
-                <strong>tôm, mực, ngao</strong> và nước lẩu đậm đà!
+                {{ foodDetail.description }}
               </p>
-              <div class="mb-3">
-                <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
-                <select class="form-select" id="spicyLevel">
-                  <option value="1">Cấp độ 1 - Nhẹ</option>
-                  <option value="2">Cấp độ 2 - Trung bình</option>
-                  <option value="3">Cấp độ 3 - Cay</option>
-                  <option value="4">Cấp độ 4 - Siêu Cay</option>
-                </select>
-                <div class="topping-container mt-3">
-                  <h4>Chọn topping</h4>
-                  <div class="topping-list">
-                    <label>
-                      <input type="checkbox" name="topping[]" value="cheese" /> Phô mai
-                    </label>
-                    <label> <input type="checkbox" name="topping[]" value="egg" /> Trứng </label>
-                    <label>
-                      <input type="checkbox" name="topping[]" value="sausage" /> Xúc xích
-                    </label>
+              <form>
+                <div class="mb-3">
+                  <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
+                  <select class="form-select" id="spicyLevel">
+                    <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                      {{ item.name }}
+                    </option>
+                  </select>
+                  <div class="topping-container mt-3">
+                    <h4>Chọn topping</h4>
+                    <div
+                      v-for="topping in toppingList"
+                      :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2"
+                    >
+                      <label class="d-flex align-items-center">
+                        <input type="checkbox" :value="topping.id" name="topping[]" class="m-2" />
+                        {{ topping.name }}
+                      </label>
+                      <span class="font-weight-bold">{{ formatNumber(topping.price) }} VND</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+              </form>
             </div>
           </div>
         </div>
@@ -234,31 +294,119 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
-import { ref, onMounted } from "vue";
+import axios from 'axios'
+import { ref, onMounted } from 'vue'
+import numeral from 'numeral'
+import { Modal } from 'bootstrap'
 
 export default {
-  name: "FoodList",
+  methods: {
+    formatNumber(value) {
+      return numeral(value).format('0,0.00')
+    },
+    getImageUrl(image) {
+      return `/img/food/${image}`
+    },
+  },
+  name: 'FoodList',
   setup() {
-    const foods = ref([]);
+    const foods = ref([])
+    const toppings = ref([])
+    const categories = ref([])
+    const foodDetail = ref([])
+    const spicyLevel = ref([])
+    const toppingList = ref({})
+    const isLoading = ref(false)
+    const isDropdownOpen = ref(false)
 
     const getFood = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home`);
-        foods.value = res.data;
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`)
+        foods.value = res.data
       } catch (error) {
-        console.error(error);
+        console.error(error)
       }
-    };
+    }
+    const openModal = async (foodId) => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${foodId}`)
+        foodDetail.value = res.data
+        const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${foodId}`)
+        toppings.value = res1.data
+        spicyLevel.value = toppings.value.filter((item) => item.category_id == 1)
+        toppingList.value = toppings.value.filter((item) => item.category_id == 2)
+        toppingList.value.forEach((item) => {
+          item.price = item.price || 0
+        })
+
+        const modalElement = document.getElementById('productModal')
+        if (modalElement) {
+          const modal = new Modal(modalElement)
+          modal.show()
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    const getCategory = async () => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`)
+        categories.value = res.data
+        categories.value.shift()
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    const selectedCategoryName = ref('Món Ăn')
+    const getFoodByCategory = async (categoryId) => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
+        foods.value = res.data
+        //find parent cate chosesing
+        const selectedCategory = categories.value.find((c) => c.id === categoryId)
+        if (selectedCategory) {
+          selectedCategoryName.value = selectedCategory.name
+          //if have child load child
+          if (selectedCategory.children && selectedCategory.children.length) {
+            const childRequests = selectedCategory.children.map((child) =>
+              axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
+            )
+            // wait all, and load full food child add food
+            const childResults = await Promise.all(childRequests)
+            // paste all -> foods.value
+            childResults.forEach((childRes) => {
+              foods.value = [...foods.value, ...childRes.data]
+            })
+          }
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const toggleDropdown = () => {
+      isDropdownOpen.value = !isDropdownOpen.value
+    }
 
     onMounted(() => {
-      getFood();
-    });
+      getFood()
+      getCategory()
+    })
 
     return {
       foods,
-    };
+      toppings,
+      categories,
+      getFoodByCategory,
+      selectedCategoryName,
+      foodDetail,
+      openModal,
+      isLoading,
+      isDropdownOpen,
+      toggleDropdown,
+      spicyLevel,
+      toppingList,
+    }
   },
-};
+}
 </script>
-

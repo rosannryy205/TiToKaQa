@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -11,7 +12,9 @@ use Illuminate\Support\Facades\Route;
 // });
 
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
+<<<<<<< HEAD
 use App\Http\Controllers\UserController;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
@@ -24,3 +27,24 @@ Route::post('/login', [UserController::class, 'login']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
 
+=======
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ToppingController;
+use App\Models\Category;
+use App\Models\Food;
+use App\Models\Topping;
+
+Route::post('/chatbot', [ChatbotController::class, 'chat']);
+// home food
+Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
+Route::get('/home/food/{id}', [FoodController::class, 'getFoodById']);
+Route::get('/home/category/{id}/food', [FoodController::class, 'getFoodByCategory']);
+
+// home toppings
+Route::get('/home/topping/{id}', [FoodController::class, 'getToppingByFood']);
+// home categories
+Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
+
+//order reservation
+Route::post('/reservation', [OrderController::class, 'reservation']);
+>>>>>>> 30968df47b6250c6eb1eb51e86f7103d8e5b3f76
