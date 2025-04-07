@@ -921,11 +921,12 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   color: #c92c3c;
 }
 .topping-container {
-  width: 250px;
+  width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
 .topping-list {
   max-height: 150px;
   overflow-y: auto;
