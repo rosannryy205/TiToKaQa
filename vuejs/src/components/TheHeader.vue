@@ -11,12 +11,22 @@
             </button>
           </div>
         </nav>
-        <div class="nav-icons d-none d-lg-block">
-          <button class="icon-btn me-3" data-bs-toggle="modal" data-bs-target="#loginModal">
+        <div class="nav-icons d-none d-lg-flex align-items-center">
+          <button v-if="!isLoggedIn" class="icon-btn me-3" data-bs-toggle="modal"  @click="openLoginModal"
+          >
             <i class="bi bi-people"></i>
           </button>
 
-          <button class="icon-btn"><i class="bi bi-search"></i></button>
+          <template v-else>
+            <button class="icon-btn me-2" @click="handleLogout">
+              <i class="bi bi-person-x"></i>
+            </button>
+            <p class="mb-0 me-3">{{ user.username }}</p>
+          </template>
+
+          <button class="icon-btn">
+            <i class="bi bi-search"></i>
+          </button>
         </div>
 
         <div class="logo-container">
@@ -87,19 +97,22 @@
           <h5 class="modal-title w-100 text-center fw-bold" id="loginModalLabel">Đăng nhập</h5>
         </div>
         <div class="modal-body px-4 py-3">
-          <form>
+          <form @submit.prevent="handleLogin">
+            <div v-if="loginError" class="text-danger small text-center">{{ loginError }}</div>
+
             <div class="mb-3 position-relative input-group">
               <span class="input-icon">
                 <i class="bi bi-person"></i>
               </span>
-              <input type="text" class="form-control" id="email" placeholder="Tên đăng nhập">
+              <input type="text" class="form-control" v-model="loginData.login" placeholder="Tên đăng nhập hoặc email">
             </div>
 
             <div class="mb-3 position-relative input-group">
               <span class="input-icon">
                 <i class="bi bi-lock"></i>
               </span>
-              <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
+              <input type="password" class="form-control" v-model="loginData.password" id="password"
+                placeholder="Nhập mật khẩu">
             </div>
 
             <div class="mb-3 d-flex justify-content-end gap-3 small">
@@ -110,7 +123,9 @@
                 class="text-decoration-none">Đăng ký</a>
             </div>
             <div class="mb-3">
-              <button type="button" class="btn btn-login w-100">Đăng nhập</button>
+
+              <button type="submit" class="btn btn-login w-100" :disabled="loading"> <span v-if="loading"
+                  class="spinner-border spinner-border-sm me-2"></span>Đăng nhập</button>
             </div>
 
             <div class="divider d-flex align-items-center mb-3">
@@ -137,51 +152,53 @@
           <h5 class="modal-title" id="registerModalLabel">Đăng ký</h5>
         </div>
         <div class="modal-body">
-          <form>
+          <form @submit.prevent="Handleregister">
+            <!-- Username -->
+            <div v-if="errors.username" class="text-danger small">{{ errors.username[0] }}</div>
             <div class="mb-3 position-relative">
+
               <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="text" class="form-control ps-5" id="username" placeholder="Tên đăng nhập">
+              <input type="text" class="form-control ps-5" placeholder="Tên đăng nhập" v-model="registerData.username">
+
             </div>
 
+            <!-- Email -->
+            <div v-if="errors.email" class="text-danger small">{{ errors.email[0] }}</div>
             <div class="mb-3 position-relative">
+
               <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="text" class="form-control ps-5" id="email" placeholder="Email">
+              <input type="text" class="form-control ps-5" placeholder="Email" v-model="registerData.email">
+
             </div>
 
+            <!-- Password -->
+            <div v-if="errors.password" class="text-danger small">{{ errors.password[0] }}</div>
             <div class="mb-3 position-relative">
-              <i class="bi bi-telephone position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="text" class="form-control ps-5" id="phone" placeholder="Số điện thoại">
-            </div>
 
-            <div class="mb-3 position-relative">
               <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="password" class="form-control ps-5" id="password" placeholder="Mật khẩu">
+              <input type="password" class="form-control ps-5" placeholder="Mật khẩu" v-model="registerData.password">
+
             </div>
 
+            <!-- Confirm Password -->
             <div class="mb-3 position-relative">
               <i class="bi bi-lock-fill position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="password" class="form-control ps-5" id="password_confirm" placeholder="Nhập lại mật khẩu">
+              <input type="password" class="form-control ps-5" placeholder="Nhập lại mật khẩu"
+                v-model="registerData.password_confirmation">
             </div>
 
+            <!-- Đăng ký -->
             <div class="mb-3">
-              <div class="function-btn text-end">
-                <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Đã có tài
-                  khoản</a>
-              </div>
-            </div>
-            <div class="mb-3">
-              <button type="button" class="btn btn-login form-control fw-semibold">Đăng ký</button>
-            </div>
-            <div class="divider d-flex align-items-center mb-3">
-              <hr class="flex-grow-1">
-              <span class="px-2 text-muted small">hoặc</span>
-              <hr class="flex-grow-1">
+              <button type="submit" class="btn btn-login form-control fw-semibold" :disabled="loading">
+                <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+                Đăng ký
+              </button>
             </div>
 
-            <div class="d-flex justify-content-center gap-3">
-              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-google"></i></button>
-              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-facebook"></i></button>
-              <button type="button" class="btn btn-social rounded-circle"><i class="bi bi-twitter-x"></i></button>
+            <!-- Chuyển sang đăng nhập -->
+            <div class="mb-3 text-end">
+              <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Đã có tài
+                khoản</a>
             </div>
           </form>
         </div>
@@ -297,4 +314,187 @@
 import { useCountdown } from "../stores/countDown";
 
 const { formattedTime, isCounting, startCountdown } = useCountdown(60);
+</script>
+
+<script>
+import axios from 'axios';
+import { reactive, ref, onMounted } from 'vue';
+import * as bootstrap from 'bootstrap';
+window.bootstrap = bootstrap;
+
+
+const registerData = reactive({
+  username: '',
+  email: '',
+  password: '',
+  password_confirmation: ''
+});
+
+const loginData = reactive({
+  login: '',
+  password: ''
+});
+
+const errors = reactive({});
+const firstErrorKey = ref('');
+
+const loading = ref(false);
+
+const user = ref(JSON.parse(localStorage.getItem('user')) || null);
+const isLoggedIn = ref(!!user.value);
+
+onMounted(() => {
+  isLoggedIn.value = !!user.value;
+});
+
+//  Đăng ký
+const Handleregister = async () => {
+  Object.keys(errors).forEach(key => delete errors[key]);
+  loading.value = true;
+
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/register', registerData);
+
+    if (response.status === 200) {
+      alert(response.data.message);
+
+      // Lưu thông tin người dùng và token nếu backend trả về
+      user.value = response.data.user;
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('token', response.data.token);
+      isLoggedIn.value = true;
+
+      // Ẩn modal
+      const modalElement = document.getElementById('registerModal');
+      const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+      modalInstance.hide();
+
+      // Xử lý backdrop thủ công nếu cần
+      document.body.classList.remove('modal-open');
+      document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+
+      // Reset form
+      Object.keys(registerData).forEach(key => registerData[key] = '');
+    }
+  } catch (error) {
+    if (error.response?.status === 422) {
+      if (error.response?.status === 422) {
+        const allErrors = error.response.data.errors;
+        const firstKey = Object.keys(allErrors)[0];
+
+        // Xóa hết lỗi cũ
+        Object.keys(errors).forEach(k => delete errors[k]);
+
+        // Chỉ giữ lỗi đầu tiên
+        errors[firstKey] = allErrors[firstKey];
+        firstErrorKey.value = firstKey;
+      }
+    } else {
+      console.error('Lỗi khi đăng ký:', error);
+      alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+    }
+  } finally {
+    loading.value = false;
+  }
+};
+
+
+const loginError = ref('');
+
+
+//  Đăng nhập
+const handleLogin = async () => {
+  Object.keys(errors).forEach(key => delete errors[key]);
+  loading.value = true;
+
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/login', loginData);
+
+    alert('Đăng nhập thành công!');
+    user.value = response.data.user;
+    localStorage.setItem('user', JSON.stringify(response.data.user));
+    localStorage.setItem('token', response.data.token);
+    isLoggedIn.value = true;
+
+    // Ẩn modal
+    const modalElement = document.getElementById('loginModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+    modalInstance.hide();
+
+    // Xử lý backdrop thủ công nếu cần
+    document.body.classList.remove('modal-open');
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+
+    // Reset form
+    loginData.login = '';
+    loginData.password = '';
+  } catch (error) {
+    console.error('Lỗi đăng nhập:', error);
+    loginError.value = '';
+
+    if (error.response?.status === 422) {
+      Object.assign(errors, error.response.data.errors);
+      loginError.value = 'Vui lòng nhập đầy đủ thông tin hợp lệ.';
+    } else if (error.response?.status === 401) {
+      loginError.value = 'Sai email hoặc mật khẩu!';
+    } else if (error.response?.status === 500) {
+      loginError.value = 'Lỗi máy chủ. Vui lòng thử lại sau.';
+    } else if (error.request) {
+      loginError.value = 'Không thể kết nối đến máy chủ. Kiểm tra internet.';
+    } else {
+      loginError.value = 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+    }
+  } finally {
+    loading.value = false;
+  }
+};
+
+//  Đăng xuất
+const handleLogout = async () => {
+  try {
+    await axios.post('http://127.0.0.1:8000/api/logout', {}, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    user.value = null;
+    isLoggedIn.value = false;
+
+    alert('Đăng xuất thành công!');
+  } catch (error) {
+    console.error('Lỗi đăng xuất:', error);
+    alert('Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!');
+  }
+};
+
+const openLoginModal = () => {
+  // Xóa backdrop và class nếu bị sót từ lần trước
+  document.body.classList.remove('modal-open');
+  document.querySelectorAll('.modal-backdrop, .offcanvas-backdrop').forEach(el => el.remove());
+
+  // Lấy modal element và hiển thị lại
+  const modalElement = document.getElementById('loginModal');
+  const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+  modalInstance.show();
+};
+
+
+
+
+export {
+  registerData,
+  loginData,
+  errors,
+  loading,
+  user,
+  isLoggedIn,
+  Handleregister,
+  handleLogin,
+  handleLogout,
+  openLoginModal
+};
+
 </script>

@@ -12,6 +12,15 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 Route::get('/home', [HomeController::class, 'index']);
+
+
+Route::post('/register', [UserController::class, 'register']);
+Route::post('/login', [UserController::class, 'login']);
+
+Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
+
+
