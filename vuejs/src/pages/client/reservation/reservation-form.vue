@@ -23,8 +23,11 @@
         <div class="col-6"><strong>Bàn số:</strong></div>
         <div class="col-6">1</div>
 
-        <div class="col-6"><strong>Khu vực:</strong></div>
-        <div class="col-6">Ngoài trời</div>
+        <div class="col-6"><strong>Khách dự kiến:</strong></div>
+        <div class="col-6">5 người</div>
+
+        <div class="col-6"><strong>Phí giữ bàn:</strong></div>
+        <div class="col-6">50.000VND</div>
       </div>
 
       <!-- Thực đơn đặt hàng -->
@@ -43,7 +46,7 @@
             <tr>
                 <td>1</td>
                 <td>
-                  <img src="path_to_image.jpg" alt="Mì kim chi cá Nha Trang" style="width: 50px; height: auto; margin-right: 10px;">
+                  <img src="" alt="Mì kim chi cá Nha Trang" style="width: 50px; height: auto; margin-right: 10px;">
                   Mì kim chi cá Nha Trang <br>
                   <small class="text-muted">Thành phần: ...</small>
                 </td>
@@ -54,7 +57,7 @@
               <tr>
                 <td>2</td>
                 <td>
-                  <img src="path_to_image.jpg" alt="Mì kim chi cá Nha Trang" style="width: 50px; height: auto; margin-right: 10px;">
+                  <img src="" alt="Mì kim chi cá Nha Trang" style="width: 50px; height: auto; margin-right: 10px;">
                   Mì kim chi cá Nha Trang <br>
                   <small class="text-muted">Thành phần: ...</small>
                 </td>

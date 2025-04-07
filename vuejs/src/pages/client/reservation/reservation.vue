@@ -5,25 +5,32 @@
         <img class="img-reservation" src="/img/reservation/Rectangle 48.png" alt="Khuyến mãi Tết" />
       </div>
       <div class="col-md-6 form-section mt-2">
-        <input type="text" class="form-control mb-2" placeholder="Tên của bạn" />
-        <input type="text" class="form-control mb-2" placeholder="Số điện thoại" />
-        <input type="email" class="form-control mb-2" placeholder="Email" />
-        <input type="number" class="form-control mb-2" placeholder="Số lượng người" />
-        <div class="row g-2">
-          <div class="col">
-            <input type="date" :min="today" class="form-control" placeholder="Chọn ngày" />
+        <form @submit.prevent="reservation">
+          <input type="text" v-model="fullname" class="form-control mb-2" placeholder="Tên của bạn" />
+          <input type="text" v-model="phone" class="form-control mb-2" placeholder="Số điện thoại" />
+          <input type="email" v-model="email" class="form-control mb-2" placeholder="Email" />
+          <input type="number" v-model="guest_count" class="form-control mb-2" placeholder="Số lượng người" />
+          <div class="row g-2">
+            <div class="col">
+              <input type="date" v-model="date" :min="today" class="form-control" placeholder="Chọn ngày" />
+            </div>
+            <select v-model="time" class="col mb-2 form-control custom-select">
+              <option value="">Chọn giờ</option>
+              <option v-for="t in timeOptions" :key="t" :value="t">{{ t }}</option>
+            </select>
           </div>
-          <select v-model="time" class="col mb-2 form-control custom-select">
-            <option value="">Chọn giờ</option>
-            <option v-for="t in timeOptions" :key="t" :value="t">{{ t }}</option>
-          </select>
-        </div>
 
-        <textarea cols="5" rows="3" class="form-control mb-2 custom-select" placeholder="Ghi chú"></textarea>
-        <button class="btn btn-custom mb-2" data-bs-toggle="modal" data-bs-target="#orderModal">
-          Đặt món <span>✚</span>
-        </button>
-        <button class="btn btn-danger w-100">Xác nhận</button>
+          <textarea cols="5" rows="3" v-model="note" class="form-control mb-2 custom-select"
+            placeholder="Ghi chú"></textarea>
+          <button class="btn btn-custom mb-2" data-bs-toggle="modal" data-bs-target="#orderModal">
+            Đặt món <span>✚</span>
+          </button>
+
+          <button type="submit" class="btn btn-danger w-100">
+            Xác nhận
+          </button>
+
+        </form>
       </div>
     </div>
   </div>
@@ -67,7 +74,6 @@
                       </select>
                     </div>
 
-
                     <div class="col">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Toppings:</label>
                       <div class="topping-list">
@@ -86,16 +92,25 @@
                               <div class="modal-body">
                                 <div><strong>Món thêm</strong></div>
                                 <div class="form-check">
-                                  <div class="form-check" v-for="toppings in toppingList" :key="toppings.id">
-                                    <input class="form-check-input" type="checkbox" id="topping2" name="topping[]"
-                                      :value="toppings.id">
-                                    <label class="form-check-label" for="topping2">{{ toppings.name }}</label>
+                                  <div class="form-check d-flex" v-for="toppings in toppingList" :key="toppings.id">
+                                    <div class="w-100">
+                                      <input class="form-check-input" type="checkbox" id="topping2" name="topping[]"
+                                        :value="toppings.id" />
+                                      <label class="form-check-label" for="topping2">{{
+                                        toppings.name
+                                      }}</label>
+                                    </div>
+                                    <div class="flex-shrink-1">
+                                      <label class="form-check-label" for="topping2">{{ formatNumber(toppings.price)
+                                      }}VND</label>
+                                    </div>
                                   </div>
-
                                 </div>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                  Đóng
+                                </button>
                                 <button type="button" class="btn btn-primary">Lưu</button>
                               </div>
                             </div>
@@ -104,7 +119,6 @@
                       </div>
                     </div>
                   </div>
-
                   <p class="mb-1 mt-3 description2">
                     {{ food.description }}{{ food.description.length > 60 ? '...' : '' }}
                   </p>
@@ -133,15 +147,25 @@
 
 <script>
 import { FoodList } from '@/stores/load_food'
+import axios from 'axios'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 export default {
   components: {
     FoodList,
   },
   setup() {
     const time = ref('')
+    const date = ref('')
     const today = new Date().toISOString().split('T')[0]
     const timeOptions = []
+    const fullname = ref('')
+    const phone = ref('')
+    const email = ref('')
+    const note = ref('')
+    const guest_count = ref(0)
+    const deposit_amount = 50000
+    const router = useRouter()
 
     for (let hour = 8; hour <= 19; hour++) {
       let hourStr = hour < 10 ? '0' + hour : '' + hour
@@ -150,7 +174,6 @@ export default {
         timeOptions.push(hourStr + ':30')
       }
     }
-
     const {
       foods,
       categories,
@@ -160,8 +183,39 @@ export default {
       toppingList,
       formatNumber,
       getImageUrl,
-      flatCategoryList
+      flatCategoryList,
     } = FoodList.setup()
+
+    const reservation = async () => {
+      const reservations_time = `${date.value} ${time.value}`;
+      const expiration_time = new Date(new Date(reservations_time).getTime() + 15 * 60000)
+        .toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' })
+        .replace(' ', 'T')
+        .slice(0, 16); // lấy định dạng 'YYYY-MM-DD HH:mm'
+
+
+      // const notify = ref('');
+
+      try {
+        const res = await axios.post('http://127.0.0.1:8000/api/reservation', {
+          guest_name: fullname.value,
+          guest_phone: phone.value,
+          guest_email: email.value,
+          guest_count: guest_count.value,
+          reservations_time: reservations_time,
+          note: note.value,
+          deposit_amount: deposit_amount,
+          expiration_time: expiration_time
+        })
+        console.log(res.data)
+        // notify.value = 'Đặt bàn thành công!'
+        router.push({ name: 'reservation-form' })
+      } catch (error) {
+        // notify.value = 'Đặt bàn không thành công! Vui lòng thử lại!'
+
+        console.error(error.response.data) // xem lỗi cụ thể trả về từ backend
+      }
+    }
 
 
     return {
@@ -176,7 +230,15 @@ export default {
       toppingList,
       formatNumber,
       getImageUrl,
-      flatCategoryList
+      flatCategoryList,
+      reservation,
+      fullname,
+      phone,
+      email,
+      note,
+      guest_count,
+      date,
+      // notify
     }
   },
 }

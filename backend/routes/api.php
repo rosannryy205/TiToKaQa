@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ToppingController;
 use App\Models\Category;
 use App\Models\Food;
@@ -30,3 +31,5 @@ Route::get('/home/topping/{id}', [FoodController::class, 'getToppingByFood']);
 // home categories
 Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
 
+//order reservation
+Route::post('/reservation', [OrderController::class, 'reservation']);
