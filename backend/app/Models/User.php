@@ -25,9 +25,10 @@ class User extends Authenticatable
         'fullname',
         'verify_code',
         'verify_expiry',
-        'role'
+        'role',
+        'phone'
     ];
-    
+
 
     /**
      * The attributes that should be hidden for serialization.

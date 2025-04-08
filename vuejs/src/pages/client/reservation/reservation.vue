@@ -26,10 +26,7 @@
             Đặt món <span>✚</span>
           </button>
 
-          <button type="submit" class="btn btn-danger w-100">
-            Xác nhận
-          </button>
-
+          <button type="submit" class="btn btn-danger w-100">Xác nhận</button>
         </form>
       </div>
     </div>
@@ -64,9 +61,9 @@
                 <div class="col-6 text-start">
                   <h5 class="mb-1">{{ food.name }}</h5>
                   <div class="row">
-                    <div :class="'col food-' + food.id">
+                    <div :class="'col food-' + food.id" @click="openModal(food.id)">
                       <label :for="'spicyLevel-' + food.id" class="form-label fw-bold">🌶 Mức độ cay:</label>
-                      <select class="form-select" :id="'spicyLevel-' + food.id" @click="openModal(food.id)">
+                      <select class="form-select" :id="'spicyLevel-' + food.id">
                         <option value="" selected>Chọn cấp độ</option>
                         <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
                           {{ item.name }}
@@ -125,12 +122,17 @@
                 </div>
                 <div class="col text-center d-flex flex-column align-items-center">
                   <strong class="price">{{ formatNumber(food.price) }} VNĐ</strong>
-                  <div class="d-flex align-items-center mt-2">
-                    <button class="btn btn-outline-secondary btn-sm" style="width: 37px; height: 37px">
+                  <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary btn-sm" style="width: 37px; height: 37px"
+                      @click="decreaseValue()">
                       <b>-</b>
                     </button>
-                    <input type="text" value="1" class="form-control text-center mx-2" style="width: 100px" />
-                    <button class="btn btn-outline-secondary btn-sm" style="width: 37px; height: 37px">
+
+                    <input type="text" id="quantityInput" value="1" class="form-control text-center mx-2"
+                      style="width: 100px" />
+
+                    <button class="btn btn-outline-secondary btn-sm" style="width: 37px; height: 37px"
+                      @click="increaseValue()">
                       <b>+</b>
                     </button>
                   </div>
@@ -148,7 +150,7 @@
 <script>
 import { FoodList } from '@/stores/load_food'
 import axios from 'axios'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 export default {
   components: {
@@ -163,9 +165,20 @@ export default {
     const phone = ref('')
     const email = ref('')
     const note = ref('')
-    const guest_count = ref(0)
+    const guest_count = ref(2)
     const deposit_amount = 50000
     const router = useRouter()
+    const savedUser = JSON.parse(localStorage.getItem('user'))
+    // Danh sách món đã đặt
+    const selectedOrders = ref([])
+
+    // // Lưu dữ liệu từng món đã chọn
+    // const foodSelections = ref({})
+
+    // // Toppings tạm thời cho modal
+    // const currentToppings = ref([])
+    // const currentFoodId = ref(null)
+
 
     for (let hour = 8; hour <= 19; hour++) {
       let hourStr = hour < 10 ? '0' + hour : '' + hour
@@ -174,6 +187,7 @@ export default {
         timeOptions.push(hourStr + ':30')
       }
     }
+
     const {
       foods,
       categories,
@@ -187,14 +201,11 @@ export default {
     } = FoodList.setup()
 
     const reservation = async () => {
-      const reservations_time = `${date.value} ${time.value}`;
+      const reservations_time = `${date.value} ${time.value}`
       const expiration_time = new Date(new Date(reservations_time).getTime() + 15 * 60000)
         .toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' })
         .replace(' ', 'T')
-        .slice(0, 16); // lấy định dạng 'YYYY-MM-DD HH:mm'
-
-
-      // const notify = ref('');
+        .slice(0, 16)
 
       try {
         const res = await axios.post('http://127.0.0.1:8000/api/reservation', {
@@ -205,18 +216,38 @@ export default {
           reservations_time: reservations_time,
           note: note.value,
           deposit_amount: deposit_amount,
-          expiration_time: expiration_time
+          expiration_time: expiration_time,
         })
         console.log(res.data)
-        // notify.value = 'Đặt bàn thành công!'
+        alert('Đặt bàn thành công!')
         router.push({ name: 'reservation-form' })
       } catch (error) {
-        // notify.value = 'Đặt bàn không thành công! Vui lòng thử lại!'
-
-        console.error(error.response.data) // xem lỗi cụ thể trả về từ backend
+        console.error(error.response.data)
       }
     }
 
+    //tăng sl
+    function increaseValue() {
+      const input = document.getElementById("quantityInput");
+      let currentValue = parseInt(input.value);
+      input.value = currentValue++;
+    }
+
+    //giảm sl
+    function decreaseValue() {
+      const input = document.getElementById("quantityInput");
+      let currentValue = parseInt(input.value);
+      if (currentValue > 1) {
+        input.value = currentValue--;
+      }
+    }
+    onMounted(() => {
+      if (savedUser) {
+        fullname.value = savedUser.fullname || savedUser.username
+        phone.value = savedUser.phone || ''
+        email.value = savedUser.email || ''
+      }
+    })
 
     return {
       today,
@@ -238,7 +269,9 @@ export default {
       note,
       guest_count,
       date,
-      // notify
+      increaseValue,
+      decreaseValue
+
     }
   },
 }

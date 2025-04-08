@@ -22,5 +22,8 @@ class Order extends Model
         'expiration_time',
 
     ];
+    public function details() {
+        return $this->hasMany(Order_detail::class);
+    }
 
 }
