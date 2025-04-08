@@ -13,7 +13,17 @@
             <div class="flex-grow-1 mb-2">
               <h5 class="mb-1 product-title"><strong>{{ item.name }}</strong></h5>
               <p class="text-muted mb-2">{{ item.spicyLevel }}</p>
-              <p class="text-muted mb-2">Topping: {{ item.toppings.join(', ') }}</p>
+              <p class="text-muted mb-2">
+                Topping:
+                <span v-if="item.toppings && item.toppings.length">
+                  <ul>
+                    <li v-for="(topping, index) in item.toppings" :key="index">
+                      {{ topping.name }} - {{ formatNumber(topping.price) }} VNĐ
+                    </li>
+                  </ul>
+                </span>
+                <span v-else>Không có</span>
+              </p>
               <p class="text-muted mb-2">Số lượng: {{ item.quantity }}</p>
               <p class="mb-0 "><strong>Giá:</strong>{{ formatNumber(item.price) }} VNĐ</p>
             </div>
@@ -25,7 +35,7 @@
               </div>
             </div>
             <div class="mb-2 price">
-              <strong>{{ formatNumber(item.price * item.quantity) }} VNĐ</strong>
+              <strong>{{ formatNumber(totalPriceItem(item)) }} VNĐ VNĐ</strong>
             </div>
           </div>
         </div>
@@ -90,9 +100,18 @@ export default {
 
     const totalPrice = computed(() => {
       return cartItems.value.reduce((sum, item) => {
-        return sum + item.price * item.quantity
+        const basePrice = item.price * item.quantity
+        const toppingPrice = item.toppings.reduce((tsum, topping) => tsum + (topping.price * topping.quantity),0)
+        return sum + (basePrice + toppingPrice)
       }, 0)
     })
+
+    const totalPriceItem = (item) => {
+      const itemPrice = item.price * item.quantity;
+      const toppingPrice = item.toppings.reduce((sum, topping) => sum + (topping.price * item.quantity), 0);
+      return itemPrice + toppingPrice;
+    };
+
 
     const updateCartStorage = () => {
       localStorage.setItem('cart', JSON.stringify(cartItems.value))
@@ -125,7 +144,8 @@ export default {
       totalPrice,
       increaseQuantity,
       decreaseQuantity,
-      removeItem
+      removeItem,
+      totalPriceItem
     }
   }
 }
