@@ -333,7 +333,10 @@ export default {
         foodDetail.value = res.data
         const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${foodId}`)
         toppings.value = res1.data
+
         spicyLevel.value = toppings.value.filter((item) => item.category_id == 1)
+        console.log(spicyLevel.value);
+
         toppingList.value = toppings.value.filter((item) => item.category_id == 2)
         toppingList.value.forEach((item) => {
           item.price = item.price || 0

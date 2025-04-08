@@ -54,22 +54,23 @@
           <!-- Danh sách món ăn -->
           <div class="list-group">
             <div class="container text-center">
-              <div class="row row-select" v-for="(food, index) in foods" :key="index">
+              <div class="row row-select" v-for="food in foods" :key="food.id">
                 <div class="col">
                   <img :src="getImageUrl(food.image)" alt="Món ăn" class="img-fluid me-3" style="width: 130px" />
                 </div>
                 <div class="col-6 text-start">
                   <h5 class="mb-1">{{ food.name }}</h5>
                   <div class="row">
-                    <div :class="'col food-' + food.id" @click="openModal(food.id)">
-                      <label :for="'spicyLevel-' + food.id" class="form-label fw-bold">🌶 Mức độ cay:</label>
+                    <div class="col food" @click="openModal(food.id)">
+                      <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" :id="'spicyLevel-' + food.id">
                         <option value="" selected>Chọn cấp độ</option>
-                        <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                        <option v-for="item in spicyLevel" :key="item.id" :value="item.pivot.id">
                           {{ item.name }}
                         </option>
                       </select>
                     </div>
+
 
                     <div class="col">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Toppings:</label>
@@ -91,15 +92,14 @@
                                 <div class="form-check">
                                   <div class="form-check d-flex" v-for="toppings in toppingList" :key="toppings.id">
                                     <div class="w-100">
-                                      <input class="form-check-input" type="checkbox" id="topping2" name="topping[]"
-                                        :value="toppings.id" />
-                                      <label class="form-check-label" for="topping2">{{
-                                        toppings.name
-                                      }}</label>
+                                      <input class="form-check-input" type="checkbox" :id="'topping-' + toppings.id"
+                                        :value="toppings.pivot.id" :name="'topping[]'" />
+                                      <label class="form-check-label" :for="'topping-' + toppings.id">{{ toppings.name
+                                        }}</label>
                                     </div>
                                     <div class="flex-shrink-1">
                                       <label class="form-check-label" for="topping2">{{ formatNumber(toppings.price)
-                                      }}VND</label>
+                                        }}VND</label>
                                     </div>
                                   </div>
                                 </div>
@@ -124,19 +124,21 @@
                   <strong class="price">{{ formatNumber(food.price) }} VNĐ</strong>
                   <div class="d-flex align-items-center">
                     <button class="btn btn-outline-secondary btn-sm" style="width: 37px; height: 37px"
-                      @click="decreaseValue()">
+                      @click="decreaseQuantity(food.id)">
                       <b>-</b>
                     </button>
 
-                    <input type="text" id="quantityInput" value="1" class="form-control text-center mx-2"
+                    <input type="text" min="1" v-model="quantities[food.id]" class="form-control text-center mx-2"
                       style="width: 100px" />
 
                     <button class="btn btn-outline-secondary btn-sm" style="width: 37px; height: 37px"
-                      @click="increaseValue()">
+                      @click="increaseQuantity(food.id)">
                       <b>+</b>
                     </button>
                   </div>
-                  <button class="btn btn-danger mt-2 w-100">Đặt món</button>
+                  <button class="btn btn-danger mt-2 w-100" @click="addToCart(food.id)">
+                    Đặt món
+                  </button>
                 </div>
               </div>
             </div>
@@ -148,7 +150,7 @@
 </template>
 
 <script>
-import { FoodList } from '@/stores/load_food'
+import { FoodList } from '@/stores/food'
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -169,16 +171,35 @@ export default {
     const deposit_amount = 50000
     const router = useRouter()
     const savedUser = JSON.parse(localStorage.getItem('user'))
-    // Danh sách món đã đặt
-    const selectedOrders = ref([])
+    const quantities = ref({})
+    const order_details = ref([]);
 
-    // // Lưu dữ liệu từng món đã chọn
-    // const foodSelections = ref({})
 
-    // // Toppings tạm thời cho modal
-    // const currentToppings = ref([])
-    // const currentFoodId = ref(null)
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
+    cart.forEach(element => {
+      const toppings = Array.isArray(element.topping_id)
+        ? element.topping_id.map((id, index) => ({
+            food_toppings_id: id,
+            price: parseFloat(element.toppingPrice?.[index]) || null
+          }))
+        : [];
+
+      order_details.value.push({
+        food_id: element.id,
+        quantity: element.quantity,
+        price: parseFloat(element.price),
+        type: "food",
+        combo_id: null,
+        toppings: toppings
+      });
+    });
+
+
+
+    console.log(cart);
+
+    console.log(order_details.value);
 
     for (let hour = 8; hour <= 19; hour++) {
       let hourStr = hour < 10 ? '0' + hour : '' + hour
@@ -198,6 +219,7 @@ export default {
       formatNumber,
       getImageUrl,
       flatCategoryList,
+      // addToCart
     } = FoodList.setup()
 
     const reservation = async () => {
@@ -208,6 +230,7 @@ export default {
         .slice(0, 16)
 
       try {
+        console.log('Total Price:', getTotalPrice(cart));
         const res = await axios.post('http://127.0.0.1:8000/api/reservation', {
           guest_name: fullname.value,
           guest_phone: phone.value,
@@ -217,6 +240,8 @@ export default {
           note: note.value,
           deposit_amount: deposit_amount,
           expiration_time: expiration_time,
+          total_price: getTotalPrice(cart),
+          order_details: order_details.value
         })
         console.log(res.data)
         alert('Đặt bàn thành công!')
@@ -226,53 +251,117 @@ export default {
       }
     }
 
-    //tăng sl
-    function increaseValue() {
-      const input = document.getElementById("quantityInput");
-      let currentValue = parseInt(input.value);
-      input.value = currentValue++;
+    const addToCart = (foodID) => {
+      const food = foods.value.find((f) => f.id === foodID)
+      if (!food) {
+        alert('Không tìm thấy món ăn!')
+        return
+      }
+
+      const quantityInput = quantities.value[foodID] || 1
+      const selectedSpicyId = parseInt(document.getElementById(`spicyLevel-${foodID}`)?.value)
+
+      const selectedSpicy = spicyLevel.value.find((item) => item.pivot.id === selectedSpicyId)
+      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không rõ'
+
+      const selectedToppingId = Array.from(
+        document.querySelectorAll(`#toppingModal-${foodID} input[name="topping[]"]:checked`),
+      ).map((el) => parseInt(el.value))
+
+      const selectedToppingName = toppingList.value
+        .filter((topping) => selectedToppingId.includes(topping.pivot.id))
+        .map((topping) => topping.name)
+
+      const selectedToppingPrice = toppingList.value
+        .filter((topping) => selectedToppingId.includes(topping.pivot.id))
+        .map((topping) => topping.price)
+
+        const toppingIDs = [...selectedToppingId];
+        if (!isNaN(selectedSpicyId)) {
+          toppingIDs.push(selectedSpicyId);
+        }
+
+        const toppingprices = [...selectedToppingPrice];
+        if (!isNaN(selectedToppingId)) {
+          toppingprices.push(selectedToppingId);
+        }
+      const cartItems = {
+          id: food.id,
+          name: food.name,
+          image: food.image,
+          price: food.price,
+          spicyLevel: selectedSpicyName,
+          toppings: selectedToppingName,
+          toppings_price: selectedToppingPrice,
+          quantity: quantityInput,
+          topping_id: toppingIDs,
+          toppingPrice: toppingprices,
+      }
+
+      let cart = JSON.parse(localStorage.getItem('cart')) || []
+
+      const existingItem = cart.findIndex(
+        (item) =>
+          item.id === cartItems.id &&
+          item.spicyLevel === cartItems.spicyLevel &&
+          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItems.toppings.sort()),
+      )
+
+      if (existingItem !== -1) {
+        cart[existingItem].quantity += cartItems.quantity
+      } else {
+        cart.push(cartItems)
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart))
+      alert('Đã thêm vào giỏ hàng!')
     }
 
-    //giảm sl
-    function decreaseValue() {
-      const input = document.getElementById("quantityInput");
-      let currentValue = parseInt(input.value);
-      if (currentValue > 1) {
-        input.value = currentValue--;
+    const increaseQuantity = (id) => {
+      if (!quantities.value[id]) quantities.value[id] = 1
+      quantities.value[id]++
+    }
+
+    const decreaseQuantity = (id) => {
+      if (!quantities.value[id]) quantities.value[id] = 1
+      if (quantities.value[id] > 1) {
+        quantities.value[id]--
       }
     }
+
+
+    const getTotalPrice = (cart) => {
+      return cart.reduce((total, item) => {
+        const basePrice = parseFloat(item.price) || 0;
+        const toppingsTotal = item.toppings_price?.reduce((sum, price) => sum + parseFloat(price), 0) || 0;
+        const itemTotal = (basePrice + toppingsTotal) * item.quantity;
+        return total + itemTotal;
+      }, 0);
+    };
+
+
+
+
+
+
     onMounted(() => {
       if (savedUser) {
         fullname.value = savedUser.fullname || savedUser.username
         phone.value = savedUser.phone || ''
         email.value = savedUser.email || ''
       }
+
     })
 
     return {
-      today,
-      time,
-      timeOptions,
-      foods,
-      categories,
-      getFoodByCategory,
-      openModal,
-      spicyLevel,
-      toppingList,
-      formatNumber,
-      getImageUrl,
-      flatCategoryList,
-      reservation,
-      fullname,
-      phone,
-      email,
-      note,
-      guest_count,
-      date,
-      increaseValue,
-      decreaseValue
+      time, date, today, timeOptions,
+      fullname, phone, email, note, guest_count,
+      reservation, foods, categories, getFoodByCategory,
+      openModal, spicyLevel, toppingList, formatNumber, getImageUrl,
+      flatCategoryList, quantities, increaseQuantity, decreaseQuantity,
+      addToCart
+    };
 
-    }
   },
 }
 </script>

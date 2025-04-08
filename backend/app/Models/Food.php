@@ -17,7 +17,9 @@ class Food extends Model
 
     public function toppings()
 {
-    return $this->belongsToMany(Topping::class, 'food_toppings');
+    return $this->belongsToMany(Topping::class, 'food_toppings')
+                ->using(Food_topping::class) // dùng model trung gian
+                ->withPivot('id', 'price');
 }
 
 }

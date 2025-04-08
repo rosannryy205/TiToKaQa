@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class Food_topping extends Model
+class Food_topping extends Pivot
 {
-    use HasFactory;
-    protected $table= "food_toppings";
+    protected $table = 'food_toppings';
 }
