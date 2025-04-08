@@ -284,7 +284,7 @@
                     </div>
                   </div>
                 </div>
-                <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                <button class="btn btn-danger w-100 fw-bold" @click.prevent="addToCart">🛒 Thêm vào giỏ hàng</button>
               </form>
             </div>
           </div>
@@ -388,6 +388,49 @@ export default {
       isDropdownOpen.value = !isDropdownOpen.value
     }
 
+    const addToCart = () => {
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không rõ'
+      const selectedToppingId = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')).map((el)=>parseInt(el.value))
+
+      const selectedToppingName= toppingList.value
+      .filter((topping)=>selectedToppingId.includes(topping.id))
+      .map((topping)=>topping.name)
+
+      const cartItem = {
+        id: foodDetail.value.id,
+        name: foodDetail.value.name,
+        image: foodDetail.value.image,
+        price: foodDetail.value.price,
+        spicyLevel: selectedSpicyName,
+        toppings: selectedToppingName,
+        quantity: 1,
+      }
+
+      //lấy giỏ hàng từ localStorage
+      let cart=JSON.parse(localStorage.getItem('cart')) || []
+
+      //Tìm xem item có trong giỏ hàng chưa
+      const existingItem = cart.findIndex(
+        (item) =>
+        item.id === cartItem.id &&
+        item.spicyLevel === cartItem.spicyLevel &&
+        JSON.stringify(item.toppings.sort()) ===  JSON.stringify(cartItem.toppings.sort())
+      )
+
+      if(existingItem !== -1){
+        cart[existingItem].quantity += 1
+      } else {
+        cart.push(cartItem)
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart))
+      alert('Đã thêm vào giỏ hàng!')
+    }
+
     onMounted(() => {
       getFood()
       getCategory()
@@ -406,6 +449,7 @@ export default {
       toggleDropdown,
       spicyLevel,
       toppingList,
+      addToCart,
     }
   },
 }
