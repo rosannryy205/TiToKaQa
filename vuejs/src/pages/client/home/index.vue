@@ -396,9 +396,12 @@ export default {
       const selectedToppingId = Array.from(
         document.querySelectorAll('input[name="topping[]"]:checked')).map((el)=>parseInt(el.value))
 
-      const selectedToppingName= toppingList.value
+      const selectedToppings= toppingList.value
       .filter((topping)=>selectedToppingId.includes(topping.id))
-      .map((topping)=>topping.name)
+      .map((topping)=>({
+        name: topping.name,
+        price: topping.price
+      }))
 
       const cartItem = {
         id: foodDetail.value.id,
@@ -406,7 +409,7 @@ export default {
         image: foodDetail.value.image,
         price: foodDetail.value.price,
         spicyLevel: selectedSpicyName,
-        toppings: selectedToppingName,
+        toppings: selectedToppings,
         quantity: 1,
       }
 
