@@ -22,7 +22,7 @@
 
           <textarea cols="5" rows="3" v-model="note" class="form-control mb-2 custom-select"
             placeholder="Ghi chú"></textarea>
-          <button class="btn btn-custom mb-2" data-bs-toggle="modal" data-bs-target="#orderModal">
+          <button type="submit" class="btn btn-custom mb-2" data-bs-toggle="modal" data-bs-target="#orderModal">
             Đặt món <span>✚</span>
           </button>
 
@@ -175,7 +175,7 @@ export default {
     const order_details = ref([]);
 
 
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cart = JSON.parse(localStorage.getItem('cart1')) || [];
 
     cart.forEach(element => {
       const toppings = Array.isArray(element.topping_id)
@@ -298,7 +298,7 @@ export default {
           toppingPrice: toppingprices,
       }
 
-      let cart = JSON.parse(localStorage.getItem('cart')) || []
+      let cart = JSON.parse(localStorage.getItem('cart1')) || []
 
       const existingItem = cart.findIndex(
         (item) =>
@@ -313,7 +313,7 @@ export default {
         cart.push(cartItems)
       }
 
-      localStorage.setItem('cart', JSON.stringify(cart))
+      localStorage.setItem('cart1', JSON.stringify(cart))
       alert('Đã thêm vào giỏ hàng!')
     }
 
@@ -339,6 +339,7 @@ export default {
       }, 0);
     };
 
+    console.log("Total Price:", getTotalPrice(cart));
 
 
 
