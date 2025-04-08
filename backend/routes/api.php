@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,3 +24,5 @@ Route::get('/home/food/{id}', [FoodController::class, 'getFoodById']);
 //categories
 Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']);
+//cart
+Route::post('cart/food/{id}', [CartController::class, 'addToCart']);

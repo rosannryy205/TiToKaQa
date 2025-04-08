@@ -342,7 +342,9 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 .title-food-menu {
   font-size: 50px;
   color: #c92c3c;
-  text-shadow: 2px 2px 5px rgba(177, 177, 177, 0.5);
+  /* text-shadow: 2px 2px 5px rgba(177, 177, 177, 0.5); */
+  padding: 15px;
+  background-color: white;
 }
 /*col9 food*/
 #app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center.text-center{
@@ -590,7 +592,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 }
 .title-food-menu {
   position: sticky;
-  top: 0; 
+  top: 0;
   z-index: 1000;
   padding: 10px;
 }
@@ -831,7 +833,7 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
 }
 /*modal*/
 .custom-modal {
-  background-color:#ffffff ; 
+  background-color:#ffffff ;
   border-radius: 0px;
   box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.5);
   padding: 20px;
@@ -840,7 +842,7 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
 .custom-modal .form-control:focus {
   outline: none;
   box-shadow: none;
-  border-color: #ddd; 
+  border-color: #ddd;
 }
 .custom-modal select:focus {
   outline: none;
@@ -970,7 +972,7 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
 .form-section input:focus {
   outline: none;
   box-shadow: none;
-  border: 1px solid #ccc; 
+  border: 1px solid #ccc;
 }
 .container-tong{
   display: flex;
