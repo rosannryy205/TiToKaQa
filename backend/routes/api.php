@@ -14,25 +14,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
-<<<<<<< HEAD
-use App\Http\Controllers\UserController;
-
-Route::post('/chatbot', [ChatbotController::class, 'chat']);
-Route::get('/home', [HomeController::class, 'index']);
-
-
-Route::post('/register', [UserController::class, 'register']);
-Route::post('/login', [UserController::class, 'login']);
-
-Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
-
-
-=======
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ToppingController;
-use App\Models\Category;
-use App\Models\Food;
-use App\Models\Topping;
+use App\Http\Controllers\UserController;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
@@ -47,4 +31,9 @@ Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
 
 //order reservation
 Route::post('/reservation', [OrderController::class, 'reservation']);
->>>>>>> 30968df47b6250c6eb1eb51e86f7103d8e5b3f76
+
+
+Route::post('/register', [UserController::class, 'register']);
+Route::post('/login', [UserController::class, 'login']);
+
+Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
