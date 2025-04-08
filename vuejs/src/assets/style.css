@@ -647,7 +647,6 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
     margin-left: 10px;
   }
 }
-<<<<<<< HEAD
 .title-food-menu {
   position: sticky;
   top: 0;
@@ -655,8 +654,6 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   padding: 10px;
 }
 
-=======
->>>>>>> 2b5e8a8919db2e94b9d162d4a2edece4539ef45d
 #app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center.text-center{
   max-height: 500px;
   overflow-y: auto;
