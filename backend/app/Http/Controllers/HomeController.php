@@ -14,5 +14,4 @@ class HomeController extends Controller
         $foods= Food::all();
         return response()->json($foods);
     }
-
 }

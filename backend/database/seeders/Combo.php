@@ -14,12 +14,7 @@ class Combo extends Seeder
     public function run(): void
     {
         DB::table('combos')->insert([
-            [
-                'name' => 'Combo cơ bản',
-                'price' => 100000,
-                'image' => 'mykimchithapcam.webp',
-                'description' => '1 mì cay kim chi thập cẩm + 1 nước gạo Hàn Quốc'
-            ],
+
             [
                 'name' => 'Combo 1 Người',
                 'price' => 89000,

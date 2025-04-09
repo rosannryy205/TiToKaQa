@@ -79,6 +79,11 @@ class Category extends Seeder
                 'parent_id' => null,
                 'default' => false
             ],
+            [//14
+                'name' => 'Combo Ưu Đãi',
+                'parent_id' => null,
+                'default' => false
+            ],
         ]);
 
     }
