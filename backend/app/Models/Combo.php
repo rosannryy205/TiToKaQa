@@ -10,7 +10,8 @@ class Combo extends Model
     protected $table= "combos";
     use HasFactory;
     
-    public function Details(){
-        return $this->hasMany(Combo_detail::class);
-    }
+    public function foods()
+{
+    return $this->belongsToMany(Food::class, 'combo_details', 'combo_id', 'food_id');
+}
 }

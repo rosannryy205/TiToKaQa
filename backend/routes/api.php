@@ -29,6 +29,7 @@ Route::get('/home/food/{id}', [FoodController::class, 'getFoodById']);
 Route::get('/home/category/{id}/food', [FoodController::class, 'getFoodByCategory']);
 //home combo
 Route::get('/home/combos', [ComboController::class, 'getAllCombos']);
+Route::get('/home/combo/{id}', [ComboController::class, 'getComboById']);
 // home toppings
 Route::get('/home/topping/{id}', [FoodController::class, 'getToppingByFood']);
 // home categories
