@@ -58,6 +58,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
+Route::post('/forgot',[UserController::class,'forgotPass']);
+Route::post('/code',[UserController::class,'verifyResetCode']);
+Route::post('/reset-password',[UserController::class,'ChangePassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
 });
