@@ -111,11 +111,11 @@
                   class="product-img mx-auto d-block"
                   width="180px"
                 />
-                <h3 class="product-dish-title text-start">{{ food.name }}</h3>
-                <p class="product-dish-desc text-start">
+                <h3 class="product-dish-title text-center fw-bold">{{ food.name }}</h3>
+                <span class="product-dish-desc text-start">
                   {{ food.description }}
-                </p>
-                <p class="product-dish-price fw-bold text-center">{{ food.price }}</p>
+                </span>
+                <p class="product-dish-price fw-bold text-center">{{ formatNumber(food.price) }} VNĐ</p>
               </div>
             </div>
           </div>
@@ -127,11 +127,15 @@
 
     <section class="section-banner m-3">
   <div class="banner-deals container-fluid">
-    <img src="../../../../public/img/Banner (3).webp" alt="" class="img-fluid" style="border-radius: 25px" />
-    <button class="trans-left d-none d-lg-block">
+    <img 
+    :src="images[currentIndex]"
+    alt="banner"
+    class="img-fluid" 
+    style="border-radius: 25px; transition: opacity 0.5s ease" />
+    <button @click="changeSlide(-1)" class="trans-left d-none d-lg-block">
       <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
     </button>
-    <button class="trans-right d-none d-lg-block">
+    <button @click="changeSlide(1)" class="trans-right d-none d-lg-block">
       <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i>
     </button>
   </div>
@@ -140,17 +144,17 @@
       <h2 class="text-center text-md-start mb-3 fw-bold">Bài Viết & Thông Tin<span>📢</span></h2>
       <hr />
       <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
-        <div class="col">
-          <img src="../../../../public/img/bv1.webp" alt="post1" class="img-fluid rounded" />
+        <div class="col img-post">
+          <img src="/img/bv1.webp" alt="post1" class="img-fluid rounded" />
         </div>
-        <div class="col">
-          <img src="../../../../public/img/bv2.png" alt="post2" class="img-fluid rounded" />
+        <div class="col img-post">
+          <img src="/img/bv2.png" alt="post2" class="img-fluid rounded" />
         </div>
-        <div class="col">
-          <img src="../../../../public/img/bv3.png" alt="post3" class="img-fluid rounded" />
+        <div class="col img-post">
+          <img src="/img/bv3.png" alt="post3" class="img-fluid rounded" />
         </div>
-        <div class="col">
-          <img src="../../../../public/img/bv1.webp" alt="post4" class="img-fluid rounded" />
+        <div class="col img-post">
+          <img src="/img/bv1.webp" alt="post4" class="img-fluid rounded" />
         </div>
       </div>
     </section>
@@ -166,6 +170,9 @@
       <div class="modal-content custom-modal">
         <div class="modal-body">
           <div class="row">
+            <div class="blink">
+              <img src="/img/item/item text.png" alt="">
+            </div>
             <div class="col-md-5 d-flex justify-content-center align-items-center">
               <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" width="100%" />
             </div>
@@ -213,7 +220,7 @@
 </template>
 <script>
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 
@@ -328,11 +335,29 @@ export default {
     const toggleDropdown = () => {
       isDropdownOpen.value = !isDropdownOpen.value
     }
+    const currentIndex = ref(0)
+const images = [
+  '/img/banner/Banner (1).webp',
+  '/img/banner/Banner (2).png',
+  '/img/banner/Banner.png',
+]
+let intervalId = null
+const changeSlide = (direction) => {
+  const total = images.length
+  currentIndex.value = (currentIndex.value + direction + total) % total
+}
 
     onMounted(() => {
       getFood()
       getCategory()
+      intervalId = setInterval(() => {
+    currentIndex.value = (currentIndex.value + 1) % images.length
+  }, 3000)
     })
+    onBeforeUnmount(() => {
+  clearInterval(intervalId)
+})
+  
 
     return {
       foods,
@@ -347,6 +372,9 @@ export default {
       toggleDropdown,
       spicyLevel,
       toppingList,
+      currentIndex,
+      images,
+      changeSlide,
     }
   },
 }

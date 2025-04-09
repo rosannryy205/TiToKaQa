@@ -675,16 +675,43 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 .foods-homepages::-webkit-scrollbar-track {
   background: #f8f9fa;
 }
+/*section combo*/
+#app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div{
+  position: relative;
+}
+#app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div{
+position: absolute;
+box-sizing: border-box;
+right: 10px;
+bottom: 5%;
+}
+#app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > img{
+transition: 0.5s;
+}
+#app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > img:hover{
+  scale: 1.1;
+  }
+#app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div > a{
+font-size: 20px;
+color: #c92c3c;
+}
+@media (max-width: 768px){ 
+  #app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div > a{
+   font-size: 10px;
+   color: #c92c3c;
+   bottom: 0% !important;
+}
+}
+
+
 
 /*section infor - post - pupular*/
 .popular-searches{
   margin-top: 30px;
+  margin-bottom: 20px;
 }
 .popular-searches h2{
   color: #c92c3c;
-}
-.popular-searches .badge {
-  font-size: 14px;
 }
 .pots-section h2{
   color: #c92c3c;
@@ -694,19 +721,13 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   height: auto;
   object-fit: cover;
 }
-
-@media (max-width: 768px) {
-  .popular-searches h2,
-  .pots-section h2 {
-      text-align: center;
-  }
-
-  .popular-searches .d-flex {
-      justify-content: center !important;
-  }
+.img-post{
+  filter: grayscale(1);
+  transition: 0.5s;
 }
-.pots-section {
-  margin-top: 30px;
+.img-post:hover{
+  filter: none;
+  filter: brightness(1);
 }
 /*footer*/
 .row a{
@@ -780,7 +801,7 @@ color: #c92c3c;
   width: 430px;
   height: auto;
   position: relative;
-  z-index: 9999;
+  z-index: 100;
   left: 15%;
 
 }
@@ -797,6 +818,12 @@ color: #c92c3c;
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
   padding: 30px;
 }
+.product-card{
+  border-right: dashed 1px rgb(211, 211, 211); 
+}
+.product-card h3, p{
+  color: #c92c3c;
+}
 
 /* Responsive từ tablet trở xuống */
 @media (max-width: 768px) {
@@ -806,7 +833,6 @@ color: #c92c3c;
     height: auto;
     text-align: center;
   }
-
   .title-dish p {
     text-align: start !important;
     font-size: 25px;
@@ -824,6 +850,9 @@ color: #c92c3c;
     width: 100%;
     padding: 0;
     margin: 0;
+  }
+  #app > div > section.foods > section > div > div > div.product-list-wrapper.container-fluid > div > div > div > img{
+    width: 65%;
   }
 }
 
@@ -864,6 +893,13 @@ color: #c92c3c;
   box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.5);
   padding: 20px;
   position: relative;
+  z-index: 9999;
+}
+.blink img{
+  position: absolute;
+  width: 150px;
+  top: 0;
+  left: 0;
 }
 .custom-modal .form-control:focus {
   outline: none;

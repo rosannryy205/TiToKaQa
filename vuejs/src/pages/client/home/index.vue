@@ -207,15 +207,26 @@
     <section class="popular-searches container py-4">
       <h2 class="fw-bold mb-3 text-start text-md-start">Nhiều Người Gọi</h2>
       <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
-        <span class="badge rounded-pill text-dark bg-dtext-dark px-3 py-2">
-          <span>🍛</span> Lẩu
-        </span>
-        <span class="badge rounded-pill text-dark bg-dtext-dark px-3 py-2">
-          <span>🍜🔥</span> Mỳ cay
-        </span>
-        <span class="badge rounded-pill text-dark bg-dtext-dark px-3 py-2">
-          <span>🥩</span> Bò Waygu
-        </span>
+        <div class="row d-flex">
+          <div class="col-4">
+            <img src="/img/food/combo/cb1.webp" alt="" width="100%">
+            <div class="view-more">
+            <a href="#" class="link fw-bold">Combo 1 người →</a>
+          </div>
+          </div>
+          <div class="col-4">
+            <img src="/img/food/combo/cb2.webp" alt="" width="100%">
+            <div class="view-more">
+            <a href="#" class="link fw-bold">Combo 2 người →</a>
+          </div>
+          </div>
+          <div class="col-4">
+            <img src="/img/food/combo/cb3.webp" alt="" width="100%">
+            <div class="view-more">
+            <a href="#" class="link fw-bold">Combo Panchan 19K →</a>
+          </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -224,16 +235,16 @@
       <h2 class="text-center text-md-start mb-3 fw-bold">Thông Báo & Bài Viết<span>📢</span></h2>
       <hr />
       <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
-        <div class="col">
+        <div class="col img-post">
           <img src="../../../../public/img/bv1.webp" alt="post1" class="img-fluid rounded" />
         </div>
-        <div class="col">
+        <div class="col img-post">
           <img src="../../../../public/img/bv2.png" alt="post2" class="img-fluid rounded" />
         </div>
-        <div class="col">
+        <div class="col img-post">
           <img src="../../../../public/img/bv3.png" alt="post3" class="img-fluid rounded" />
         </div>
-        <div class="col">
+        <div class="col img-post">
           <img src="../../../../public/img/bv1.webp" alt="post4" class="img-fluid rounded" />
         </div>
       </div>
@@ -251,6 +262,9 @@
       <div class="modal-content custom-modal">
         <div class="modal-body">
           <div class="row">
+            <div class="blink">
+              <img src="/img/item/item text.png" alt="">
+            </div>
             <div class="col-md-5 d-flex justify-content-center align-items-center">
               <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" width="100%" />
             </div>
