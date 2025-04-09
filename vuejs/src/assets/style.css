@@ -49,17 +49,19 @@ body > section > div.header > div > nav {
 
 }
 .logo {
-  max-height: 120px;
+  max-height: 100px;
 }
 .nav-link {
   font-weight: bold;
   text-transform: uppercase;
-  padding: 10px 15px;
   transition: 0.5s;
 }
 .nav-link:hover {
   color: #c92c3c;
   scale: 1.1;
+}
+.icon-btn{
+  font-size: 22px;
 }
 .icon-btn:hover {
   color: #c92c3c;
@@ -673,16 +675,43 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 .foods-homepages::-webkit-scrollbar-track {
   background: #f8f9fa;
 }
+/*section combo*/
+#app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div{
+  position: relative;
+}
+#app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div{
+position: absolute;
+box-sizing: border-box;
+right: 10px;
+bottom: 5%;
+}
+#app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > img{
+transition: 0.5s;
+}
+#app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > img:hover{
+  scale: 1.1;
+  }
+#app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div > a{
+font-size: 20px;
+color: #c92c3c;
+}
+@media (max-width: 768px){ 
+  #app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div > a{
+   font-size: 10px;
+   color: #c92c3c;
+   bottom: 0% !important;
+}
+}
+
+
 
 /*section infor - post - pupular*/
 .popular-searches{
   margin-top: 30px;
+  margin-bottom: 20px;
 }
 .popular-searches h2{
   color: #c92c3c;
-}
-.popular-searches .badge {
-  font-size: 14px;
 }
 .pots-section h2{
   color: #c92c3c;
@@ -692,19 +721,13 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   height: auto;
   object-fit: cover;
 }
-
-@media (max-width: 768px) {
-  .popular-searches h2,
-  .pots-section h2 {
-      text-align: center;
-  }
-
-  .popular-searches .d-flex {
-      justify-content: center !important;
-  }
+.img-post{
+  filter: grayscale(1);
+  transition: 0.5s;
 }
-.pots-section {
-  margin-top: 30px;
+.img-post:hover{
+  filter: none;
+  filter: brightness(1);
 }
 /*footer*/
 .row a{
@@ -755,115 +778,89 @@ body > section > footer > div > div:nth-child(1) > div.col-md-2.mb-4{
 }
 
 /*section dish-by-category*/
-/*bg banner*/
-.background-banner {
-  position: absolute;
-  top: 100%;
-  width: 100%;
-  height: 500px;
-  background-image: url('../img/bg-banner.png');
-  background-size: cover;
-  z-index: -1;
-}
 /**/
-#app > div > section.foods > div.main-page-foods.container > div.row.d-flex.align-items-center.justify-content-between > div.col-md-6.d-none.d-lg-flex.justify-content-center.align-items-center > span{
-  font-size: 70px;
-  color: #c92c3c;
-}
-.dish-by-category {
-  display: flex;
-  justify-content: center;
-}
-#app > div > section.foods > section > div > div > div.col-12.images-dish.d-flex.justify-content-between{
-  height: 300px;
-  margin-bottom: 20px;
-}
-.img-dish img{
-width: 20%;
-position: absolute;
-left: 10%;
-}
-.title-dish p{
-margin-top: 20px;
-text-align: center;
-font-weight: bold;
-font-size: 75px;
+#app > div > section.foods > div.main-page-foods.container > div.col-12.d-lg-none.position-relative > div.show.menu-dropdown > ul > li > a{
 color: #c92c3c;
 }
-.custom-row {
-  position: relative;
-  background: white;
-  padding: 15px;
-  border-radius: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  margin-top: 150px;
-}
-.product-card {
-  text-align: center;
-  padding: 20px;
-  border-right: 1px solid #ccc;
-
-}
-.product-dish-title{
-  font-weight: bold;
+#app > div > section.foods > div.main-page-foods.container > div.col-12.d-lg-none.position-relative > div.show.menu-dropdown > ul > li > ul > li > a{
   color: #c92c3c;
 }
-@media (max-width: 1280px) {
-  .custom-row{
-    margin-top: 0px;
-  }
-  .img-dish img{
-    position: static !important;
-    width: 40%;
+#app > div > section.foods > div.main-page-foods.container > div.row.d-flex.align-items-center.justify-content-between > div.col-md-6.d-none.d-lg-flex.justify-content-center.align-items-center > span{
+  font-size: 80px;
+  color: #c92c3c;
 }
-body > section > section > div > div > div > div > img{
-  width: 65%;
+.images-dish {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 300px;
+  margin-bottom: 20px;
+  padding: 0 20px;
 }
-body > section > section > div > div > div.col-12.images-dish.d-flex.justify-content-between{
-  height: 25vh;
+.img-dish img {
+  width: 430px;
+  height: auto;
+  position: relative;
+  z-index: 100;
+  left: 15%;
+
 }
-#app > div > section.foods > section > div > div > div > div{
-  border-right: none;
+
+.title-dish p {
+  margin: 0;
+  font-weight: bold;
+  font-size: 60px;
+  color: #c92c3c;
 }
+.product-list-wrapper {
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+  padding: 30px;
 }
-@media (max-width: 900px) {
-  body > section > section > div > div > div > div > img{
-    width: 80%;
-  }
+.product-card{
+  border-right: dashed 1px rgb(211, 211, 211); 
 }
+.product-card h3, p{
+  color: #c92c3c;
+}
+
+/* Responsive từ tablet trở xuống */
 @media (max-width: 768px) {
-  .img-dish img{
-    position: static !important;
-    width: 90%;
+  .images-dish {
+    flex-direction: column;
+    justify-content: center;
+    height: auto;
+    text-align: center;
   }
-  .title-dish p{
-    font-size: 35px;
+  .title-dish p {
+    text-align: start !important;
+    font-size: 25px;
   }
-  .product-card img{
+  #app > div > section.foods > section > div > div > div.product-list-wrapper.container-fluid.m-2 > div > div > div > img{
+    width: 200px;
+  }
+  #app > div > section.foods > section > div > div > div.product-list-wrapper.container-fluid.m-2 > div > div > div{
+    border-bottom: 2px solid #ddd;
+  }
+  .product-list-wrapper{
+    margin: 5px;
+  }
+  .banner-deals{
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  #app > div > section.foods > section > div > div > div.product-list-wrapper.container-fluid > div > div > div > img{
     width: 65%;
   }
-  #app > div > section.foods > section > div > div > div{
-    border-bottom: 1px solid #ddd;
-  }
-  #app > div > section.foods > section > div > div > div.col-12.images-dish.d-flex.justify-content-between{
-    height: 200px;
-  }
 }
+
 /*slide deals*/
 .banner-deals {
   display: flex;
-  justify-content: center;
-  align-items: center;
   position: relative;
-  width: 100%;
-  padding: 20px 0;
-  margin-top: 20px;
-}
-.banner-deals img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+  width: 90%;
 }
 .trans-left,
 .trans-right {
@@ -877,17 +874,18 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
   cursor: pointer;
 }
 .trans-left {
-  left: 10%;
+  left: 5%;
 }
 .trans-right {
-  right: 10%;
+  right: 5%;
 }
-@media (max-width: 1280px) {
-  #app > div > section.banner-deals{
-    margin: 0;
-    padding: 0;
+@media (max-width: 768px) {
+  .banner-deals{
+    width: 100% !important;
   }
 }
+
+
 /*modal*/
 .custom-modal {
   background-color:#ffffff ;
@@ -895,6 +893,13 @@ body > section > section > div > div > div.col-12.images-dish.d-flex.justify-con
   box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.5);
   padding: 20px;
   position: relative;
+  z-index: 9999;
+}
+.blink img{
+  position: absolute;
+  width: 150px;
+  top: 0;
+  left: 0;
 }
 .custom-modal .form-control:focus {
   outline: none;
@@ -930,18 +935,10 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   color: #c92c3c;
 }
 .topping-container {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.topping-list {
-  max-height: 150px;
+  max-height: 150px; 
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  border: 1px solid #ddd; 
+  padding: 10px;
 }
 
 

@@ -1,4 +1,12 @@
 <template>
+    <div class="row d-flex text-center">
+      <div class="title-foods fw-medium fs-5 mt-5">
+            <span>Lẩu và Mỳ cay 7 cấp độ</span>
+          </div>
+          <div class="title-shops d-sm-block fw-bold">
+            <span>ĐẶT BÀN CÙNG CHÚNG TÔI!</span>
+          </div>
+    </div>
   <div class="container custom-container">
     <div class="booking-form row w-75" style="border-radius: 0px">
       <div class="col-md-6 booking-image">

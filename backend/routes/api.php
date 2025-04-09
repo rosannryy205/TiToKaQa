@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
@@ -18,6 +17,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ToppingController;
 use App\Http\Controllers\UserController;
+use App\Models\Category;
+use App\Models\Food;
+use App\Models\Topping;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
@@ -35,8 +37,14 @@ Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']
 Route::post('/reservation', [OrderController::class, 'reservation']);
 Route::get('/reservation-info/{id}', [OrderController::class, 'getInfoReservation']);
 
+//login/register/logout
+
+Route::post('/register', [UserController::class, 'register']);
+Route::post('/login', [UserController::class, 'login']);
+Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 //user
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
+
 
