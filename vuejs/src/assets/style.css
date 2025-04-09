@@ -953,7 +953,7 @@ color: #c92c3c;
 }
 
 .modal-image {
-  max-width: 250px;
+  max-width: 180px;
   width: 100%;
   object-fit: cover;
   border-radius: 8px;
@@ -994,12 +994,15 @@ color: #c92c3c;
   padding: 5px;
 }
 @media (max-width: 576px) {
+  .custom-modal{
+    height: 60vh;
+  }
   .modal-dialog {
     margin: 1rem;
   }
 
   .modal-image {
-    max-width: 100%;
+    max-width: 60%;
   }
 }
 
