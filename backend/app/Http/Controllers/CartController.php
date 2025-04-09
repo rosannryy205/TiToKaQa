@@ -2,46 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Food;
-use App\Models\Topping;
+use App\Models\Order;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function addToCart(Request $request, $id)
-{
-    $food =Food::with('toppings')->find($id);
 
-    if(!$food){
-        return response()->json([
-            'mess' => 'Không tìm thấy sản phẩm'
-        ],404);
-    }
+    public function check_out(Request $request)
+    {
+        try{
+            $data = $request->validate([
+                'user_id' => 'nullable|numeric',
+                'guest_name' => 'required|string|max:255',
+                'guest_phone' => 'required|digits:10',
+                'guest_email' => 'required|email',
+                'guest_address' => 'required|address',
+                'total_price' => 'required|numeric',
+                'order_detail' => 'nullable|array',
+                'note' => 'nullable|string',
+            ]);
 
-    $requesToppingId = $request->input('toppings',[]);
+            try {
+                $order = Order::create([
+                    'user_id' => $data['user_id'] ?? null,
+                    'guest_name' => $data['guest_name'],
+                    'guest_phone' => $data['guest_phone'],
+                    'guest_email' => $data['guest_email'],
+                    'guest_address' => $data['guest_address'],
+                    'total_price' => $data['total_price'],
+                    'note' => $data['note']??null,
+                ]);
 
 
-    //Lấy danh sách ID topping hợp lệ của món ăn
-    $validToppingId = $food->toppings->pluck('id')->toArray();
+            if(!empty($data['order_detail'])){
+                
+            }
 
 
-    //Lấy danh sách ID topping hợp lệ của món ăn
-    foreach( $requesToppingId as $toppingId){
-        if(!in_array($toppingId, $validToppingId)){
-            return response()->json([
-                'mess' => "Topping không hợp lệ",
-            ],422);
+            }catch(\Exception $e){
+
+            }
+        } catch(\Exception $e){
+
         }
     }
-
-    return response()->json([
-        'mess' => 'Sản phẩm đã được thêm vào giỏ hàng',
-        'food' => $food,
-        'toppings' =>Topping::whereIn('id',$requesToppingId)->get(),
-    ]);
-}
 
 }

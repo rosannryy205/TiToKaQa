@@ -7,7 +7,7 @@
             <h3>Thông tin đặt hàng</h3>
           </div>
           <div class="body-in4-customer">
-            <form action="">
+            <form @submit.prevent="check_out">
               <div class="input-in4-customer">
                 <input type="text" placeholder="Tên của bạn">
               </div>

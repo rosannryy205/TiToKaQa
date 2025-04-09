@@ -1,6 +1,6 @@
 <template>
   <div class="container-sm">
-    <span>Trang chủ / Giỏ hàng</span>
+    <span  style="color: #000;"><router-link to="/home" style="text-decoration: none; color: #000; ">Trang chủ</router-link> / Giỏ hàng</span>
     <h3 class="mb-4">Giỏ hàng của bạn</h3>
     <div class="row">
       <!-- Danh sách sản phẩm -->
