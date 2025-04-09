@@ -36,6 +36,7 @@ class UserController extends Controller
                     }
                 }
             ],
+            'phone' => ['required', 'regex:/^(0|\+84)(\d{9})$/', 'unique:users,phone'],
 
             'password' => 'required|confirmed|min:6',
 
@@ -51,6 +52,10 @@ class UserController extends Controller
             'email.email' => 'Email không đúng định dạng.',
             'email.unique' => 'Email đã được sử dụng.',
 
+            'phone.required' => 'Vui lòng nhập số điện thoại.',
+            'phone.regex' => 'Số điện thoại không đúng định dạng.',
+            'email.unique' => 'Số điện thoại đã được sử dụng.',
+
             'password.required' => 'Vui lòng nhập mật khẩu.',
             'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
             'password.min' => 'Mật khẩu phải có ít nhất :min ký tự.',
@@ -63,17 +68,27 @@ class UserController extends Controller
         $user = User::create([
             'username' => $request->username,
             'email' => $request->email,
+            'phone' => $request->phone ?? '',
             'password' => bcrypt($request->password),
             'address' => $request->address ?? '',
-            'fullname' => $request->fullname ?? '',
-            'phone' => $request->phone ?? ''
+            'fullname' => $request->fullname ?? ''
+
         ]);
+        Auth::login($user);
         $token = $user->createToken('auth')->plainTextToken;
 
         // Gửi mail chào mừng
         Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
 
-        return response()->json(['message' => 'Đăng ký thành công!', 'user' => $user, 'token' => $token]);
+        return response()->json([
+            'message' => 'Đăng ký thành công!',
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'role' => $user->role
+            ],
+            'token' => $token
+        ]);
     }
 
 
@@ -105,10 +120,15 @@ class UserController extends Controller
         }
 
         $user = Auth::user();
+        /** @var \App\Models\User $user */
         $token = $user->createToken('auth')->plainTextToken;
         return response()->json([
             'message' => 'Đăng nhập thành công!',
-            'user' => $user,
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'role' => $user->role
+            ],
             'token' => $token
         ]);
     }
@@ -117,7 +137,15 @@ class UserController extends Controller
     public function logout(Request $request)
     {
         // Hủy token hiện tại của người dùng
-        Auth::user()->currentAccessToken()->delete();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        /** @var \Laravel\Sanctum\PersonalAccessToken|null $token */
+        $token = $user->currentAccessToken();
+
+        if ($token) {
+            $token->delete();
+        }
 
         return response()->json([
             'message' => 'Đăng xuất thành công!'

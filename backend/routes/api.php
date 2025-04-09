@@ -15,9 +15,13 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ComboController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
+
+Route::post('/chatbot', [ChatbotController::class, 'chat']);
+Route::get('/home', [HomeController::class, 'index']);
+
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ToppingController;
-use App\Http\Controllers\UserController;
 use App\Models\Category;
 use App\Models\Food;
 use App\Models\Topping;
@@ -54,6 +58,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
-Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [UserController::class, 'logout']);
+});
+
 
 

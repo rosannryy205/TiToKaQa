@@ -20,7 +20,7 @@
 </head>
 <body>
     <div class="container-mailwelcome">
-        <img class="img-welcome" src="{{ $message->embed(public_path('images/logonew.png')) }}" alt="TIKIKAQA">
+        {{-- <img class="img-welcome" src="{{ $message->embed(public_path('images/logonew.png')) }}" alt="TIKIKAQA"> --}}
         <h2>Xin chào {{ $user->username }}!</h2>
         <p>Chào mừng bạn đã đăng ký tài khoản tại TIKIKAQA của chúng tôi.</p>
         <p class="highlight">Chúc bạn một ngày vui vẻ và trải nghiệm tốt!</p>

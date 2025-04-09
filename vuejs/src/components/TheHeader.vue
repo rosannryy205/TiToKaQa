@@ -191,6 +191,13 @@
 
             </div>
 
+            <!-- Phone  -->
+            <div v-if="errors.phone" class="text-danger small">{{ errors.phone[0] }}</div>
+            <div class="mb-3 position-relative">
+              <i class="bi bi-telephone position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="text" class="form-control ps-5" id="phone" placeholder="Số điện thoại" v-model="registerData.phone">
+            </div>
+
             <!-- Password -->
             <div v-if="errors.password" class="text-danger small">{{ errors.password[0] }}</div>
             <div class="mb-3 position-relative">
@@ -346,6 +353,7 @@ window.bootstrap = bootstrap;
 const registerData = reactive({
   username: '',
   email: '',
+  phone: '',
   password: '',
   password_confirmation: ''
 });
@@ -471,6 +479,12 @@ const handleLogin = async () => {
 
 //  Đăng xuất
 const handleLogout = async () => {
+
+
+  const confirmLogout = confirm('Bạn chắc chắn muốn đăng xuất?');
+  if (!confirmLogout) {
+    return;
+  }
   try {
     await axios.post('http://127.0.0.1:8000/api/logout', {}, {
       headers: {
@@ -483,7 +497,8 @@ const handleLogout = async () => {
     user.value = null;
     isLoggedIn.value = false;
 
-    alert('Đăng xuất thành công!');
+    alert('Đăng xuất thành công');
+    window.location.href = '/home';
   } catch (error) {
     console.error('Lỗi đăng xuất:', error);
     alert('Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!');
