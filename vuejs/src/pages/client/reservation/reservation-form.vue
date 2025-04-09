@@ -9,25 +9,25 @@
       <div class="section-title">Thông tin đơn hàng của bạn</div>
       <div class="row mb-3">
         <div class="col-6"><strong>Tên người đặt bàn:</strong></div>
-        <div class="col-6">Nguyen van a</div>
+        <div class="col-6">{{ info.guest_name }}</div>
 
         <div class="col-6"><strong>Điện thoại:</strong></div>
-        <div class="col-6">07689879999</div>
+        <div class="col-6">{{ info.guest_phone }}</div>
 
         <div class="col-6"><strong>Email:</strong></div>
-        <div class="col-6">Nguyen van a@gmail</div>
+        <div class="col-6">{{ info.guest_email }}</div>
 
         <div class="col-6"><strong>Thời gian dùng bữa dự kiến:</strong></div>
-        <div class="col-6">12/03/2025 (8h-10h)</div>
+        <div class="col-6">{{ info.reservations_time }}</div>
 
         <div class="col-6"><strong>Bàn số:</strong></div>
-        <div class="col-6">1</div>
+        <div class="col-6">đang xác nhận</div>
 
         <div class="col-6"><strong>Khách dự kiến:</strong></div>
-        <div class="col-6">5 người</div>
+        <div class="col-6">{{ info.guest_count }} người</div>
 
         <div class="col-6"><strong>Phí giữ bàn:</strong></div>
-        <div class="col-6">50.000VND</div>
+        <div class="col-6"> {{ formatNumber(info.deposit_amount) }}VND</div>
       </div>
 
       <!-- Thực đơn đặt hàng -->
@@ -53,11 +53,30 @@
                 <td>45.000VNĐ</td>
                 <td>2</td>
                 <td>90.000VNĐ</td>
+        <tbody v-if="info.details && info.details.length">
+            <tr v-for="(detail, index) in info.details" :key="index">
+                <td>{{ ++index }}</td>
+                <td>
+                  <img :src="getImageUrl(detail.image)" style="width: 50px; height: auto; margin-right: 10px;">
+                  {{ detail.food_name }} <br>
+                  <div class="text-start" v-for="(topping, index) in detail.toppings" :key="index">
+                    <small class="text-muted" v-if="topping.price !== null">
+                        {{ topping.topping_name + ' - ' + formatNumber(topping.price) + ' VND' }}
+                      </small>
+                      <small class="text-muted" v-else>
+                        {{ topping.topping_name }}
+                      </small>
+                  </div>
+
+                </td>
+                <td>{{ formatNumber(detail.price)  }} VNĐ</td>
+                <td>{{ detail.quantity }}</td>
+                <td>{{ formatNumber(detail.price*detail.quantity) }} VNĐ</td>
               </tr>
           <tr>
             <td colspan="3"></td>
             <td><strong>Tổng cộng</strong></td>
-            <td><strong>90.000VNĐ</strong></td>
+            <td><strong>{{ formatNumber(info.total_price) }} VNĐ</strong></td>
           </tr>
         </tbody>
       </table>
@@ -103,3 +122,45 @@
   </div>
 </div>
 </template>
+<script>
+import axios from 'axios'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import numeral from 'numeral'
+export default{
+  methods: {
+    formatNumber(value) {
+      return numeral(value).format('0,0')
+    },
+    getImageUrl(image) {
+      return `/img/food/${image}`
+    },
+  },
+  setup(){
+    const info = ref({});
+    const route = useRoute();
+    const orderId = route.params.orderId;
+    // console.log(orderId);
+
+
+    const getInfo = async () => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/reservation-info/${orderId}`)
+        info.value = res.data.info
+        // console.log(info.deposit_amount);
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    onMounted(() => {
+      getInfo()
+    })
+
+    return{
+      info
+    }
+  }
+}
+</script>

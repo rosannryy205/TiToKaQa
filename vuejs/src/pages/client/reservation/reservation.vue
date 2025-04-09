@@ -30,7 +30,7 @@
 
           <textarea cols="5" rows="3" v-model="note" class="form-control mb-2 custom-select"
             placeholder="Ghi chú"></textarea>
-          <button type="submit" class="btn btn-custom mb-2" data-bs-toggle="modal" data-bs-target="#orderModal">
+          <button type="button" class="btn btn-custom mb-2" data-bs-toggle="modal" data-bs-target="#orderModal">
             Đặt món <span>✚</span>
           </button>
 
@@ -103,11 +103,11 @@
                                       <input class="form-check-input" type="checkbox" :id="'topping-' + toppings.id"
                                         :value="toppings.pivot.id" :name="'topping[]'" />
                                       <label class="form-check-label" :for="'topping-' + toppings.id">{{ toppings.name
-                                        }}</label>
+                                      }}</label>
                                     </div>
                                     <div class="flex-shrink-1">
                                       <label class="form-check-label" for="topping2">{{ formatNumber(toppings.price)
-                                        }}VND</label>
+                                      }}VND</label>
                                     </div>
                                   </div>
                                 </div>
@@ -180,34 +180,39 @@ export default {
     const router = useRouter()
     const savedUser = JSON.parse(localStorage.getItem('user'))
     const quantities = ref({})
-    const order_details = ref([]);
+    // const order_details = ref([]);
 
 
-    let cart = JSON.parse(localStorage.getItem('cart1')) || [];
+    const cart = JSON.parse(localStorage.getItem('cart1')) || []
+    const generateOrderDetails = async () => {
+      const details = []
 
-    cart.forEach(element => {
-      const toppings = Array.isArray(element.topping_id)
-        ? element.topping_id.map((id, index) => ({
+      cart.forEach(element => {
+        const toppings = Array.isArray(element.topping_id)
+          ? element.topping_id.map((id, index) => ({
             food_toppings_id: id,
             price: parseFloat(element.toppingPrice?.[index]) || null
           }))
-        : [];
+          : []
 
-      order_details.value.push({
-        food_id: element.id,
-        quantity: element.quantity,
-        price: parseFloat(element.price),
-        type: "food",
-        combo_id: null,
-        toppings: toppings
-      });
-    });
+        details.push({
+          food_id: element.id,
+          quantity: element.quantity,
+          price: element.price || null,
+          type: 'food',
+          combo_id: null,
+          toppings: toppings
+        })
+      })
+
+      return details
+    }
 
 
 
-    console.log(cart);
+    // console.log(cart);
 
-    console.log(order_details.value);
+    // console.log(order_details.value);
 
     for (let hour = 8; hour <= 19; hour++) {
       let hourStr = hour < 10 ? '0' + hour : '' + hour
@@ -249,11 +254,16 @@ export default {
           deposit_amount: deposit_amount,
           expiration_time: expiration_time,
           total_price: getTotalPrice(cart),
-          order_details: order_details.value
+          order_details: await generateOrderDetails()
         })
         console.log(res.data)
         alert('Đặt bàn thành công!')
-        router.push({ name: 'reservation-form' })
+        const orderId = res.data.order_id;
+        router.push({
+          name: 'reservation-form',
+          params: { orderId }
+        })
+        // console.log(orderId);
       } catch (error) {
         console.error(error.response.data)
       }
@@ -267,13 +277,13 @@ export default {
       }
 
       const quantityInput = quantities.value[foodID] || 1
-      const selectedSpicyId = parseInt(document.getElementById(`spicyLevel-${foodID}`)?.value)
+      const selectedSpicyId = document.getElementById(`spicyLevel-${foodID}`)?.value
 
-      const selectedSpicy = spicyLevel.value.find((item) => item.pivot.id === selectedSpicyId)
+      const selectedSpicy = spicyLevel.value.find((item) => item.pivot.id == selectedSpicyId)
       const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không rõ'
 
       const selectedToppingId = Array.from(
-        document.querySelectorAll(`#toppingModal-${foodID} input[name="topping[]"]:checked`),
+        document.querySelectorAll(`#toppingModal-${foodID} input[name="topping[]"]:checked`)
       ).map((el) => parseInt(el.value))
 
       const selectedToppingName = toppingList.value
@@ -284,29 +294,28 @@ export default {
         .filter((topping) => selectedToppingId.includes(topping.pivot.id))
         .map((topping) => topping.price)
 
-        const toppingIDs = [...selectedToppingId];
-        if (!isNaN(selectedSpicyId)) {
-          toppingIDs.push(selectedSpicyId);
-        }
+      const toppingIDs = [...selectedToppingId]
+      if (selectedSpicy) {
+        toppingIDs.push(selectedSpicy.pivot.id)
+      }
+      const toppingprices = [...selectedToppingPrice]
 
-        const toppingprices = [...selectedToppingPrice];
-        if (!isNaN(selectedToppingId)) {
-          toppingprices.push(selectedToppingId);
-        }
       const cartItems = {
-          id: food.id,
-          name: food.name,
-          image: food.image,
-          price: food.price,
-          spicyLevel: selectedSpicyName,
-          toppings: selectedToppingName,
-          toppings_price: selectedToppingPrice,
-          quantity: quantityInput,
-          topping_id: toppingIDs,
-          toppingPrice: toppingprices,
+        id: food.id,
+        name: food.name,
+        image: food.image,
+        price: food.price,
+        spicyLevel: selectedSpicyName,
+        toppings: selectedToppingName,
+        toppings_price: selectedToppingPrice,
+        quantity: quantityInput,
+        topping_id: toppingIDs,
+        toppingPrice: toppingprices,
       }
 
-      let cart = JSON.parse(localStorage.getItem('cart1')) || []
+      let existingCart = JSON.parse(localStorage.getItem('cart1')) || []
+      existingCart.push(cartItems)
+      localStorage.setItem('cart1', JSON.stringify(existingCart))
 
       const existingItem = cart.findIndex(
         (item) =>
@@ -359,7 +368,7 @@ export default {
         phone.value = savedUser.phone || ''
         email.value = savedUser.email || ''
       }
-
+      generateOrderDetails()
     })
 
     return {
