@@ -146,6 +146,34 @@ class Food extends Seeder
                 'image' => 'kimchi.webp',
                 'description' => 'Kim chi Hàn Quốc cay nồng, giòn ngon, ăn kèm hoàn hảo.',
                 'category_id' => 13
+            ],
+            [
+                'name' => 'Coca Size L', // id = 20
+                'price' => '27000',
+                'image' => 'coca.webp',
+                'description' => 'Coca cola size L',
+                'category_id' => 12
+            ],
+            [
+                'name' => 'Kimbap Chiên', // id = 21
+                'price' => '45000',
+                'image' => 'kimbapchien.webp',
+                'description' => 'Kimbap Chiên Giòn',
+                'category_id' => 11
+            ],
+            [
+                'name' => 'Cải Vàng', // id = 22
+                'price' => '9000',
+                'image' => 'caivang.webp',
+                'description' => '단무지',
+                'category_id' => 13
+            ],
+            [
+                'name' => 'Rong Biển Xốt', // id = 23
+                'price' => '9000',
+                'image' => 'rongbienxot.webp',
+                'description' => '미역나물 무침',
+                'category_id' => 13
             ]
         ]);
 

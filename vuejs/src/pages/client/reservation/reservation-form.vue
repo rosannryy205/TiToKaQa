@@ -45,27 +45,15 @@
         <tbody>
             <tr>
                 <td>1</td>
-                <td>
-                  <img src="" alt="Mì kim chi cá Nha Trang" style="width: 50px; height: auto; margin-right: 10px;">
+                <td class="text-start">
+                  <img src="/img/food.jpg" alt="Mì kim chi cá Nha Trang" style="width: 50px; height: auto; margin-right: 10px;">
                   Mì kim chi cá Nha Trang <br>
-                  <small class="text-muted">Thành phần: ...</small>
+                  <p>Topping: ... </p>
                 </td>
                 <td>45.000VNĐ</td>
                 <td>2</td>
                 <td>90.000VNĐ</td>
               </tr>
-              <tr>
-                <td>2</td>
-                <td>
-                  <img src="" alt="Mì kim chi cá Nha Trang" style="width: 50px; height: auto; margin-right: 10px;">
-                  Mì kim chi cá Nha Trang <br>
-                  <small class="text-muted">Thành phần: ...</small>
-                </td>
-                <td>45.000VNĐ</td>
-                <td>2</td>
-                <td>90.000VNĐ</td>
-              </tr>
-
           <tr>
             <td colspan="3"></td>
             <td><strong>Tổng cộng</strong></td>

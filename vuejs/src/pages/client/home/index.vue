@@ -20,7 +20,7 @@
           </div>
 
           <div class="deals-hot-box d-none d-lg-block">
-            <p class="title">Khám phá ưu đãi hot!</p>
+            <p class="title" style="color: white">Khám phá ưu đãi hot!</p>
             <a href="#" class="link">Xem ngay <span>→</span></a>
           </div>
         </div>

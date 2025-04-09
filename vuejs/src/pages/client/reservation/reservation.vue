@@ -51,7 +51,7 @@
           <div class="row mb-3">
             <div class="col">
               <select class="form-select" @change="getFoodByCategory($event.target.value)">
-                <option value="">Chọn danh mục</option>
+                <option value="">THỰC ĐƠN</option>
                 <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
                   {{ item.indent }}{{ item.name }}
                 </option>

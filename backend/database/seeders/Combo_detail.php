@@ -24,6 +24,46 @@ class Combo_detail extends Seeder
                 'food_id' => 18,
                 'quantity' => 10
             ],
+            [
+                'combo_id' => 2,
+                'food_id' => 1,
+                'quantity' => 1
+            ],
+            [
+                'combo_id' => 2,
+                'food_id' => 20,
+                'quantity' => 1
+            ],
+            [
+                'combo_id' => 3,
+                'food_id' => 1,
+                'quantity' => 1
+            ],
+            [
+                'combo_id' => 3,
+                'food_id' => 4,
+                'quantity' => 1
+            ],
+            [
+                'combo_id' => 3,
+                'food_id' => 21,
+                'quantity' => 1
+            ],
+            [
+                'combo_id' => 4,
+                'food_id' => 19,
+                'quantity' => 1
+            ],
+            [
+                'combo_id' => 4,
+                'food_id' => 22,
+                'quantity' => 1
+            ],
+            [
+                'combo_id' => 4,
+                'food_id' => 23,
+                'quantity' => 1
+            ],
         ]);
     }
 }
