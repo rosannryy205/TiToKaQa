@@ -20,7 +20,11 @@ class Order extends Model
         'note',
         'deposit_amount',
         'expiration_time',
+        'total_price'
 
     ];
+    public function details() {
+        return $this->hasMany(Order_detail::class);
+    }
 
 }

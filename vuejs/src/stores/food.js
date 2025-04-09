@@ -31,6 +31,10 @@ export const FoodList = {
       try {
         const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`)
         foods.value = res.data
+        foods.value = foods.value.map(food => ({
+          ...food,
+          quantity: food.quantity || 1
+        }))
       } catch (error) {
         console.error("Lỗi khi lấy món ăn:", error)
       }
@@ -123,6 +127,57 @@ export const FoodList = {
       isDropdownOpen.value = !isDropdownOpen.value
     }
 
+
+    const addToCart = () => {
+      const quantityInput = parseInt(document.getElementById('quantityInput')?.value || 1)
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không rõ'
+      const selectedToppingId = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')).map((el)=>parseInt(el.value))
+
+      const selectedToppingName= toppingList.value
+      .filter((topping)=>selectedToppingId.includes(topping.id))
+      .map((topping)=>topping.name)
+
+      const selectedToppingprice= toppingList.value
+      .filter((topping)=>selectedToppingId.includes(topping.id))
+      .map((topping)=>topping.price)
+
+      const cartItem = {
+        id: food.value.id,
+        name: food.value.name,
+        image: food.value.image,
+        price: food.value.price,
+        spicyLevel: selectedSpicyName,
+        toppings: selectedToppingName,
+        toppings_price: selectedToppingprice,
+        quantity: quantityInput,
+      }
+
+      //lấy giỏ hàng từ localStorage
+      let cart=JSON.parse(localStorage.getItem('cart1')) || []
+
+      //Tìm xem item có trong giỏ hàng chưa
+      const existingItem = cart.findIndex(
+        (item) =>
+        item.id === cartItem.id &&
+        item.spicyLevel === cartItem.spicyLevel &&
+        JSON.stringify(item.toppings.sort()) ===  JSON.stringify(cartItem.toppings.sort())
+      )
+
+      if(existingItem !== -1){
+        cart[existingItem].quantity += 1
+      } else {
+        cart.push(cartItem)
+      }
+
+      localStorage.setItem('cart1', JSON.stringify(cart))
+      alert('Đã thêm vào giỏ hàng!')
+    }
+
+
     // Lấy dữ liệu khi component được mount
     onMounted(() => {
       getFood()
@@ -145,7 +200,9 @@ export const FoodList = {
       formatNumber,
       getImageUrl,
       flatCategoryList,
-      modalElement
+      modalElement,
+      addToCart,
+
     }
   },
 }

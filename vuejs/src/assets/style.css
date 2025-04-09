@@ -343,7 +343,9 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 .title-food-menu {
   font-size: 50px;
   color: #c92c3c;
-  text-shadow: 2px 2px 5px rgba(177, 177, 177, 0.5);
+  /* text-shadow: 2px 2px 5px rgba(177, 177, 177, 0.5); */
+  padding: 15px;
+  background-color: white;
 }
 /*col3 food*/
 /*menu dropdown*/
@@ -647,6 +649,13 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
     margin-left: 10px;
   }
 }
+.title-food-menu {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 10px;
+}
+
 #app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center.text-center{
   max-height: 500px;
   overflow-y: auto;

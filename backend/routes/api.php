@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,11 +31,19 @@ Route::get('/home/category/{id}/food', [FoodController::class, 'getFoodByCategor
 Route::get('/home/topping/{id}', [FoodController::class, 'getToppingByFood']);
 // home categories
 Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
+Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']);
 
-//order reservation
+
+//reservation
 Route::post('/reservation', [OrderController::class, 'reservation']);
 
 //login/register/logout
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
+//user
+Route::post('/register', [UserController::class, 'register']);
+Route::post('/login', [UserController::class, 'login']);
+Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
+
+

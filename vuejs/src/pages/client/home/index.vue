@@ -287,7 +287,7 @@
                     </div>
                   </div>
                 </div>
-                <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                <button class="btn btn-danger w-100 fw-bold" @click.prevent="addToCart">🛒 Thêm vào giỏ hàng</button>
               </form>
             </div>
           </div>
@@ -338,7 +338,10 @@ export default {
         foodDetail.value = res.data
         const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${foodId}`)
         toppings.value = res1.data
+
         spicyLevel.value = toppings.value.filter((item) => item.category_id == 1)
+        console.log(spicyLevel.value);
+
         toppingList.value = toppings.value.filter((item) => item.category_id == 2)
         toppingList.value.forEach((item) => {
           item.price = item.price || 0
@@ -415,7 +418,6 @@ export default {
     const toggleDropdown = () => {
       isDropdownOpen.value = !isDropdownOpen.value
     }
-
     const currentIndex = ref(0)
 const images = [
   '/img/banner/Banner (1).webp',
@@ -427,6 +429,51 @@ const changeSlide = (direction) => {
   const total = images.length
   currentIndex.value = (currentIndex.value + direction + total) % total
 }
+    const addToCart = () => {
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không rõ'
+      const selectedToppingId = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')).map((el)=>parseInt(el.value))
+
+      const selectedToppings= toppingList.value
+      .filter((topping)=>selectedToppingId.includes(topping.id))
+      .map((topping)=>({
+        name: topping.name,
+        price: topping.price
+      }))
+
+      const cartItem = {
+        id: foodDetail.value.id,
+        name: foodDetail.value.name,
+        image: foodDetail.value.image,
+        price: foodDetail.value.price,
+        spicyLevel: selectedSpicyName,
+        toppings: selectedToppings,
+        quantity: 1,
+      }
+
+      //lấy giỏ hàng từ localStorage
+      let cart=JSON.parse(localStorage.getItem('cart')) || []
+
+      //Tìm xem item có trong giỏ hàng chưa
+      const existingItem = cart.findIndex(
+        (item) =>
+        item.id === cartItem.id &&
+        item.spicyLevel === cartItem.spicyLevel &&
+        JSON.stringify(item.toppings.sort()) ===  JSON.stringify(cartItem.toppings.sort())
+      )
+
+      if(existingItem !== -1){
+        cart[existingItem].quantity += 1
+      } else {
+        cart.push(cartItem)
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart))
+      alert('Đã thêm vào giỏ hàng!')
+    }
     onMounted(() => {
       getFood()
       getCategory()
@@ -454,6 +501,8 @@ const changeSlide = (direction) => {
       currentIndex,
       images,
       changeSlide,
+      addToCart,
+
     }
   },
 }

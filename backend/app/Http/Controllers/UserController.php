@@ -67,6 +67,7 @@ class UserController extends Controller
             'password' => bcrypt($request->password),
             'address' => $request->address ?? '',
             'fullname' => $request->fullname ?? '',
+            'phone' => $request->phone ?? ''
         ]);
         $token = $user->createToken('auth')->plainTextToken;
 
