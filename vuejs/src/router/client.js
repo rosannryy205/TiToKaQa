@@ -25,7 +25,7 @@ const client = [
                 component: () => import("../pages/client/reservation/reservation.vue")
             },
             {
-              path: "reservation-form",
+              path: "reservation-form/:orderId",
               name: "reservation-form",
               component: () => import("../pages/client/reservation/reservation-form.vue")
             },

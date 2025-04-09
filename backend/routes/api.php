@@ -31,9 +31,9 @@ Route::get('/home/topping/{id}', [FoodController::class, 'getToppingByFood']);
 Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']);
 
-
 //reservation
 Route::post('/reservation', [OrderController::class, 'reservation']);
+Route::get('/reservation-info/{id}', [OrderController::class, 'getInfoReservation']);
 
 //user
 Route::post('/register', [UserController::class, 'register']);

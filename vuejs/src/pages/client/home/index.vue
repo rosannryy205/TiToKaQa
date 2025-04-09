@@ -302,7 +302,7 @@ import { Modal } from 'bootstrap'
 export default {
   methods: {
     formatNumber(value) {
-      return numeral(value).format('0,0.00')
+      return numeral(value).format('0,0')
     },
     getImageUrl(image) {
       return `/img/food/${image}`
