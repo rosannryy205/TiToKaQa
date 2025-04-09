@@ -12,8 +12,7 @@
           </div>
         </nav>
         <div class="nav-icons d-none d-lg-flex align-items-center">
-          <button v-if="!isLoggedIn" class="icon-btn me-3" data-bs-toggle="modal"  @click="openLoginModal"
-          >
+          <button v-if="!isLoggedIn" class="icon-btn me-3" data-bs-toggle="modal" @click="openLoginModal">
             <i class="bi bi-people"></i>
           </button>
 
@@ -100,20 +99,19 @@
           <form @submit.prevent="handleLogin">
             <div v-if="loginError" class="text-danger small text-center">{{ loginError }}</div>
 
-            <div class="mb-3 position-relative input-group">
-              <span class="input-icon">
-                <i class="bi bi-person"></i>
-              </span>
-              <input type="text" class="form-control" v-model="loginData.login" placeholder="Tên đăng nhập hoặc email">
+            <div class="mb-3 position-relative">
+              <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="text" class="form-control ps-5" v-model="loginData.login"
+                placeholder="Tên đăng nhập hoặc email">
             </div>
 
-            <div class="mb-3 position-relative input-group">
-              <span class="input-icon">
-                <i class="bi bi-lock"></i>
-              </span>
-              <input type="password" class="form-control" v-model="loginData.password" id="password"
+
+            <div class="mb-3 position-relative">
+              <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="password" class="form-control ps-5" v-model="loginData.password" id="password"
                 placeholder="Nhập mật khẩu">
             </div>
+
 
             <div class="mb-3 d-flex justify-content-end gap-3 small">
               <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal"
@@ -199,6 +197,18 @@
             <div class="mb-3 text-end">
               <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Đã có tài
                 khoản</a>
+            </div>
+
+            <div class="divider d-flex align-items-center mb-3">
+              <hr class="flex-grow-1">
+              <span class="px-2 text-muted small">hoặc đăng nhập</span>
+              <hr class="flex-grow-1">
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+              <button type="button" class="btn btn-social"><i class="bi bi-google"></i></button>
+              <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
+              <button type="button" class="btn btn-social"><i class="bi bi-twitter-x"></i></button>
             </div>
           </form>
         </div>

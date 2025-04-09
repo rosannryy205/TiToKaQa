@@ -35,7 +35,7 @@
               </div>
             </div>
             <div class="mb-2 price">
-              <strong>{{ formatNumber(totalPriceItem(item)) }} VNĐ VNĐ</strong>
+              <strong>{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
             </div>
           </div>
         </div>
@@ -100,18 +100,22 @@ export default {
 
     const totalPrice = computed(() => {
       return cartItems.value.reduce((sum, item) => {
-        const basePrice = item.price * item.quantity
-        const toppingPrice = item.toppings.reduce((tsum, topping) => tsum + (topping.price * topping.quantity),0)
-        return sum + (basePrice + toppingPrice)
+        const basePrice = Number(item.price) * item.quantity
+        const toppingPrice = item.toppings.reduce((tsum, topping) => {
+          return tsum + (Number(topping.price) * item.quantity)
+        }, 0)
+        return sum + basePrice + toppingPrice
       }, 0)
     })
 
+
     const totalPriceItem = (item) => {
-      const itemPrice = item.price * item.quantity;
-      const toppingPrice = item.toppings.reduce((sum, topping) => sum + (topping.price * item.quantity), 0);
+      const itemPrice = Number(item.price) * item.quantity;
+      const toppingPrice = item.toppings.reduce((sum, topping) => {
+        return sum + (Number(topping.price) * item.quantity);
+      }, 0);
       return itemPrice + toppingPrice;
     };
-
 
     const updateCartStorage = () => {
       localStorage.setItem('cart', JSON.stringify(cartItems.value))

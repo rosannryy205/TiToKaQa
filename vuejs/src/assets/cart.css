@@ -480,12 +480,13 @@ input.form-control-cart:focus {
 }
 
 .btn-checkout {
-  background-color: #b71c1c;
+  background-color: #C92C3C;
   color: white;
 }
 
 .btn-checkout:hover {
-  background-color: #C92C3C;
+  background-color: #a51928;
+  color: white;
 }
 
 .product-title {
