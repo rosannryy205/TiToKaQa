@@ -1012,6 +1012,7 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   overflow-y: auto;
   border: 1px solid #ddd;
   padding: 10px;
+}
 @media (max-width: 576px) {
   .custom-modal{
     height: 60vh;
