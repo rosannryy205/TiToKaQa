@@ -38,20 +38,16 @@
           <router-link to="/cart" style="color: black;">
             <button class="icon-btn"><i class="bi bi-cart"></i></button>
           </router-link>
+          
         </div>
       </div>
 
       <!-- menu bottom -->
       <nav class="navbar navbar-expand-lg navbar-bottom">
-        <div class="collapse navbar-collapse justify-content-center d-none d-lg-flex">
+        <div class="collapse navbar-collapse text-start d-none d-lg-flex">
           <ul class="navbar-nav fs-5">
             <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
             <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
             <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
           </ul>
         </div>
@@ -67,12 +63,7 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav">
           <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Mì cay</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Mì trộn</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Lẩu</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Món ăn khác</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Thức uống</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Topping</a></li>
+          <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
           <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
           <div class="icon">
             <button class="icon-btn me-3" data-bs-toggle="modal" data-bs-target="#loginModal">

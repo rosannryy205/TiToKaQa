@@ -34,26 +34,30 @@
           </div>
         </div>
       </div>
-      <!---->
-      <div class="mid-banner container-fluid">
-        <img
-          src="../../../../public/img/Banner (3).webp"
-          alt=""
-          class="img-fluid"
-          style="border-radius: 25px"
-        />
-        <button class="trans-left d-none d-lg-block">
-          <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
-        </button>
-        <button class="trans-right d-none d-lg-block">
-          <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i>
-        </button>
-      </div>
+      <!--slide-->
+
+  <div class="mid-banner container-fluid position-relative">
+    <img
+      :src="images[currentIndex]"
+      alt="banner"
+      class="img-fluid"
+      style="border-radius: 25px; transition: opacity 0.5s ease"
+    />
+    <button @click="changeSlide(-1)" class="trans-btn trans-left d-none d-lg-block">
+      <i class="fa-solid fa-arrow-left" style="color: white;"></i>
+    </button>
+    <button @click="changeSlide(1)" class="trans-btn trans-right d-none d-lg-block">
+      <i class="fa-solid fa-arrow-right" style="color: white;"></i>
+    </button>
+  </div>
+
+
+
       <section class="foods-homepages d-flex mt-5">
         <div class="container">
           <div class="row">
             <!--Menu -->
-            <div class="col-md-3 d-none d-lg-block">
+            <div class="col-md-3 d-none d-lg-block text-start">
               <span class="title-menu fw-bold">THỰC ĐƠN</span>
               <nav class="navbar px-0 py-2">
                 <ul class="navbar-nav flex-column w-100">
@@ -152,7 +156,6 @@
                   <div class="col-md-4 food-image">
                     <img
                       :src="getImageUrl(food.image)"
-                      alt="Mì Kim Chi Thập Cẩm"
                       class="img-fluid"
                     />
                   </div>
@@ -295,7 +298,7 @@
 </template>
 <script>
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount  } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 
@@ -308,7 +311,7 @@ export default {
       return `/img/food/${image}`
     },
   },
-  name: 'FoodList',
+  name: 'HomePage',
   setup() {
     const foods = ref([])
     const toppings = ref([])
@@ -318,6 +321,8 @@ export default {
     const toppingList = ref({})
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
+
+
 
     const getFood = async () => {
       try {
@@ -358,26 +363,49 @@ export default {
       }
     }
     const selectedCategoryName = ref('Món Ăn')
+
     const getFoodByCategory = async (categoryId) => {
       try {
         const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
         foods.value = res.data
-        //find parent cate chosesing
-        const selectedCategory = categories.value.find((c) => c.id === categoryId)
-        if (selectedCategory) {
-          selectedCategoryName.value = selectedCategory.name
-          //if have child load child
-          if (selectedCategory.children && selectedCategory.children.length) {
-            const childRequests = selectedCategory.children.map((child) =>
-              axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
-            )
-            // wait all, and load full food child add food
-            const childResults = await Promise.all(childRequests)
-            // paste all -> foods.value
-            childResults.forEach((childRes) => {
-              foods.value = [...foods.value, ...childRes.data]
-            })
+
+        // find cate parent and child
+        let parentName = ''
+        let childName = ''
+
+        for (const parent of categories.value) {
+          if (parent.id === categoryId) {
+            // if chose paretn cate
+            parentName = parent.name
+            break
           }
+
+          if (parent.children && parent.children.length) {
+            const child = parent.children.find((c) => c.id === categoryId)
+            if (child) {
+              parentName = parent.name
+              childName = child.name
+              break
+            }
+          }
+        }
+        //
+        if (childName) {
+          selectedCategoryName.value = `${parentName} > ${childName}`
+        } else {
+          selectedCategoryName.value = parentName || 'Món Ăn'
+        }
+
+        // paren hav child => load child
+        const selectedCategory = categories.value.find((c) => c.id === categoryId)
+        if (selectedCategory?.children?.length) {
+          const childRequests = selectedCategory.children.map((child) =>
+            axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
+          )
+          const childResults = await Promise.all(childRequests)
+          childResults.forEach((childRes) => {
+            foods.value = [...foods.value, ...childRes.data]
+          })
         }
       } catch (error) {
         console.error(error)
@@ -388,11 +416,28 @@ export default {
       isDropdownOpen.value = !isDropdownOpen.value
     }
 
+    const currentIndex = ref(0)
+const images = [
+  '/img/banner/Banner (1).webp',
+  '/img/banner/Banner (2).png',
+  '/img/banner/Banner.png',
+]
+let intervalId = null
+const changeSlide = (direction) => {
+  const total = images.length
+  currentIndex.value = (currentIndex.value + direction + total) % total
+}
     onMounted(() => {
       getFood()
       getCategory()
-    })
 
+      intervalId = setInterval(() => {
+    currentIndex.value = (currentIndex.value + 1) % images.length
+  }, 3000)
+    })
+    onBeforeUnmount(() => {
+  clearInterval(intervalId)
+})
     return {
       foods,
       toppings,
@@ -406,7 +451,12 @@ export default {
       toggleDropdown,
       spicyLevel,
       toppingList,
+      currentIndex,
+      images,
+      changeSlide,
     }
   },
 }
 </script>
+
+
