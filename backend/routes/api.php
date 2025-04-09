@@ -45,6 +45,12 @@ Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 //user
+// Route::resource('user', UserController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::resource('user', UserController::class);
+});
+
+
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
