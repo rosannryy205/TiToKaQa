@@ -10,7 +10,7 @@
       <!-- Avatar + Sidebar -->
       <div class="col-12 col-md-3">
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
-          <div class="avatar-wrapper position-relative mx-auto mb-3">
+          <div class="avatar-wrapper mx-auto mb-3 d-flex justify-content-center align-items-center">
             <template v-if="form && form.avatar">
               <img :src="form.avatar" alt="Avatar" class="rounded-circle avatar-img" />
             </template>
@@ -35,7 +35,7 @@
             <router-link to="/update-user" class="text-decoration-none list-group-item list-group-item-action">
               <p class="mb-0 me-3">Thông tin tài khoản</p>
             </router-link>
-            <router-link to="/history-oder" class="text-decoration-none list-group-item list-group-item-action">
+            <router-link to="/history-order" class="text-decoration-none list-group-item list-group-item-action">
               <p class="mb-0 me-3">Lịch sử đơn hàng</p>
             </router-link>
             <a href="#" class="list-group-item list-group-item-action text-danger" @click="handleLogout">Đăng xuất</a>
@@ -199,6 +199,7 @@ export default {
       } else {
         console.warn('Không tìm thấy user trong localStorage');
         isLoggedIn.value = false;
+        loading.value = false;
       }
     })
     return {
@@ -221,10 +222,15 @@ export default {
 }
 
 .avatar-wrapper {
-  width: 150px;
-  height: 150px;
+  width: 100%;
+  max-width: 120px;
+  /* nhỏ hơn 150px để vừa iPad */
+  aspect-ratio: 1/1;
   position: relative;
+  margin-left: auto;
+  margin-right: auto;
 }
+
 
 .avatar-img {
   width: 100%;
@@ -257,10 +263,21 @@ export default {
   border-radius: 50%;
   background-color: #e0e0e0;
   color: #ca111f;
-  font-size: 48px;
+  font-size: 36px;
   font-weight: bold;
   border: 3px solid #ca111f;
 }
+
+.avatar-img,
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #ca111f;
+  display: block;
+}
+
 .fade-in {
   animation: fadeIn 0.4s ease-in-out;
 }
@@ -270,10 +287,20 @@ export default {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+@media (max-width: 768px) {
+  .avatar-wrapper {
+    max-width: 100px;
+  }
+
+  .avatar-placeholder {
+    font-size: 28px;
+  }
+}
 </style>

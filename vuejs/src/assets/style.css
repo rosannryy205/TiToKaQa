@@ -752,7 +752,7 @@ transition: 0.5s;
 font-size: 20px;
 color: #c92c3c;
 }
-@media (max-width: 768px){ 
+@media (max-width: 768px){
   #app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div > a{
    font-size: 10px;
    color: #c92c3c;
@@ -876,7 +876,7 @@ color: #c92c3c;
   padding: 30px;
 }
 .product-card{
-  border-right: dashed 1px rgb(211, 211, 211); 
+  border-right: dashed 1px rgb(211, 211, 211);
 }
 .product-card h3, p{
   color: #c92c3c;
@@ -992,9 +992,9 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   color: #c92c3c;
 }
 .topping-container {
-  max-height: 150px; 
+  max-height: 150px;
   overflow-y: auto;
-  border: 1px solid #ddd; 
+  border: 1px solid #ddd;
   padding: 10px;
 }
 

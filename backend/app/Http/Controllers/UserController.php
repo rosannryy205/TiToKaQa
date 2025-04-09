@@ -176,7 +176,7 @@ class UserController extends Controller
         $user->phone = $request->phone;
         $user->address = $request->address;
         $user->update([
-            'fullfullname' => $request->fullname,
+            'fullname' => $request->fullname,
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,

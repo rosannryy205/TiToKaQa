@@ -9,7 +9,8 @@
       <!-- Sidebar -->
       <div class="col-12 col-md-3">
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
-          <div class="avatar-wrapper position-relative mx-auto mb-3">
+          <div class="avatar-wrapper mx-auto mb-3 d-flex justify-content-center align-items-center">
+
             <template v-if="form && form.avatar">
               <img :src="form.avatar" alt="Avatar" class="rounded-circle avatar-img" />
             </template>
@@ -36,8 +37,8 @@
             <router-link to="/history-order" class="text-decoration-none list-group-item list-group-item-action">
               <p class="mb-0 me-3">Lịch sử đơn hàng</p>
             </router-link>
-            <a href="#" class="list-group-item list-group-item-action text-danger" @click="handleLogout">
-              Đăng xuất
+            <a href="#" class="list-group-item list-group-item-action" @click="handleLogout">
+              <span class="text-danger">Đăng xuất</span>
             </a>
           </div>
         </div>
@@ -49,7 +50,7 @@
           <h4 class="mb-4 text-center" :style="{ color: primaryColor }">Lịch sử đơn hàng</h4>
           <div class="table-responsive">
             <table class="table table-hover text-center">
-              <thead class="table-light">
+              <thead v-if="isDesktop" class="table-light">
                 <tr>
                   <th>Mã đơn</th>
                   <th>Ngày đặt</th>
@@ -58,7 +59,8 @@
                   <th>Chi tiết</th>
                 </tr>
               </thead>
-              <tbody>
+              <!-- Table: Desktop và tablet -->
+              <tbody v-if="isDesktop" class="fade-in">
                 <template v-if="orders.length > 0">
                   <tr v-for="order in orders" :key="order.id">
                     <td>#{{ order.id }}</td>
@@ -70,7 +72,51 @@
                       </span>
                     </td>
                     <td>
-                      <button class="btn btn-outline-primary btn-sm">Xem</button>
+                      <button class="me-2 btn btn-outline-secondary btn-sm" @click="openOrderModal(order)">
+                        Xem
+                      </button>
+                      <button class="me-2 btn btn-outline-danger btn-sm" :disabled="isCompleted(order.status)"
+                        @click="openCancelModal(order)">
+                        Hủy đơn
+                      </button>
+                    </td>
+                  </tr>
+                </template>
+                <tr v-else>
+                  <td colspan="5" class="text-muted text-center py-4">
+                    Bạn chưa có đơn hàng nào.
+                  </td>
+                </tr>
+              </tbody>
+
+
+
+
+              <!-- Card: Mobile -->
+              <tbody v-if="!isDesktop" class="fade-in">
+                <template v-if="orders.length > 0">
+                  <tr v-for="order in orders" :key="order.id">
+                    <td colspan="5">
+                      <div class="card mb-3 text-start shadow-sm">
+                        <div class="card-body text-dark">
+                          <h6 class="card-title"><strong>Mã đơn:</strong> #{{ order.id }}</h6>
+                          <div class="mb-1"><strong>Ngày đặt:</strong> {{ formatDate(order.created_at) }}</div>
+                          <div class="mb-1"><strong>Tổng tiền:</strong> {{ formatCurrency(order.total) }}</div>
+                          <div class="mb-2">
+                            <strong>Trạng thái:</strong>
+                            <span :class="getStatusClass(order.status)">
+                              {{ getStatusText(order.status) }}
+                            </span>
+                          </div>
+                          <button class="btn btn-outline-primary btn-sm" @click="openOrderModal(order)">
+                            Xem
+                          </button>
+                          <button class="me-2 btn btn-outline-danger btn-sm" :disabled="isCompleted(order.status)"
+                            @click="openCancelModal(order)">
+                            Hủy đơn
+                          </button>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 </template>
@@ -83,7 +129,6 @@
 
             </table>
           </div>
-
         </div>
       </div>
     </div>
@@ -93,10 +138,52 @@
   <div v-else class="container d-flex align-items-center justify-content-center" style="min-height: 50vh;">
     <h5 class="mb-3">Vui lòng đăng nhập để xem thông tin tài khoản.</h5>
   </div>
+
+
+  <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content custom-modal">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold text-center w-100" id="orderDetailModalLabel">
+            Chi tiết đơn hàng #{{ selectedOrder?.id }}
+          </h5>
+        </div>
+        <div class="modal-body px-4 py-3" v-if="selectedOrder">
+          <div class="mb-1"><strong>Ngày đặt:</strong> {{ formatDate(selectedOrder.created_at) }}</div>
+          <div class="mb-1"><strong>Tổng tiền:</strong> {{ formatCurrency(selectedOrder.total) }}</div>
+          <div class="mb-2"><strong>Trạng thái:</strong>
+            <span :class="getStatusClass(selectedOrder.status)">
+              {{ getStatusText(selectedOrder.status) }}
+            </span>
+          </div>
+          <div class="mb-3">
+            <strong>Sản phẩm:</strong>
+            <div v-if="selectedOrder.order_items && selectedOrder.order_items.length > 0">
+              <div v-for="item in selectedOrder.order_items" :key="item.id"
+                class="d-flex align-items-center mb-2 border-bottom pb-2">
+                <img :src="item.image" alt="ảnh sản phẩm" class="me-2"
+                  style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;">
+                <div>
+                  <div><strong>{{ item.name }}</strong></div>
+                  <div>SL: {{ item.quantity }} × {{ formatCurrency(item.price) }}</div>
+                  <div class="text-muted small">Thành tiền: {{ formatCurrency(item.price * item.quantity) }}</div>
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-muted">Không có sản phẩm nào.</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 
 
@@ -153,37 +240,92 @@ export default {
               id: 101,
               created_at: '2025-04-01',
               total: 350000,
-              status: 'pending'
+              status: 'pending',
+              note: "Giao trước 18h",
+              payment_method: "COD",
+              order_items: [
+                {
+                  id: 1,
+                  name: "Áo sơ mi trắng",
+                  price: 150000,
+                  quantity: 2,
+                  image: "https://via.placeholder.com/60"
+                },
+                {
+                  id: 2,
+                  name: "Quần jean",
+                  price: 50000,
+                  quantity: 1,
+                  image: "https://via.placeholder.com/60"
+                }
+              ]
             },
             {
               id: 102,
               created_at: '2025-04-02',
               total: 520000,
-              status: 'completed'
+              status: 'completed',
+              note: "Giao tận nơi",
+              payment_method: "Chuyển khoản",
+              order_items: []
             }
           ]
+
         }
       } catch (error) {
         console.error("Không lấy được đơn hàng:", error)
         // fallback nếu lỗi kết nối hoặc server
+        // Này là dữ liệu mẫu
         orders.value = [
           {
             id: 101,
             created_at: '2025-04-01',
             total: 350000,
-            status: 'pending'
+            status: 'pending',
+            note: "Đặt bàn lúc 16:00 giờ",
+            payment_method: "COD",
+            order_items: [
+              {
+                id: 1,
+                name: "Mì cay",
+                price: 150000,
+                quantity: 2,
+                image: "https://via.placeholder.com/60"
+              },
+              {
+                id: 2,
+                name: "Mì hảo hảo",
+                price: 50000,
+                quantity: 1,
+                image: "https://via.placeholder.com/60"
+              }
+            ]
           },
           {
             id: 102,
             created_at: '2025-04-02',
             total: 520000,
-            status: 'completed'
+            status: 'completed',
+            note: "Giao tận nơi",
+            payment_method: "Chuyển khoản",
+            order_items: [
+              {
+                id: 1,
+                name: "Mì hảo hảo",
+                price: 50000,
+                quantity: 1,
+                image: "https://via.placeholder.com/60"
+              }
+            ]
           }
         ]
+
       }
     }
 
-
+    const isCompleted = (status) => {
+      return ['completed', 'cancelled'].includes(status);
+    }
     const getStatusText = (status) => {
       switch (status) {
         case 'processing': return 'Đang xử lý';
@@ -250,6 +392,25 @@ export default {
       return fullname.trim().charAt(0).toUpperCase()
     }
     const loading = ref(true);
+    const isDesktop = ref(window.innerWidth >= 768)
+
+    const handleResize = () => {
+      isDesktop.value = window.innerWidth >= 768
+    }
+
+    const selectedOrder = ref(null);
+
+    const openOrderModal = (order) => {
+      selectedOrder.value = order;
+      const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+      modal.show();
+    };
+    const openCancelOrder = (order) => {
+      // Mở modal xác nhận hủy, hoặc sau này gọi API
+      console.log("Hủy đơn:", order)
+    }
+
+
     onMounted(() => {
       if (user1 && user1.id && token) {
         personally(user1.id)
@@ -265,12 +426,16 @@ export default {
               loading.value = false;
             }, 400);
           });
+        window.addEventListener('resize', handleResize)
       } else {
         console.warn('Không tìm thấy user/token trong localStorage');
         isLoggedIn.value = false;
         loading.value = false;
       }
     });
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', handleResize)
+    })
 
     return {
       form,
@@ -285,7 +450,12 @@ export default {
       getStatusText,
       getStatusClass,
       formatDate,
-      formatCurrency
+      formatCurrency,
+      isDesktop,
+      selectedOrder,
+      openOrderModal,
+      openCancelOrder,
+      isCompleted
     }
 
   },
@@ -297,9 +467,13 @@ export default {
 }
 
 .avatar-wrapper {
-  width: 150px;
-  height: 150px;
+  width: 100%;
+  max-width: 120px;
+  /* nhỏ hơn 150px để vừa iPad */
+  aspect-ratio: 1/1;
   position: relative;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .avatar-img {
@@ -308,6 +482,7 @@ export default {
   object-fit: cover;
   border-radius: 50%;
   border: 3px solid #ca111f;
+  display: block;
 }
 
 .avatar-overlay {
@@ -333,13 +508,28 @@ export default {
   border-radius: 50%;
   background-color: #e0e0e0;
   color: #ca111f;
-  font-size: 48px;
+  font-size: 36px;
   font-weight: bold;
   border: 3px solid #ca111f;
 }
 
+.avatar-img,
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #ca111f;
+  display: block;
+}
+
 .fade-in {
   animation: fadeIn 0.4s ease-in-out;
+}
+
+button:disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 @keyframes fadeIn {
@@ -351,6 +541,24 @@ export default {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .card {
+    text-align: center;
+  }
+
+  .avatar-wrapper {
+    max-width: 100px;
+  }
+
+  .avatar-placeholder {
+    font-size: 28px;
+  }
+
+  .d-md-table-row-group {
+    display: table-row-group !important;
   }
 }
 </style>
