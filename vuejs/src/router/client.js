@@ -44,6 +44,16 @@ const client = [
                 name: "client-food",
                 component: () => import("../pages/client/food/index.vue")
             },
+            {
+              path: "update-user",
+              name: "update-user",
+              component: () => import("../pages/client/user/update-user.vue")
+            },
+            {
+              path: "history-oder",
+              name: "history-oder",
+              component: () => import("../pages/client/user/history-oder.vue")
+            },
         ]
     }
 ];

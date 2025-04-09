@@ -12,8 +12,7 @@
           </div>
         </nav>
         <div class="nav-icons d-none d-lg-flex align-items-center">
-          <button v-if="!isLoggedIn" class="icon-btn me-3" data-bs-toggle="modal"  @click="openLoginModal"
-          >
+          <button v-if="!isLoggedIn" class="icon-btn me-3" data-bs-toggle="modal" @click="openLoginModal">
             <i class="bi bi-people"></i>
           </button>
 
@@ -21,7 +20,11 @@
             <button class="icon-btn me-2" @click="handleLogout">
               <i class="bi bi-person-x"></i>
             </button>
-            <p class="mb-0 me-3">{{ user.username }}</p>
+            <router-link to="/update-user" class="text-decoration-none text-primary-red">
+              <p class="mb-0 me-3">{{ user.username }}</p>
+            </router-link>
+
+
           </template>
 
 <!--sea-->
@@ -515,3 +518,9 @@ export {
 };
 
 </script>
+<style scoped>
+.text-primary-red {
+  color: #ca111f;
+}
+
+</style>

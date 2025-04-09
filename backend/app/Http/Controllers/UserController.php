@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,8 +20,6 @@ class UserController extends Controller
     {
         //
     }
-
-
 
     public function register(Request $request)
     {
@@ -74,7 +73,7 @@ class UserController extends Controller
         // Gửi mail chào mừng
         Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
 
-        return response()->json(['message' => 'Đăng ký thành công!', 'user' => $user,'token'=>$token]);
+        return response()->json(['message' => 'Đăng ký thành công!', 'user' => $user, 'token' => $token]);
     }
 
 
@@ -110,7 +109,7 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Đăng nhập thành công!',
             'user' => $user,
-            'token'=>$token
+            'token' => $token
         ]);
     }
 
@@ -153,6 +152,8 @@ class UserController extends Controller
     public function show(string $id)
     {
         //
+        $user = User::find($id);
+        return response()->json($user);
     }
 
     /**
@@ -168,7 +169,22 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+
+        $user = User::findOrFail($id);
+        $user->fullname = $request->fullname;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+        $user->address = $request->address;
+        $user->update([
+            'fullfullname' => $request->fullname,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+        ]);
+        return response()->json([
+            'message' => 'Đã cập nhật user thành công!',
+            'user' => $user
+        ], 200);
     }
 
     /**
