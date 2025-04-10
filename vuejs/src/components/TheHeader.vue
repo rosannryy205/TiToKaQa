@@ -31,8 +31,8 @@
 <div class="input-wrapper">
   <button class="icon">
     <svg
-      width="25px"
-      height="25px"
+      width="23px"
+      height="23px"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +67,7 @@
           <router-link to="/cart" style="color: black;">
             <button class="icon-btn"><i class="bi bi-cart"></i></button>
           </router-link>
-          
+
         </div>
       </div>
 
@@ -173,7 +173,7 @@
         <div class="modal-body">
           <form @submit.prevent="Handleregister">
             <!-- Username -->
-            <div v-if="errors.username" class="text-danger small">{{ errors.username[0] }}</div>
+            <div v-if="errors.username" class="text-danger small text-center">{{ errors.username[0] }}</div>
             <div class="mb-3 position-relative">
 
               <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
@@ -182,7 +182,7 @@
             </div>
 
             <!-- Email -->
-            <div v-if="errors.email" class="text-danger small">{{ errors.email[0] }}</div>
+            <div v-if="errors.email" class="text-danger small text-center">{{ errors.email[0] }}</div>
             <div class="mb-3 position-relative">
 
               <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
@@ -190,8 +190,16 @@
 
             </div>
 
+            <!-- Phone  -->
+            <div v-if="errors.phone" class="text-danger small text-center">{{ errors.phone[0] }}</div>
+            <div class="mb-3 position-relative">
+              <i class="bi bi-telephone position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="text" class="form-control ps-5" id="phone" placeholder="Số điện thoại"
+                v-model="registerData.phone">
+            </div>
+
             <!-- Password -->
-            <div v-if="errors.password" class="text-danger small">{{ errors.password[0] }}</div>
+            <div v-if="errors.password" class="text-danger small text-center">{{ errors.password[0] }}</div>
             <div class="mb-3 position-relative">
 
               <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
@@ -237,6 +245,10 @@
     </div>
   </div>
 
+
+
+
+  <!-- Quên mật khẩu  -->
   <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -245,17 +257,21 @@
           <h5 class="modal-title" id="forgotPasswordModalLabel">Quên mật khẩu</h5>
         </div>
         <div class="modal-body">
-          <form>
+          <form @submit.prevent="forgotPass">
+
+            <!-- nhập email  -->
+            <div v-if="errorSendCode" class="text-danger small text-center">{{ errorSendCode}}</div>
             <div class="mb-3 position-relative">
               <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="text" class="form-control ps-5" id="email" placeholder="Nhập Email">
+              <input type="text" class="form-control ps-5" id="email" placeholder="Nhập Email" v-model=verify.email>
             </div>
 
             <div class="mb-3">
-              <button type="button" class="btn btn-login form-control fw-semibold" data-bs-dismiss="modal"
-                data-bs-toggle="modal" data-bs-target="#authenticationModal">
+              <button type="submit" class="btn btn-login form-control fw-semibold" :disabled="loading">
+                <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
                 Gửi
               </button>
+              <!-- data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#authenticationModal" -->
             </div>
 
           </form>
@@ -263,6 +279,9 @@
       </div>
     </div>
   </div>
+
+
+  <!-- nhập code  -->
   <div class="modal fade" id="authenticationModal" tabindex="-1" aria-labelledby="authenticationModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -271,38 +290,44 @@
           <h5 class="modal-title" id="authenticationModalLabel">Nhập mã xác nhận</h5>
         </div>
         <div class="modal-body">
-          <form>
+          <form @submit.prevent="verifyResetCode">
             <div class="mb-3 d-flex justify-content-center gap-3 small">
-              <p class="text-black">Mã xác nhận đã được gửi về email. Vui lòng kiểm tra email.</p>
+              <p v-if="!errorVerify" class="text-success text-center">
+                Mã xác nhận đã được gửi về email. Vui lòng kiểm tra email.
+              </p>
+
+              <!-- Thông báo lỗi -->
+              <p v-if="errorVerify" class="text-danger text-center">
+                {{ errorVerify }}
+              </p>
             </div>
 
             <div class="d-flex justify-content-center gap-2 mb-3 position-relative">
-              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
-                style="width: 50px; height: 50px;">
-              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
-                style="width: 50px; height: 50px;">
-              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
-                style="width: 50px; height: 50px;">
-              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
-                style="width: 50px; height: 50px;">
-              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
-                style="width: 50px; height: 50px;">
-              <input type="text" class="form-control text-center border-black fw-bold fs-4" maxlength="1"
-                style="width: 50px; height: 50px;">
+              <input v-for="(digit, index) in codeDigits" :key="index" v-model="codeDigits[index]" type="text"
+                maxlength="1" class="form-control text-center border-black fw-bold fs-4"
+                style="width: 50px; height: 50px;" @input="moveToNext(index, $event)"
+                @keydown.backspace="handleBackspace($event, index)" @compositionstart="isComposing = true"
+                @compositionend="isComposing = false" ref="inputs" />
             </div>
             <div class="mb-3 d-flex justify-content-center gap-3 small">
-              <a href="#" class="text-decoration-none" :class="{ 'disabled': isCounting }" @click="startCountdown">
+              <a href="#" class="text-decoration-none">
+                <!-- :class="{ 'disabled': isCounting }" @click="startCountdown" -->
                 Gửi lại
               </a>
             </div>
-            <div class="mb-3 d-flex justify-content-center gap-3 small">
-              <p class="text-black">{{ formattedTime }}</p>
+            <div class="mb-3 d-flex justify-content-center align-items-center gap-2 small"
+              v-if="minutes > 0 || seconds > 0">
+              <i class="bi bi-clock text-danger"></i>
+              <p class="mb-0 fw-bold text-danger">
+                {{ minutes.toString().padStart(2, '0') }}:{{ seconds.toString().padStart(2, '0') }}
+              </p>
             </div>
             <div class="mb-3">
-              <button type="button" class="btn btn-login form-control fw-semibold" data-bs-dismiss="modal"
-                data-bs-toggle="modal" data-bs-target="#resetModal">
+              <button type="submit" class="btn btn-login form-control fw-semibold" :disabled="loading">
+                <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
                 Xác nhận
               </button>
+              <!-- ata-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#resetModal" -->
             </div>
 
           </form>
@@ -318,18 +343,25 @@
           <h5 class="modal-title" id="resetModalLabel">Đặt lại mật khẩu</h5>
         </div>
         <div class="modal-body">
-          <form>
+
+          <form @submit.prevent="ResetPass">
+            <div v-if="errorResetPass" class="text-danger text-center small">{{ errorResetPass }}</div>
             <div class="mb-3 position-relative">
               <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="password" class="form-control ps-5" id="password" placeholder="Mật khẩu">
+              <input type="password" class="form-control ps-5" id="password" placeholder="Mật khẩu"
+                v-model="verify.password">
             </div>
 
             <div class="mb-3 position-relative">
               <i class="bi bi-lock-fill position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="password" class="form-control ps-5" id="password_confirm" placeholder="Nhập lại mật khẩu">
+              <input type="password" class="form-control ps-5" id="password_confirm" placeholder="Nhập lại mật khẩu"
+                v-model="verify.password_confirmation">
             </div>
             <div class="mb-3">
-              <button type="button" class="btn btn-login form-control fw-semibold">Xác nhận</button>
+              <button type="submit" class="btn btn-login form-control fw-semibold" :disabled="loading">
+                <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+                Xác nhận
+              </button>
             </div>
           </form>
         </div>
@@ -347,36 +379,107 @@ import { useCountdown } from "../stores/countDown";
 const { formattedTime, isCounting, startCountdown } = useCountdown(60);
 </script>
 
+
 <script>
 import axios from 'axios';
 import { reactive, ref, onMounted } from 'vue';
 import * as bootstrap from 'bootstrap';
+
+
 window.bootstrap = bootstrap;
 
+// biến để hiển thị countdown
+const minutes = ref(0);
+const seconds = ref(0);
+let countdownInterval = null;
 
+const startCountdown = (expireTime) => {
+  clearInterval(countdownInterval); // clear nếu đang chạy
+
+  const target = new Date(expireTime).getTime();
+  console.log('Target timestamp:', target);
+  countdownInterval = setInterval(() => {
+    const now = new Date().getTime();
+    const diff = Math.max(0, target - now);
+    console.log('>>> Remaining:', diff);
+    if (diff <= 0) {
+      clearInterval(countdownInterval);
+      minutes.value = 0;
+      seconds.value = 0;
+      return;
+    }
+
+    minutes.value = Math.floor(diff / 60000);
+    seconds.value = Math.floor((diff % 60000) / 1000);
+  }, 1000);
+};
+
+function stopCountdown() {
+  clearInterval(timer);
+}
+
+// tạo thông tin register
 const registerData = reactive({
   username: '',
   email: '',
+  phone: '',
   password: '',
   password_confirmation: ''
 });
+
+// tạo thông tin login
 
 const loginData = reactive({
   login: '',
   password: ''
 });
-
+// tạo biến báo lỗi đăng ký
 const errors = reactive({});
 const firstErrorKey = ref('');
 
+// tạo hiệu ứng load
 const loading = ref(false);
 
+// kiểm tra đã đăng nhập chưa
 const user = ref(JSON.parse(localStorage.getItem('user')) || null);
 const isLoggedIn = ref(!!user.value);
 
-onMounted(() => {
-  isLoggedIn.value = !!user.value;
-});
+
+// tạo thông tin quên mật khẩu
+const codeDigits = ref(['', '', '', '', '', ''])
+const isComposing = ref(false);
+const inputs = ref([]);
+
+const verify = reactive({
+  email: '',
+  password: '',
+  password_confirmation: ''
+})
+
+
+// báo lỗi nhập mã
+const errorSendCode = ref('');
+const errorVerify = ref('');
+
+// tạo biến báo lỗi login
+const loginError = ref('');
+
+// lỗi đặt lại mật khẩu
+const errorResetPass = ref('');
+
+
+
+
+export default {
+  setup() {
+    onMounted(() => {
+      isLoggedIn.value = !!user.value;
+    });
+  }
+}
+
+
+
 
 //  Đăng ký
 const Handleregister = async () => {
@@ -430,9 +533,6 @@ const Handleregister = async () => {
 };
 
 
-const loginError = ref('');
-
-
 //  Đăng nhập
 const handleLogin = async () => {
   Object.keys(errors).forEach(key => delete errors[key]);
@@ -480,8 +580,15 @@ const handleLogin = async () => {
   }
 };
 
+
 //  Đăng xuất
 const handleLogout = async () => {
+
+
+  const confirmLogout = confirm('Bạn chắc chắn muốn đăng xuất?');
+  if (!confirmLogout) {
+    return;
+  }
   try {
     await axios.post('http://127.0.0.1:8000/api/logout', {}, {
       headers: {
@@ -494,13 +601,16 @@ const handleLogout = async () => {
     user.value = null;
     isLoggedIn.value = false;
 
-    alert('Đăng xuất thành công!');
+    alert('Đăng xuất thành công');
+    window.location.href = '/home';
   } catch (error) {
     console.error('Lỗi đăng xuất:', error);
     alert('Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!');
   }
 };
 
+
+// hàm mở pop up Login
 const openLoginModal = () => {
   // Xóa backdrop và class nếu bị sót từ lần trước
   document.body.classList.remove('modal-open');
@@ -512,22 +622,183 @@ const openLoginModal = () => {
   modalInstance.show();
 };
 
+// di chuyển ô input
+const moveToNext = (index, event) => {
+  const input = event.target
+  const value = input.value
+
+  if (value.length === 1 && index < 5) {
+    const nextInput = input.nextElementSibling
+    if (nextInput) nextInput.focus()
+  } else if (value === '' && index > 0) {
+    const prevInput = input.previousElementSibling
+    if (prevInput) prevInput.focus()
+  }
+};
+
+// chỉ nhập số
+const onlyNumber = (event) => {
+  const key = event.key
+  if (!/^\d$/.test(key)) {
+    event.preventDefault()
+  }
+};
+
+const forgotPass = async () => {
+  loading.value = true;
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/forgot', {
+      email: verify.email
+    });
+
+    if (response.status === 200) {
+      alert(response.data.message);
+      const modelElement = document.getElementById('forgotPasswordModal');
+      const modalInstance = bootstrap.Modal.getInstance(modelElement) || new bootstrap.Modal(modelElement);
+      modalInstance.hide();
+
+      const modelCode = document.getElementById('authenticationModal');
+      const modalInstanceCode = bootstrap.Modal.getInstance(modelCode) || new bootstrap.Modal(modelCode);
+      modalInstanceCode.show();
+    }
 
 
+    console.log('>>> Expired time:', response.data.email_expired_at);
+    if (response.data.email_expired_at) {
+      startCountdown(response.data.email_expired_at);
+    }
+
+
+
+  } catch (error) {
+    if (error.response) {
+      const status = error.response.status;
+
+      if (status === 404 || status === 410) {
+        errorSendCode.value = error.response.data.errors?.email?.[0] || error.response.data.message;
+      } else if (status === 422) {
+        errorSendCode.value = Object.values(error.response.data.errors)[0][0];
+      } else {
+        errorSendCode.value = 'Đã xảy ra lỗi không xác định';
+      }
+    } else {
+      errorSendCode.value = 'Lỗi kết nối đến server';
+    }
+  } finally {
+    loading.value = false;
+  }
+};
+
+
+
+//hàm nhập code
+const verifyResetCode = async () => {
+  loading.value = true;
+  const code = codeDigits.value.join('')
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/code', {
+      'email': verify.email,
+      'code': code
+    })
+
+    if (response.status == 200) {
+      alert(response.data.message);
+      const modalCode = document.getElementById('authenticationModal');
+      const modalCodeInstance = bootstrap.Modal.getInstance(modalCode) || new bootstrap.Modal(modalCode);
+      modalCodeInstance.hide();
+
+      const modalResetPass = document.getElementById('resetModal');
+      const modalResetPassInstance = bootstrap.Modal.getInstance(modalResetPass) || new bootstrap.Modal(modalResetPass);
+      modalResetPassInstance.show();
+      errorVerify.value='';
+
+
+    }
+  } catch (error) {
+    if (error.response) {
+      const status = error.response.status;
+
+      if (status === 404 || status === 410) {
+        errorVerify.value = error.response.data.message;
+      } else if (status === 422) {
+        errorVerify.value = Object.values(error.response.data.errors)[0][0];
+      } else {
+        errorVerify.value = 'Đã xảy ra lỗi không xác định';
+      }
+    } else {
+      errorVerify.value = 'Lỗi kết nối đến máy chủ';
+    }
+  } finally {
+    loading.value = false
+  }
+};
+
+
+
+
+const ResetPass = async () => {
+  loading.value = true
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/reset-password', {
+      "email": verify.email,
+      "password": verify.password,
+      "password_confirmation": verify.password_confirmation
+    });
+
+    if (response.status == 200) {
+      alert(response.data.message);
+      const modalResetPass = document.getElementById('resetModal');
+      const modalResetPassInstance = bootstrap.Modal.getInstance(modalResetPass) || new bootstrap.Modal(modalResetPass);
+      modalResetPassInstance.hide();
+    }
+  } catch (error) {
+    if (error.response) {
+      const status = error.response.status;
+
+      if (status === 404 || status === 410) {
+        errorResetPass.value = error.response.data.errors?.email?.[0] || error.response.data.message;
+      } else if (status === 422) {
+        errorResetPass.value = Object.values(error.response.data.errors)[0][0];
+      } else {
+        errorResetPass.value = 'Đã xảy ra lỗi không xác định';
+      }
+    } else {
+      errorResetPass.value = 'Lỗi kết nối đến server';
+    }
+  } finally {
+    loading.value = false;
+  }
+};
 
 export {
   registerData,
   loginData,
+  loginError,
   errors,
   loading,
   user,
   isLoggedIn,
+  errorSendCode,
+  errorVerify,
+  firstErrorKey,
+  codeDigits,
+  verify,
+  isComposing,
+  inputs,
+  errorResetPass,
   Handleregister,
   handleLogin,
   handleLogout,
-  openLoginModal
-};
+  openLoginModal,
+  moveToNext,
+  onlyNumber,
+  forgotPass,
+  verifyResetCode,
+  ResetPass,
+  startCountdown
 
+
+}
 </script>
 <style scoped>
 .text-primary-red {

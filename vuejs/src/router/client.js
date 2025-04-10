@@ -50,9 +50,14 @@ const client = [
               component: () => import("../pages/client/user/update-user.vue")
             },
             {
-              path: "history-oder",
-              name: "history-oder",
-              component: () => import("../pages/client/user/history-oder.vue")
+              path: "history-order",
+              name: "history-order",
+              component: () => import("../pages/client/user/history-order.vue")
+            },
+            {
+              path: "history-order-detail/:id",
+              name: "history-order-detail",
+              component: () => import("../pages/client/user/history-order-detail.vue")
             },
         ]
     }

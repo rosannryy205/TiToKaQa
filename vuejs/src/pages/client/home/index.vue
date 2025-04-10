@@ -36,22 +36,20 @@
       </div>
       <!--slide-->
 
-  <div class="mid-banner container-fluid position-relative">
-    <img
-      :src="images[currentIndex]"
-      alt="banner"
-      class="img-fluid"
-      style="border-radius: 25px; transition: opacity 0.5s ease"
-    />
-    <button @click="changeSlide(-1)" class="trans-btn trans-left d-none d-lg-block">
-      <i class="fa-solid fa-arrow-left" style="color: white;"></i>
-    </button>
-    <button @click="changeSlide(1)" class="trans-btn trans-right d-none d-lg-block">
-      <i class="fa-solid fa-arrow-right" style="color: white;"></i>
-    </button>
-  </div>
-
-
+      <div class="mid-banner container-fluid position-relative">
+        <img
+          :src="images[currentIndex]"
+          alt="banner"
+          class="img-fluid"
+          style="border-radius: 25px; transition: opacity 0.5s ease"
+        />
+        <button @click="changeSlide(-1)" class="trans-btn trans-left d-none d-lg-block">
+          <i class="fa-solid fa-arrow-left" style="color: white"></i>
+        </button>
+        <button @click="changeSlide(1)" class="trans-btn trans-right d-none d-lg-block">
+          <i class="fa-solid fa-arrow-right" style="color: white"></i>
+        </button>
+      </div>
 
       <section class="foods-homepages d-flex mt-5">
         <div class="container">
@@ -147,49 +145,42 @@
               <div class="title-food-menu text-center d-flex">
                 <span class="title-food-menu fw-bold">{{ selectedCategoryName || 'Món Ăn' }}</span>
               </div>
-              <section v-for="(food, index) in foods" :key="index" class="foods-homepages">
+              <section v-for="item in foods" :key="item.id" class="foods-homepages">
                 <div
-                  v-if="index % 2 !== 0"
+                  v-if="item.id % 2 !== 0"
                   class="food-box-left row align-items-center"
-                  @click="openModal(food.id)"
+                  @click="openModal(item)"
                 >
                   <div class="col-md-4 food-image">
-                    <img
-                      :src="getImageUrl(food.image)"
-                      class="img-fluid"
-                    />
+                    <img :src="getImageUrl(item.image)" class="img-fluid" />
                   </div>
                   <div class="col-md-8 food-content bg-white text-end">
-                    <h2 class="food-title fw-bold">{{ food.name }}</h2>
-                    <p class="food-price fw-bold">{{ formatNumber(food.price) }} VNĐ</p>
+                    <h2 class="food-title fw-bold">{{ item.name }}</h2>
+                    <p class="food-price fw-bold">{{ formatNumber(item.price) }} VNĐ</p>
                     <p class="food-desc">
-                      {{ food.description.slice(0, 60)
-                      }}{{ food.description.length > 50 ? '...' : '' }}
+                      {{ item.description.slice(0, 60)
+                      }}{{ item.description.length > 50 ? '...' : '' }}
                     </p>
                   </div>
                 </div>
-                <div
-                  v-else
-                  class="food-box-right row align-items-center"
-                  @click="openModal(food.id)"
-                >
+                <div v-else class="food-box-right row align-items-center" @click="openModal(item)">
                   <div class="col-md-8 food-content bg-white text-start">
-                    <h2 class="food-title fw-bold">{{ food.name }}</h2>
-                    <p class="food-price fw-bold">{{ formatNumber(food.price) }} VNĐ</p>
+                    <h2 class="food-title fw-bold">{{ item.name }}</h2>
+                    <p class="food-price fw-bold">{{ formatNumber(item.price) }} VNĐ</p>
                     <p class="food-desc">
                       <span class="d-none d-sm-inline"
-                        >{{ food.description.slice(0, 60)
-                        }}{{ food.description.length > 50 ? '...' : '' }}</span
+                        >{{ item.description.slice(0, 60)
+                        }}{{ item.description.length > 50 ? '...' : '' }}</span
                       >
                       <span class="d-inline d-sm-none"
-                        >{{ food.description.slice(0, 30)
-                        }}{{ food.description.length > 50 ? '...' : '' }}</span
+                        >{{ item.description.slice(0, 30)
+                        }}{{ item.description.length > 50 ? '...' : '' }}</span
                       >
                     </p>
                   </div>
                   <div class="col-md-4 food-image">
                     <img
-                      :src="getImageUrl(food.image)"
+                      :src="getImageUrl(item.image)"
                       alt="Mì Kim Chi Thập Cẩm"
                       class="img-fluid"
                     />
@@ -205,26 +196,20 @@
   <section class="populars-infors-pots">
     <!---->
     <section class="popular-searches container py-4">
-      <h2 class="fw-bold mb-3 text-start text-md-start">Nhiều Người Gọi</h2>
+      <h2 class="fw-bold mb-3 text-start text-md-start">Combo Nhiều Người Gọi</h2>
       <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
         <div class="row d-flex">
-          <div class="col-4">
-            <img src="/img/food/combo/cb1.webp" alt="" width="100%">
+          <!--combo-->
+          <div
+            v-for="combo in combos" :key="combo.id"
+            @click="openModal(combo)"
+            class="col-4">
+            <img
+            :src="getImageUrl(combo.image)"
+            width="100%" />
             <div class="view-more">
-            <a href="#" class="link fw-bold">Combo 1 người →</a>
-          </div>
-          </div>
-          <div class="col-4">
-            <img src="/img/food/combo/cb2.webp" alt="" width="100%">
-            <div class="view-more">
-            <a href="#" class="link fw-bold">Combo 2 người →</a>
-          </div>
-          </div>
-          <div class="col-4">
-            <img src="/img/food/combo/cb3.webp" alt="" width="100%">
-            <div class="view-more">
-            <a href="#" class="link fw-bold">Combo Panchan 19K →</a>
-          </div>
+              <a href="#" class="link fw-bold">{{ combo.name }}</a>
+            </div>
           </div>
         </div>
       </div>
@@ -252,71 +237,73 @@
   </section>
   <!-- modal food -->
   <div
-    class="modal fade"
-    id="productModal"
-    tabindex="-1"
-    aria-labelledby="productModalLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content custom-modal">
-        <div class="modal-body">
-          <div class="row">
-            <div class="blink">
-              <img src="/img/item/item text.png" alt="">
-            </div>
-            <div class="col-md-5 d-flex justify-content-center align-items-center">
-              <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" width="100%" />
-            </div>
-            <div class="col-md-7 d-flex flex-column justify-content-center">
-              <h4 class="fw-bold">{{ foodDetail.name }}</h4>
-              <p class="fw-bold text-dark">
-                <i class="fa-solid fa-star" style="color: #ffd43b"></i> NULL
-              </p>
-              <p class="text-danger fw-bold fs-4">{{ formatNumber(foodDetail.price) }} VNĐ</p>
+  class="modal fade"
+  id="productModal"
+  tabindex="-1"
+  aria-labelledby="productModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content custom-modal">
+      <div class="modal-body position-relative">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
 
-              <p class="text-secondary">
-                {{ foodDetail.description }}
-              </p>
-              <form>
-                <div class="mb-3">
-                  <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
-                  <select class="form-select" id="spicyLevel">
-                    <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
-                      {{ item.name }}
-                    </option>
-                  </select>
-                  <div class="topping-container mt-3">
-                    <h4>Chọn topping</h4>
-                    <div
-                      v-for="topping in toppingList"
-                      :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2"
-                    >
-                      <label class="d-flex align-items-center">
-                        <input type="checkbox" :value="topping.id" name="topping[]" class="m-2" />
-                        {{ topping.name }}
-                      </label>
-                      <span class="font-weight-bold">{{ formatNumber(topping.price) }} VND</span>
-                    </div>
-                  </div>
-                </div>
-                <button class="btn btn-danger w-100 fw-bold" @click.prevent="addToCart">🛒 Thêm vào giỏ hàng</button>
-              </form>
+        <div class="text-center mb-3">
+          <img
+            :src="getImageUrl(foodDetail.image)"
+            :alt="foodDetail.name"
+            class="modal-image"
+          />
+        </div>
+
+        <p class="text-danger fw-bold fs-5 text-center">{{ formatNumber(foodDetail.price) }} VNĐ</p>
+        <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
+
+
+        <form @submit.prevent="addToCart">
+          <div class="mb-3" v-if="spicyLevel.length">
+            <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
+            <select class="form-select" id="spicyLevel">
+              <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                {{ item.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="topping-container mb-3" v-if="toppingList.length">
+            <label class="form-label fw-bold">🧀 Chọn Topping:</label>
+            <div
+              v-for="topping in toppingList"
+              :key="topping.id"
+              class="d-flex justify-content-between align-items-center mb-2"
+            >
+              <label class="d-flex align-items-center">
+                <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
+                {{ topping.name }}
+              </label>
+              <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
             </div>
           </div>
-        </div>
+
+          <button class="btn btn-danger w-100 fw-bold">
+            🛒 Thêm vào giỏ hàng
+          </button>
+        </form>
       </div>
     </div>
   </div>
+</div>
+
 </template>
 <script>
 import axios from 'axios'
-import { ref, onMounted, onBeforeUnmount  } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 
 export default {
+  name: 'HomePage',
   methods: {
     formatNumber(value) {
       return numeral(value).format('0,0')
@@ -325,41 +312,142 @@ export default {
       return `/img/food/${image}`
     },
   },
-  name: 'HomePage',
   setup() {
     const foods = ref([])
-    const toppings = ref([])
+    const combos = ref([])
     const categories = ref([])
     const foodDetail = ref([])
+    const toppings = ref([])
     const spicyLevel = ref([])
     const toppingList = ref({})
+
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
+    const selectedCategoryName = ref('Món Ăn')
 
+    const currentIndex = ref(0)
+    const images = [
+      '/img/banner/Banner (1).webp',
+      '/img/banner/Banner (2).png',
+      '/img/banner/Banner.png',
+    ]
+    let intervalId = null
 
+    const toggleDropdown = () => {
+      isDropdownOpen.value = !isDropdownOpen.value
+    }
 
-    const getFood = async () => {
+    const changeSlide = (direction) => {
+      const total = images.length
+      currentIndex.value = (currentIndex.value + direction + total) % total
+    }
+
+    const getCategory = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`)
-        foods.value = res.data
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`)
+        categories.value = res.data
+        categories.value.shift()
       } catch (error) {
         console.error(error)
       }
     }
-    const openModal = async (foodId) => {
+
+    const getFood = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${foodId}`)
-        foodDetail.value = res.data
-        const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${foodId}`)
-        toppings.value = res1.data
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`)
+        foods.value = res.data.map((item) => ({ ...item, type: 'food' }))
+      } catch (error) {
+        console.error(error)
+      }
+    }
 
-        spicyLevel.value = toppings.value.filter((item) => item.category_id == 1)
-        console.log(spicyLevel.value);
+    const getFoodByCategory = async (categoryId) => {
+      try {
+        if (!categories.value.length) {
+          console.warn('Categories chưa được load.')
+          return
+        }
 
-        toppingList.value = toppings.value.filter((item) => item.category_id == 2)
-        toppingList.value.forEach((item) => {
-          item.price = item.price || 0
-        })
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
+        let allFoods = res.data.map((item) => ({ ...item, type: 'food' }))
+
+        let parentName = ''
+        let childName = ''
+
+        for (const parent of categories.value) {
+          if (parent.id === categoryId) {
+            parentName = parent.name
+            break
+          }
+          if (parent.children && parent.children.length) {
+            const child = parent.children.find((c) => c.id === categoryId)
+            if (child) {
+              parentName = parent.name
+              childName = child.name
+              break
+            }
+          }
+        }
+
+        selectedCategoryName.value = childName ? `${parentName} > ${childName}` : parentName || 'Món Ăn'
+
+        const selectedCategory = categories.value.find((c) => c.id === categoryId)
+        if (selectedCategory?.children?.length) {
+          const childRequests = selectedCategory.children.map((child) =>
+            axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
+          )
+          const childResults = await Promise.all(childRequests)
+          childResults.forEach((childRes) => {
+            const childFoods = childRes.data.map((item) => ({ ...item, type: 'food' }))
+            allFoods = [...allFoods, ...childFoods]
+          })
+        }
+
+        if (categoryId === 14) {
+          const comboRes = await axios.get(`http://127.0.0.1:8000/api/home/combos`)
+          const combosWithType = comboRes.data.map((item) => ({ ...item, type: 'combo' }))
+          allFoods = [...allFoods, ...combosWithType]
+        }
+
+        foods.value = allFoods
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    const getAllCombos = async () => {
+      try {
+        const res = await  axios.get('http://127.0.0.1:8000/api/home/combos')
+        combos.value = res.data
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    const openModal = async (item) => {
+    foodDetail.value = {}
+    toppings.value = []
+    spicyLevel.value = []
+    toppingList.value = []
+      try {
+        //combo
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+          foodDetail.value = res.data
+
+        if (item.type === 'food') {
+          const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+          foodDetail.value = res.data
+
+          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          toppings.value = res1.data
+
+          spicyLevel.value = toppings.value.filter((item) => item.category_id == 1)
+          toppingList.value = toppings.value.filter((item) => item.category_id == 2)
+          toppingList.value.forEach((item) => {
+            item.price = item.price || 0
+          })
+        } else if (item.type === 'combo') {
+          const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+          foodDetail.value = res.data
+        }
 
         const modalElement = document.getElementById('productModal')
         if (modalElement) {
@@ -370,82 +458,9 @@ export default {
         console.error(error)
       }
     }
-    const getCategory = async () => {
-      try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`)
-        categories.value = res.data
-        categories.value.shift()
-      } catch (error) {
-        console.error(error)
-      }
-    }
-    const selectedCategoryName = ref('Món Ăn')
 
-    const getFoodByCategory = async (categoryId) => {
-      try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
-        foods.value = res.data
-
-        // find cate parent and child
-        let parentName = ''
-        let childName = ''
-
-        for (const parent of categories.value) {
-          if (parent.id === categoryId) {
-            // if chose paretn cate
-            parentName = parent.name
-            break
-          }
-
-          if (parent.children && parent.children.length) {
-            const child = parent.children.find((c) => c.id === categoryId)
-            if (child) {
-              parentName = parent.name
-              childName = child.name
-              break
-            }
-          }
-        }
-        //
-        if (childName) {
-          selectedCategoryName.value = `${parentName} > ${childName}`
-        } else {
-          selectedCategoryName.value = parentName || 'Món Ăn'
-        }
-
-        // paren hav child => load child
-        const selectedCategory = categories.value.find((c) => c.id === categoryId)
-        if (selectedCategory?.children?.length) {
-          const childRequests = selectedCategory.children.map((child) =>
-            axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
-          )
-          const childResults = await Promise.all(childRequests)
-          childResults.forEach((childRes) => {
-            foods.value = [...foods.value, ...childRes.data]
-          })
-        }
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    const toggleDropdown = () => {
-      isDropdownOpen.value = !isDropdownOpen.value
-    }
-    const currentIndex = ref(0)
-const images = [
-  '/img/banner/Banner (1).webp',
-  '/img/banner/Banner (2).png',
-  '/img/banner/Banner.png',
-]
-let intervalId = null
-const changeSlide = (direction) => {
-  const total = images.length
-  currentIndex.value = (currentIndex.value + direction + total) % total
-}
     const addToCart = () => {
       const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-
       const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
       const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
       const selectedToppingId = Array.from(
@@ -470,18 +485,16 @@ const changeSlide = (direction) => {
         quantity: 1,
       }
 
-      //lấy giỏ hàng từ localStorage
-      let cart=JSON.parse(localStorage.getItem('cart')) || []
+      let cart = JSON.parse(localStorage.getItem('cart')) || []
 
-      //Tìm xem item có trong giỏ hàng chưa
       const existingItem = cart.findIndex(
         (item) =>
-        item.id === cartItem.id &&
-        item.spicyLevel === cartItem.spicyLevel &&
-        JSON.stringify(item.toppings.sort()) ===  JSON.stringify(cartItem.toppings.sort())
+          item.id === cartItem.id &&
+          item.spicyLevel === cartItem.spicyLevel &&
+          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort()),
       )
 
-      if(existingItem !== -1){
+      if (existingItem !== -1) {
         cart[existingItem].quantity += 1
       } else {
         cart.push(cartItem)
@@ -490,38 +503,39 @@ const changeSlide = (direction) => {
       localStorage.setItem('cart', JSON.stringify(cart))
       alert('Đã thêm vào giỏ hàng!')
     }
-    onMounted(() => {
-      getFood()
-      getCategory()
 
+    onMounted(async () => {
+      await getCategory()
+      await getFood()
+      await getAllCombos()
       intervalId = setInterval(() => {
-    currentIndex.value = (currentIndex.value + 1) % images.length
-  }, 3000)
+        currentIndex.value = (currentIndex.value + 1) % images.length
+      }, 3000)
     })
+
     onBeforeUnmount(() => {
-  clearInterval(intervalId)
-})
+      clearInterval(intervalId)
+    })
+
     return {
       foods,
-      toppings,
+      combos,
       categories,
-      getFoodByCategory,
-      selectedCategoryName,
       foodDetail,
-      openModal,
-      isLoading,
-      isDropdownOpen,
-      toggleDropdown,
+      toppings,
       spicyLevel,
       toppingList,
+      isLoading,
+      isDropdownOpen,
+      selectedCategoryName,
       currentIndex,
       images,
-      changeSlide,
+      getFoodByCategory,
+      openModal,
       addToCart,
-
+      toggleDropdown,
+      changeSlide,
     }
   },
 }
 </script>
-
-

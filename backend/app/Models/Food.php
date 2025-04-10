@@ -21,5 +21,8 @@ class Food extends Model
                 ->using(Food_topping::class) // dùng model trung gian
                 ->withPivot('id', 'price');
 }
-
+public function combos()
+{
+    return $this->belongsToMany(Combo::class, 'combo_details', 'food_id', 'combo_id');
+}
 }
