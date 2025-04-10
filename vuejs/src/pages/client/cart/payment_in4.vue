@@ -9,25 +9,19 @@
           <div class="body-in4-customer">
             <form @submit.prevent="check_out">
               <div class="input-in4-customer">
-                <input type="text" placeholder="Tên của bạn">
+                <input v-model="guest_name" type="text" placeholder="Tên của bạn">
               </div>
               <div class="input-in4-customer">
-                <input type="text" placeholder="Số điện thoại">
+                <input v-model="guest_email" type="text" placeholder="Email của bạn">
               </div>
               <div class="input-in4-customer">
-                <input type="text" placeholder="Địa chỉ">
+                <input v-model="guest_phone" type="text" placeholder="Số điện thoại">
               </div>
               <div class="input-in4-customer">
-                <input type="text" placeholder="Tỉnh thành">
+                <input v-model="guest_address" type="text" placeholder="Địa chỉ">
               </div>
               <div class="input-in4-customer">
-                <input type="text" placeholder="Quận huyện">
-              </div>
-              <div class="input-in4-customer">
-                <input type="text" placeholder="Phường xã">
-              </div>
-              <div class="input-in4-customer">
-                <textarea name="" id="" placeholder="Ghi chú"></textarea>
+                <textarea v-model="note" name="" id="" placeholder="Ghi chú"></textarea>
               </div>
               <div class="btn-complete">
                 <router-link to="/cart"><span><i class="bi bi-chevron-left"></i>Quay về trang giỏ hàng</span></router-link>
@@ -110,6 +104,8 @@
   </div>
 </template>
 <script>
+import { useRouter } from 'vue-router'
+import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import numeral from 'numeral'
 import { computed } from 'vue'
@@ -123,7 +119,52 @@ export default {
     },
   },
   setup() {
+    const router = useRouter()
+
+
     const cartItems = ref([])
+    const guest_name = ref('')
+    const guest_email = ref('')
+    const guest_phone = ref('')
+    const guest_address = ref('')
+    const note = ref('')
+
+    const check_out = async() => {
+      try{
+        const orderData = {
+          guest_name: guest_name.value,
+          guest_email: guest_email.value,
+          guest_phone: guest_phone.value,
+          guest_address: guest_address.value,
+          note: note.value,
+          total_price: totalPrice.value,
+          order_detail: cartItems.value.map(item => ({
+            food_id: item.id,
+            combo_id: null,
+            quantity: item.quantity,
+            price: item.price,
+            type: 'food',
+            toppings: item.toppings.map(t=>({
+              food_toppings_id: t.food_toppings_id,
+              price: t.price
+            }))
+          }))
+        }
+
+        const response= await axios.post('http://127.0.0.1:8000/api/order',orderData)
+        if(response.data.status){
+          alert('Đặt hàng thành công')
+          localStorage.removeItem('cart');
+          router.push('/cart')
+        } else {
+          alert('Đặt hàng thật bại!')
+        }
+      } catch(error){
+        console.error(error)
+        alert('Lỗi khi gửi đơn hàng')
+      }
+    }
+
 
     const loadCart = () => {
       const storedCart = localStorage.getItem('cart')
@@ -172,7 +213,13 @@ export default {
       cartItems,
       totalPrice,
       totalPriceItem,
-      totalQuantity
+      totalQuantity,
+      guest_name,
+      guest_email,
+      guest_phone,
+      guest_address,
+      note,
+      check_out,
     }
   }
 }

@@ -3,20 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Order_detail;
+use App\Models\Order_topping;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class CartController extends Controller
 {
 
-    public function check_out(Request $request)
+    public function order(Request $request)
     {
-        try{
+        try {
             $data = $request->validate([
                 'user_id' => 'nullable|numeric',
                 'guest_name' => 'required|string|max:255',
                 'guest_phone' => 'required|digits:10',
                 'guest_email' => 'required|email',
-                'guest_address' => 'required|address',
+                'guest_address' => 'required|string|max:255',
                 'total_price' => 'required|numeric',
                 'order_detail' => 'nullable|array',
                 'note' => 'nullable|string',
@@ -30,20 +33,104 @@ class CartController extends Controller
                     'guest_email' => $data['guest_email'],
                     'guest_address' => $data['guest_address'],
                     'total_price' => $data['total_price'],
-                    'note' => $data['note']??null,
+                    'note' => $data['note'] ?? null,
                 ]);
 
 
-            if(!empty($data['order_detail'])){
-                
+                if (!empty($data['order_detail'])) {
+                    foreach ($data['order_detail'] as $item) {
+                        $orderDetail = Order_detail::create([
+                            'order_id' => $order->id,
+                            'food_id' => $item['food_id'] ?? null,
+                            'combo_id' => $item['combo_id'] ?? null,
+                            'quantity' => $item['quantity'],
+                            'price' => $item['price'],
+                            'type' => $item['type'],
+                        ]);
+
+                        if(!empty($item['toppings'])){
+                            foreach($item['toppings'] as $topping){
+                                Order_topping::create([
+                                    'food_toppings_id' => $topping['food_toppings_id'],
+                                    'order_detail_id' => $orderDetail -> id,
+                                    'price' => $topping['price'],
+                                ]);
+                            }
+                        }
+                    }
+                }
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Đặt hàng thành công',
+                    'order_id'=> $order->id
+                ],200);
+            } catch (\Exception $e) {
+                return response()->json(['status' => false, 'error' => $e -> getMessage()],500);
             }
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors()
+            ],422);
+        }
+    }
 
-
-            }catch(\Exception $e){
-
-            }
-        } catch(\Exception $e){
-
+    public function getIn4Order(Request $request){
+        $order = Order::with([
+            'details.food', //lấy tên món ăn
+            'details.toppings.food_toppings.toppings' //lấy tên toppingtopping
+        ])->find($request->id);
+        if ($order){
+            $details = $order->details->map(function ($detail){
+                return [
+                    'id' => $detail->id,
+                    'food_id' => $detail->food_id,
+                    'food_name' => $detail->food_name ?? null,
+                    'quantity' => $detail->quantity,
+                    'price' => $detail->price,
+                    'image' => $detail->foods->image,
+                    'type' => $detail->type,
+                    'toppings' => $detail->toppings->map(function ($toppings){
+                        return [
+                            'food_toppings_id' => $toppings->food_toppings_id,
+                            'topping_name' => $toppings->food_toppings->topping->name ?? null,
+                            'price' => $toppings->price,
+                        ];
+                    })
+                ];
+            });
+            return response()->json([
+                'status' => true,
+                'mess' => 'Lấy thông tin thành công',
+                'in4' => [
+                    'id' => $order -> id,
+                    'user_id' => $order -> user_id,
+                    'discount_id' => $order -> discount_id,
+                    'order_time' => $order->order_time,
+                    'order_status' => $order->order_status,
+                    'total_price' => $order->total_price,
+                    'comment' => $order->comment,
+                    'review_time' => $order->review_time,
+                    'rating' => $order->rating,
+                    'guest_name' => $order->guest_name,
+                    'guest_phone' => $order->guest_phone,
+                    'guest_email' => $order->guest_email,
+                    'guest_address' => $order->guest_address,
+                    'guest_count' => $order->guest_count,
+                    'note' => $order->note,
+                    'deposit_amount' => $order->deposit_amount,
+                    'check_in_time' => $order->check_in_time,
+                    'reservations_time' => $order->reservations_time,
+                    'expiration_time' => $order->expiration_time,
+                    'reservation_status' => $order->reservation_status,
+                    'details' => $details
+                ]
+            ],200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'mess' => 'Lấy thông tin không thành công',
+            ]);
         }
     }
 

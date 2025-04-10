@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 // });
 
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\ComboController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
@@ -26,27 +27,40 @@ Route::post('/chatbot', [ChatbotController::class, 'chat']);
 Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
 Route::get('/home/food/{id}', [FoodController::class, 'getFoodById']);
 Route::get('/home/category/{id}/food', [FoodController::class, 'getFoodByCategory']);
-
+//home combo
+Route::get('/home/combos', [ComboController::class, 'getAllCombos']);
 // home toppings
 Route::get('/home/topping/{id}', [FoodController::class, 'getToppingByFood']);
 // home categories
 Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']);
 
-
 //reservation
 Route::post('/reservation', [OrderController::class, 'reservation']);
+Route::get('/reservation-info/{id}', [OrderController::class, 'getInfoReservation']);
 
 //login/register/logout
+
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 //user
+// Route::resource('user', UserController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::resource('user', UserController::class);
+});
+
+
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
 //cart
-Route::post('check_out',[CartController::class,'check_out']);
+Route::post('/order',[CartController::class,'order']);
+Route::get('/order_info/{id}',[CartController::class,'getIn4Order']);
+Route::get('/ping', function () {
+    return response()->json(['pong' => true]);
+});
+
 
 

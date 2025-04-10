@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Combo_detail extends Model
 {
     use HasFactory;
+
+    public function foods(){
+        return $this->belongsToMany(Food::class, 'food_id');
+    }
 }

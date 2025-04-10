@@ -20,7 +20,7 @@
           </div>
 
           <div class="deals-hot-box d-none d-lg-block">
-            <p class="title">Khám phá ưu đãi hot!</p>
+            <p class="title" style="color: white">Khám phá ưu đãi hot!</p>
             <a href="#" class="link">Xem ngay <span>→</span></a>
           </div>
         </div>
@@ -319,7 +319,7 @@ import { Modal } from 'bootstrap'
 export default {
   methods: {
     formatNumber(value) {
-      return numeral(value).format('0,0.00')
+      return numeral(value).format('0,0')
     },
     getImageUrl(image) {
       return `/img/food/${image}`
@@ -454,8 +454,10 @@ const changeSlide = (direction) => {
       const selectedToppings= toppingList.value
       .filter((topping)=>selectedToppingId.includes(topping.id))
       .map((topping)=>({
+        id: topping.id,
         name: topping.name,
-        price: topping.price
+        price: topping.price,
+        food_toppings_id: topping.pivot?.id || null
       }))
 
       const cartItem = {
