@@ -20,7 +20,9 @@ class Order extends Model
         'note',
         'deposit_amount',
         'expiration_time',
-        'total_price'
+        'total_price',
+        'user_id',
+        'guest_address'
 
     ];
     public function details() {

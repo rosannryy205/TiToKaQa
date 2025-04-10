@@ -54,6 +54,11 @@ const client = [
               name: "history-order",
               component: () => import("../pages/client/user/history-order.vue")
             },
+            {
+              path: "history-order-detail/:id",
+              name: "history-order-detail",
+              component: () => import("../pages/client/user/history-order-detail.vue")
+            },
         ]
     }
 ];

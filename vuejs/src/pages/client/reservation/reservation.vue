@@ -1,22 +1,27 @@
 <template>
-    <div class="row d-flex text-center">
-      <div class="title-foods fw-medium fs-5 mt-5">
-            <span>Lẩu và Mỳ cay 7 cấp độ</span>
-          </div>
-          <div class="title-shops d-sm-block fw-bold">
-            <span>ĐẶT BÀN CÙNG CHÚNG TÔI!</span>
-          </div>
+  <div v-if="loading" class="loading-overlay">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
+  </div>
+  <div class="row d-flex text-center">
+    <div class="title-foods fw-medium fs-5 mt-5">
+      <span>Lẩu và Mỳ cay 7 cấp độ</span>
+    </div>
+    <div class="title-shops d-sm-block fw-bold">
+      <span>ĐẶT BÀN CÙNG CHÚNG TÔI!</span>
+    </div>
+  </div>
   <div class="container custom-container">
     <div class="booking-form row w-75" style="border-radius: 0px">
       <div class="col-md-6 booking-image">
         <img class="img-reservation" src="/img/reservation/Rectangle 48.png" alt="Khuyến mãi Tết" />
       </div>
       <div class="col-md-6 form-section mt-2">
-        <form @submit.prevent="reservation">
-          <input type="text" v-model="fullname" class="form-control mb-2" placeholder="Tên của bạn" />
-          <input type="text" v-model="phone" class="form-control mb-2" placeholder="Số điện thoại" />
-          <input type="email" v-model="email" class="form-control mb-2" placeholder="Email" />
+        <form @submit.prevent="submitReservationAndSaveUser">
+          <input type="text" v-model="form.fullname" class="form-control mb-2" placeholder="Tên của bạn" />
+          <input type="text" v-model="form.phone" class="form-control mb-2" placeholder="Số điện thoại" />
+          <input type="email" v-model="form.email" class="form-control mb-2" placeholder="Email" />
           <input type="number" v-model="guest_count" class="form-control mb-2" placeholder="Số lượng người" />
           <div class="row g-2">
             <div class="col">
@@ -100,14 +105,14 @@
                                 <div class="form-check">
                                   <div class="form-check d-flex" v-for="toppings in toppingList" :key="toppings.id">
                                     <div class="w-100">
-                                      <input class="form-check-input" type="checkbox" :id="'topping-' + toppings.id"
+                                      <input class="me-2" type="checkbox" :id="'topping-' + toppings.id"
                                         :value="toppings.pivot.id" :name="'topping[]'" />
                                       <label class="form-check-label" :for="'topping-' + toppings.id">{{ toppings.name
-                                      }}</label>
+                                        }}</label>
                                     </div>
                                     <div class="flex-shrink-1">
                                       <label class="form-check-label" for="topping2">{{ formatNumber(toppings.price)
-                                      }}VND</label>
+                                        }}VND</label>
                                     </div>
                                   </div>
                                 </div>
@@ -159,13 +164,11 @@
 
 <script>
 import { FoodList } from '@/stores/food'
+import { User } from '@/stores/user'
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 export default {
-  components: {
-    FoodList,
-  },
   setup() {
     const time = ref('')
     const date = ref('')
@@ -178,49 +181,12 @@ export default {
     const guest_count = ref(2)
     const deposit_amount = 50000
     const router = useRouter()
-    const savedUser = JSON.parse(localStorage.getItem('user'))
     const quantities = ref({})
+    const loading = ref(false)
+
     // const order_details = ref([]);
 
-
     const cart = JSON.parse(localStorage.getItem('cart1')) || []
-    const generateOrderDetails = async () => {
-      const details = []
-
-      cart.forEach(element => {
-        const toppings = Array.isArray(element.topping_id)
-          ? element.topping_id.map((id, index) => ({
-            food_toppings_id: id,
-            price: parseFloat(element.toppingPrice?.[index]) || null
-          }))
-          : []
-
-        details.push({
-          food_id: element.id,
-          quantity: element.quantity,
-          price: element.price || null,
-          type: 'food',
-          combo_id: null,
-          toppings: toppings
-        })
-      })
-
-      return details
-    }
-
-
-
-    // console.log(cart);
-
-    // console.log(order_details.value);
-
-    for (let hour = 8; hour <= 19; hour++) {
-      let hourStr = hour < 10 ? '0' + hour : '' + hour
-      timeOptions.push(hourStr + ':00')
-      if (hour !== 19) {
-        timeOptions.push(hourStr + ':30')
-      }
-    }
 
     const {
       foods,
@@ -235,7 +201,52 @@ export default {
       // addToCart
     } = FoodList.setup()
 
+    const {
+      form,
+      user,
+      handleSubmit
+    } = User.setup()
+
+    const generateOrderDetails = async () => {
+      const details = []
+
+      cart.forEach((element) => {
+        const toppings = Array.isArray(element.topping_id)
+          ? element.topping_id.map((id, index) => ({
+            food_toppings_id: id,
+            price: parseFloat(element.toppingPrice?.[index]) || null,
+          }))
+          : []
+
+        details.push({
+          food_id: element.id,
+          quantity: element.quantity,
+          price: element.price || null,
+          type: 'food',
+          combo_id: null,
+          toppings: toppings,
+        })
+      })
+
+      return details
+    }
+
+    // console.log(cart);
+
+    // console.log(order_details.value);
+
+    for (let hour = 8; hour <= 19; hour++) {
+      let hourStr = hour < 10 ? '0' + hour : '' + hour
+      timeOptions.push(hourStr + ':00')
+      if (hour !== 19) {
+        timeOptions.push(hourStr + ':30')
+      }
+    }
+
+
+
     const reservation = async () => {
+      loading.value = true
       const reservations_time = `${date.value} ${time.value}`
       const expiration_time = new Date(new Date(reservations_time).getTime() + 15 * 60000)
         .toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' })
@@ -243,29 +254,39 @@ export default {
         .slice(0, 16)
 
       try {
-        console.log('Total Price:', getTotalPrice(cart));
-        const res = await axios.post('http://127.0.0.1:8000/api/reservation', {
-          guest_name: fullname.value,
-          guest_phone: phone.value,
-          guest_email: email.value,
-          guest_count: guest_count.value,
-          reservations_time: reservations_time,
-          note: note.value,
-          deposit_amount: deposit_amount,
-          expiration_time: expiration_time,
-          total_price: getTotalPrice(cart),
-          order_details: await generateOrderDetails()
-        })
-        console.log(res.data)
+        const token = localStorage.getItem('token')
+        const res = await axios.post(
+          'http://127.0.0.1:8000/api/reservation',
+          {
+            user_id: user.value?.id,
+            guest_name: form.value.fullname,
+            guest_phone: form.value.phone,
+            guest_email: form.value.email,
+            guest_count: guest_count.value,
+            reservations_time,
+            note: form.value.note,
+            deposit_amount,
+            expiration_time,
+            total_price: getTotalPrice(cart),
+            order_details: await generateOrderDetails(),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
         alert('Đặt bàn thành công!')
-        const orderId = res.data.order_id;
+        const orderId = res.data.order_id
         router.push({
           name: 'reservation-form',
-          params: { orderId }
+          params: { orderId },
         })
-        // console.log(orderId);
       } catch (error) {
-        console.error(error.response.data)
+        console.error('Đặt bàn thất bại:', error.response?.data || error.message)
+        alert('Có lỗi xảy ra khi đặt bàn, vui lòng thử lại.')
+      } finally {
+        loading.value = false
       }
     }
 
@@ -283,7 +304,7 @@ export default {
       const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không rõ'
 
       const selectedToppingId = Array.from(
-        document.querySelectorAll(`#toppingModal-${foodID} input[name="topping[]"]:checked`)
+        document.querySelectorAll(`#toppingModal-${foodID} input[name="topping[]"]:checked`),
       ).map((el) => parseInt(el.value))
 
       const selectedToppingName = toppingList.value
@@ -346,40 +367,54 @@ export default {
       }
     }
 
-
     const getTotalPrice = (cart) => {
       return cart.reduce((total, item) => {
-        const basePrice = parseFloat(item.price) || 0;
-        const toppingsTotal = item.toppings_price?.reduce((sum, price) => sum + parseFloat(price), 0) || 0;
-        const itemTotal = (basePrice + toppingsTotal) * item.quantity;
-        return total + itemTotal;
-      }, 0);
-    };
+        const basePrice = parseFloat(item.price) || 0
+        const toppingsTotal =
+          item.toppings_price?.reduce((sum, price) => sum + parseFloat(price), 0) || 0
+        const itemTotal = (basePrice + toppingsTotal) * item.quantity
+        return total + itemTotal
+      }, 0)
+    }
 
-    console.log("Total Price:", getTotalPrice(cart));
-
-
-
-
+    const submitReservationAndSaveUser = async () => {
+      loading.value = true
+      try {
+        await handleSubmit()
+        await reservation()
+      } catch (error) {
+        console.error('Lỗi:', error)
+      } finally {
+        loading.value = false
+      }
+    }
 
     onMounted(() => {
-      if (savedUser) {
-        fullname.value = savedUser.fullname || savedUser.username
-        phone.value = savedUser.phone || ''
-        email.value = savedUser.email || ''
-      }
       generateOrderDetails()
     })
 
     return {
-      time, date, today, timeOptions,
-      fullname, phone, email, note, guest_count,
-      reservation, foods, categories, getFoodByCategory,
+      time, date, today, timeOptions, fullname, phone, email, note,
+      guest_count, reservation, foods, categories, getFoodByCategory,
       openModal, spicyLevel, toppingList, formatNumber, getImageUrl,
       flatCategoryList, quantities, increaseQuantity, decreaseQuantity,
-      addToCart
-    };
-
+      addToCart, form, user, handleSubmit,
+      submitReservationAndSaveUser, loading
+    }
   },
 }
 </script>
+<style scoped>
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(148, 142, 142, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
