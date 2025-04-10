@@ -6,8 +6,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ComboController;
 use App\Http\Controllers\FoodController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+
+Route::post('/chatbot', [ChatbotController::class, 'chat']);
+Route::get('/home', [HomeController::class, 'index']);
+
+use App\Http\Controllers\OrderController;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
@@ -33,15 +38,19 @@ Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByU
 Route::put('/order-history-info/cancle/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
 
-
-//login/register/logout
-Route::post('/register', [UserController::class, 'register']);
-Route::post('/login', [UserController::class, 'login']);
-Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
-//user
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
     Route::resource('user', UserController::class);
+});
+
+
+Route::post('/register', [UserController::class, 'register']);
+Route::post('/login', [UserController::class, 'login']);
+Route::post('/forgot',[UserController::class,'forgotPass']);
+Route::post('/code',[UserController::class,'verifyResetCode']);
+Route::post('/reset-password',[UserController::class,'ChangePassword']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [UserController::class, 'logout']);
 });
 
 
