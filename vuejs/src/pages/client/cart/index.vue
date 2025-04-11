@@ -103,12 +103,13 @@ export default {
       return `cart_${userId}`
     }
 
+
     const loadCart = () => {
       const cartKey = getCartKey()
       const storedCart = localStorage.getItem(cartKey)
       if (storedCart) {
         cartItems.value = JSON.parse(storedCart)
-      }else{
+      } else {
         cartItems.value = []
       }
     }
@@ -176,5 +177,4 @@ export default {
   width: 15px;
   text-align: center;
 }
-
 </style>

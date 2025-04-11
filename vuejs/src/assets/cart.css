@@ -147,10 +147,24 @@ input.form-control-cart:focus {
 
 /* css trang thanh toán */
 .list-product-scroll {
-  max-height: 280px; 
+  max-height: 280px;
   overflow-y: auto;
-  padding-right: 5px; 
+  padding-right: 5px;
 }
+
+.btn-check-out{
+  background-color: #C92C3C;
+  color: white;
+  border: none;
+}
+
+.btn-check-out:hover{
+  background-color: #a51928;
+  color: white;
+  border: none;
+}
+
+
 
 .title-in4-payment {
   margin-top: 20px;
