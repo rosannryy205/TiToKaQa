@@ -121,7 +121,6 @@ export default {
   setup() {
     const router = useRouter()
 
-
     const cartItems = ref([])
     const guest_name = ref('')
     const guest_email = ref('')
@@ -129,9 +128,18 @@ export default {
     const guest_address = ref('')
     const note = ref('')
 
+    const user= JSON.parse(localStorage.getItem('user')) || {}
+    if(user){
+        guest_name.value = user.fullname || '',
+        guest_email.value = user.email || '',
+        guest_phone.value = user.phone || '',
+        guest_address.value = user.address || ''
+      }
+
     const check_out = async() => {
       try{
         const orderData = {
+          user_id: user ? user.id : null,
           guest_name: guest_name.value,
           guest_email: guest_email.value,
           guest_phone: guest_phone.value,

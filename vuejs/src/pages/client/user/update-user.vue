@@ -176,6 +176,17 @@ export default {
           }
         })
         successMessage.value = 'Cập nhật thành công!'
+
+        //Cập nhật localstorage
+        const updatedUser = {
+          ...user1,
+          fullname: form.value.fullname,
+          email: form.value.email,
+          phone: form.value.phone,
+          address: form.value.address
+        }
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+
       } catch (error) {
         console.error(error)
         alert('Cập nhật thất bại.')

@@ -1,8 +1,7 @@
-
-
 <template>
   <div class="container-sm">
-    <span  style="color: #000;"><router-link to="/home" style="text-decoration: none; color: #000; ">Trang chủ</router-link> / Giỏ hàng</span>
+    <span style="color: #000;"><router-link to="/home" style="text-decoration: none; color: #000; ">Trang
+        chủ</router-link> / Giỏ hàng</span>
     <h3 class="mb-4">Giỏ hàng của bạn</h3>
     <div class="row">
       <!-- Danh sách sản phẩm -->
@@ -79,6 +78,7 @@
 </template>
 <script>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router';
 import numeral from 'numeral'
 import { computed } from 'vue'
 export default {
@@ -92,6 +92,7 @@ export default {
   },
   setup() {
     const cartItems = ref([])
+    const router = useRouter();
 
     const loadCart = () => {
       const storedCart = localStorage.getItem('cart')
@@ -143,6 +144,11 @@ export default {
 
     onMounted(() => {
       loadCart()
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Bạn cần đăng nhập để vào giỏ hàng!');
+        router.push('/home'); // chuyển hướng bằng Vue Router
+      }
     })
 
     return {
@@ -156,4 +162,3 @@ export default {
   }
 }
 </script>
-

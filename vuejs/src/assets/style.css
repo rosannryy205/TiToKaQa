@@ -22,13 +22,6 @@ body {
 #app > div > div.header > div.container > div > nav > div > button > span{
   font-size: 1rem;
 }
-.navbar-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  position: relative;
-}
 body > section > div.header > div > nav {
   border: none;
   padding: 0px;
