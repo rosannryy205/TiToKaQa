@@ -96,10 +96,21 @@ export default {
     const cartItems = ref([])
     const router = useRouter();
 
+
+    const getCartKey = () => {
+  const user = JSON.parse(localStorage.getItem('user'))
+  const userId = user?.id || 'guest'
+  return `cart_${userId}`
+}
+
+
     const loadCart = () => {
-      const storedCart = localStorage.getItem('cart')
+      const cartKey = getCartKey()
+      const storedCart = localStorage.getItem(cartKey)
       if (storedCart) {
         cartItems.value = JSON.parse(storedCart)
+      }else{
+        cartItems.value = []
       }
     }
 
@@ -123,7 +134,8 @@ export default {
     };
 
     const updateCartStorage = () => {
-      localStorage.setItem('cart', JSON.stringify(cartItems.value))
+      const cartKey = getCartKey()
+      localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
     }
 
     const decreaseQuantity = (index) => {
@@ -140,17 +152,12 @@ export default {
 
     const removeItem = (index) => {
       cartItems.value.splice(index, 1)
-      localStorage.setItem('cart', JSON.stringify(cartItems.value))
+      updateCartStorage()
     }
 
 
     onMounted(() => {
       loadCart()
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Bạn cần đăng nhập để vào giỏ hàng!');
-        router.push('/home'); // chuyển hướng bằng Vue Router
-      }
     })
 
     return {
