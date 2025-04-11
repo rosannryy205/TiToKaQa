@@ -7,76 +7,47 @@ import { computed } from 'vue'
 export const FoodList = {
   setup() {
     const foods = ref([])
-    const toppings = ref([])
+    const combos = ref([])
     const categories = ref([])
     const foodDetail = ref([])
+    const toppings = ref([])
     const spicyLevel = ref([])
     const toppingList = ref({})
+
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
-    const modalElement = ref('')
+    const selectedCategoryName = ref('Món Ăn')
 
-    // Hàm định dạng số
+    const toggleDropdown = () => {
+      isDropdownOpen.value = !isDropdownOpen.value
+    }
+
     const formatNumber = (value) => {
       return numeral(value).format('0,0')
     }
 
-    // Hàm lấy URL ảnh
     const getImageUrl = (image) => {
       return `/img/food/${image}`
     }
 
-    // Hàm lấy tất cả món ăn
-    const getFood = async () => {
-      try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`)
-        foods.value = res.data
-        foods.value = foods.value.map(food => ({
-          ...food,
-          quantity: food.quantity || 1
-        }))
-      } catch (error) {
-        console.error("Lỗi khi lấy món ăn:", error)
-      }
-    }
-
-    const openModal = async (foodId, modalElementId) => {
-      try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${foodId}`);
-        foodDetail.value = res.data;
-
-        const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${foodId}`);
-        toppings.value = res1.data;
-
-        spicyLevel.value = toppings.value.filter(item => item.category_id == 1);
-        toppingList.value = toppings.value.filter(item => item.category_id == 2);
-
-        const modalElement = document.getElementById(modalElementId);
-        if (modalElement) {
-          const modal = new Modal(modalElement);
-          modal.show();
-        }
-        console.log("Opening modal for food ID:", foodId, "with element ID:", modalElementId);
-
-      } catch (error) {
-        console.error("Lỗi khi mở modal:", error);
-      }
-    };
-
-
-    // Hàm lấy tất cả danh mục
     const getCategory = async () => {
       try {
         const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`)
         categories.value = res.data
-        categories.value.shift() // Loại bỏ mục mặc định nếu cần
+        categories.value.shift()
       } catch (error) {
-        console.error("Lỗi khi lấy danh mục:", error)
+        console.error(error)
       }
     }
 
-    // Hàm lọc món ăn theo danh mục
-    const selectedCategoryName = ref('Món Ăn')
+    const getFood = async () => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`)
+        foods.value = res.data.map((item) => ({ ...item, type: 'food' }))
+      } catch (error) {
+        console.error(error)
+      }
+    }
 
     const getFoodByCategory = async (categoryId) => {
       try {
@@ -103,11 +74,103 @@ export const FoodList = {
             })
           }
         }
+
       } catch (error) {
         console.error("Lỗi khi lấy món ăn theo danh mục:", error)
       }
     }
 
+    const getAllCombos = async () => {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/api/home/combos')
+        combos.value = res.data
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const openModal = async (item) => {
+      isLoading.value = true
+
+      foodDetail.value = {}
+      toppings.value = []
+      spicyLevel.value = []
+      toppingList.value = []
+      try {
+        if (item.type === 'food') {
+          const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+          foodDetail.value = res.data
+
+          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          toppings.value = res1.data
+
+          spicyLevel.value = toppings.value.filter((item) => item.category_id == 1)
+          toppingList.value = toppings.value.filter((item) => item.category_id == 2)
+          toppingList.value.forEach((item) => {
+            item.price = item.price || 0
+          })
+          isLoading.value = false
+
+        } else if (item.type === 'combo') {
+          const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+          foodDetail.value = res.data
+          isLoading.value = false
+        }
+
+        const modalElement = document.getElementById('productModal')
+        if (modalElement) {
+          const modal = new Modal(modalElement)
+          modal.show()
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const addToCart = () => {
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
+      const selectedToppingId = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')).map((el)=>parseInt(el.value))
+
+      const selectedToppings= toppingList.value
+        .filter((topping)=>selectedToppingId.includes(topping.id))
+        .map((topping)=>({
+          id: topping.id,
+          name: topping.name,
+          price: topping.price,
+          food_toppings_id: topping.pivot?.id || null
+        }))
+
+      const cartItem = {
+        id: foodDetail.value.id,
+        name: foodDetail.value.name,
+        image: foodDetail.value.image,
+        price: foodDetail.value.price,
+        spicyLevel: selectedSpicyName,
+        toppings: selectedToppings,
+        quantity: 1,
+      }
+
+      let cart = JSON.parse(localStorage.getItem('cart')) || []
+
+      const existingItem = cart.findIndex(
+        (item) =>
+          item.id === cartItem.id &&
+          item.spicyLevel === cartItem.spicyLevel &&
+          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort()),
+      )
+
+      if (existingItem !== -1) {
+        cart[existingItem].quantity += 1
+      } else {
+        cart.push(cartItem)
+      }
+
+      localStorage.setItem('cart', JSON.stringify(cart))
+      alert('Đã thêm vào giỏ hàng!')
+    }
 
     const flatCategoryList = computed(() => {
       const result = []
@@ -121,88 +184,35 @@ export const FoodList = {
       })
       return result
     })
+    console.log(flatCategoryList.value); // Debug để kiểm tra dữ liệu.
 
-    // Hàm toggle dropdown
-    const toggleDropdown = () => {
-      isDropdownOpen.value = !isDropdownOpen.value
-    }
+    onMounted(async () => {
+      await getCategory()
+      await getFood()
+      await getAllCombos()
+      flatCategoryList
 
-
-    const addToCart = () => {
-      const quantityInput = parseInt(document.getElementById('quantityInput')?.value || 1)
-      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-
-      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không rõ'
-      const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')).map((el)=>parseInt(el.value))
-
-      const selectedToppingName= toppingList.value
-      .filter((topping)=>selectedToppingId.includes(topping.id))
-      .map((topping)=>topping.name)
-
-      const selectedToppingprice= toppingList.value
-      .filter((topping)=>selectedToppingId.includes(topping.id))
-      .map((topping)=>topping.price)
-
-      const cartItem = {
-        id: food.value.id,
-        name: food.value.name,
-        image: food.value.image,
-        price: food.value.price,
-        spicyLevel: selectedSpicyName,
-        toppings: selectedToppingName,
-        toppings_price: selectedToppingprice,
-        quantity: quantityInput,
-      }
-
-      //lấy giỏ hàng từ localStorage
-      let cart=JSON.parse(localStorage.getItem('cart1')) || []
-
-      //Tìm xem item có trong giỏ hàng chưa
-      const existingItem = cart.findIndex(
-        (item) =>
-        item.id === cartItem.id &&
-        item.spicyLevel === cartItem.spicyLevel &&
-        JSON.stringify(item.toppings.sort()) ===  JSON.stringify(cartItem.toppings.sort())
-      )
-
-      if(existingItem !== -1){
-        cart[existingItem].quantity += 1
-      } else {
-        cart.push(cartItem)
-      }
-
-      localStorage.setItem('cart1', JSON.stringify(cart))
-      alert('Đã thêm vào giỏ hàng!')
-    }
-
-
-    // Lấy dữ liệu khi component được mount
-    onMounted(() => {
-      getFood()
-      getCategory()
     })
+
 
     return {
       foods,
-      toppings,
+      combos,
       categories,
-      getFoodByCategory,
-      selectedCategoryName,
       foodDetail,
-      openModal,
-      isLoading,
-      isDropdownOpen,
-      toggleDropdown,
+      toppings,
       spicyLevel,
       toppingList,
+      isLoading,
+      isDropdownOpen,
+      selectedCategoryName,
+      getFoodByCategory,
+      openModal,
+      addToCart,
+      toggleDropdown,
       formatNumber,
       getImageUrl,
-      flatCategoryList,
-      modalElement,
-      addToCart,
-
+      flatCategoryList
     }
-  },
+  }
 }

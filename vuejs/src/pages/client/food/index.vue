@@ -1,224 +1,170 @@
 <template>
-      <section class="foods">
-      <div class="main-page-foods container">
-        <div class="row d-flex align-items-center justify-content-between">
-          <div class="col-md-6 d-none d-lg-flex justify-content-center align-items-center">
-            <span class="fw-bold text-center align-items-center justify-content-center">Thực đơn</span>
-          </div>
-          <div class="col-6 d-none d-lg-flex flex-wrap justify-content-center">
-  <ul class="menu-grid">
-    <li v-for="parent in categories" :key="parent.id" class="menu-item">
-      <a
-        @click.prevent="getFoodByCategory(parent.id)"
-        class="menu-link"
-        href="#"
-      >
-        {{ parent.name }}
-      </a>
-      <ul v-if="parent.children && parent.children.length" class="submenu">
-        <li v-for="child in parent.children" :key="child.id">
-          <a
-            @click.prevent="getFoodByCategory(child.id)"
-            href="#"
-            class="submenu-link fw-bold text-center"
-          >
-            {{ child.name }}
-          </a>
-        </li>
-      </ul>
-    </li>
-  </ul>
-</div>
-
+  <section class="foods">
+    <div class="main-page-foods container">
+      <div class="row d-flex align-items-center justify-content-between">
+        <div class="col-md-6 d-none d-lg-flex justify-content-center align-items-center">
+          <span class="fw-bold text-center align-items-center justify-content-center">Thực đơn</span>
         </div>
-        <!--small-->
-        <div class="col-12 d-lg-none position-relative">
-              <div
-                class="menu-header d-flex justify-content-between align-items-center"
-                @click="toggleDropdown"
-              >
-                <h2 class="menu-title">Thực đơn</h2>
-                <div class="menu-icon d-flex align-items-center">
-                  <i class="fas fa-list-alt"></i>
-                  <span>Danh mục</span>
+        <div class="col-6 d-none d-lg-flex flex-wrap justify-content-center">
+          <ul class="menu-grid">
+            <li v-for="parent in categories" :key="parent.id" class="menu-item">
+              <a @click.prevent="getFoodByCategory(parent.id)" class="menu-link" href="#">
+                {{ parent.name }}
+              </a>
+              <ul v-if="parent.children && parent.children.length" class="submenu">
+                <li v-for="child in parent.children" :key="child.id">
+                  <a @click.prevent="getFoodByCategory(child.id)" href="#" class="submenu-link fw-bold text-center">
+                    {{ child.name }}
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+      <!--small-->
+      <div class="col-12 d-lg-none position-relative">
+        <div class="menu-header d-flex justify-content-between align-items-center" @click="toggleDropdown">
+          <h2 class="menu-title">Thực đơn</h2>
+          <div class="menu-icon d-flex align-items-center">
+            <i class="fas fa-list-alt"></i>
+            <span>Danh mục</span>
+          </div>
+        </div>
+
+        <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
+          <ul class="list-group">
+            <li v-for="parent in categories" :key="parent.id" class="list-group-item parent-category d-flex">
+              <a @click.prevent="getFoodByCategory(parent.id)" href="#" class="text-decoration-none text-start">
+                {{ parent.name }}
+              </a>
+              <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
+                <li v-for="child in parent.children" :key="child.id" class="list-group-item child-category d-flex">
+                  <a @click.prevent="getFoodByCategory(child.id)" href="#" class="text-decoration-none text-start">
+                    🔻{{ child.name }}
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!---->
+    <div class="background-banner"></div>
+    <section class="all-dish-by-category container">
+      <div class="dish-by-category">
+        <div class="row custom-row">
+          <div class="col-12 images-dish d-flex justify-content-between flex-wrap">
+            <!---->
+            <div class="col-md-6 d-none d-md-block img-dish">
+              <img src="/img/item/imgmenu.webp" alt="dish-images" />
+            </div>
+
+            <!---->
+            <div class="col-12 col-md-6 title-dish">
+              <p class="text-end">{{ selectedCategoryName || 'Món Ăn' }}</p>
+            </div>
+          </div>
+          <div class="product-list-wrapper container-fluid">
+            <div class="row">
+              <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3">
+                <div class="product-card " data-bs-toggle="modal" data-bs-target="#productModal">
+                  <img :src="getImageUrl(item.image)" alt="" class="product-img mx-auto d-block" width="180px" />
+                  <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
+                  <span class="product-dish-desc text-start">
+                    {{ item.description }}
+                  </span>
+                  <p class="product-dish-price fw-bold text-center">{{ formatNumber(item.price) }} VNĐ</p>
                 </div>
               </div>
-
-              <div
-                :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }"
-                class="menu-dropdown"
-              >
-                <ul class="list-group">
-                  <li
-                    v-for="parent in categories"
-                    :key="parent.id"
-                    class="list-group-item parent-category d-flex"
-                  >
-                    <a
-                      @click.prevent="getFoodByCategory(parent.id)"
-                      href="#"
-                      class="text-decoration-none text-start"
-                    >
-                      {{ parent.name }}
-                    </a>
-                    <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
-                      <li
-                        v-for="child in parent.children"
-                        :key="child.id"
-                        class="list-group-item child-category d-flex"
-                      >
-                        <a
-                          @click.prevent="getFoodByCategory(child.id)"
-                          href="#"
-                          class="text-decoration-none text-start"
-                        >
-                          🔻{{ child.name }}
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-            </div>
-      </div>
-      <!---->
-      <div class="background-banner"></div>
-      <section class="all-dish-by-category container">
-        <div class="dish-by-category">
-          <div class="row custom-row">
-            <div class="col-12 images-dish d-flex justify-content-between flex-wrap">
-  <!---->
-  <div class="col-md-6 d-none d-md-block img-dish">
-    <img src="/img/item/imgmenu.webp" alt="dish-images" />
-  </div>
-
-  <!---->
-  <div class="col-12 col-md-6 title-dish">
-    <p class="text-end">{{ selectedCategoryName || 'Món Ăn' }}</p>
-  </div>
-</div>
-<div class="product-list-wrapper container-fluid">
-            <div class="row">
-            <div
-            v-for="item in foods" :key="item"
-             @click="openModal(item)"
-             class="col-md-3">
-              <div
-               class="product-card " data-bs-toggle="modal" data-bs-target="#productModal">
-                <img
-                  :src="getImageUrl(item.image)"
-                  alt=""
-                  class="product-img mx-auto d-block"
-                  width="180px"
-                />
-                <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
-                <span class="product-dish-desc text-start">
-                  {{ item.description }}
-                </span>
-                <p class="product-dish-price fw-bold text-center">{{ formatNumber(item.price) }} VNĐ</p>
-              </div>
             </div>
           </div>
-          </div>
-          </div>
-        </div>
-      </section>
-    </section>
-
-    <section class="section-banner m-3">
-  <div class="banner-deals container-fluid">
-    <img 
-    :src="images[currentIndex]"
-    alt="banner"
-    class="img-fluid" 
-    style="border-radius: 25px; transition: opacity 0.5s ease" />
-    <button @click="changeSlide(-1)" class="trans-left d-none d-lg-block">
-      <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
-    </button>
-    <button @click="changeSlide(1)" class="trans-right d-none d-lg-block">
-      <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i>
-    </button>
-  </div>
-</section>
-    <section class="pots-section container">
-      <h2 class="text-center text-md-start mb-3 fw-bold">Bài Viết & Thông Tin<span>📢</span></h2>
-      <hr />
-      <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
-        <div class="col img-post">
-          <img src="/img/bv1.webp" alt="post1" class="img-fluid rounded" />
-        </div>
-        <div class="col img-post">
-          <img src="/img/bv2.png" alt="post2" class="img-fluid rounded" />
-        </div>
-        <div class="col img-post">
-          <img src="/img/bv3.png" alt="post3" class="img-fluid rounded" />
-        </div>
-        <div class="col img-post">
-          <img src="/img/bv1.webp" alt="post4" class="img-fluid rounded" />
         </div>
       </div>
     </section>
-    <!-- Modal -->
-    <div
-  class="modal fade"
-  id="productModal"
-  tabindex="-1"
-  aria-labelledby="productModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-md modal-dialog-centered">
-    <div class="modal-content custom-modal">
-      <div class="modal-body position-relative">
-       
-        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Close"></button>
+  </section>
+
+  <section class="section-banner m-3">
+    <div class="banner-deals container-fluid">
+      <img :src="images[currentIndex]" alt="banner" class="img-fluid"
+        style="border-radius: 25px; transition: opacity 0.5s ease" />
+      <button @click="changeSlide(-1)" class="trans-left d-none d-lg-block">
+        <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
+      </button>
+      <button @click="changeSlide(1)" class="trans-right d-none d-lg-block">
+        <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i>
+      </button>
+    </div>
+  </section>
+  <section class="pots-section container">
+    <h2 class="text-center text-md-start mb-3 fw-bold">Bài Viết & Thông Tin<span>📢</span></h2>
+    <hr />
+    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
+      <div class="col img-post">
+        <img src="/img/bv1.webp" alt="post1" class="img-fluid rounded" />
+      </div>
+      <div class="col img-post">
+        <img src="/img/bv2.png" alt="post2" class="img-fluid rounded" />
+      </div>
+      <div class="col img-post">
+        <img src="/img/bv3.png" alt="post3" class="img-fluid rounded" />
+      </div>
+      <div class="col img-post">
+        <img src="/img/bv1.webp" alt="post4" class="img-fluid rounded" />
+      </div>
+    </div>
+  </section>
+  <!-- Modal -->
+  <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content custom-modal">
+        <div class="modal-body position-relative">
+
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
+            aria-label="Close"></button>
 
 
-        <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
+          <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
 
-        <div class="text-center mb-3">
-          <img
-            :src="getImageUrl(foodDetail.image)"
-            :alt="foodDetail.name"
-            class="modal-image"
-          />
-        </div>
-
-        <p class="text-danger fw-bold fs-5 text-center">{{ formatNumber(foodDetail.price) }} VNĐ</p>
-        <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
-        <form @submit.prevent="addToCart">
-          <div class="mb-3" v-if="spicyLevel.length">
-            <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
-            <select class="form-select" id="spicyLevel">
-              <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
-                {{ item.name }}
-              </option>
-            </select>
+          <div class="text-center mb-3">
+            <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image" />
           </div>
 
-          <div class="topping-container mb-3" v-if="toppingList.length">
-            <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-            <div
-              v-for="topping in toppingList"
-              :key="topping.id"
-              class="d-flex justify-content-between align-items-center mb-2"
-            >
-              <label class="d-flex align-items-center">
-                
-                <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
-                {{ topping.name }}
-              </label>
-              <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+          <p class="text-danger fw-bold fs-5 text-center">{{ formatNumber(foodDetail.price) }} VNĐ</p>
+          <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
+          <form @submit.prevent="addToCart">
+            <div class="mb-3" v-if="spicyLevel.length">
+              <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
+              <select class="form-select" id="spicyLevel">
+                <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                  {{ item.name }}
+                </option>
+              </select>
             </div>
-          </div>
 
-          <button class="btn btn-danger w-100 fw-bold">
-            🛒 Thêm vào giỏ hàng
-          </button>
-        </form>
+            <div class="topping-container mb-3" v-if="toppingList.length">
+              <label class="form-label fw-bold">🧀 Chọn Topping:</label>
+              <div v-for="topping in toppingList" :key="topping.id"
+                class="d-flex justify-content-between align-items-center mb-2">
+                <label class="d-flex align-items-center">
+
+                  <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
+                  {{ topping.name }}
+                </label>
+                <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+              </div>
+            </div>
+
+            <button class="btn btn-danger w-100 fw-bold">
+              🛒 Thêm vào giỏ hàng
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 <script>
 import axios from 'axios'
@@ -339,10 +285,10 @@ export default {
     }
 
     const openModal = async (item) => {
-    foodDetail.value = {}
-    toppings.value = []
-    spicyLevel.value = []
-    toppingList.value = []
+      foodDetail.value = {}
+      toppings.value = []
+      spicyLevel.value = []
+      toppingList.value = []
       try {
         if (item.type === 'food') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
