@@ -1,17 +1,4 @@
-<script setup>
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 
-const router = useRouter();
-
-onMounted(() => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    alert('Bạn cần đăng nhập để vào giỏ hàng!');
-    router.push('/home'); // chuyển hướng bằng Vue Router
-  }
-});
-</script>
 
 <template>
   <div class="container-sm">

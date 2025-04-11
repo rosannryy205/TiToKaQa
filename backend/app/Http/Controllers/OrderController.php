@@ -127,9 +127,9 @@ class OrderController extends Controller
 
 
 
-            // Gửi email xác nhận đặt bàn
-            $emailTo = $mailData['guest_email'];
-            Mail::to($emailTo)->send(new ReservationMail($mailData));
+            // // Gửi email xác nhận đặt bàn
+            // $emailTo = $mailData['guest_email'];
+            // Mail::to($emailTo)->send(new ReservationMail($mailData));
 
 
 
