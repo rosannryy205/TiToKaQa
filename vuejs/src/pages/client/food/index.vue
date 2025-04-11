@@ -70,7 +70,7 @@
           <div class="product-list-wrapper container-fluid">
             <div class="row">
               <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3">
-                <div class="product-card " data-bs-toggle="modal" data-bs-target="#productModal">
+                <div class="product-card">
                   <img :src="getImageUrl(item.image)" alt="" class="product-img mx-auto d-block" width="180px" />
                   <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
                   <span class="product-dish-desc text-start">
@@ -117,54 +117,64 @@
     </div>
   </section>
   <!-- Modal -->
-  <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md modal-dialog-centered">
-      <div class="modal-content custom-modal">
-        <div class="modal-body position-relative">
+  <div class="modal fade" id="productModal">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content custom-modal modal-ct">
+      <div class="modal-body position-relative">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
+          aria-label="Close"></button>
+        <div class="row">
 
-          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
-            aria-label="Close"></button>
+          <div class="col-md-6 border-end">
+            <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
 
-
-          <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
-
-          <div class="text-center mb-3">
-            <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image" />
-          </div>
-
-          <p class="text-danger fw-bold fs-5 text-center">{{ formatNumber(foodDetail.price) }} VNĐ</p>
-          <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
-          <form @submit.prevent="addToCart">
-            <div class="mb-3" v-if="spicyLevel.length">
-              <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
-              <select class="form-select" id="spicyLevel">
-                <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
-                  {{ item.name }}
-                </option>
-              </select>
+            <div class="text-center mb-3">
+              <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
             </div>
 
-            <div class="topping-container mb-3" v-if="toppingList.length">
-              <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-              <div v-for="topping in toppingList" :key="topping.id"
-                class="d-flex justify-content-between align-items-center mb-2">
-                <label class="d-flex align-items-center">
+            <p class="text-danger fw-bold fs-5 text-center">{{ formatNumber(foodDetail.price) }} VNĐ</p>
+            <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
+          </div>
+          <div class="col-md-6">
+            <form @submit.prevent="addToCart">
+             
 
-                  <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
-                  {{ topping.name }}
-                </label>
-                <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+              <div class="topping-container mb-3" v-if="toppingList.length">
+                <div class="mb-3" v-if="spicyLevel.length">
+                <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
+                <select class="form-select" id="spicyLevel">
+                  <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                    {{ item.name }}
+                  </option>
+                </select>
+              </div>
+                <label class="form-label fw-bold">🧀 Chọn Topping:</label>
+                <div v-for="topping in toppingList" :key="topping.id"
+                  class="d-flex justify-content-between align-items-center mb-2">
+                  <label class="d-flex align-items-center">
+                    <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
+                    {{ topping.name }}
+                  </label>
+                  <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+                </div>
+              </div>
+              <div class="text-center mb-2">
+              <div class="qty-control px-2 py-1">
+                <button type="button" class="btn-lg" style="background-color: #fff;">-</button>
+                <span>1</span>
+                <button type="button" class="btn-lg" style="background-color: #fff;">+</button>
               </div>
             </div>
-
-            <button class="btn btn-danger w-100 fw-bold">
-              🛒 Thêm vào giỏ hàng
-            </button>
-          </form>
+              <button class="btn btn-danger w-100 fw-bold">
+                🛒 Thêm vào giỏ hàng
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 </template>
 <script>
 import axios from 'axios'

@@ -81,6 +81,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
 import numeral from 'numeral'
 import { computed } from 'vue'
+import { Modal } from 'bootstrap';
 export default {
   methods: {
     formatNumber(value) {
@@ -144,11 +145,6 @@ export default {
 
     onMounted(() => {
       loadCart()
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Bạn cần đăng nhập để vào giỏ hàng!');
-        router.push('/home'); // chuyển hướng bằng Vue Router
-      }
     })
 
     return {
@@ -162,3 +158,6 @@ export default {
   }
 }
 </script>
+<style scoped>
+
+</style>

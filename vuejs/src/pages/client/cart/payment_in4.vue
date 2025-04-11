@@ -1,102 +1,113 @@
 <template>
-  <div class="container-sm">
-    <div class="row row-custom">
-      <div class="col-7 col-in4-customer">
-        <div class="box-in4-customer">
-          <div class="title-in4">
-            <h3>Thông tin đặt hàng</h3>
-          </div>
-          <div class="body-in4-customer">
-            <form @submit.prevent="check_out">
-              <div class="input-in4-customer">
-                <input v-model="guest_name" type="text" placeholder="Tên của bạn">
-              </div>
-              <div class="input-in4-customer">
-                <input v-model="guest_email" type="text" placeholder="Email của bạn">
-              </div>
-              <div class="input-in4-customer">
-                <input v-model="guest_phone" type="text" placeholder="Số điện thoại">
-              </div>
-              <div class="input-in4-customer">
-                <input v-model="guest_address" type="text" placeholder="Địa chỉ">
-              </div>
-              <div class="input-in4-customer">
-                <textarea v-model="note" name="" id="" placeholder="Ghi chú"></textarea>
-              </div>
-              <div class="btn-complete">
-                <router-link to="/cart"><span><i class="bi bi-chevron-left"></i>Quay về trang giỏ hàng</span></router-link>
-                <button class="btn btn-complete-order">Đặt hàng</button>
-              </div>
-            </form>
-          </div>
+  <div class="container-sm py-4">
+    <div class="row gx-5">
+      <!-- Customer Info -->
+      <div class="col-md-7">
+        <div class="p-4 border rounded shadow-sm bg-white">
+          <h4 class="mb-4">Thông tin đặt hàng</h4>
+          <form @submit.prevent="check_out">
+            <div class="mb-3">
+              <input v-model="guest_name" type="text" class="form-control" placeholder="Tên của bạn">
+            </div>
+            <div class="mb-3">
+              <input v-model="guest_email" type="email" class="form-control" placeholder="Email của bạn">
+            </div>
+            <div class="mb-3">
+              <input v-model="guest_phone" type="text" class="form-control" placeholder="Số điện thoại">
+            </div>
+            <div class="mb-3">
+              <input v-model="guest_address" type="text" class="form-control" placeholder="Địa chỉ">
+            </div>
+            <div class="mb-3">
+              <textarea v-model="note" class="form-control" rows="3" placeholder="Ghi chú"></textarea>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <router-link to="/cart" class="btn btn-outline-secondary">
+                <i class="bi bi-chevron-left"></i> Quay về giỏ hàng
+              </router-link>
+              <button type="submit" class="btn btn-primary">Đặt hàng</button>
+            </div>
+          </form>
         </div>
       </div>
-      <div class="col col-in4-payment">
-        <div class="box-in4-payment">
-          <div class="title-in4-payment ">
-            <h3>Đơn hàng ({{ totalQuantity }} sản phẩm)</h3>
-          </div>
+
+      <!-- Payment Info -->
+      <div class="col-md-5">
+        <div class="p-4 border rounded shadow-sm bg-white">
+          <h4 class="mb-3">Đơn hàng ({{ totalQuantity }} sản phẩm)</h4>
           <hr>
-          <div class="list-product">
-            <div class="item" v-for="(item, index) in cartItems" :key="index">
-              <div class="left-item">
-                <img :src="getImageUrl(item.image)" height="100" width="100" alt="">
-                <div class="in4-item">
-                  <span>{{ item.name }}</span>
-                  <span>{{ item.spicyLevel }}</span>
-                  <p class="text-muted mb-2" v-if="item.toppings && item.toppings.length">
-                        <span v-for="(topping, index) in item.toppings" :key="index">
-                          {{ topping.name }} - {{ formatNumber(topping.price) }} VNĐ <br>
-                        </span>
-                  </p>
-                  <p v-else>Không cócó</p>
-                  <span>Số lượng: {{ item.quantity }}</span>
-                  <span>Giá: {{ formatNumber(item.price) }} VNĐ</span>
+          <div class="list-product-scroll mb-3">
+          <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
+            <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80">
+            <div class="flex-grow-1">
+              <strong>{{ item.name }}</strong>
+              <div>{{ item.spicyLevel }}</div>
+              <div v-if="item.toppings.length" class="text-muted small">
+                <div v-for="(topping, i) in item.toppings" :key="i">
+                  {{ topping.name }} - {{ formatNumber(topping.price) }} VNĐ
                 </div>
               </div>
-              <div class="price-item">
-                {{ formatNumber(totalPriceItem(item)) }} VNĐ
-              </div>
+              <div v-else class="text-muted small">Không có topping</div>
+              <div>Số lượng: {{ item.quantity }}</div>
+              <div>Giá: {{ formatNumber(item.price) }} VNĐ</div>
             </div>
+            <div class="text-end ms-2">
+              <strong>{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
+            </div>
+          </div>
+        </div>
+
+          <hr>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span>Tạm tính</span>
+            <strong>{{ formatNumber(totalPrice) }} VNĐ</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Giảm giá</span>
+            <strong>0 VNĐ</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Phí vận chuyển</span>
+            <strong>0 VNĐ</strong>
           </div>
           <hr>
-          <div class="in4-ship">
-            <div class="content-ship">
-              <span>Tạm tính</span>
-              <span><strong>{{ formatNumber(totalPrice) }} VNĐ</strong></span>
-            </div>
-            <div class="content-ship">
-              <span>Giảm giá</span>
-              <span><strong>0 VND</strong></span>
-            </div>
-            <div class="content-ship">
-              <span>Phí vận chuyển</span>
-              <span><strong>0 VND</strong></span>
-            </div>
-            <hr>
-            <div class="content-ship">
-              <span>Tổng cộng</span>
-              <span><strong>{{ formatNumber(totalPrice) }} VNĐ</strong></span>
-            </div>
+          <div class="d-flex justify-content-between mb-3">
+            <span><strong>Tổng cộng</strong></span>
+            <strong>{{ formatNumber(totalPrice) }} VNĐ</strong>
           </div>
-          <div class="discount-code">
-            <label for="discount">Mã giảm giá:</label>
+
+          <div class="mb-3">
+            <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input type="text" id="discount" placeholder="Nhập mã giảm giá...">
-              <button>Áp dụng</button>
+              <input type="text" id="discount" class="form-control" placeholder="Nhập mã giảm giá...">
+              <button class="btn btn-outline-primary">Áp dụng</button>
             </div>
           </div>
-          <hr>
-          <div class="title-in4">
-            <h5>Phương thức thanh toán</h5>
-          </div>
-          <div class="payment-method">
-            <div class="content"><span class="left-content"><input type="radio"> Thanh toán qua VNPAY</span><img
-                src="/img/Logo-VNPAY-QR-1 (1).png" height="20px" width="60px" alt=""></div>
-            <div class="content"><span class="left-content"><input type="radio"> Thanh toán qua Momo</span><img
-                src="/img/momo.png" height="20px" width="20px" alt=""></div>
-            <div class="content"><span class="left-content"><input type="radio" checked> Thanh toán khi nhận hàng
-                (COD)</span><img src="/img/cod.png" height="30px" width="30px" alt=""></div>
+
+          <div>
+            <h6 class="mb-2">Phương thức thanh toán</h6>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="payment" id="vnpay">
+              <label class="form-check-label d-flex align-items-center" for="vnpay">
+                <span class="me-2">Thanh toán qua VNPAY</span>
+                <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="">
+              </label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="payment" id="momo">
+              <label class="form-check-label d-flex align-items-center" for="momo">
+                <span class="me-2">Thanh toán qua Momo</span>
+                <img src="/img/momo.png" height="20" width="20" alt="">
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="cod" checked>
+              <label class="form-check-label d-flex align-items-center" for="cod">
+                <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
+                <img src="/img/cod.png" height="30" width="30" alt="">
+              </label>
+            </div>
           </div>
         </div>
       </div>
