@@ -11,12 +11,10 @@
             <span>TITOKAQA</span>
           </div>
           <div class="title-infors fw-normal pe-5">
-            <span
-              >TITOKAQA là chuỗi nhà hàng thương hiệu ẩm thực Hàn Quốc ra mắt vào năm 2025. Món
+            <span>TITOKAQA là chuỗi nhà hàng thương hiệu ẩm thực Hàn Quốc ra mắt vào năm 2025. Món
               “lẩu”, “mỳ cay” với 7 cung bậc cay đã trở thành cơn sốt đối với giới trẻ lúc bấy giờ.
               TITOKAQA đã trở thành một trong những lựa chọn hàng đầu của giới trẻ Việt Nam khi muốn
-              thưởng thức lẩu nói riêng và ẩm thực Hàn Quốc nói chung.</span
-            >
+              thưởng thức lẩu nói riêng và ẩm thực Hàn Quốc nói chung.</span>
           </div>
 
           <div class="deals-hot-box d-none d-lg-block">
@@ -26,23 +24,15 @@
         </div>
         <div class="col-12 col-lg-8">
           <div class="images-foods-banner">
-            <img
-              src="../../../../public/img/Bannerfoods.webp"
-              alt="foods-banner"
-              class="img-fluid"
-            />
+            <img src="../../../../public/img/Bannerfoods.webp" alt="foods-banner" class="img-fluid" />
           </div>
         </div>
       </div>
       <!--slide-->
 
       <div class="mid-banner container-fluid position-relative">
-        <img
-          :src="images[currentIndex]"
-          alt="banner"
-          class="img-fluid"
-          style="border-radius: 25px; transition: opacity 0.5s ease"
-        />
+        <img :src="images[currentIndex]" alt="banner" class="img-fluid"
+          style="border-radius: 25px; transition: opacity 0.5s ease" />
         <button @click="changeSlide(-1)" class="trans-btn trans-left d-none d-lg-block">
           <i class="fa-solid fa-arrow-left" style="color: white"></i>
         </button>
@@ -59,29 +49,14 @@
               <span class="title-menu fw-bold">THỰC ĐƠN</span>
               <nav class="navbar px-0 py-2">
                 <ul class="navbar-nav flex-column w-100">
-                  <li
-                    v-for="parent in categories"
-                    :key="parent.id"
-                    class="nav-item dropdown position-relative"
-                  >
-                    <a
-                      @click.prevent="getFoodByCategory(parent.id)"
-                      class="nav-link fw-semibold text-start"
-                      href="#"
-                    >
+                  <li v-for="parent in categories" :key="parent.id" class="nav-item dropdown position-relative">
+                    <a @click.prevent="getFoodByCategory(parent.id)" class="nav-link fw-semibold text-start" href="#">
                       {{ parent.name }}
                     </a>
 
-                    <ul
-                      v-if="parent.children && parent.children.length"
-                      class="dropdown-menu custom-dropdown"
-                    >
+                    <ul v-if="parent.children && parent.children.length" class="dropdown-menu custom-dropdown">
                       <li v-for="child in parent.children" :key="child.id">
-                        <a
-                          @click.prevent="getFoodByCategory(child.id)"
-                          href="#"
-                          class="dropdown-item plain-text"
-                        >
+                        <a @click.prevent="getFoodByCategory(child.id)" href="#" class="dropdown-item plain-text">
                           {{ child.name }}
                         </a>
                       </li>
@@ -93,10 +68,7 @@
 
             <!-- small -->
             <div class="col-12 d-lg-none position-relative">
-              <div
-                class="menu-header d-flex justify-content-between align-items-center"
-                @click="toggleDropdown"
-              >
+              <div class="menu-header d-flex justify-content-between align-items-center" @click="toggleDropdown">
                 <h2 class="menu-title">Thực đơn</h2>
                 <div class="menu-icon d-flex align-items-center">
                   <i class="fas fa-list-alt"></i>
@@ -104,34 +76,17 @@
                 </div>
               </div>
 
-              <div
-                :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }"
-                class="menu-dropdown"
-              >
+              <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
                 <ul class="list-group">
-                  <li
-                    v-for="parent in categories"
-                    :key="parent.id"
-                    class="list-group-item parent-category d-flex"
-                  >
-                    <a
-                      @click.prevent="getFoodByCategory(parent.id)"
-                      href="#"
-                      class="text-decoration-none text-start"
-                    >
+                  <li v-for="parent in categories" :key="parent.id" class="list-group-item parent-category d-flex">
+                    <a @click.prevent="getFoodByCategory(parent.id)" href="#" class="text-decoration-none text-start">
                       {{ parent.name }}
                     </a>
                     <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
-                      <li
-                        v-for="child in parent.children"
-                        :key="child.id"
-                        class="list-group-item child-category d-flex"
-                      >
-                        <a
-                          @click.prevent="getFoodByCategory(child.id)"
-                          href="#"
-                          class="text-decoration-none text-start"
-                        >
+                      <li v-for="child in parent.children" :key="child.id"
+                        class="list-group-item child-category d-flex">
+                        <a @click.prevent="getFoodByCategory(child.id)" href="#"
+                          class="text-decoration-none text-start">
                           🔻{{ child.name }}
                         </a>
                       </li>
@@ -146,11 +101,7 @@
                 <span class="title-food-menu fw-bold">{{ selectedCategoryName || 'Món Ăn' }}</span>
               </div>
               <section v-for="item in foods" :key="item.id" class="foods-homepages">
-                <div
-                  v-if="item.id % 2 !== 0"
-                  class="food-box-left row align-items-center"
-                  @click="openModal(item)"
-                >
+                <div v-if="item.id % 2 !== 0" class="food-box-left row align-items-center" @click="openModal(item)">
                   <div class="col-md-4 food-image">
                     <img :src="getImageUrl(item.image)" class="img-fluid" />
                   </div>
@@ -168,22 +119,14 @@
                     <h2 class="food-title fw-bold">{{ item.name }}</h2>
                     <p class="food-price fw-bold">{{ formatNumber(item.price) }} VNĐ</p>
                     <p class="food-desc">
-                      <span class="d-none d-sm-inline"
-                        >{{ item.description.slice(0, 60)
-                        }}{{ item.description.length > 50 ? '...' : '' }}</span
-                      >
-                      <span class="d-inline d-sm-none"
-                        >{{ item.description.slice(0, 30)
-                        }}{{ item.description.length > 50 ? '...' : '' }}</span
-                      >
+                      <span class="d-none d-sm-inline">{{ item.description.slice(0, 60)
+                        }}{{ item.description.length > 50 ? '...' : '' }}</span>
+                      <span class="d-inline d-sm-none">{{ item.description.slice(0, 30)
+                        }}{{ item.description.length > 50 ? '...' : '' }}</span>
                     </p>
                   </div>
                   <div class="col-md-4 food-image">
-                    <img
-                      :src="getImageUrl(item.image)"
-                      alt="Mì Kim Chi Thập Cẩm"
-                      class="img-fluid"
-                    />
+                    <img :src="getImageUrl(item.image)" alt="Mì Kim Chi Thập Cẩm" class="img-fluid" />
                   </div>
                 </div>
               </section>
@@ -200,13 +143,8 @@
       <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
         <div class="row d-flex">
           <!--combo-->
-          <div
-            v-for="combo in combos" :key="combo.id"
-            @click="openModal(combo)"
-            class="col-4">
-            <img
-            :src="getImageUrl(combo.image)"
-            width="100%" />
+          <div v-for="combo in combos" :key="combo.id" @click="openModal(combo)" class="col-4">
+            <img :src="getImageUrl(combo.image)" width="100%" />
             <div class="view-more">
               <a href="#" class="link fw-bold">{{ combo.name }}</a>
             </div>
@@ -236,60 +174,58 @@
     </section>
   </section>
   <!-- modal food -->
-  <div
-  class="modal fade"
-  id="productModal"
-  tabindex="-1"
-  aria-labelledby="productModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-md modal-dialog-centered">
-    <div class="modal-content custom-modal">
+  <div class="modal fade" id="productModal">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content custom-modal modal-ct">
       <div class="modal-body position-relative">
-        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Close"></button>
-        <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
+          aria-label="Close"></button>
+        <div class="row">
 
-        <div class="text-center mb-3">
-          <img
-            :src="getImageUrl(foodDetail.image)"
-            :alt="foodDetail.name"
-            class="modal-image"
-          />
-        </div>
+          <div class="col-md-6 border-end">
+            <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
 
-        <p class="text-danger fw-bold fs-5 text-center">{{ formatNumber(foodDetail.price) }} VNĐ</p>
-        <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
-
-
-        <form @submit.prevent="addToCart">
-          <div class="mb-3" v-if="spicyLevel.length">
-            <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
-            <select class="form-select" id="spicyLevel">
-              <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
-                {{ item.name }}
-              </option>
-            </select>
-          </div>
-
-          <div class="topping-container mb-3" v-if="toppingList.length">
-            <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-            <div
-              v-for="topping in toppingList"
-              :key="topping.id"
-              class="d-flex justify-content-between align-items-center mb-2"
-            >
-              <label class="d-flex align-items-center">
-                <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
-                {{ topping.name }}
-              </label>
-              <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+            <div class="text-center mb-3">
+              <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
             </div>
-          </div>
 
-          <button class="btn btn-danger w-100 fw-bold">
-            🛒 Thêm vào giỏ hàng
-          </button>
-        </form>
+            <p class="text-danger fw-bold fs-5 text-center">{{ formatNumber(foodDetail.price) }} VNĐ</p>
+            <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
+          </div>
+          <div class="col-md-6">
+            <form @submit.prevent="addToCart">
+              <div class="topping-container mb-3" v-if="toppingList.length">
+                <div class="mb-3" v-if="spicyLevel.length">
+                <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
+                <select class="form-select" id="spicyLevel">
+                  <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                    {{ item.name }}
+                  </option>
+                </select>
+              </div>
+                <label class="form-label fw-bold">🧀 Chọn Topping:</label>
+                <div v-for="topping in toppingList" :key="topping.id"
+                  class="d-flex justify-content-between align-items-center mb-2">
+                  <label class="d-flex align-items-center">
+                    <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
+                    {{ topping.name }}
+                  </label>
+                  <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+                </div>
+              </div>
+              <div class="text-center mb-2">
+              <div class="qty-control px-2 py-1">
+                <button type="button" class="btn-lg" style="background-color: #fff;">-</button>
+                <span>1</span>
+                <button type="button" class="btn-lg" style="background-color: #fff;">+</button>
+              </div>
+            </div>
+              <button class="btn btn-danger w-100 fw-bold">
+                🛒 Thêm vào giỏ hàng
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -416,21 +352,21 @@ export default {
     }
     const getAllCombos = async () => {
       try {
-        const res = await  axios.get('http://127.0.0.1:8000/api/home/combos')
+        const res = await axios.get('http://127.0.0.1:8000/api/home/combos')
         combos.value = res.data
       } catch (error) {
         console.error(error)
       }
     }
     const openModal = async (item) => {
-    foodDetail.value = {}
-    toppings.value = []
-    spicyLevel.value = []
-    toppingList.value = []
+      foodDetail.value = {}
+      toppings.value = []
+      spicyLevel.value = []
+      toppingList.value = []
       try {
         //combo
         const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
-          foodDetail.value = res.data
+        foodDetail.value = res.data
 
         if (item.type === 'food') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
@@ -460,20 +396,26 @@ export default {
     }
 
     const addToCart = () => {
+      const user = JSON.parse(localStorage.getItem('user'))
+      const userId = user?.id || 'guest'
+      const cartKey = `cart_${userId}`
+
       const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
       const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
       const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
-      const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')).map((el)=>parseInt(el.value))
 
-      const selectedToppings= toppingList.value
-      .filter((topping)=>selectedToppingId.includes(topping.id))
-      .map((topping)=>({
-        id: topping.id,
-        name: topping.name,
-        price: topping.price,
-        food_toppings_id: topping.pivot?.id || null
-      }))
+      const selectedToppingId = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')
+      ).map((el) => parseInt(el.value))
+
+      const selectedToppings = toppingList.value
+        .filter((topping) => selectedToppingId.includes(topping.id))
+        .map((topping) => ({
+          id: topping.id,
+          name: topping.name,
+          price: topping.price,
+          food_toppings_id: topping.pivot?.id || null
+        }))
 
       const cartItem = {
         id: foodDetail.value.id,
@@ -485,13 +427,13 @@ export default {
         quantity: 1,
       }
 
-      let cart = JSON.parse(localStorage.getItem('cart')) || []
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || []
 
       const existingItem = cart.findIndex(
         (item) =>
           item.id === cartItem.id &&
           item.spicyLevel === cartItem.spicyLevel &&
-          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort()),
+          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort())
       )
 
       if (existingItem !== -1) {
@@ -500,9 +442,10 @@ export default {
         cart.push(cartItem)
       }
 
-      localStorage.setItem('cart', JSON.stringify(cart))
+      localStorage.setItem(cartKey, JSON.stringify(cart))
       alert('Đã thêm vào giỏ hàng!')
     }
+
 
     onMounted(async () => {
       await getCategory()
