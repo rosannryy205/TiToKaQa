@@ -1046,6 +1046,8 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   margin-top:5%;
   padding-bottom: 40px;
 }
+
+
 .booking-form {
   padding: 30px;
   border-radius: 10px;
@@ -1148,8 +1150,8 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   font-size: 24px;
   font-weight: bold;
   text-transform: uppercase;
-
 }
+
 .offer-item {
   display: flex;
   align-items: center;
@@ -1191,6 +1193,8 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   display: flex;
   flex-direction: row-reverse;
 }
+
+
 /* Responsive */
 @media (max-width: 768px) {
 .description2{
@@ -1198,6 +1202,12 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
 }
   .booking-form{
     width: 100% !important;
+  }
+
+
+
+  .booking-image{
+    display: none;
   }
   .offer-item {
       flex-direction: column;
@@ -1230,6 +1240,7 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   .form-section {
     width: 120% !important;
   }
+
 
 }
 /* end discount  */

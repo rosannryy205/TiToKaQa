@@ -46,9 +46,9 @@ Route::get('/reservation-info/{id}', [OrderController::class, 'getInfoReservatio
 
 //login/register/logout
 
-Route::post('/register', [UserController::class, 'register']);
-Route::post('/login', [UserController::class, 'login']);
-Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
+// Route::post('/register', [UserController::class, 'register']);
+// Route::post('/login', [UserController::class, 'login']);
+// Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 //user
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {

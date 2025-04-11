@@ -27,34 +27,19 @@
 
           </template>
 
-<!--sea-->
-<div class="input-wrapper">
-  <button class="icon">
-    <svg
-      width="23px"
-      height="23px"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-        stroke="#000"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      ></path>
-      <path
-        d="M22 22L20 20"
-        stroke="#000"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      ></path>
-    </svg>
-  </button>
-  <input type="text" name="text" class="input" placeholder="search.." />
-</div>
+          <!--sea-->
+          <div class="input-wrapper">
+            <button class="icon">
+              <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                  stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                </path>
+              </svg>
+            </button>
+            <input type="text" name="text" class="input" placeholder="search.." />
+          </div>
 
         </div>
 
@@ -120,20 +105,36 @@
           <form @submit.prevent="handleLogin">
             <div v-if="loginError" class="text-danger small text-center">{{ loginError }}</div>
 
-            <div class="mb-3 position-relative input-group">
+            <!-- <div class="mb-3 position-relative input-group">
               <span class="input-icon">
                 <i class="bi bi-person"></i>
               </span>
               <input type="text" class="form-control" v-model="loginData.login" placeholder="Tên đăng nhập hoặc email">
+            </div> -->
+
+            <div class="mb-3 position-relative">
+
+              <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="text" class="form-control ps-5" placeholder="Tên đăng nhập hoặc email"
+                v-model="loginData.login">
+
             </div>
 
-            <div class="mb-3 position-relative input-group">
+            <!-- <div class="mb-3 position-relative input-group">
               <span class="input-icon">
                 <i class="bi bi-lock"></i>
               </span>
               <input type="password" class="form-control" v-model="loginData.password" id="password"
                 placeholder="Nhập mật khẩu">
+            </div> -->
+
+            <div class="mb-3 position-relative">
+
+              <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
+              <input type="password" class="form-control ps-5" placeholder="Mật khẩu" v-model="loginData.password">
+
             </div>
+
 
             <div class="mb-3 d-flex justify-content-end gap-3 small">
               <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal"
@@ -249,7 +250,7 @@
           <form @submit.prevent="forgotPass">
 
             <!-- nhập email  -->
-            <div v-if="errorSendCode" class="text-danger small text-center">{{ errorSendCode}}</div>
+            <div v-if="errorSendCode" class="text-danger small text-center">{{ errorSendCode }}</div>
             <div class="mb-3 position-relative">
               <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
               <input type="text" class="form-control ps-5" id="email" placeholder="Nhập Email" v-model=verify.email>
@@ -298,14 +299,24 @@
                 @keydown.backspace="handleBackspace($event, index)" @compositionstart="isComposing = true"
                 @compositionend="isComposing = false" ref="inputs" />
             </div>
-            <div class="mb-3 d-flex justify-content-center gap-3 small">
-              <a href="#" class="text-decoration-none">
-                <!-- :class="{ 'disabled': isCounting }" @click="startCountdown" -->
-                Gửi lại
-              </a>
+            <div class=" d-flex justify-content-center gap-3 small">
+              <!-- <a href="#" class="text-decoration-none" > -->
+              <!-- :class="{ 'disabled': isCounting }" @click="startCountdown" -->
+              <p class="text-primary text-decoration-underline" style="cursor: pointer" @click="sendCode"
+                v-if="!loadingSend && wait === 0">
+                Gửi lại mã
+              </p>
+
+              <p class="text-muted" v-else-if="wait > 0">
+                Gửi lại mã ({{ wait }}s)
+              </p>
+
+              <p class="text-muted" v-else>
+                Đang gửi...
+              </p>
+              <!-- </a> -->
             </div>
-            <div class="mb-3 d-flex justify-content-center align-items-center gap-2 small"
-              v-if="minutes > 0 || seconds > 0">
+            <div class="mb-3 d-flex justify-content-center align-items-center gap-2 small">
               <i class="bi bi-clock text-danger"></i>
               <p class="mb-0 fw-bold text-danger">
                 {{ minutes.toString().padStart(2, '0') }}:{{ seconds.toString().padStart(2, '0') }}
@@ -428,6 +439,7 @@ const firstErrorKey = ref('');
 
 // tạo hiệu ứng load
 const loading = ref(false);
+const loadingSend = ref(false);
 
 // kiểm tra đã đăng nhập chưa
 const user = ref(JSON.parse(localStorage.getItem('user')) || null);
@@ -449,7 +461,7 @@ const verify = reactive({
 // báo lỗi nhập mã
 const errorSendCode = ref('');
 const errorVerify = ref('');
-
+const wait = ref(0);
 // tạo biến báo lỗi login
 const loginError = ref('');
 
@@ -466,10 +478,6 @@ export default {
     });
   }
 }
-
-
-
-
 //  Đăng ký
 const Handleregister = async () => {
   Object.keys(errors).forEach(key => delete errors[key]);
@@ -591,7 +599,7 @@ const handleLogout = async () => {
     isLoggedIn.value = false;
 
     alert('Đăng xuất thành công');
-    window.location.href = '/home';
+    // window.location.href = '/home';
   } catch (error) {
     console.error('Lỗi đăng xuất:', error);
     alert('Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!');
@@ -699,7 +707,7 @@ const verifyResetCode = async () => {
       const modalResetPass = document.getElementById('resetModal');
       const modalResetPassInstance = bootstrap.Modal.getInstance(modalResetPass) || new bootstrap.Modal(modalResetPass);
       modalResetPassInstance.show();
-      errorVerify.value='';
+      errorVerify.value = '';
 
 
     }
@@ -723,7 +731,48 @@ const verifyResetCode = async () => {
 };
 
 
+const sendCode = async () => {
+  if (loadingSend.value || wait.value > 0) return;
+  loadingSend.value = true;
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/forgot', {
+      email: verify.email
+    });
 
+    if (response.status === 200) {
+      alert(response.data.message);
+
+    }
+
+    wait.value = 60;
+    const timer = setInterval(() => {
+      if (wait.value > 0) wait.value--;
+      else clearInterval(timer);
+    }, 1000);
+
+
+    if (response.data.email_expired_at) {
+      startCountdown(response.data.email_expired_at);
+    }
+
+  } catch (error) {
+    if (error.response) {
+      const status = error.response.status;
+
+      if (status === 404 || status === 410) {
+        errorVerify.value = error.response.data.errors?.email?.[0] || error.response.data.message;
+      } else if (status === 422) {
+        errorVerify.value = Object.values(error.response.data.errors)[0][0];
+      } else {
+        errorVerify.value = 'Đã xảy ra lỗi không xác định';
+      }
+    } else {
+      errorVerify.value = 'Lỗi kết nối đến server';
+    }
+  } finally {
+    loadingSend.value = false;
+  }
+};
 
 const ResetPass = async () => {
   loading.value = true
@@ -782,6 +831,7 @@ export {
   moveToNext,
   onlyNumber,
   forgotPass,
+  sendCode,
   verifyResetCode,
   ResetPass,
   startCountdown
@@ -793,5 +843,4 @@ export {
 .text-primary-red {
   color: #ca111f;
 }
-
 </style>
