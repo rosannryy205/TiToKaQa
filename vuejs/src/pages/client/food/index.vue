@@ -137,7 +137,7 @@
           </div>
           <div class="col-md-6">
             <form @submit.prevent="addToCart">
-             
+
 
               <div class="topping-container mb-3" v-if="toppingList.length">
                 <div class="mb-3" v-if="spicyLevel.length">
@@ -328,19 +328,25 @@ export default {
     }
 
     const addToCart = () => {
+      const user = JSON.parse(localStorage.getItem('user'))
+      const userId = user?.id || 'guest'
+      const cartKey = `cart_${userId}`
+
       const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
       const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không rõ'
+      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
 
       const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked'),
+        document.querySelectorAll('input[name="topping[]"]:checked')
       ).map((el) => parseInt(el.value))
 
       const selectedToppings = toppingList.value
         .filter((topping) => selectedToppingId.includes(topping.id))
         .map((topping) => ({
+          id: topping.id,
           name: topping.name,
           price: topping.price,
+          food_toppings_id: topping.pivot?.id || null
         }))
 
       const cartItem = {
@@ -353,13 +359,13 @@ export default {
         quantity: 1,
       }
 
-      let cart = JSON.parse(localStorage.getItem('cart')) || []
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || []
 
       const existingItem = cart.findIndex(
         (item) =>
           item.id === cartItem.id &&
           item.spicyLevel === cartItem.spicyLevel &&
-          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort()),
+          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort())
       )
 
       if (existingItem !== -1) {
@@ -368,7 +374,7 @@ export default {
         cart.push(cartItem)
       }
 
-      localStorage.setItem('cart', JSON.stringify(cart))
+      localStorage.setItem(cartKey, JSON.stringify(cart))
       alert('Đã thêm vào giỏ hàng!')
     }
 
