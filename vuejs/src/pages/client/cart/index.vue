@@ -83,6 +83,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
 import numeral from 'numeral'
 import { computed } from 'vue'
+import { Modal } from 'bootstrap';
 export default {
   methods: {
     formatNumber(value) {
@@ -171,11 +172,11 @@ export default {
   }
 }
 </script>
-
 <style scoped>
 .quantity-box {
   display: inline-block;
   width: 15px;
   text-align: center;
 }
+
 </style>
