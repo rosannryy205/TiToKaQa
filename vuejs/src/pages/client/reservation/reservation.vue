@@ -191,6 +191,8 @@ export default {
       handleSubmit
     } = User.setup()
 
+    console.log(form.value);
+
     for (let hour = 8; hour <= 19; hour++) {
       let hourStr = hour < 10 ? '0' + hour : '' + hour
       timeOptions.push(hourStr + ':00')
@@ -213,7 +215,7 @@ export default {
           'http://127.0.0.1:8000/api/reservation',
           {
             user_id: user.value?.id,
-            guest_name: form.value.fullname,
+            guest_name: form.value.fullname || form.value.username,
             guest_phone: form.value.phone,
             guest_email: form.value.email,
             guest_count: guest_count.value,
