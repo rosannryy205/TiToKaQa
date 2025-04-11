@@ -262,7 +262,8 @@ export default {
 
 
     const updateCartStorage = () => {
-      localStorage.setItem('cart', JSON.stringify(cartItems.value))
+      const cartKey = getCartKey()
+      localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
     }
 
 
