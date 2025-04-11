@@ -54,7 +54,7 @@ class UserController extends Controller
 
             'phone.required' => 'Vui lòng nhập số điện thoại.',
             'phone.regex' => 'Số điện thoại không đúng định dạng.',
-            'email.unique' => 'Số điện thoại đã được sử dụng.',
+            'phone.unique' => 'Số điện thoại đã được sử dụng.',
 
             'password.required' => 'Vui lòng nhập mật khẩu.',
             'password.confirmed' => 'Mật khẩu xác nhận không khớp.',

@@ -22,6 +22,8 @@
           <span v-if="info.reservations_time">{{ info.reservation_status }}</span>
           <span v-else>{{ info.order_status }}</span>
         </div>
+        <div class="col-6">Ghi chú:</div>
+        <div class="col-6 text-end">{{ info.note }}</div>
       </div>
     </div>
 
@@ -94,7 +96,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">Thay đổi địa chỉ nhận hàng</h1>
+            <h1 class="modal-title fs-5" id="staticBackdropLabel" v-if="info.order_status">Thay đổi địa chỉ nhận hàng</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <form action="" @submit.prevent="updateAddress">
