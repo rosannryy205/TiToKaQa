@@ -1,4 +1,9 @@
 <template>
+  <div v-if="isLoading" class="isLoading-overlay">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">isLoading...</span>
+    </div>
+  </div>
   <div class="container-sm">
     <div class="row row-custom">
       <div class="col-7 col-in4-customer">
@@ -7,24 +12,25 @@
             <h3>Thông tin đặt hàng</h3>
           </div>
           <div class="body-in4-customer">
-            <form @submit.prevent="check_out">
+            <form @submit.prevent="submitOrderAndSaveUser">
               <div class="input-in4-customer">
-                <input v-model="guest_name" type="text" placeholder="Tên của bạn">
+                <input v-model="form.fullname" type="text" placeholder="Tên của bạn">
               </div>
               <div class="input-in4-customer">
-                <input v-model="guest_email" type="text" placeholder="Email của bạn">
+                <input v-model="form.email" type="text" placeholder="Email của bạn">
               </div>
               <div class="input-in4-customer">
-                <input v-model="guest_phone" type="text" placeholder="Số điện thoại">
+                <input v-model="form.phone" type="text" placeholder="Số điện thoại">
               </div>
               <div class="input-in4-customer">
-                <input v-model="guest_address" type="text" placeholder="Địa chỉ">
+                <input v-model="form.address" type="text" placeholder="Địa chỉ">
               </div>
               <div class="input-in4-customer">
                 <textarea v-model="note" name="" id="" placeholder="Ghi chú"></textarea>
               </div>
               <div class="btn-complete">
-                <router-link to="/cart"><span><i class="bi bi-chevron-left"></i>Quay về trang giỏ hàng</span></router-link>
+                <router-link to="/cart"><span><i class="bi bi-chevron-left"></i>Quay về trang giỏ
+                    hàng</span></router-link>
                 <button class="btn btn-complete-order">Đặt hàng</button>
               </div>
             </form>
@@ -45,9 +51,9 @@
                   <span>{{ item.name }}</span>
                   <span>{{ item.spicyLevel }}</span>
                   <p class="text-muted mb-2" v-if="item.toppings && item.toppings.length">
-                        <span v-for="(topping, index) in item.toppings" :key="index">
-                          {{ topping.name }} - {{ formatNumber(topping.price) }} VNĐ <br>
-                        </span>
+                    <span v-for="(topping, index) in item.toppings" :key="index">
+                      {{ topping.name }} - {{ formatNumber(topping.price) }} VNĐ <br>
+                    </span>
                   </p>
                   <p v-else>Không cócó</p>
                   <span>Số lượng: {{ item.quantity }}</span>
@@ -105,6 +111,8 @@
 </template>
 <script>
 import { useRouter } from 'vue-router'
+import { User } from '@/stores/user'
+import { FoodList } from '@/stores/food'
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import numeral from 'numeral'
@@ -121,29 +129,39 @@ export default {
   setup() {
     const router = useRouter()
 
+
     const cartItems = ref([])
-    const guest_name = ref('')
-    const guest_email = ref('')
-    const guest_phone = ref('')
-    const guest_address = ref('')
+    const fullname = ref('')
+    const email = ref('')
+    const phone = ref('')
+    const address = ref('')
     const note = ref('')
 
-    const user= JSON.parse(localStorage.getItem('user')) || {}
-    if(user){
-        guest_name.value = user.fullname || '',
-        guest_email.value = user.email || '',
-        guest_phone.value = user.phone || '',
-        guest_address.value = user.address || ''
-      }
+    const user = JSON.parse(localStorage.getItem('user')) || {}
 
-    const check_out = async() => {
-      try{
+    const {
+      form,
+      handleSubmit
+    } = User.setup()
+
+    const {
+      isLoading
+    } = FoodList.setup()
+
+    const loading = ref(false)
+
+
+
+
+
+    const check_out = async () => {
+      try {
         const orderData = {
           user_id: user ? user.id : null,
-          guest_name: guest_name.value,
-          guest_email: guest_email.value,
-          guest_phone: guest_phone.value,
-          guest_address: guest_address.value,
+          guest_name: form.value.fullname,
+          guest_email: form.value.email,
+          guest_phone: form.value.phone,
+          guest_address: form.value.address,
           note: note.value,
           total_price: totalPrice.value,
           order_detail: cartItems.value.map(item => ({
@@ -152,22 +170,22 @@ export default {
             quantity: item.quantity,
             price: item.price,
             type: 'food',
-            toppings: item.toppings.map(t=>({
+            toppings: item.toppings.map(t => ({
               food_toppings_id: t.food_toppings_id,
               price: t.price
             }))
           }))
         }
 
-        const response= await axios.post('http://127.0.0.1:8000/api/order',orderData)
-        if(response.data.status){
+        const response = await axios.post('http://127.0.0.1:8000/api/order', orderData)
+        if (response.data.status) {
           alert('Đặt hàng thành công')
           localStorage.removeItem('cart');
           router.push('/cart')
         } else {
           alert('Đặt hàng thật bại!')
         }
-      } catch(error){
+      } catch (error) {
         console.error(error)
         alert('Lỗi khi gửi đơn hàng')
       }
@@ -204,6 +222,22 @@ export default {
       return cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
     })
 
+    const submitOrderAndSaveUser = async () => {
+      loading.value = true
+      try {
+        console.log('👉 Trước handleSubmit')
+        await handleSubmit()
+        console.log('✅ Qua handleSubmit, chuẩn bị gọi check_out')
+        await check_out()
+        console.log('✅ check_out đã được gọi xong')
+      } catch (error) {
+        console.error('❌ Lỗi khi gọi handleSubmit hoặc check_out:', error)
+      } finally {
+        loading.value = false
+      }
+    }
+
+
 
 
     const updateCartStorage = () => {
@@ -222,13 +256,32 @@ export default {
       totalPrice,
       totalPriceItem,
       totalQuantity,
-      guest_name,
-      guest_email,
-      guest_phone,
-      guest_address,
+      fullname,
+      email,
+      phone,
+      address,
       note,
       check_out,
+      form,
+      handleSubmit,
+      submitOrderAndSaveUser,
+      isLoading,
+      loading
     }
   }
 }
 </script>
+<style>
+.isLoading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(148, 142, 142, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
