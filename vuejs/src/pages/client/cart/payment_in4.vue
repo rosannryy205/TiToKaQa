@@ -24,7 +24,8 @@
                 <textarea v-model="note" name="" id="" placeholder="Ghi chú"></textarea>
               </div>
               <div class="btn-complete">
-                <router-link to="/cart"><span><i class="bi bi-chevron-left"></i>Quay về trang giỏ hàng</span></router-link>
+                <router-link to="/cart"><span><i class="bi bi-chevron-left"></i>Quay về trang giỏ
+                    hàng</span></router-link>
                 <button class="btn btn-complete-order">Đặt hàng</button>
               </div>
             </form>
@@ -45,11 +46,11 @@
                   <span>{{ item.name }}</span>
                   <span>{{ item.spicyLevel }}</span>
                   <p class="text-muted mb-2" v-if="item.toppings && item.toppings.length">
-                        <span v-for="(topping, index) in item.toppings" :key="index">
-                          {{ topping.name }} - {{ formatNumber(topping.price) }} VNĐ <br>
-                        </span>
+                    <span v-for="(topping, index) in item.toppings" :key="index">
+                      {{ topping.name }} - {{ formatNumber(topping.price) }} VNĐ <br>
+                    </span>
                   </p>
-                  <p v-else>Không cócó</p>
+                  <p v-else>Không có</p>
                   <span>Số lượng: {{ item.quantity }}</span>
                   <span>Giá: {{ formatNumber(item.price) }} VNĐ</span>
                 </div>
@@ -90,14 +91,29 @@
           <div class="title-in4">
             <h5>Phương thức thanh toán</h5>
           </div>
-          <div class="payment-method">
-            <div class="content"><span class="left-content"><input type="radio"> Thanh toán qua VNPAY</span><img
-                src="/img/Logo-VNPAY-QR-1 (1).png" height="20px" width="60px" alt=""></div>
-            <div class="content"><span class="left-content"><input type="radio"> Thanh toán qua Momo</span><img
-                src="/img/momo.png" height="20px" width="20px" alt=""></div>
-            <div class="content"><span class="left-content"><input type="radio" checked> Thanh toán khi nhận hàng
-                (COD)</span><img src="/img/cod.png" height="30px" width="30px" alt=""></div>
+          <div class="payment-method d-flex flex-column gap-2">
+            <!-- VNPAY -->
+            <div class="payment-option border rounded p-2 d-flex justify-content-between align-items-center"
+              :class="{ 'selected': paymentMethod === 'vnpay' }" @click="paymentMethod = 'vnpay'">
+              <span class="fw-semibold">Thanh toán qua VNPAY-QR</span>
+              <img src="/img/Logo-VNPAY-QR-1 (1).png" height="24" width="60" alt="VNPAY" />
+            </div>
+
+            <!-- Momo -->
+            <div class="payment-option border rounded p-2 d-flex justify-content-between align-items-center"
+              :class="{ 'selected': paymentMethod === 'momo' }" @click="paymentMethod = 'momo'">
+              <span class="fw-semibold">Thanh toán qua Momo</span>
+              <img src="/img/momo.png" height="24" width="24" alt="Momo" />
+            </div>
+
+            <!-- COD -->
+            <div class="payment-option border rounded p-2 d-flex justify-content-between align-items-center"
+              :class="{ 'selected': paymentMethod === 'cod' }" @click="paymentMethod = 'cod'">
+              <span class="fw-semibold">Thanh toán khi nhận hàng (COD)</span>
+              <img src="/img/cod.png" height="30" width="30" alt="COD" />
+            </div>
           </div>
+
         </div>
       </div>
     </div>
@@ -128,16 +144,18 @@ export default {
     const guest_address = ref('')
     const note = ref('')
 
-    const user= JSON.parse(localStorage.getItem('user')) || {}
-    if(user){
-        guest_name.value = user.fullname || '',
+    const paymentMethod = ref('cod')
+
+    const user = JSON.parse(localStorage.getItem('user')) || {}
+    if (user) {
+      guest_name.value = user.fullname || '',
         guest_email.value = user.email || '',
         guest_phone.value = user.phone || '',
         guest_address.value = user.address || ''
-      }
+    }
 
-    const check_out = async() => {
-      try{
+    const check_out = async () => {
+      try {
         const orderData = {
           user_id: user ? user.id : null,
           guest_name: guest_name.value,
@@ -152,22 +170,22 @@ export default {
             quantity: item.quantity,
             price: item.price,
             type: 'food',
-            toppings: item.toppings.map(t=>({
+            toppings: item.toppings.map(t => ({
               food_toppings_id: t.food_toppings_id,
               price: t.price
             }))
           }))
         }
 
-        const response= await axios.post('http://127.0.0.1:8000/api/order',orderData)
-        if(response.data.status){
+        const response = await axios.post('http://127.0.0.1:8000/api/order', orderData)
+        if (response.data.status) {
           alert('Đặt hàng thành công')
           localStorage.removeItem('cart');
           router.push('/cart')
         } else {
           alert('Đặt hàng thật bại!')
         }
-      } catch(error){
+      } catch (error) {
         console.error(error)
         alert('Lỗi khi gửi đơn hàng')
       }
@@ -228,6 +246,7 @@ export default {
       guest_address,
       note,
       check_out,
+      paymentMethod
     }
   }
 }
