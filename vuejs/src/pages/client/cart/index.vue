@@ -97,7 +97,6 @@ export default {
     const cartItems = ref([])
     const router = useRouter();
 
-
     const getCartKey = () => {
       const user = JSON.parse(localStorage.getItem('user'))
       const userId = user?.id || 'guest'
