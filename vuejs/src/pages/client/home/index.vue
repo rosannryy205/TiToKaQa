@@ -204,7 +204,7 @@
             v-for="combo in combos" :key="combo.id"
             @click="openModal(combo)"
             class="col-4">
-            <img 
+            <img
             :src="getImageUrl(combo.image)"
             width="100%" />
             <div class="view-more">
@@ -462,18 +462,18 @@ export default {
     const addToCart = () => {
       const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
       const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không rõ'
-
+      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
       const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked'),
-      ).map((el) => parseInt(el.value))
+        document.querySelectorAll('input[name="topping[]"]:checked')).map((el)=>parseInt(el.value))
 
-      const selectedToppings = toppingList.value
-        .filter((topping) => selectedToppingId.includes(topping.id))
-        .map((topping) => ({
-          name: topping.name,
-          price: topping.price,
-        }))
+      const selectedToppings= toppingList.value
+      .filter((topping)=>selectedToppingId.includes(topping.id))
+      .map((topping)=>({
+        id: topping.id,
+        name: topping.name,
+        price: topping.price,
+        food_toppings_id: topping.pivot?.id || null
+      }))
 
       const cartItem = {
         id: foodDetail.value.id,

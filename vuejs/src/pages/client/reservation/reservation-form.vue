@@ -1,7 +1,6 @@
 <template>
   <div class="container py-4">
     <h3 class="text-center text-danger fw-bold mb-4">Thanh toán cho đơn hàng của bạn</h3>
-
     <div class="row">
       <!-- Thông tin đơn hàng và thực đơn -->
       <div class="col-lg-8">
@@ -56,7 +55,6 @@
                     {{ topping.topping_name }}
                   </small>
                 </div>
-
               </td>
               <td>{{ formatNumber(detail.price) }} VNĐ</td>
               <td>{{ detail.quantity }}</td>
@@ -71,6 +69,7 @@
         </table>
       </div>
 
+
       <!-- Thanh toán -->
       <div class="col-lg-4">
         <div class="section-title">Thanh toán</div>
@@ -78,6 +77,7 @@
           <div class="d-flex justify-content-between mb-2">
             <span>Tạm tính</span>
             <span>{{ formatNumber(info.total_price) }} VNĐ</span>
+
           </div>
           <div class="d-flex justify-content-between mb-2">
             <span>Khuyến mãi</span>
@@ -108,6 +108,7 @@
           <button class="btn btn-danger">Thanh toán</button>
         </div>
       </div>
+
     </div>
   </div>
 </template>
