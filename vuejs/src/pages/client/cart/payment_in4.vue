@@ -55,7 +55,7 @@
                       {{ topping.name }} - {{ formatNumber(topping.price) }} VNĐ <br>
                     </span>
                   </p>
-                  <p v-else>Không cócó</p>
+                  <p v-else>Không có</p>
                   <span>Số lượng: {{ item.quantity }}</span>
                   <span>Giá: {{ formatNumber(item.price) }} VNĐ</span>
                 </div>
@@ -96,14 +96,29 @@
           <div class="title-in4">
             <h5>Phương thức thanh toán</h5>
           </div>
-          <div class="payment-method">
-            <div class="content"><span class="left-content"><input type="radio"> Thanh toán qua VNPAY</span><img
-                src="/img/Logo-VNPAY-QR-1 (1).png" height="20px" width="60px" alt=""></div>
-            <div class="content"><span class="left-content"><input type="radio"> Thanh toán qua Momo</span><img
-                src="/img/momo.png" height="20px" width="20px" alt=""></div>
-            <div class="content"><span class="left-content"><input type="radio" checked> Thanh toán khi nhận hàng
-                (COD)</span><img src="/img/cod.png" height="30px" width="30px" alt=""></div>
+          <div class="payment-method d-flex flex-column gap-2">
+            <!-- VNPAY -->
+            <div class="payment-option border rounded p-2 d-flex justify-content-between align-items-center"
+              :class="{ 'selected': paymentMethod === 'vnpay' }" @click="paymentMethod = 'vnpay'">
+              <span class="fw-semibold">Thanh toán qua VNPAY-QR</span>
+              <img src="/img/Logo-VNPAY-QR-1 (1).png" height="24" width="60" alt="VNPAY" />
+            </div>
+
+            <!-- Momo -->
+            <div class="payment-option border rounded p-2 d-flex justify-content-between align-items-center"
+              :class="{ 'selected': paymentMethod === 'momo' }" @click="paymentMethod = 'momo'">
+              <span class="fw-semibold">Thanh toán qua Momo</span>
+              <img src="/img/momo.png" height="24" width="24" alt="Momo" />
+            </div>
+
+            <!-- COD -->
+            <div class="payment-option border rounded p-2 d-flex justify-content-between align-items-center"
+              :class="{ 'selected': paymentMethod === 'cod' }" @click="paymentMethod = 'cod'">
+              <span class="fw-semibold">Thanh toán khi nhận hàng (COD)</span>
+              <img src="/img/cod.png" height="30" width="30" alt="COD" />
+            </div>
           </div>
+
         </div>
       </div>
     </div>
@@ -153,6 +168,8 @@ export default {
 
 
 
+
+    const paymentMethod = ref('cod')
 
     const check_out = async () => {
       try {
@@ -266,7 +283,8 @@ export default {
       handleSubmit,
       submitOrderAndSaveUser,
       isLoading,
-      loading
+      loading,
+      paymentMethod,
     }
   }
 }
