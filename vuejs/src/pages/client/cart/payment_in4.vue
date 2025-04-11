@@ -1,5 +1,5 @@
 <template>
-   <div v-if="isLoading" class="isLoading-overlay">
+  <div v-if="isLoading" class="isLoading-overlay">
     <div class="spinner-border text-danger" role="status">
       <span class="visually-hidden">isLoading...</span>
     </div>
@@ -30,7 +30,7 @@
               <router-link to="/cart" class="btn btn-outline-secondary">
                 <i class="bi bi-chevron-left"></i> Quay về giỏ hàng
               </router-link>
-              <button type="submit" class="btn btn-primary">Đặt hàng</button>
+              <button type="submit" class="btn btn-check-out">Đặt hàng</button>
             </div>
           </form>
         </div>
@@ -42,25 +42,25 @@
           <h4 class="mb-3">Đơn hàng ({{ totalQuantity }} sản phẩm)</h4>
           <hr>
           <div class="list-product-scroll mb-3">
-          <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-            <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80">
-            <div class="flex-grow-1">
-              <strong>{{ item.name }}</strong>
-              <div>{{ item.spicyLevel }}</div>
-              <div v-if="item.toppings.length" class="text-muted small">
-                <div v-for="(topping, i) in item.toppings" :key="i">
-                  {{ topping.name }} - {{ formatNumber(topping.price) }} VNĐ
+            <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
+              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80">
+              <div class="flex-grow-1">
+                <strong>{{ item.name }}</strong>
+                <div>{{ item.spicyLevel }}</div>
+                <div v-if="item.toppings.length" class="text-muted small">
+                  <div v-for="(topping, i) in item.toppings" :key="i">
+                    {{ topping.name }} - {{ formatNumber(topping.price) }} VNĐ
+                  </div>
                 </div>
+                <div v-else class="text-muted small">Không có topping</div>
+                <div>Số lượng: {{ item.quantity }}</div>
+                <div>Giá: {{ formatNumber(item.price) }} VNĐ</div>
               </div>
-              <div v-else class="text-muted small">Không có topping</div>
-              <div>Số lượng: {{ item.quantity }}</div>
-              <div>Giá: {{ formatNumber(item.price) }} VNĐ</div>
-            </div>
-            <div class="text-end ms-2">
-              <strong>{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
+              <div class="text-end ms-2">
+                <strong>{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
+              </div>
             </div>
           </div>
-        </div>
 
           <hr>
 
@@ -192,7 +192,9 @@ export default {
         const response = await axios.post('http://127.0.0.1:8000/api/order', orderData)
         if (response.data.status) {
           alert('Đặt hàng thành công')
-          localStorage.removeItem('cart');
+          const cartKey = `cart_${user?.id || 'guest'}`
+          localStorage.removeItem(cartKey)
+
           router.push('/cart')
         } else {
           alert('Đặt hàng thật bại!')
@@ -205,11 +207,18 @@ export default {
 
 
     const loadCart = () => {
-      const storedCart = localStorage.getItem('cart')
+      const user = JSON.parse(localStorage.getItem('user'))
+      const userId = user?.id || 'guest'
+      const cartKey = `cart_${userId}`
+
+      const storedCart = localStorage.getItem(cartKey)
       if (storedCart) {
         cartItems.value = JSON.parse(storedCart)
+      } else {
+        cartItems.value = []
       }
     }
+
 
     const totalPrice = computed(() => {
       return cartItems.value.reduce((sum, item) => {

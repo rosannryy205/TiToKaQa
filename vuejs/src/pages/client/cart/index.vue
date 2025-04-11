@@ -99,10 +99,10 @@ export default {
 
 
     const getCartKey = () => {
-  const user = JSON.parse(localStorage.getItem('user'))
-  const userId = user?.id || 'guest'
-  return `cart_${userId}`
-}
+      const user = JSON.parse(localStorage.getItem('user'))
+      const userId = user?.id || 'guest'
+      return `cart_${userId}`
+    }
 
 
     const loadCart = () => {
@@ -110,7 +110,7 @@ export default {
       const storedCart = localStorage.getItem(cartKey)
       if (storedCart) {
         cartItems.value = JSON.parse(storedCart)
-      }else{
+      } else {
         cartItems.value = []
       }
     }
@@ -178,5 +178,4 @@ export default {
   width: 15px;
   text-align: center;
 }
-
 </style>
