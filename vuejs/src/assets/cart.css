@@ -62,6 +62,7 @@ input.form-control:focus {
   box-shadow: none !important;
   outline: none;
 }
+
 .btn-social:hover {
   background-color: #f1f1f1;
   transform: scale(1.1);
@@ -116,11 +117,32 @@ input.form-control-cart:focus {
 } */
 
 
+.qty-box {
+  display: inline-block;
+  min-width: 24px;
+  /* đủ cho số 3 chữ số */
+  text-align: center;
+}
+
+.fixed-price-width {
+  min-width: 130px; /* đủ cho giá lớn như 1.000.000 VND */
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.price-text {
+  display: inline-block;
+  width: 100%;
+  text-align: right;
+  font-variant-numeric: tabular-nums; /* optional: giúp số đều hơn */
+}
 
 
 
-
-
+#app>div>div.container-sm>div>div.col-12.col-lg-8.mb-4 {
+  max-height: 420px;
+  overflow-y: auto;
+}
 
 
 /* css trang thanh toán */
@@ -133,12 +155,14 @@ input.form-control-cart:focus {
 .title-in4-payment {
   margin-top: 20px;
 }
-.col-in4-payment{
+
+.col-in4-payment {
   background-color: #f5f3f3;
-  padding-bottom: 20px ;
+  padding-bottom: 20px;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
 }
+
 .col-in4-customer {
   display: flex;
   justify-content: center;
@@ -270,7 +294,7 @@ input.form-control-cart:focus {
 
 .list-product {
   background-color: transparent;
-  max-height: 120px;
+  max-height: 150px;
   /* hoặc bạn có thể chọn chiều cao phù hợp như 400px, 500px */
   overflow-y: auto;
   display: flex;
@@ -304,13 +328,13 @@ input.form-control-cart:focus {
   gap: 10px;
 }
 
-.payment-method{
+.payment-method {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.payment-method .content{
+.payment-method .content {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -371,20 +395,23 @@ input.form-control-cart:focus {
   }
 
   .col-in4-payment {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
 
   /* Nội dung căn giữa */
   .box-in4-customer {
     width: 100%;
-    max-width: 500px; /* hoặc tùy bạn muốn giới hạn */
+    max-width: 500px;
+    /* hoặc tùy bạn muốn giới hạn */
   }
+
   .box-in4-payment {
     width: 100%;
-    max-width: 500px; /* hoặc tùy bạn muốn giới hạn */
+    max-width: 500px;
+    /* hoặc tùy bạn muốn giới hạn */
   }
 
   .input-in4-customer input,
@@ -435,14 +462,17 @@ input.form-control-cart:focus {
 
 
 @media (max-width: 576px) {
-  .title-in4 h3, .title-in4 h5 {
+
+  .title-in4 h3,
+  .title-in4 h5 {
     font-size: 18px;
   }
 
   .input-in4-customer input,
   .input-in4-customer textarea {
     font-size: 14px;
-    width: 100%; /* co giãn full theo khung nhỏ */
+    width: 100%;
+    /* co giãn full theo khung nhỏ */
   }
 
   .btn-complete-order {
@@ -458,6 +488,7 @@ input.form-control-cart:focus {
     font-size: 14px;
   }
 }
+
 /* cart css */
 
 .cart-img {
@@ -481,7 +512,7 @@ input.form-control-cart:focus {
   box-shadow: 2px 5px 8px rgb(212, 210, 210);
   padding: 20px;
   border-radius: 8px;
-  position: sticky;
+  /* position: sticky; */
   top: 20px;
 }
 
@@ -547,19 +578,33 @@ input.form-control-cart:focus {
   font-size: 1rem;
   margin-bottom: 10px;
 }
+
 .card-payment {
   border: 1px solid #ccc;
   padding: 1rem;
   border-radius: 0.5rem;
   background-color: white;
 }
+
 .btn-danger {
   width: 100%;
 }
-table th, table td {
+
+table th,
+table td {
   vertical-align: middle;
   text-align: center;
 }
+.payment-option {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
+.payment-option:hover {
+  background-color: #f8f9fa;
+}
 
-
+.payment-option.selected {
+  border: 2px solid #0d6efd;
+  background-color: #e7f1ff;
+}

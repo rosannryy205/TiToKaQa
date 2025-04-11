@@ -29,15 +29,17 @@
               <p class="mb-0 "><strong>Giá:</strong>{{ formatNumber(item.price) }} VNĐ</p>
             </div>
             <div class="text-center me-3 mb-2">
-              <div class="qty-control border rounded px-2 py-1">
-                <button class="btn btn-sm btn-outline-secondary" @click="decreaseQuantity(index)">-</button>
-                <span>{{ item.quantity }}</span>
-                <button class="btn btn-sm btn-outline-secondary" @click="increaseQuantity(index)">+</button>
+              <div class="qty-control rounded px-2 py-1 d-inline-flex align-items-center gap-2">
+                <button class="btn btn-sm px-2 py-0" @click="decreaseQuantity(index)">-</button>
+                <span class="qty-box text-center">{{ item.quantity }}</span>
+                <button class="btn btn-sm px-2 py-0" @click="increaseQuantity(index)">+</button>
               </div>
+
             </div>
-            <div class="mb-2 price">
-              <strong>{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
+            <div class="mb-2 price text-end fixed-price-width">
+              <strong class="price-text">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
             </div>
+
           </div>
         </div>
 
@@ -159,5 +161,10 @@ export default {
 }
 </script>
 <style scoped>
+.quantity-box {
+  display: inline-block;
+  width: 15px;
+  text-align: center;
+}
 
 </style>
