@@ -16,7 +16,7 @@
             </template>
             <template v-else>
               <div class="avatar-placeholder d-flex justify-content-center align-items-center">
-                {{ getInitial(form?.fullname) }}
+                {{ getInitial(form?.username) }}
               </div>
             </template>
 
@@ -29,7 +29,7 @@
             </div>
           </div>
 
-          <h6 class="mt-2 mb-3">{{ form.fullname || 'Chưa có tên' }}</h6>
+          <h6 class="mt-2 mb-3">{{ form.username || 'Chưa có tên' }}</h6>
 
           <div class="list-group text-start">
             <router-link to="/update-user" class="text-decoration-none list-group-item list-group-item-action">
@@ -54,7 +54,7 @@
           <form @submit.prevent="handleSubmit">
             <div class="mb-3">
               <label for="fullname" class="form-label">Họ và tên</label>
-              <input type="text" v-model="form.fullname" class="form-control border-custom" id="fullname" required>
+              <input type="text" v-model="form.fullname" class="form-control border-custom" id="fullname">
             </div>
 
             <div class="mb-3">
@@ -110,30 +110,36 @@ export default {
       email: '',
       phone: '',
       address: '',
-      avatar: ''
+      avatar: '',
+      username: ''
     })
     const user1 = JSON.parse(localStorage.getItem('user')) || null
     // const token = localStorage.getItem('token')
 
     const personally = async (userId) => {
       try {
-        const res = await axios.get(`http://localhost:8000/api/user/${userId}`, {
+        const res = await axios.get(`http://127.0.0.1:8000/api/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           }
         })
         user.value = res.data
+        // console.log(res.data.username);
+
         form.value = {
           fullname: res.data.fullname,
           email: res.data.email,
           phone: res.data.phone || '',
           address: res.data.address || '',
-          avatar: res.data.avatar || ''
+          avatar: res.data.avatar || '',
+          username: res.data.username || '',
+
         }
       } catch (error) {
         console.error('Không lấy được thông tin người dùng', error)
       }
     }
+
 
     const handleImageUpload = (event) => {
       const file = event.target.files[0]
@@ -170,7 +176,7 @@ export default {
 
     const handleSubmit = async () => {
       try {
-        await axios.patch(`http://localhost:8000/api/user/${user.value.id}`, form.value, {
+        await axios.patch(`http://127.0.0.1:8000/api/user/${user.value.id}`, form.value, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           }
@@ -180,10 +186,10 @@ export default {
         //Cập nhật localstorage
         const updatedUser = {
           ...user1,
-          fullname: form.value.fullname,
-          email: form.value.email,
-          phone: form.value.phone,
-          address: form.value.address
+          fullname: form.value.fullname || '',
+          email: form.value.email || '',
+          phone: form.value.phone || '',
+          address: form.value.address || ''
         }
         localStorage.setItem('user', JSON.stringify(updatedUser))
 
@@ -193,10 +199,11 @@ export default {
       }
     }
 
-    const getInitial = (fullname) => {
-      if (!fullname) return '?'
-      return fullname.trim().charAt(0).toUpperCase()
-    }
+    const getInitial = (username) => {
+      if (username?.trim()) return username.trim().charAt(0).toUpperCase();
+      return '?';
+    };
+
     const loading = ref(true);
 
     onMounted(() => {

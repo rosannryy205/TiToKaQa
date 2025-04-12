@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->unique()->nullable();
             $table->string('password');
-            $table->string('address');
-            $table->string('fullname');
+            $table->string('address')->nullable();
+            $table->string('fullname')->nullable();
             $table->integer('verify_code')->nullable();
             $table->timestamp('verify_expiry')->nullable()->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->enum('role', ['user', 'admin']) -> default('user');

@@ -11,7 +11,8 @@ export const User = {
       email: '',
       phone: '',
       address: '',
-      avatar: ''
+      avatar: '',
+      username: ''
     })
     const user1 = JSON.parse(localStorage.getItem('user')) || null
     // const token = localStorage.getItem('token')
@@ -25,11 +26,12 @@ export const User = {
         })
         user.value = res.data
         form.value = {
-          fullname: res.data.fullname,
+          fullname: res.data.fullname || res.data.username,
           email: res.data.email,
           phone: res.data.phone || '',
           address: res.data.address || '',
-          avatar: res.data.avatar || ''
+          avatar: res.data.avatar || '',
+          username: res.data.username || ''
         }
       } catch (error) {
         console.error('Không lấy được thông tin người dùng', error)

@@ -39,6 +39,7 @@
                 <span class="qty-box text-center">{{ item.quantity }}</span>
                 <button class="btn btn-sm px-2 py-0" @click="increaseQuantity(index)">+</button>
               </div>
+
             </div>
             <div class="mb-2 price text-end fixed-price-width">
               <strong class="price-text">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
@@ -140,6 +141,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
 import numeral from 'numeral'
 import { computed } from 'vue'
+import { Modal } from 'bootstrap';
 export default {
   methods: {
     formatNumber(value) {
@@ -154,10 +156,20 @@ export default {
     const router = useRouter();
     const loading = ref(true);
 
+    const getCartKey = () => {
+      const user = JSON.parse(localStorage.getItem('user'))
+      const userId = user?.id || 'guest'
+      return `cart_${userId}`
+    }
+
+
     const loadCart = () => {
-      const storedCart = localStorage.getItem('cart')
+      const cartKey = getCartKey()
+      const storedCart = localStorage.getItem(cartKey)
       if (storedCart) {
         cartItems.value = JSON.parse(storedCart)
+      } else {
+        cartItems.value = []
       }
       setTimeout(() => {
         loading.value = false
@@ -184,7 +196,8 @@ export default {
     };
 
     const updateCartStorage = () => {
-      localStorage.setItem('cart', JSON.stringify(cartItems.value))
+      const cartKey = getCartKey()
+      localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
     }
 
     const decreaseQuantity = (index) => {
@@ -201,13 +214,18 @@ export default {
 
     const removeItem = (index) => {
       cartItems.value.splice(index, 1)
-      localStorage.setItem('cart', JSON.stringify(cartItems.value))
+      updateCartStorage()
     }
 
     onMounted(() => {
+<<<<<<< HEAD
       loadCart();
     });
 
+=======
+      loadCart()
+    })
+>>>>>>> c7fb5929b8a8e3d74acc9726e1d585c4c62a7882
 
     return {
       cartItems,
@@ -221,3 +239,10 @@ export default {
   }
 }
 </script>
+<style scoped>
+.quantity-box {
+  display: inline-block;
+  width: 15px;
+  text-align: center;
+}
+</style>

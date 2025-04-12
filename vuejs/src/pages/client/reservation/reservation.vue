@@ -68,7 +68,7 @@
             <div class="product-list-wrapper container-fluid">
               <div class="row">
                 <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3">
-                  <div class="product-card" >
+                  <div class="product-card">
                     <img :src="getImageUrl(item.image)" alt="" class="product-img mx-auto d-block" width="180px" />
                     <h3 class="product-dish-title text-center fw-bold fs-5">{{ item.name }}</h3>
                     <p class="product-dish-price fw-bold text-center">{{ formatNumber(item.price) }} VNĐ</p>
@@ -83,51 +83,63 @@
   </div>
 
   <!-- modal food -->
-  <div class="modal fade" id="productModal" >
-    <div class="modal-dialog modal-md modal-dialog-centered">
+  <div class="modal fade" id="productModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
           <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
             aria-label="Close"></button>
-          <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
+          <div class="row">
 
-          <div class="text-center mb-3">
-            <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image" />
-          </div>
+            <div class="col-md-6 border-end">
+              <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
 
-          <p class="text-danger fw-bold fs-5 text-center">{{ formatNumber(foodDetail.price) }} VNĐ</p>
-          <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
-
-          <form @submit.prevent="addToCart">
-            <div class="mb-3" v-if="spicyLevel.length">
-              <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
-              <select class="form-select" id="spicyLevel">
-                <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
-                  {{ item.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="topping-container mb-3" v-if="toppingList.length">
-              <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-              <div v-for="topping in toppingList" :key="topping.id"
-                class="d-flex justify-content-between align-items-center mb-2">
-                <label class="d-flex align-items-center">
-                  <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
-                  {{ topping.name }}
-                </label>
-                <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+              <div class="text-center mb-3">
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
-            </div>
 
-            <button class="btn btn-danger w-100 fw-bold">
-              🛒 Thêm vào giỏ hàng
-            </button>
-          </form>
+              <p class="text-danger fw-bold fs-5 text-center">{{ formatNumber(foodDetail.price) }} VNĐ</p>
+              <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
+            </div>
+            <div class="col-md-6">
+              <form @submit.prevent="addToCart">
+                <div class="topping-container mb-3" v-if="toppingList.length">
+                  <div class="mb-3" v-if="spicyLevel.length">
+                    <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
+                    <select class="form-select" id="spicyLevel">
+                      <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                        {{ item.name }}
+                      </option>
+                    </select>
+                  </div>
+                  <label class="form-label fw-bold">🧀 Chọn Topping:</label>
+                  <div v-for="topping in toppingList" :key="topping.id"
+                    class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="d-flex align-items-center">
+                      <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
+                      {{ topping.name }}
+                    </label>
+                    <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+                  </div>
+                </div>
+                <div class="text-center mb-2">
+                  <div class="qty-control px-2 py-1">
+                    <button type="button" class="btn-lg" style="background-color: #fff;">-</button>
+                    <span>1</span>
+                    <button type="button" class="btn-lg" style="background-color: #fff;">+</button>
+                  </div>
+                </div>
+                <button class="btn btn-danger w-100 fw-bold">
+                  🛒 Thêm vào giỏ hàng
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
 
 </template>
 
@@ -177,6 +189,8 @@ export default {
       handleSubmit
     } = User.setup()
 
+    console.log(user);
+
     for (let hour = 8; hour <= 19; hour++) {
       let hourStr = hour < 10 ? '0' + hour : '' + hour
       timeOptions.push(hourStr + ':00')
@@ -199,7 +213,7 @@ export default {
           'http://127.0.0.1:8000/api/reservation',
           {
             user_id: user.value?.id,
-            guest_name: form.value.fullname,
+            guest_name: form.value.fullname || form.value.username,
             guest_phone: form.value.phone,
             guest_email: form.value.email,
             guest_count: guest_count.value,
@@ -263,7 +277,6 @@ export default {
     const showModal = () => {
       const modal = new Modal(document.getElementById('orderModal'));
       modal.show();
-
     };
     return {
       time, date, today, timeOptions, fullname, phone, email, note,
@@ -276,13 +289,11 @@ export default {
 }
 </script>
 <style scoped>
-.custom-modal {
-  z-index: 1060; /* cao hơn modal trước (Bootstrap mặc định 1050) */
-}
 .custom-modal .modal-content {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   border-radius: 12px;
 }
+
 .isLoading-overlay {
   position: fixed;
   top: 0;
@@ -294,5 +305,9 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+#productModal.modal.fade.show {
+  background-color: rgb(85 85 85 / 80%);
 }
 </style>

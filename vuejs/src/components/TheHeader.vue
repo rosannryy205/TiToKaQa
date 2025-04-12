@@ -544,6 +544,7 @@ const handleLogin = async () => {
     // Reset form
     loginData.login = '';
     loginData.password = '';
+    window.location.reload();
   } catch (error) {
     console.error('Lỗi đăng nhập:', error);
     loginError.value = '';
