@@ -18,10 +18,16 @@
         <img class="img-reservation" src="/img/reservation/Rectangle 48.png" alt="Khuyến mãi Tết" />
       </div>
       <div class="col-md-6 form-section mt-2">
-        <form @submit.prevent="submitReservationAndSaveUser">
+        <form @submit.prevent="reservation">
+          <small class="text-danger ms-1" v-if="errors.guest_name">{{ errors.guest_name[0] }}</small>
           <input type="text" v-model="form.fullname" class="form-control mb-2" placeholder="Tên của bạn" />
+
+          <small class="text-danger ms-1" v-if="errors.guest_phone">{{ errors.guest_phone[0] }}</small>
           <input type="text" v-model="form.phone" class="form-control mb-2" placeholder="Số điện thoại" />
+
+          <small class="text-danger ms-1" v-if="errors.guest_email">{{ errors.guest_email[0] }}</small>
           <input type="email" v-model="form.email" class="form-control mb-2" placeholder="Email" />
+
           <input type="number" v-model="guest_count" class="form-control mb-2" placeholder="Số lượng người" />
           <div class="row g-2">
             <div class="col">
@@ -123,10 +129,11 @@
                   </div>
                 </div>
                 <div class="text-center mb-2">
-                  <div class="qty-control px-2 py-1">
-                    <button type="button" class="btn-lg" style="background-color: #fff;">-</button>
-                    <span>1</span>
-                    <button type="button" class="btn-lg" style="background-color: #fff;">+</button>
+                  <div class="qty-control px-2 py-1 d-inline-flex align-items-center">
+                    <button type="button" class="btn btn-outline-secondary" @click="decreaseQuantity">-</button>
+                    <span>{{ quantity }}</span>
+                    <!-- <input type="number" class="mx-3" v-model.number="quantity" min="1"> -->
+                    <button type="button" class="btn btn-outline-secondary" @click="increaseQuantity">+</button>
                   </div>
                 </div>
                 <button class="btn btn-danger w-100 fw-bold">
@@ -150,6 +157,7 @@ import axios from 'axios'
 import { ref } from 'vue'
 import { Modal } from 'bootstrap'
 import { useRouter } from 'vue-router'
+import { reactive } from 'vue'
 export default {
   setup() {
     const time = ref('')
@@ -161,11 +169,14 @@ export default {
     const email = ref('')
     const note = ref('')
     const guest_count = ref(2)
-    const deposit_amount = 50000
     const router = useRouter()
     const quantities = ref({})
+    const errors = reactive({});
+    const firstErrorKey = ref('');
+    const deposit_amount = ref(null)
 
-    const cart = JSON.parse(localStorage.getItem('cart')) || []
+
+
 
     const {
       foods,
@@ -180,16 +191,18 @@ export default {
       flatCategoryList,
       foodDetail,
       addToCart,
-      isLoading
+      isLoading,
+      quantity,
+      decreaseQuantity,
+      increaseQuantity
     } = FoodList.setup()
+
+    console.log(quantity.value);
 
     const {
       form,
       user,
-      handleSubmit
     } = User.setup()
-
-    console.log(user);
 
     for (let hour = 8; hour <= 19; hour++) {
       let hourStr = hour < 10 ? '0' + hour : '' + hour
@@ -200,15 +213,24 @@ export default {
     }
 
     const reservation = async () => {
-      isLoading.value = true
-      const reservations_time = `${date.value} ${time.value}`
+      isLoading.value = true;
+      Object.keys(errors).forEach(key => delete errors[key]);
+      const reservations_time = `${date.value} ${time.value}`;
       const expiration_time = new Date(new Date(reservations_time).getTime() + 15 * 60000)
         .toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' })
         .replace(' ', 'T')
-        .slice(0, 16)
+        .slice(0, 16);
 
       try {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('token');
+        const userId = user.value?.id || 'guest';
+        const cart = JSON.parse(localStorage.getItem(`cart_${userId}`)) || [];
+        if (cart.length > 0) {
+          deposit_amount.value = null;
+        } else {
+          deposit_amount.value = 50000;
+        }
+
         const res = await axios.post(
           'http://127.0.0.1:8000/api/reservation',
           {
@@ -219,9 +241,9 @@ export default {
             guest_count: guest_count.value,
             reservations_time,
             note: form.value.note,
-            deposit_amount,
+            deposit_amount: deposit_amount.value,
             expiration_time,
-            total_price: getTotalPrice(cart),
+            total_price: getTotalPrice(cart) + deposit_amount.value,
             order_details: cart.map(item => ({
               food_id: item.id,
               combo_id: null,
@@ -239,20 +261,37 @@ export default {
               Authorization: `Bearer ${token}`,
             },
           }
-        )
-        alert('Đặt bàn thành công!')
-        const orderId = res.data.order_id
+        );
+
+        localStorage.removeItem(`cart_${userId}`);
+        const orderId = res.data.order_id;
         router.push({
           name: 'reservation-form',
           params: { orderId },
-        })
+        });
+
       } catch (error) {
-        console.error('Đặt bàn thất bại:', error.response?.data || error.message)
-        alert('Có lỗi xảy ra khi đặt bàn, vui lòng thử lại.')
+        if (error.response?.status === 422) {
+          if (error.response?.status === 422) {
+            const allErrors = error.response.data.errors;
+            const firstKey = Object.keys(allErrors)[0];
+
+            // Xóa hết lỗi cũ
+            Object.keys(errors).forEach(k => delete errors[k]);
+
+            // Chỉ giữ lỗi đầu tiên
+            errors[firstKey] = allErrors[firstKey];
+            firstErrorKey.value = firstKey;
+          }
+        } else {
+          console.error('Lỗi khi đặt bàn:', error);
+          alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+        }
       } finally {
         isLoading.value = false
       }
-    }
+    };
+
     const getTotalPrice = (cart) => {
       return cart.reduce((total, item) => {
         const basePrice = parseFloat(item.price) || 0
@@ -263,29 +302,24 @@ export default {
       }, 0)
     }
 
-    const submitReservationAndSaveUser = async () => {
-      isLoading.value = true
-      try {
-        await handleSubmit()
-        await reservation()
-      } catch (error) {
-        console.error('Lỗi:', error)
-      } finally {
-        isLoading.value = false
-      }
-    }
+
     const showModal = () => {
       const modal = new Modal(document.getElementById('orderModal'));
       modal.show();
     };
+
+
+
+
     return {
       time, date, today, timeOptions, fullname, phone, email, note,
       guest_count, reservation, foods, categories, getFoodByCategory,
       openModal, spicyLevel, toppingList, formatNumber, getImageUrl,
-      quantities, foodDetail, form, user, handleSubmit, showModal,
-      submitReservationAndSaveUser, isLoading, toppings, flatCategoryList, addToCart
+      quantities, foodDetail, form, user, showModal, quantity, increaseQuantity,
+      decreaseQuantity,
+      isLoading, toppings, flatCategoryList, addToCart, errors
     }
-  },
+  }
 }
 </script>
 <style scoped>
