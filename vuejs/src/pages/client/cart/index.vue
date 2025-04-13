@@ -62,10 +62,7 @@
             <span><strong>Tổng tiền thanh toán</strong></span>
             <strong>{{ formatNumber(totalPrice) }} VNĐ</strong>
           </div>
-          <router-link to="/payment_if">
-            <button class="btn btn-checkout w-100 mt-4">Thanh toán ngay</button>
-          </router-link>
-
+            <button @click="goToCheckout" class="btn btn-checkout w-100 mt-4">Thanh toán ngay</button>
           <div class="mt-4 d-flex align-items-center flex-wrap">
             <i class="bi bi-telephone-fill me-2 fs-4"></i>
             <div>
@@ -155,6 +152,15 @@ export default {
       updateCartStorage()
     }
 
+    const goToCheckout = () => {
+      if(cartItems.value.length === 0){
+        alert('Giỏ hàng của bạn đang trống');
+        return;
+      } else {
+        router.push('/payment_if');
+      }
+    }
+
 
     onMounted(() => {
       loadCart()
@@ -166,7 +172,8 @@ export default {
       increaseQuantity,
       decreaseQuantity,
       removeItem,
-      totalPriceItem
+      totalPriceItem,
+      goToCheckout
     }
   }
 }
