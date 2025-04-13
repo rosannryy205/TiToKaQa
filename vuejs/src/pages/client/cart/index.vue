@@ -1,5 +1,10 @@
 <template>
-  <div class="container-sm">
+  <div v-if="loading" class="d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  <div v-else-if="cartItems.length > 0" class="container-sm fade-in">
     <span style="color: #000;"><router-link to="/home" style="text-decoration: none; color: #000; ">Trang
         chủ</router-link> / Giỏ hàng</span>
     <h3 class="mb-4">Giỏ hàng của bạn</h3>
@@ -9,7 +14,7 @@
         <!-- Sản phẩm -->
         <div class="card mb-3" v-for="(item, index) in cartItems" :key="index">
           <div class="card-body d-flex align-items-center flex-wrap">
-            <i class="bi bi-x-circle me-3 mb-2" @click="removeItem(index)"></i>
+            <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
             <img :src="getImageUrl(item.image)" class="cart-img me-3 mb-2" alt="Mì kim chi Nha Trang" />
             <div class="flex-grow-1 mb-2">
               <h5 class="mb-1 product-title"><strong>{{ item.name }}</strong></h5>
@@ -62,9 +67,57 @@
             <span><strong>Tổng tiền thanh toán</strong></span>
             <strong>{{ formatNumber(totalPrice) }} VNĐ</strong>
           </div>
-          <router-link to="/payment_if">
-            <button class="btn btn-checkout w-100 mt-4">Thanh toán ngay</button>
-          </router-link>
+            <button @click="goToCheckout" class="btn btn-checkout w-100 mt-4">Thanh toán ngay</button>
+          <div class="mt-4 d-flex align-items-center flex-wrap">
+            <i class="bi bi-telephone-fill me-2 fs-4"></i>
+            <div>
+              <small>Hotline hỗ trợ (8h – 22h)</small><br />
+              <strong class="text-danger">09123456789</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div v-else class="container-sm fade-in">
+    <span style="color: #000;"><router-link to="/home" style="text-decoration: none; color: #000; ">Trang
+        chủ</router-link> / Giỏ hàng</span>
+    <h3 class="mb-4">Giỏ hàng của bạn</h3>
+    <div class="row">
+      <!-- Danh sách sản phẩm -->
+      <div class="col-12 col-lg-8 mb-4">
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
+          <div class="text-center">
+            <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
+              <img src="/public/img/giohang.png" alt="Giỏ hàng rỗng" width="60px">
+              <p class="mb-0">Chưa có sản phẩm trong giỏ hàng</p>
+            </div>
+            <router-link to="/food">
+              <button class="btn btn-checkout mt-2">Tiếp tục mua sắm</button>
+            </router-link>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Thông tin thanh toán -->
+      <div class="col-12 col-lg-4">
+        <div class="payment-box">
+          <h5 class="mb-3">Thông tin thanh toán</h5>
+          <div class="d-flex justify-content-between">
+            <span>Giá sản phẩm</span>
+            <strong>{{ formatNumber(totalPrice) }} VNĐ</strong>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>Vận chuyển</span>
+            <span>Tính khi thanh toán</span>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between">
+            <span><strong>Tổng tiền thanh toán</strong></span>
+            <strong>{{ formatNumber(totalPrice) }} VNĐ</strong>
+          </div>
+            <button @click="goToCheckout" class="btn btn-checkout w-100 mt-4" :disabled="loading">Thanh toán ngay</button>
 
           <div class="mt-4 d-flex align-items-center flex-wrap">
             <i class="bi bi-telephone-fill me-2 fs-4"></i>
@@ -96,6 +149,7 @@ export default {
   setup() {
     const cartItems = ref([])
     const router = useRouter();
+    const loading = ref(true);
 
     const getCartKey = () => {
       const user = JSON.parse(localStorage.getItem('user'))
@@ -112,6 +166,9 @@ export default {
       } else {
         cartItems.value = []
       }
+      setTimeout(() => {
+        loading.value = false
+      }, 300)
     }
 
     const totalPrice = computed(() => {
@@ -155,10 +212,20 @@ export default {
       updateCartStorage()
     }
 
+    const goToCheckout = () => {
+      if(cartItems.value.length === 0){
+        alert('Giỏ hàng của bạn đang trống');
+        return;
+      } else {
+        router.push('/payment_if');
+      }
+    }
+
 
     onMounted(() => {
-      loadCart()
-    })
+      loadCart();
+    });
+
 
     return {
       cartItems,
@@ -166,7 +233,10 @@ export default {
       increaseQuantity,
       decreaseQuantity,
       removeItem,
-      totalPriceItem
+      totalPriceItem,
+      goToCheckout,
+      loading
+
     }
   }
 }

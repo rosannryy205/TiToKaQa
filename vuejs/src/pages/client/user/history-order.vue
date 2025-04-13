@@ -29,10 +29,10 @@
             <router-link to="/update-user" class="text-decoration-none list-group-item list-group-item-action">
               <p class="mb-0 me-3">Thông tin tài khoản</p>
             </router-link>
-            <router-link to="/history-oder" class="text-decoration-none list-group-item list-group-item-action">
+            <router-link to="/history-order" class="text-decoration-none list-group-item list-group-item-action">
               <p class="mb-0 me-3">Lịch sử đơn hàng</p>
             </router-link>
-            <a class="list-group-item list-group-item-action text-danger" @click="handleLogout">Đăng xuất</a>
+            <a href="#" class="list-group-item list-group-item-action text-danger" @click="handleLogout">Đăng xuất</a>
           </div>
         </div>
       </div>
