@@ -24,26 +24,37 @@ class OrderController extends Controller
         try {
             $data = $request->validate([
                 'user_id' => 'nullable|numeric',
-                'guest_name' => 'string|max:255',
+                'guest_name' => 'required|max:255',
                 'guest_phone' => 'digits:10',
-                'guest_email' => 'email',
-                'guest_count' => 'required|integer|min:1',
+                'guest_email' => 'required|email',
+                'guest_count' => 'required|integer|min:2',
                 'reservations_time' => 'required|date',
                 'note' => 'nullable|string',
                 'deposit_amount' => 'nullable|numeric|min:0',
                 'expiration_time' => 'required|date',
                 'total_price' => 'required|numeric',
                 'order_details' => 'nullable|array',
+            ], [
+                'guest_name.required' => 'Vui lòng nhập họ tên.',
+
+                'guest_count.required' => 'Vui lòng nhập số lượng khách nhận bàn.',
+                'guest_count.min' => 'Số lượng khách nhận bàn phải từ 2 trở lên.',
+
+                'guest_email.required' => 'Vui lòng nhập email.',
+                'guest_email.email' => 'Email không đúng định dạng.',
+
+                'guest_phone.required' => 'Vui lòng nhập số điện thoại.',
+                'guest_phone.regex' => 'Số điện thoại không đúng định dạng.',
+                'guest_phone.digits' => 'Số điện thoại không đúng định dạng.',
+
+                'reservations_time.required' => 'Vui lòng nhập ngày nhận bàn.',
             ]);
 
-            $authUser = Auth::user();
-            $userId = $authUser->id ?? $data['user_id'] ?? null;
-
             $order = Order::create([
-                'user_id' => $userId,
-                'guest_name' => $userId ? null : $data['guest_name'],
-                'guest_phone' => $userId ? null : $data['guest_phone'],
-                'guest_email' => $userId ? null : $data['guest_email'],
+                'user_id' => $data['user_id'] ?? null,
+                'guest_name' => $data['guest_name'],
+                'guest_phone' => $data['guest_phone'],
+                'guest_email' => $data['guest_email'],
                 'guest_count' => $data['guest_count'],
                 'reservations_time' => $data['reservations_time'],
                 'note' => $data['note'] ?? null,
@@ -75,7 +86,6 @@ class OrderController extends Controller
                 }
             }
 
-
             $orderDetailsWithNames = [];
             if (!empty($data['order_details'])) {
                 foreach ($data['order_details'] as $item) {
@@ -99,8 +109,6 @@ class OrderController extends Controller
                             ];
                         }
                     }
-
-
                     $orderDetailsWithNames[] = [
                         'name' => $name,
                         'quantity' => $item['quantity'],
@@ -130,8 +138,6 @@ class OrderController extends Controller
             // // Gửi email xác nhận đặt bàn
             // $emailTo = $mailData['guest_email'];
             // Mail::to($emailTo)->send(new ReservationMail($mailData));
-
-
 
             return response()->json([
                 'status' => true,
@@ -173,18 +179,6 @@ class OrderController extends Controller
             ], 404);
         }
 
-        $userInfo = null;
-        if ($reservation->user_id) {
-            $user = ModelsUser::find($reservation->user_id);
-            if ($user) {
-                $userInfo = [
-                    'id' => $user->id,
-                    'name' => $user->fullname ?? $user->username,
-                    'email' => $user->email,
-                    'phone' => $user->phone ?? null,
-                ];
-            }
-        }
 
         $details = $reservation->details->map(function ($detail) {
             return [
@@ -208,7 +202,6 @@ class OrderController extends Controller
         return response()->json([
             'status' => true,
             'mess' => 'Lấy thông tin thành công',
-            'user' => $userInfo, // nếu null thì client biết là khách
             'info' => [
                 'id' => $reservation->id,
                 'user_id' => $reservation->user_id,
