@@ -160,9 +160,9 @@
               </div>
               <div class="text-center mb-2">
               <div class="qty-control px-2 py-1">
-                <button type="button" class="btn-lg" style="background-color: #fff;">-</button>
-                <span>1</span>
-                <button type="button" class="btn-lg" style="background-color: #fff;">+</button>
+                <button @click="decreaseQuantity" type="button" class="btn-lg" style="background-color: #fff;">-</button>
+                <span>{{ quantity }}</span>
+                <button @click="increaseQuantity" type="button" class="btn-lg" style="background-color: #fff;">+</button>
               </div>
             </div>
               <button class="btn btn-danger w-100 fw-bold">
@@ -199,6 +199,8 @@ export default {
     const toppings = ref([])
     const spicyLevel = ref([])
     const toppingList = ref({})
+
+    const quantity = ref(1);
 
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
@@ -299,6 +301,7 @@ export default {
       toppings.value = []
       spicyLevel.value = []
       toppingList.value = []
+      quantity.value = 1
       try {
         if (item.type === 'food') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
@@ -325,6 +328,18 @@ export default {
       } catch (error) {
         console.error(error)
       }
+    }
+
+
+
+    const decreaseQuantity = () => {
+      if (quantity.value > 1) {
+        quantity.value -= 1
+      }
+    }
+
+    const increaseQuantity = () => {
+      quantity.value += 1
     }
 
     const addToCart = () => {
@@ -407,6 +422,9 @@ export default {
       addToCart,
       toggleDropdown,
       changeSlide,
+      increaseQuantity,
+      decreaseQuantity,
+      quantity
     }
   },
 }

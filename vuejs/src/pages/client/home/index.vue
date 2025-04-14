@@ -215,9 +215,9 @@
               </div>
               <div class="text-center mb-2">
               <div class="qty-control px-2 py-1">
-                <button type="button" class="btn-lg" style="background-color: #fff;">-</button>
-                <span>1</span>
-                <button type="button" class="btn-lg" style="background-color: #fff;">+</button>
+                <button type="button" @click="decreaseQuantity" class="btn-lg" style="background-color: #fff;">-</button>
+                <span>{{ quantity }}</span>
+                <button type="button" @click="increaseQuantity" class="btn-lg" style="background-color: #fff;">+</button>
               </div>
             </div>
               <button class="btn btn-danger w-100 fw-bold">
@@ -260,6 +260,8 @@ export default {
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
     const selectedCategoryName = ref('Món Ăn')
+
+    const quantity = ref(1);
 
     const currentIndex = ref(0)
     const images = [
@@ -363,6 +365,7 @@ export default {
       toppings.value = []
       spicyLevel.value = []
       toppingList.value = []
+      quantity.value = 1
       try {
         //combo
         const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
@@ -424,7 +427,7 @@ export default {
         price: foodDetail.value.price,
         spicyLevel: selectedSpicyName,
         toppings: selectedToppings,
-        quantity: 1,
+        quantity: quantity.value,
       }
 
       let cart = JSON.parse(localStorage.getItem(cartKey)) || []
@@ -446,6 +449,17 @@ export default {
       alert('Đã thêm vào giỏ hàng!')
     }
 
+
+    const increaseQuantity = () => {
+      quantity.value += 1
+    }
+
+
+    const decreaseQuantity = () => {
+      if (quantity.value > 1) {
+        quantity.value -= 1
+      }
+    }
 
     onMounted(async () => {
       await getCategory()
@@ -478,6 +492,9 @@ export default {
       addToCart,
       toggleDropdown,
       changeSlide,
+      quantity,
+      increaseQuantity,
+      decreaseQuantity
     }
   },
 }
