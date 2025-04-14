@@ -23,6 +23,20 @@ class CartController extends Controller
                 'total_price' => 'required|numeric',
                 'order_detail' => 'nullable|array',
                 'note' => 'nullable|string',
+            ],
+            [
+                'guest_name.required' => 'Vui lòng nhập họ tên.',
+
+                'guest_email.required' => 'Vui lòng nhập email.',
+                'guest_email.email' => 'Email không đúng định dạng.',
+
+                'guest_phone.required' => 'Vui lòng nhập số điện thoại.',
+                'guest_phone.regex' => 'Số điện thoại không đúng định dạng.',
+                'guest_phone.digits' => 'Số điện thoại không đúng định dạng.',
+
+                'guest_address.requied' => 'Vui lòng điền địa chỉ nhận hàng',
+
+                'reservations_time.required' => 'Vui lòng nhập ngày nhận bàn.',
             ]);
 
             try {
@@ -34,6 +48,7 @@ class CartController extends Controller
                     'guest_address' => $data['guest_address'],
                     'total_price' => $data['total_price'],
                     'note' => $data['note'] ?? null,
+                    'order_time' => now(),
                 ]);
 
 

@@ -371,7 +371,7 @@ export default {
         price: foodDetail.value.price,
         spicyLevel: selectedSpicyName,
         toppings: selectedToppings,
-        quantity: 1,
+        quantity: quantity.value,
       }
 
       let cart = JSON.parse(localStorage.getItem(cartKey)) || []
