@@ -137,7 +137,7 @@
       </button>
     </div>
   </section>
-  
+
   <section class="pots-section container mt-5">
     <h2 class="text-center text-md-start mb-3 fw-bold">Bài Viết & Thông Tin<span>📢</span></h2>
     <hr />
@@ -232,136 +232,16 @@
   </div>
 </template>
 <script>
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
+import { FoodListSearch } from '@/stores/search'
 import { Modal } from 'bootstrap'
 
 export default {
-  name: 'HomePage',
-  methods: {
-    formatNumber(value) {
-      return numeral(value).format('0,0')
-    },
-    getImageUrl(image) {
-      return `/img/food/${image}`
-    },
-    getImageMenuUrl(image) {
-      return `/img/food/imgmenu/${image}`
-    },
-  },
   setup() {
-    const foods = ref([])
-    const categories = ref([])
-    const foodDetail = ref([])
-    const toppings = ref([])
-    const spicyLevel = ref([])
-    const toppingList = ref({})
-
-    const isLoading = ref(false)
-    const isDropdownOpen = ref(false)
-    const selectedCategoryName = ref('Món Ăn')
-    const selectedCategoryImage = ref('')
-
-    const currentIndex = ref(0)
-    const images = [
-      '/img/banner/Banner (1).webp',
-      '/img/banner/Banner (2).png',
-      '/img/banner/Banner.png',
-    ]
-    let intervalId = null
-
-    const toggleDropdown = () => {
-      isDropdownOpen.value = !isDropdownOpen.value
-    }
-
-    const changeSlide = (direction) => {
-      const total = images.length
-      currentIndex.value = (currentIndex.value + direction + total) % total
-    }
-
-    const getCategory = async () => {
-      try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`)
-        categories.value = res.data
-        categories.value.shift()
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    const getFood = async () => {
-      try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`)
-        foods.value = res.data.map((item) => ({ ...item, type: 'food' }))
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    const getFoodByCategory = async (categoryId) => {
-      try {
-        if (!categories.value.length) {
-          console.warn('Categories chưa được load.')
-          return
-        }
-
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
-        let allFoods = res.data.map((item) => ({ ...item, type: 'food' }))
-
-        let parentName = ''
-        let childName = ''
-        let parentImage = ''
-
-        for (const parent of categories.value) {
-          if (parent.id === categoryId) {
-            parentName = parent.name
-            parentImage = parent.images || ''
-            break
-          }
-          if (parent.children && parent.children.length) {
-            const child = parent.children.find((c) => c.id === categoryId)
-            if (child) {
-              parentName = parent.name
-              childName = child.name
-              parentImage = child.images || ''
-              if(!child.images){
-                parentImage = parent.images
-              }
-              break
-            }
-          }
-        }
-
-        selectedCategoryName.value = childName
-          ? `${parentName} > ${childName}`
-          : parentName || 'Món Ăn'
-        selectedCategoryImage.value = parentImage
-
-        const selectedCategory = categories.value.find((c) => c.id === categoryId)
-        if (selectedCategory?.children?.length) {
-          const childRequests = selectedCategory.children.map((child) =>
-            axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
-          )
-          const childResults = await Promise.all(childRequests)
-          childResults.forEach((childRes) => {
-            const childFoods = childRes.data.map((item) => ({ ...item, type: 'food' }))
-            allFoods = [...allFoods, ...childFoods]
-          })
-        }
-
-        if (categoryId === 14) {
-          const comboRes = await axios.get(`http://127.0.0.1:8000/api/home/combos`)
-          const combosWithType = comboRes.data.map((item) => ({ ...item, type: 'combo' }))
-          allFoods = [...allFoods, ...combosWithType]
-        }
-
-        foods.value = allFoods
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
+    const route = useRoute()
     const openModal = async (item) => {
       foodDetail.value = {}
       toppings.value = []
@@ -394,61 +274,70 @@ export default {
         console.error(error)
       }
     }
+    const {
+      foods,
+      categories,
+      foodDetail,
+      toppings,
+      spicyLevel,
+      toppingList,
+      isLoading,
+      getFoodByCategory,
+      addToCart,
+    } = FoodListSearch.setup()
+    const showModal = ref(false)
+    const isDropdownOpen = ref(false)
+    const selectedCategoryName = ref('Món Ăn')
+    const selectedCategoryImage = ref('')
+    const searchTerm = computed(() => route.query.search?.toLowerCase().trim() || '')
 
-    const addToCart = () => {
-      const user = JSON.parse(localStorage.getItem('user'))
-      const userId = user?.id || 'guest'
-      const cartKey = `cart_${userId}`
+    const fetchSearchFoods = async () => {
+      const query = searchTerm.value
+      if (!query) return
 
-      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
+      try {
+        isLoading.value = true
+        const res = await axios.get('http://127.0.0.1:8000/api/foods/search', {
+          params: { search: query }
+        })
+        foods.value = res.data
+        if (res.data.length) {
+        const firstItem = res.data[0]
+        selectedCategoryName.value = firstItem.category_name
+        selectedCategoryImage.value = firstItem.category_image
 
-      const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked'),
-      ).map((el) => parseInt(el.value))
+}
 
-      const selectedToppings = toppingList.value
-        .filter((topping) => selectedToppingId.includes(topping.id))
-        .map((topping) => ({
-          id: topping.id,
-          name: topping.name,
-          price: topping.price,
-          food_toppings_id: topping.pivot?.id || null,
-        }))
-
-      const cartItem = {
-        id: foodDetail.value.id,
-        name: foodDetail.value.name,
-        image: foodDetail.value.image,
-        price: foodDetail.value.price,
-        spicyLevel: selectedSpicyName,
-        toppings: selectedToppings,
-        quantity: 1,
+      } catch (error) {
+        console.error('Lỗi khi tìm kiếm món ăn:', error)
+      } finally {
+        isLoading.value = false
       }
+    }
+    watch(
+      () => route.query.search,
+      () => {
+        fetchSearchFoods()
+      },
+      { immediate: true }
+    )
+    const formatNumber = (value) => numeral(value).format('0,0')
+    const getImageUrl = (image) => `/img/food/${image}`
+    const getImageMenuUrl = (image) => `/img/food/imgmenu/${image}`
 
-      let cart = JSON.parse(localStorage.getItem(cartKey)) || []
-
-      const existingItem = cart.findIndex(
-        (item) =>
-          item.id === cartItem.id &&
-          item.spicyLevel === cartItem.spicyLevel &&
-          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort()),
-      )
-
-      if (existingItem !== -1) {
-        cart[existingItem].quantity += 1
-      } else {
-        cart.push(cartItem)
-      }
-
-      localStorage.setItem(cartKey, JSON.stringify(cart))
-      alert('Đã thêm vào giỏ hàng!')
+    const currentIndex = ref(0)
+    let intervalId = null
+    const images = [
+      '/img/banner/Banner (1).webp',
+      '/img/banner/Banner (2).png',
+      '/img/banner/Banner.png',
+    ]
+    const changeSlide = (direction) => {
+      const total = images.length
+      currentIndex.value = (currentIndex.value + direction + total) % total
     }
 
-    onMounted(async () => {
-      await getCategory()
-      await getFood()
+    onMounted(() => {
       intervalId = setInterval(() => {
         currentIndex.value = (currentIndex.value + 1) % images.length
       }, 3000)
@@ -461,25 +350,30 @@ export default {
     return {
       foods,
       categories,
-      foodDetail,
-      toppings,
+      getFoodByCategory,
       spicyLevel,
       toppingList,
+      formatNumber,
+      getImageUrl,
+      getImageMenuUrl,
+      foodDetail,
+      showModal,
+      openModal,
       isLoading,
+      toppings,
+      addToCart,
+      images,
+      currentIndex,
+      selectedCategoryImage,
       isDropdownOpen,
       selectedCategoryName,
-      selectedCategoryImage,
-      currentIndex,
-      images,
-      getFoodByCategory,
-      openModal,
-      addToCart,
-      toggleDropdown,
-      changeSlide,
+      changeSlide
     }
-  },
+  }
 }
 </script>
+
+
 <style scoped>
 .menu-grid {
   display: grid;
@@ -495,7 +389,7 @@ export default {
 
 .menu-link {
   font-weight: bold;
-  font-size: 20px;
+  font-size: 23px;
   text-decoration: none;
   display: inline-block;
   transition:
@@ -522,8 +416,8 @@ export default {
   opacity: 0;
   transform: translateY(10px) scale(0.95);
   transition:
-  opacity 0.3s ease,
-  transform 0.3s ease;
+    opacity 0.3s ease,
+    transform 0.3s ease;
   border-radius: 8px;
   min-width: 180px;
 }
@@ -552,6 +446,4 @@ export default {
   transform: scale(1.05);
   font-weight: 500;
 }
-
-
 </style>
