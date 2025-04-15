@@ -1,4 +1,9 @@
 <template>
+    <div v-if="isLoading" class="isLoading-overlay">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">isLoading...</span>
+    </div>
+  </div>
   <div class="container">
     <div class="card p-3">
       <h5 class="border-bottom pb-2">Thông tin</h5>
@@ -41,11 +46,11 @@
       <h5 class="border-bottom pb-2">Thông tin khách hàng</h5>
       <div class="row">
         <div class="col-6">Họ tên:</div>
-        <div class="col-6 text-end">{{ user.name }}</div>
+        <div class="col-6 text-end">{{ info.guest_name }}</div>
         <div class="col-6">Số điện thoại:</div>
-        <div class="col-6 text-end">{{ user.phone }}</div>
+        <div class="col-6 text-end">{{ info.guest_phone }}</div>
         <div class="col-6">Email:</div>
-        <div class="col-6 text-end">{{ user.email }}</div>
+        <div class="col-6 text-end">{{ info.guest_email }}</div>
         <div class="col-6">Địa chỉ:</div>
         <div class="col-6 text-end">{{ info.guest_address || '' }}</div>
       </div>
@@ -85,10 +90,13 @@
       </div>
     </div>
     <button class="btn btn-secondary mt-2" @click="goBack">Quay lại</button>
-    <button class="btn btn-info mt-2 ms-2" @click="showModal">Thay đổi địa chỉ nhận
-      hàng</button>
-    <button @click="cancelOrder" class="btn btn-danger mt-2 ms-2" style="width: 100px;">Hủy đơn</button>
+    <button class="btn btn-info mt-2 ms-2"
+      v-if="(info.order_status == 'Chờ xác nhận' || info.order_status == 'Đã xác nhận') && info.guest_address"
+      @click="showModal">
+      Thay đổi địa chỉ nhận
+    </button>
 
+    <button v-if="info.order_status == 'Chờ xác nhận' || info.order_status == 'Đã xác nhận'" @click="cancelOrderForOrder" class="btn btn-danger mt-2 ms-2" style="width: 100px;">Hủy đơn</button>
 
 
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
@@ -96,10 +104,10 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel" v-if="info.order_status">Thay đổi địa chỉ nhận hàng</h1>
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Thay đổi địa chỉ nhận hàng</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form action="" @submit.prevent="updateAddress">
+          <form action="" @submit.prevent="updateAddressForOrder">
             <div class="modal-body">
               <textarea v-model="address" cols="55" rows="5"></textarea>
             </div>
@@ -131,9 +139,10 @@ export default {
     const route = useRoute()
     const id = route.params.id
     const address = ref('')
+    const isLoading = ref(false)
+
     const {
       info,
-      user,
       getInfo,
       formatNumber,
       formatDate,
@@ -144,21 +153,24 @@ export default {
 
     const cancelOrder = async () => {
       try {
+        isLoading.value = true;
         if (confirm('Bạn có chắc muốn huỷ đơn này')) {
           const status = await axios.put(`http://127.0.0.1:8000/api/order-history-info/cancle/${id}`)
           if (status) {
             alert('Hủy đơn thành công.')
           }
         }
-
       } catch (error) {
         console.error(error)
         alert('Cập nhật thất bại.')
+      }finally {
+        isLoading.value = false
       }
     }
 
     const updateAddress = async () => {
       try {
+        isLoading.value = true;
         if (confirm('Bạn có chắc muốn thay đổi địa chỉ nhận hàng')) {
           const status = await axios.put(
             `http://127.0.0.1:8000/api/order-history-info/update-address/${id}`,
@@ -175,6 +187,8 @@ export default {
       } catch (error) {
         console.error(error);
         alert('Cập nhật thất bại.');
+      }finally {
+        isLoading.value = false
       }
     };
     const showModal = () => {
@@ -182,18 +196,39 @@ export default {
       modal.show();
     };
 
+    const updateAddressForOrder = async () => {
+      try {
+        isLoading.value = true;
+        await updateAddress()
+        await getInfo('order', id)
+        address.value = info.value.guest_address;
+      } catch (error) {
+        console.log(error);
 
-    onMounted(() => {
-      getInfo('order', id).then(() => {
-        address.value = info.guest_address || '';
-      });
+      }finally {
+        isLoading.value = false
+      }
+
+    }
+
+    const cancelOrderForOrder = async () => {
+      await cancelOrder()
+      await getInfo('order', id)
+    }
+
+    onMounted(async () => {
+      try {
+        await getInfo('order', id);
+        address.value = info.value.guest_address;
+      } catch (error) {
+        console.error("getInfo:", error);
+      }
     });
 
     return {
       route,
       id,
       info,
-      user,
       getImageUrl,
       formatNumber,
       formatDate,
@@ -201,7 +236,10 @@ export default {
       cancelOrder,
       updateAddress,
       address,
-      showModal
+      showModal,
+      updateAddressForOrder,
+      cancelOrderForOrder,
+      isLoading
     }
   }
 
@@ -226,5 +264,17 @@ h5 {
 a {
   text-decoration: none;
   color: #007bff;
+}
+.isLoading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(148, 142, 142, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

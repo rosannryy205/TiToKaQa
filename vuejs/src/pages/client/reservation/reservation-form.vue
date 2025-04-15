@@ -8,13 +8,13 @@
         <div class="section-title">Thông tin đơn hàng của bạn</div>
         <div class="row mb-3">
           <div class="col-6"><strong>Tên người đặt bàn:</strong></div>
-          <div class="col-6">{{ info.guest_name || user.name }}</div>
+          <div class="col-6">{{ info.guest_name }}</div>
 
           <div class="col-6"><strong>Điện thoại:</strong></div>
-          <div class="col-6">{{ info.guest_phone || user.phone}}</div>
+          <div class="col-6">{{ info.guest_phone}}</div>
 
           <div class="col-6"><strong>Email:</strong></div>
-          <div class="col-6">{{ info.guest_email || user.email }}</div>
+          <div class="col-6">{{ info.guest_email }}</div>
 
           <div class="col-6"><strong>Thời gian dùng bữa dự kiến:</strong></div>
           <div class="col-6">{{ info.reservations_time }}</div>
@@ -58,12 +58,18 @@
               </td>
               <td>{{ formatNumber(detail.price) }} VNĐ</td>
               <td>{{ detail.quantity }}</td>
-              <td>{{ formatNumber(detail.price * detail.quantity) }} VNĐ</td>
+              <td>
+                {{ formatNumber(
+                  detail.price * detail.quantity +
+                  detail.toppings.reduce((sum, topping) => sum + parseFloat(topping.price), 0)
+                ) }} VNĐ
+              </td>
             </tr>
+
             <tr>
               <td colspan="3"></td>
               <td><strong>Tổng cộng</strong></td>
-              <td><strong>{{ formatNumber(info.total_price) }} VNĐ</strong></td>
+              <td><strong>{{ formatNumber(info.details.reduce((total, detail) => total + (detail.price * detail.quantity), 0)) }} VNĐ</strong></td>
             </tr>
           </tbody>
         </table>
@@ -118,11 +124,8 @@ import { Info } from '@/stores/info-order-reservation'
 
 export default {
   setup() {
-
-
   const {
     info,
-    user,
     getInfo,
     formatNumber,
     getImageUrl,
@@ -132,16 +135,14 @@ export default {
   onMounted(() => {
     getInfo('order', orderId)
     console.log(info);
-
   })
 
   return {
     info,
-    user,
     getInfo,
     formatNumber,
     getImageUrl,
-    orderId
+    orderId,
   }
 }
 

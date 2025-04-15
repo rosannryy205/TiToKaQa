@@ -17,6 +17,7 @@ export const FoodList = {
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
     const selectedCategoryName = ref('Món Ăn')
+    const quantity = ref(1)
 
     const toggleDropdown = () => {
       isDropdownOpen.value = !isDropdownOpen.value
@@ -127,16 +128,23 @@ export const FoodList = {
       }
     }
 
+
     const addToCart = () => {
+      const user = JSON.parse(localStorage.getItem('user'))
+      const userId = user?.id || 'guest'
+      const cartKey = `cart_${userId}`
+
       const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
       const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
       const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
-      const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')).map((el)=>parseInt(el.value))
 
-      const selectedToppings= toppingList.value
-        .filter((topping)=>selectedToppingId.includes(topping.id))
-        .map((topping)=>({
+      const selectedToppingId = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')
+      ).map((el) => parseInt(el.value))
+
+      const selectedToppings = toppingList.value
+        .filter((topping) => selectedToppingId.includes(topping.id))
+        .map((topping) => ({
           id: topping.id,
           name: topping.name,
           price: topping.price,
@@ -150,16 +158,16 @@ export const FoodList = {
         price: foodDetail.value.price,
         spicyLevel: selectedSpicyName,
         toppings: selectedToppings,
-        quantity: 1,
+        quantity: quantity.value,
       }
 
-      let cart = JSON.parse(localStorage.getItem('cart')) || []
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || []
 
       const existingItem = cart.findIndex(
         (item) =>
           item.id === cartItem.id &&
           item.spicyLevel === cartItem.spicyLevel &&
-          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort()),
+          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort())
       )
 
       if (existingItem !== -1) {
@@ -168,9 +176,18 @@ export const FoodList = {
         cart.push(cartItem)
       }
 
-      localStorage.setItem('cart', JSON.stringify(cart))
+      localStorage.setItem(cartKey, JSON.stringify(cart))
       alert('Đã thêm vào giỏ hàng!')
     }
+
+    const increaseQuantity = () => {
+      quantity.value++;
+    };
+
+    const decreaseQuantity = () => {
+      if (quantity.value > 1) quantity.value--;
+    };
+
 
     const flatCategoryList = computed(() => {
       const result = []
@@ -184,7 +201,6 @@ export const FoodList = {
       })
       return result
     })
-    console.log(flatCategoryList.value); // Debug để kiểm tra dữ liệu.
 
     onMounted(async () => {
       await getCategory()
@@ -212,7 +228,10 @@ export const FoodList = {
       toggleDropdown,
       formatNumber,
       getImageUrl,
-      flatCategoryList
+      flatCategoryList,
+      increaseQuantity,
+      decreaseQuantity,
+      quantity
     }
   }
 }

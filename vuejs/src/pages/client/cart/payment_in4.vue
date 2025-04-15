@@ -10,7 +10,7 @@
       <div class="col-md-7">
         <div class="p-4 border rounded shadow-sm bg-white">
           <h4 class="mb-4">Thông tin đặt hàng</h4>
-          <form @submit.prevent="check_out">
+          <form @submit.prevent="submitOrder">
             <div class="mb-3">
               <input v-model="form.fullname" type="text" class="form-control" placeholder="Tên của bạn">
             </div>
@@ -243,16 +243,13 @@ export default {
       return cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
     })
 
-    const submitOrderAndSaveUser = async () => {
+    const submitOrder = async () => {
       loading.value = true
       try {
-        console.log('👉 Trước handleSubmit')
-        await handleSubmit()
-        console.log('✅ Qua handleSubmit, chuẩn bị gọi check_out')
         await check_out()
         console.log('✅ check_out đã được gọi xong')
       } catch (error) {
-        console.error('❌ Lỗi khi gọi handleSubmit hoặc check_out:', error)
+        console.error('❌ Lỗi khi gọi check_out:', error)
       } finally {
         loading.value = false
       }
@@ -286,7 +283,7 @@ export default {
       check_out,
       form,
       handleSubmit,
-      submitOrderAndSaveUser,
+      submitOrder,
       isLoading,
       loading,
       paymentMethod,

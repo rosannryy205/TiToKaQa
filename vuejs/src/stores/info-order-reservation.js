@@ -1,12 +1,11 @@
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import numeral from 'numeral'
 
 export const Info = {
   setup() {
     const info = ref({});
-    const user = ref({});
     const route = useRoute();
     const orderId = route.params.orderId;
 
@@ -19,7 +18,6 @@ export const Info = {
           }
         })
         info.value = res.data.info
-        user.value = res.data.user
         console.log(res.data);
 
       } catch (error) {
@@ -49,13 +47,8 @@ export const Info = {
       });
     };
 
-    onMounted(() => {
-      getInfo()
-    })
-
     return {
       info,
-      user,
       getInfo,
       formatNumber,
       getImageUrl,
