@@ -5,20 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Table extends Model
+class Reservation_table extends Model
 {
     use HasFactory;
-    protected $table= "tables";
+    protected $table= "reservation_tables";
     public $timestamps = false; // Bật timestamps
 
-
     protected $fillable = [
-        'capacity',
-        'table_number',
-        'status'
+        'order_id',
+        'table_id',
+        'assigned_time',
+        'reserved_from',
+        'reserved_to'
+
     ];
 
-    public function orders(){
-        return $this->belongsToMany(Order::class, 'reservation_tables');
-    }
 }

@@ -3,57 +3,58 @@
   <div class="header">
     <div class="container">
       <div class="navbar-top">
-  <nav class="navbar navbar-expand-lg navbar-bottom">
-    <div class="container d-flex justify-content-between align-items-center">
+        <nav class="navbar navbar-expand-lg navbar-bottom">
+          <div class="container d-flex justify-content-between align-items-center">
 
-      <div class="d-flex align-items-center">
-        <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="logo-container">
-          <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
-        </div>
+            <div class="d-flex align-items-center">
+              <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasMenu">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="logo-container">
+                <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center">
+
+              <!-- Search -->
+              <div class="input-wrapper me-3 d-none d-lg-block">
+                <button class="icon">
+                  <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                      stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
+                      stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <input type="text" name="text" class="input" placeholder="search.." />
+              </div>
+
+              <!-- Login/Logout -->
+              <div class="d-flex align-items-center me-3">
+                <button v-if="!isLoggedIn" class="icon-btn me-2" data-bs-toggle="modal" @click="openLoginModal">
+                  <i class="bi bi-people"></i>
+                </button>
+
+                <template v-else>
+                  <button class="icon-btn me-2" @click="handleLogout">
+                    <i class="bi bi-person-x"></i>
+                  </button>
+                  <router-link to="/update-user" class="text-decoration-none text-primary-red">
+                    <p class="mb-0 me-2">{{ user.username }}</p>
+                  </router-link>
+                </template>
+              </div>
+              <router-link to="/cart" style="color: black;">
+                <button class="icon-btn"><i class="bi bi-cart"></i></button>
+              </router-link>
+
+            </div>
+          </div>
+        </nav>
       </div>
-
-      <div class="d-flex align-items-center">
-
-        <!-- Search -->
-        <div class="input-wrapper me-3 d-none d-lg-block">
-          <button class="icon">
-            <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-                stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-              <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
-                stroke-linejoin="round"></path>
-            </svg>
-          </button>
-          <input type="text" name="text" class="input" placeholder="search.." />
-        </div>
-
-        <!-- Login/Logout -->
-        <div class="d-flex align-items-center me-3">
-          <button v-if="!isLoggedIn" class="icon-btn me-2" data-bs-toggle="modal" @click="openLoginModal">
-            <i class="bi bi-people"></i>
-          </button>
-
-          <template v-else>
-            <button class="icon-btn me-2" @click="handleLogout">
-              <i class="bi bi-person-x"></i>
-            </button>
-            <router-link to="/update-user" class="text-decoration-none text-primary-red">
-              <p class="mb-0 me-2">{{ user.username }}</p>
-            </router-link>
-          </template>
-        </div>
-        <router-link to="/cart" style="color: black;">
-          <button class="icon-btn"><i class="bi bi-cart"></i></button>
-        </router-link>
-
-      </div>
-    </div>
-  </nav>
-</div>
 
 
       <!-- menu bottom -->
@@ -245,7 +246,7 @@
           <form @submit.prevent="forgotPass">
 
             <!-- nhập email  -->
-            <div v-if="errorSendCode" class="text-danger small text-center">{{ errorSendCode}}</div>
+            <div v-if="errorSendCode" class="text-danger small text-center">{{ errorSendCode }}</div>
             <div class="mb-3 position-relative">
               <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
               <input type="text" class="form-control ps-5" id="email" placeholder="Nhập Email" v-model=verify.email>
@@ -459,6 +460,7 @@ export default {
   setup() {
     onMounted(() => {
       isLoggedIn.value = !!user.value;
+
     });
   }
 }
@@ -510,7 +512,7 @@ const Handleregister = async () => {
       }
     } else {
       console.error('Lỗi khi đăng ký:', error);
-      alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+      // alert('Có lỗi xảy ra, vui lòng thử lại sau.');
     }
   } finally {
     loading.value = false;
@@ -696,7 +698,7 @@ const verifyResetCode = async () => {
       const modalResetPass = document.getElementById('resetModal');
       const modalResetPassInstance = bootstrap.Modal.getInstance(modalResetPass) || new bootstrap.Modal(modalResetPass);
       modalResetPassInstance.show();
-      errorVerify.value='';
+      errorVerify.value = '';
 
 
     }
@@ -756,6 +758,7 @@ const ResetPass = async () => {
   }
 };
 
+
 export {
   registerData,
   loginData,
@@ -790,5 +793,4 @@ export {
 .text-primary-red {
   color: #ca111f;
 }
-
 </style>

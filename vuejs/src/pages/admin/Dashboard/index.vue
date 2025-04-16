@@ -102,7 +102,7 @@ Chart.register(...registerables);
 export default {
     setup() {
         useMenu().onSelectedKeys(["admin-dashboard"]);
-        
+
         onMounted(() => {
             const barCtx = document.getElementById("barChart").getContext("2d");
             new Chart(barCtx, {
@@ -121,7 +121,7 @@ export default {
                     maintainAspectRatio: false
                 }
             });
-            
+
             const pieCtx = document.getElementById("pieChart").getContext("2d");
             new Chart(pieCtx, {
                 type: "pie",

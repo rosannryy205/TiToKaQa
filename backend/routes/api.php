@@ -32,6 +32,15 @@ Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']
 //reservation
 Route::post('/reservation', [OrderController::class, 'reservation']);
 Route::get('/order-reservation-info', [OrderController::class, 'getInfoReservation']);
+//reservation - tables - admin
+Route::get('/tables', [OrderController::class, 'getTables']);
+Route::get('/order-tables', [OrderController::class, 'getOrderOfTable']);
+Route::post('/set-up/order-tables', [OrderController::class, 'setUpTable']);
+Route::post('/available-tables', [OrderController::class, 'getAvailableTables']);
+Route::get('/foods', [OrderController::class, 'getAllFoodsWithToppings']);
+Route::post('/reservation-update-status', [OrderController::class, 'updateStatus']);
+Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
+
 
 //history
 Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);

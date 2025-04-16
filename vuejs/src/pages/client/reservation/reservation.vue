@@ -151,6 +151,7 @@
 </template>
 
 <script>
+
 import { FoodList } from '@/stores/food'
 import { User } from '@/stores/user'
 import axios from 'axios'
@@ -204,7 +205,7 @@ export default {
       user,
     } = User.setup()
 
-    for (let hour = 8; hour <= 19; hour++) {
+    for (let hour = 8; hour <= 20; hour++) {
       let hourStr = hour < 10 ? '0' + hour : '' + hour
       timeOptions.push(hourStr + ':00')
       if (hour !== 19) {
