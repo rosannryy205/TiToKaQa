@@ -53,13 +53,21 @@ export default {
       const now = new Date()
       for (const id in startTimes.value) {
         const start = startTimes.value[id]
-        const diff = Math.floor((now - start) / 1000)
-        const hours = String(Math.floor(diff / 3600)).padStart(2, '0')
-        const minutes = String(Math.floor((diff % 3600) / 60)).padStart(2, '0')
-        const seconds = String(diff % 60).padStart(2, '0')
-        timers.value[id] = `${hours}:${minutes}:${seconds}`
+        const end = new Date(start.getTime() + 2 * 60 * 60 * 1000) // cộng 2 tiếng
+
+        const diff = Math.floor((end - now) / 1000)
+
+        if (diff <= 0) {
+          timers.value[id] = '00:00:00'
+        } else {
+          const hours = String(Math.floor(diff / 3600)).padStart(2, '0')
+          const minutes = String(Math.floor((diff % 3600) / 60)).padStart(2, '0')
+          const seconds = String(diff % 60).padStart(2, '0')
+          timers.value[id] = `${hours}:${minutes}:${seconds}`
+        }
       }
     }
+
 
     const orderOfTable = ref([])
     const getOrderOfTable = async () => {

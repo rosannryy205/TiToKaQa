@@ -21,9 +21,9 @@
             </p>
             <p class="card-text small text-muted mb-1">Bàn số: {{ order.table_numbers }}</p>
             <p class="fw-bold text-danger mb-2">{{ formatNumber(order.total_price) }}VND</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="form-group">
-                <select v-model="order.reservation_status" class="form-control"
+            <div class="d-flex justify-content-between align-items-center rounded-0">
+              <div class="form-group rounded-0">
+                <select v-model="order.reservation_status" class="form-control rounded-0"
                   @change="updateStatus(order.order_id, order.reservation_status)">
                   <option value="Chờ Xác Nhận" :disabled="!canSelectStatus(order.reservation_status, 'Chờ Xác Nhận')">
                     Chờ Xác Nhận
@@ -58,7 +58,8 @@
                       món</router-link>
                   </li>
                   <li>
-                    <router-link :to="{ name: 'admin-orders-detail' }" class="dropdown-item1">Chi tiết</router-link>
+                    <router-link :to="{ name: 'admin-orders-detail', params: { id: order.order_id } }"
+                      class="dropdown-item1">Chi tiết</router-link>
                   </li>
                 </ul>
               </div>
@@ -106,6 +107,7 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
 import { FoodList } from '@/stores/food'
+import OrdersDetail from '../Orders/orders-detail.vue'
 export default {
   setup() {
     const { info, getInfo, formatDate, formatTime, formatNumber } = Info.setup()
@@ -121,7 +123,7 @@ export default {
         const res = await axios.get('http://127.0.0.1:8000/api/order-tables')
         orderOfTable.value = res.data.data
         reservation_status.value = orderOfTable.value.reservation_status
-        // console.log(orderOfTable.value);
+        console.log(orderOfTable.value);
       } catch (error) {
         console.log(error)
       }
@@ -134,6 +136,7 @@ export default {
       fetchAvailableTables()
       selectedTableIds.value = []
     }
+
 
     const fetchAvailableTables = async () => {
       try {
@@ -172,13 +175,35 @@ export default {
       )
     }
 
+    const areTablesConsecutive = () => {
+      const numbers = availableTables.value
+        .filter(table => selectedTableIds.value.includes(table.id))
+        .map(table => table.table_number)
+        .sort((a, b) => a - b)
+
+      if (numbers.length <= 1) return true
+
+      for (let i = 1; i < numbers.length; i++) {
+        if (numbers[i] !== numbers[i - 1] + 1) {
+          return false
+        }
+      }
+      return true
+    }
+
     const saveTableAssignment = async () => {
+      if (!areTablesConsecutive()) {
+        alert('Vui lòng chọn các bàn có số liền kề nhau!')
+        return
+      }
+
       const assigned_time = formatDateTime(new Date())
       await getInfo('order', selectedOrderId.value)
-      console.log(info)
+
       const reservedTo = new Date(info.value.reservations_time.replace(' ', 'T'))
       reservedTo.setHours(reservedTo.getHours() + 2)
       const reserved_to = formatDateTime(reservedTo)
+
       try {
         await axios.post('http://127.0.0.1:8000/api/set-up/order-tables', {
           order_id: selectedOrderId.value,
@@ -192,6 +217,7 @@ export default {
         alert('Lỗi khi xếp bàn: ' + error.response.data.message)
       }
     }
+
 
     const activeDropdownId = ref(null)
 
@@ -232,7 +258,7 @@ export default {
       if (optionIndex === currentIndex + 1) {
         return true
       }
-      if (optionStatus === 'Đã hủy' && currentStatus === 'Chờ Xác Nhận') {
+      if (optionStatus === 'Đã hủy' || currentStatus === 'Chờ Xác Nhận') {
         return true
       }
       return false

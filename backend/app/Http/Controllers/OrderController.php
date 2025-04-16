@@ -203,16 +203,15 @@ class OrderController extends Controller
         });
 
         // // Thông tin bàn đã xếp
-        // $tables = $reservation->tables->map(function ($table) {
-        //     return [
-        //         'table_id' => $table->id,
-        //         'table_number' => $table->table_number,
-        //         'table_name' => $table->name,
-        //         'assigned_time' => $table->pivot->assigned_time,
-        //         'reserved_from' => $table->pivot->reserved_from,
-        //         'reserved_to' => $table->pivot->reserved_to,
-        //     ];
-        // });
+        $tables = $reservation->tables->map(function ($table) {
+            return [
+                'table_id' => $table->id,
+                'table_number' => $table->table_number,
+                'assigned_time' => $table->pivot->assigned_time,
+                'reserved_from' => $table->pivot->reserved_from,
+                'reserved_to' => $table->pivot->reserved_to,
+            ];
+        });
 
         return response()->json([
             'status' => true,
@@ -239,7 +238,7 @@ class OrderController extends Controller
                 'expiration_time' => $reservation->expiration_time,
                 'reservation_status' => $reservation->reservation_status,
                 'details' => $details,
-                // 'tables' => $tables,
+                'tables' => $tables,
             ]
         ], 200);
     }
@@ -306,26 +305,31 @@ class OrderController extends Controller
 
     public function getAvailableTables(Request $request)
     {
-        $orderId = $request->input('order_id');
         $from = $request->input('reserved_from');
         $to = $request->input('reserved_to');
+
+        $freeTables = Table::where('status', 'Bàn trống')->get();
 
         $conflictingTableIds = Reservation_table::where(function ($query) use ($from, $to) {
             $query->where(function ($q) use ($from, $to) {
                 $q->where('reserved_from', '<', $to)
                     ->where('reserved_to', '>', $from);
             });
-        })
-            ->pluck('table_id')
-            ->toArray();
+        })->pluck('table_id')->toArray();
 
-        $availableTables = Table::whereNotIn('id', $conflictingTableIds)->get();
+        $nonConflictingTables = Table::whereNotIn('id', $conflictingTableIds)
+            ->where('status', '!=', 'Bàn trống')
+            ->get();
+
+        $availableTables = $freeTables->merge($nonConflictingTables);
 
         return response()->json([
             'status' => true,
             'tables' => $availableTables
         ]);
     }
+
+
 
     public function getOrderOfTable()
     {
@@ -440,17 +444,21 @@ class OrderController extends Controller
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
-
         $order->reservation_status = $request->reservation_status;
-
         if ($request->reservation_status === 'Khách Đã Đến') {
             $order->check_in_time = Carbon::now();
         }
-
+        if (in_array($request->reservation_status, ['Đã hủy', 'Hoàn Thành'])) {
+            foreach ($order->tables as $table) {
+                $table->status = 'Bàn trống';
+                $table->save();
+            }
+        }
         $order->save();
-
         return response()->json(['message' => 'Đơn hàng đã được cập nhật thành công.']);
     }
+
+
 
     public function autoCancelOrders()
     {
@@ -470,5 +478,4 @@ class OrderController extends Controller
             'message' => 'Đã huỷ ' . $orders->count() . ' đơn quá hạn chưa check-in.',
         ]);
     }
-
 }

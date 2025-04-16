@@ -11,7 +11,7 @@
           <div class="col-6">{{ info.guest_name }}</div>
 
           <div class="col-6"><strong>Điện thoại:</strong></div>
-          <div class="col-6">{{ info.guest_phone}}</div>
+          <div class="col-6">{{ info.guest_phone }}</div>
 
           <div class="col-6"><strong>Email:</strong></div>
           <div class="col-6">{{ info.guest_email }}</div>
@@ -59,17 +59,18 @@
               <td>{{ formatNumber(detail.price) }} VNĐ</td>
               <td>{{ detail.quantity }}</td>
               <td>
-                {{ formatNumber(
+                {{formatNumber(
                   detail.price * detail.quantity +
                   detail.toppings.reduce((sum, topping) => sum + parseFloat(topping.price), 0)
-                ) }} VNĐ
+                )}} VNĐ
               </td>
             </tr>
 
             <tr>
               <td colspan="3"></td>
               <td><strong>Tổng cộng</strong></td>
-              <td><strong>{{ formatNumber(info.details.reduce((total, detail) => total + (detail.price * detail.quantity), 0)) }} VNĐ</strong></td>
+              <td><strong>{{formatNumber(info.details.reduce((total, detail) => total + (detail.price *
+                detail.quantity), 0)) }} VNĐ</strong></td>
             </tr>
           </tbody>
         </table>
@@ -124,28 +125,27 @@ import { Info } from '@/stores/info-order-reservation'
 
 export default {
   setup() {
-  const {
-    info,
-    getInfo,
-    formatNumber,
-    getImageUrl,
-    orderId
-  } = Info.setup()
+    const {
+      info,
+      getInfo,
+      formatNumber,
+      getImageUrl,
+      orderId
+    } = Info.setup()
 
-  onMounted(() => {
-    getInfo('order', orderId)
-    console.log(info);
-  })
+    onMounted(() => {
+      getInfo('order', orderId)
+      console.log(info);
+    })
 
-  return {
-    info,
-    getInfo,
-    formatNumber,
-    getImageUrl,
-    orderId,
+    return {
+      info,
+      getInfo,
+      formatNumber,
+      getImageUrl,
+      orderId,
+    }
   }
-}
 
 }
 </script>
-

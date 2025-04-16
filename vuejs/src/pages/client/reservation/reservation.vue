@@ -31,12 +31,16 @@
           <input type="number" v-model="guest_count" class="form-control mb-2" placeholder="Số lượng người" />
           <div class="row g-2">
             <div class="col">
-              <input type="date" v-model="date" :min="today" class="form-control" placeholder="Chọn ngày" />
+              <input type="date" v-model="selectedDate" @change="() => console.log('changed', selectedDate)"
+                :min="today" class="form-control" />
             </div>
             <select v-model="time" class="col mb-2 form-control custom-select">
               <option value="">Chọn giờ</option>
-              <option v-for="t in timeOptions" :key="t" :value="t">{{ t }}</option>
+              <option v-for="t in timeOptions" :key="t" :value="t">
+                {{ t }}
+              </option>
             </select>
+
           </div>
 
           <textarea cols="5" rows="3" v-model="note" class="form-control mb-2 custom-select"
@@ -44,13 +48,13 @@
           <button @click="showModal" type="button" class="btn btn-custom mb-2">
             Đặt món <span>✚</span>
           </button>
-          <button type="submit" class="btn btn-danger w-100">Xác nhận</button>
+          <button type="submit" class="btn btn-danger1 w-100">Xác nhận</button>
         </form>
       </div>
     </div>
   </div>
   <!-- Bootstrap Modal -->
-  <div class="modal fade" id="orderModal">
+  <div class="modal fade rounded-0" id="orderModal">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
@@ -60,7 +64,7 @@
           <!-- Bộ lọc -->
           <div class="row mb-3">
             <div class="col">
-              <select class="form-select" @change="getFoodByCategory($event.target.value)">
+              <select class="form-select rounded-0" @change="getFoodByCategory($event.target.value)">
                 <option value="">THỰC ĐƠN</option>
                 <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
                   {{ item.indent }}{{ item.name }}
@@ -93,21 +97,13 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
-          <button
-            type="button"
-            class="btn-close position-absolute top-0 end-0 m-2"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
+            aria-label="Close"></button>
           <div class="row">
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <div class="text-center mb-3">
-                <img
-                  :src="getImageUrl(foodDetail.image)"
-                  :alt="foodDetail.name"
-                  class="modal-image img-fluid"
-                />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -127,11 +123,8 @@
                       </select>
                     </div>
                     <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-                    <div
-                      v-for="topping in toppingList"
-                      :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2"
-                    >
+                    <div v-for="topping in toppingList" :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2">
                       <label class="d-flex align-items-center">
                         <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                         {{ topping.name }}
@@ -147,18 +140,20 @@
                 <!---->
                 <div class="mt-auto">
                   <div class="text-center mb-2">
-              <div class="qty-control px-2 py-1">
-                <button type="button" @click="decreaseQuantity" class="btn-lg" style="background-color: #fff;">-</button>
-                <span>{{ quantity }}</span>
-                <button type="button" @click="increaseQuantity" class="btn-lg" style="background-color: #fff;">+</button>
-              </div>
-            </div>
+                    <div class="qty-control px-2 py-1">
+                      <button type="button" @click="decreaseQuantity" class="btn-lg"
+                        style="background-color: #fff;">-</button>
+                      <span>{{ quantity }}</span>
+                      <button type="button" @click="increaseQuantity" class="btn-lg"
+                        style="background-color: #fff;">+</button>
+                    </div>
+                  </div>
                   <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
 
-              </div>
-      
+            </div>
+
           </div>
         </div>
       </div>
@@ -173,16 +168,19 @@
 import { FoodList } from '@/stores/food'
 import { User } from '@/stores/user'
 import axios from 'axios'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Modal } from 'bootstrap'
 import { useRouter } from 'vue-router'
 import { reactive } from 'vue'
 export default {
   setup() {
-    const time = ref('')
-    const date = ref('')
-    const today = new Date().toISOString().split('T')[0]
-    const timeOptions = []
+    const date = ref('');
+    const selectedDate = date; // alias để dùng chung
+
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const today = tomorrow.toISOString().split('T')[0]
+    // const timeOptions = []
     const fullname = ref('')
     const phone = ref('')
     const email = ref('')
@@ -193,8 +191,6 @@ export default {
     const errors = reactive({});
     const firstErrorKey = ref('');
     const deposit_amount = ref(null)
-
-
 
 
     const {
@@ -223,13 +219,52 @@ export default {
       user,
     } = User.setup()
 
-    for (let hour = 8; hour <= 20; hour++) {
-      let hourStr = hour < 10 ? '0' + hour : '' + hour
-      timeOptions.push(hourStr + ':00')
-      if (hour !== 19) {
-        timeOptions.push(hourStr + ':30')
+    // for (let hour = 1; hour <= 20; hour++) {
+    //   let hourStr = hour < 10 ? '0' + hour : '' + hour
+    //   timeOptions.push(hourStr + ':00')
+    //   if (hour !== 19) {
+    //     timeOptions.push(hourStr + ':30')
+    //   }
+    // }
+
+
+
+
+    const timeOptions = ref([])
+    const unavailableTimes = ref([])
+    const time = ref('')
+
+    watch(selectedDate, async (newDate) => {
+      if (!newDate) return
+      generateTimeOptions(newDate)
+
+    })
+
+    function generateTimeOptions(date) {
+      timeOptions.value = []
+      const now = new Date()
+      const isToday = new Date(date).toDateString() === now.toDateString()
+
+      for (let hour = 8; hour <= 21; hour++) {
+        const hourStr = hour.toString().padStart(2, '0')
+
+        const slots = [`${hourStr}:00`, `${hourStr}:30`]
+        if (hour === 21) slots.pop() // loại bỏ 21:30 vì hết giờ
+
+        for (let slot of slots) {
+          if (unavailableTimes.value.includes(slot)) continue
+
+          if (isToday) {
+            const [h, m] = slot.split(':').map(Number)
+            if (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes())) continue
+          }
+
+          timeOptions.value.push(slot)
+        }
       }
     }
+
+
 
     const reservation = async () => {
       isLoading.value = true;
@@ -264,14 +299,14 @@ export default {
             expiration_time,
             total_price: getTotalPrice(cart) + deposit_amount.value,
             order_details: cart.map(item => ({
-            food_id: item.id,
-            combo_id: null,
-            quantity: item.quantity,
-            price: item.price,
-            type: 'food',
-            toppings: item.toppings.map(t => ({
-            food_toppings_id: t.food_toppings_id,
-            price: t.price
+              food_id: item.id,
+              combo_id: null,
+              quantity: item.quantity,
+              price: item.price,
+              type: 'food',
+              toppings: item.toppings.map(t => ({
+                food_toppings_id: t.food_toppings_id,
+                price: t.price
               }))
             }))
           },
@@ -329,13 +364,12 @@ export default {
 
 
 
-
     return {
       time, date, today, timeOptions, fullname, phone, email, note,
       guest_count, reservation, foods, categories, getFoodByCategory,
       openModal, spicyLevel, toppingList, formatNumber, getImageUrl,
       quantities, foodDetail, form, user, showModal, quantity, increaseQuantity,
-      decreaseQuantity,
+      decreaseQuantity, selectedDate,
       isLoading, toppings, flatCategoryList, addToCart, errors
     }
   }

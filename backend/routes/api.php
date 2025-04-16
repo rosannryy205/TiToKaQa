@@ -47,6 +47,7 @@ Route::post('/available-tables', [OrderController::class, 'getAvailableTables'])
 Route::get('/foods', [OrderController::class, 'getAllFoodsWithToppings']);
 Route::post('/reservation-update-status', [OrderController::class, 'updateStatus']);
 Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
+Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
 
 
 //history

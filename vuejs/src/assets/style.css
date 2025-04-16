@@ -1018,9 +1018,26 @@ color: #c92c3c;
   box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
+.btn-danger1 {
+  border-radius: 5px;
+  font-size: 1rem;
+  padding: 0.75rem;
+  font-weight: bold;
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: #dc3546;
+  color: #fff;
+}
 .btn-danger:hover {
   background-color: #c82333;
   box-shadow: 0 7px 20px rgba(220, 53, 69, 0.4);
+}
+
+.btn-danger1:hover {
+  background-color: #c82333;
+  box-shadow: 0 7px 20px rgba(220, 53, 69, 0.4);
+  color: #fff;
+
 }
 .form-select,
 .form-control {
@@ -1166,14 +1183,7 @@ color: #c92c3c;
 .card-payment .btn-danger:hover {
   background-color: #c82333;
 }
-.row.mb-3 > .col-6 {
-  padding: 0.25rem 0;
-  font-size: 0.95rem;
-}
-.row.mb-3 > .col-6:nth-child(odd) {
-  font-weight: 600;
-  color: #444;
-}
+
 .container {
   animation: fadeIn 0.3s ease;
 }

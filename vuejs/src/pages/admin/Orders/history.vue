@@ -3,20 +3,23 @@
     <h2 class="mb-3 text-md-start">Lịch Sử Đơn Hàng</h2>
 
     <!-- Tabs lọc trạng thái đơn -->
- <!-- Tabs -->
- <ul class="nav nav-tabs fs-6">
+    <!-- Tabs -->
+    <ul class="nav nav-tabs fs-6">
       <li class="nav-item">
-        <router-link :to="{ name: 'orders-history'}"  class="nav-link" :class="{ active: activeTab === 'Tất cả' }" @click.prevent="setActive('Tất cả')">
+        <router-link :to="{ name: 'orders-history' }" class="nav-link" :class="{ active: activeTab === 'Tất cả' }"
+          @click.prevent="setActive('Tất cả')">
           Tất cả
         </router-link>
       </li>
       <li class="nav-item">
-        <a  class="nav-link" :class="{ active: activeTab === 'Chưa xác nhận' }" @click.prevent="setActive('Chưa xác nhận')">
+        <a class="nav-link" :class="{ active: activeTab === 'Chưa xác nhận' }"
+          @click.prevent="setActive('Chưa xác nhận')">
           Chưa xác nhận
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" :class="{ active: activeTab === 'Đã thanh toán' }" @click.prevent="setActive('Đã thanh toán')">
+        <a class="nav-link" :class="{ active: activeTab === 'Đã thanh toán' }"
+          @click.prevent="setActive('Đã thanh toán')">
           Đã thanh toán
         </a>
       </li>
@@ -67,10 +70,13 @@
           <tr v-for="(item, index) in order" :key="item.id">
             <td>{{ item.id }}</td>
             <!-- <td class="text-truncate" title="Nguyễn Thị Thuỷ Tiên">Nguyễn Thị Thuỷ Tiên</td> -->
-            <td>{{ item.reservations_time ? item.reservations_time : 'Không có' }}</td>
-            <td class="text-truncate" :title="item.guest_name + ' - ' + item.guest_phone">{{ item.guest_name }} - {{ item.guest_phone }}</td>
+            <td>
+              {{item.tables && item.tables.length ? item.tables.map(t => t.table_number).join(', ') : 'Không có'}}
+            </td>
+            <td class="text-truncate" :title="item.guest_name + ' - ' + item.guest_phone">{{ item.guest_name }} - {{
+              item.guest_phone }}</td>
             <td>{{ item.reservations_time ? 'Đặt bàn' : 'Mang về' }}</td>
-            <td>{{formatNumber(item.total_price)}} VNĐ</td>
+            <td>{{ formatNumber(item.total_price) }} VNĐ</td>
             <td>
               <select class="form-select">
                 <option selected>{{ item.order_status }}</option>
@@ -79,7 +85,8 @@
               </select>
             </td>
             <td>
-              <router-link :to="{ name: 'admin-orders-detail', params: {id: item.id} }" class="btn btn-primary btn-sm">Chi tiết</router-link>
+              <router-link :to="{ name: 'admin-orders-detail', params: { id: item.id } }"
+                class="btn btn-primary btn-sm">Chi tiết</router-link>
               <button class="btn btn-secondary btn-sm">In</button>
             </td>
           </tr>
@@ -93,10 +100,12 @@
         <div class="card-body" v-for="(item, index) in order" :key="item.id">
           <h5 class="card-title fw-bold">Đơn #1</h5>
           <p><strong>Nhân viên:</strong> Nguyễn Thị Thuỷ Tiên</p>
-          <p><strong>Khu vực/Bàn:</strong> {{ item.reservations_time ? item.reservations_time : 'Không có' }}</p>
-          <p :title="item.guest_name + ' - ' + item.guest_phone"><strong>Thông tin KH:</strong> {{ item.guest_name }} - {{ item.guest_phone }}</p>
+          <p><strong>Khu vực/Bàn:</strong> {{item.tables && item.tables.length ? item.tables.map(t =>
+            t.table_number).join(', ') : 'Không có' }}</p>
+          <p :title="item.guest_name + ' - ' + item.guest_phone"><strong>Thông tin KH:</strong> {{ item.guest_name }} -
+            {{ item.guest_phone }}</p>
           <p><strong>Loại đơn:</strong>{{ item.reservations_time ? 'Đặt bàn' : 'Mang về' }}</p>
-          <p><strong>Tổng tiền:</strong> {{formatNumber(item.total_price)}} đ</p>
+          <p><strong>Tổng tiền:</strong> {{ formatNumber(item.total_price) }} đ</p>
           <p><strong>Trạng thái:</strong>
             <select class="form-select">
               <option selected>{{ item.order_status }}</option>
@@ -115,7 +124,7 @@
 </template>
 <script>
 import axios from 'axios'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted } from 'vue'
 import numeral from 'numeral'
 export default {
   data() {
@@ -139,31 +148,32 @@ export default {
 
 
 
-  setup(){
+  setup() {
     const order = ref([])
 
-    const getOrders = () =>{
+    const getOrders = () => {
       axios.get(`http://127.0.0.1:8000/api/get_all_orders`)
-      .then(response => {
-        order.value = (response.data.orders ?? []).sort((a,b) => a.id - b.id)
+        .then(response => {
+          order.value = (response.data.orders ?? []).sort((a, b) => a.id - b.id)
 
-        console.log('Danh sách order:', order.value)
-      })
-      .catch(error => {
-        console.error('Lỗi khi lấy đơn hàng:',error)
-      })
+          console.log('Danh sách order:', order.value)
+        })
+        .catch(error => {
+          console.error('Lỗi khi lấy đơn hàng:', error)
+        })
     }
 
 
 
-    onMounted(()=>{
-      getOrders()
-    })
+    onMounted(async () => {
+      await getOrders();
+    });
 
-    return{
-    order,
-    getOrders,
-  }
+
+    return {
+      order,
+      getOrders,
+    }
   }
 
 
