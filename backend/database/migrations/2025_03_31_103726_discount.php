@@ -11,17 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('discounts', function (Blueprint $table){
+        Schema::create('discounts', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
-            $table->string('name');
-            $table->integer('discount_value');
-            $table->timestamp('start_date')->nullable();
-            $table->timestamp('end_date')->nullable();
-            $table->enum('status', ['active', 'inactive']);
-            $table->integer('usage_limit');
-            $table->softDeletes();
+            $table->string('code')->unique(); 
+            $table->string('name');         
+            $table->integer('discount_value'); 
+            $table->enum('type', ['percent', 'fixed'])->default('fixed'); 
+            $table->timestamp('start_date')->nullable(); 
+            $table->timestamp('end_date')->nullable();   
+            $table->enum('status', ['active', 'inactive'])->default('active'); 
+            $table->integer('used')->default(0);
+            $table->integer('usage_limit')->default(1);
+            $table->softDeletes();                      
+            $table->timestamps();                   
         });
+        
     }
 
     /**

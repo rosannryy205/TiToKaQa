@@ -181,7 +181,7 @@ export default {
             combo_id: null,
             quantity: item.quantity,
             price: item.price,
-            type: 'food',
+            type: item.type,
             toppings: item.toppings.map(t => ({
               food_toppings_id: t.food_toppings_id,
               price: t.price
@@ -268,6 +268,12 @@ export default {
 
     onMounted(() => {
       loadCart()
+      if (user) {
+        form.value.fullname = user.fullname || ''
+        form.value.email = user.email || ''
+        form.value.phone = user.phone || ''
+        form.value.address = user.address || ''
+      }
     })
 
     return {

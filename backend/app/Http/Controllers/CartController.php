@@ -94,7 +94,7 @@ class CartController extends Controller
         $order = Order::with([
             'details.foods', //lấy tên món ăn
             'details.toppings.food_toppings.toppings' //lấy tên toppingtopping
-        ])->find($request->id);
+        ])->find($request -> id);
         if ($order){
             $details = $order->details->map(function ($detail){
                 return [
@@ -117,7 +117,7 @@ class CartController extends Controller
             return response()->json([
                 'status' => true,
                 'mess' => 'Lấy thông tin thành công',
-                'in4' => [
+                'order_detail' => [
                     'id' => $order -> id,
                     'user_id' => $order -> user_id,
                     'discount_id' => $order -> discount_id,

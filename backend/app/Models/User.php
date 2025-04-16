@@ -26,7 +26,12 @@ class User extends Authenticatable
         'verify_code',
         'verify_expiry',
         'role',
-        'phone'
+        'phone',
+        'provider_id',
+        'provider_name',
+        'provider_token',
+        'provider_refresh_token',
+
     ];
 
 
@@ -38,6 +43,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'provider_token',
+        'provider_refresh_token',
     ];
 
     /**
