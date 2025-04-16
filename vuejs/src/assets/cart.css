@@ -56,7 +56,6 @@
   box-shadow: none;
   border-radius: 50%;
 }
-
 input.form-control:focus {
   border-color: #b71c1c;
   box-shadow: none !important;
@@ -220,8 +219,22 @@ input.form-control-cart:focus {
   border-radius: 10px;
 }
 
-.input-in4-customer input {
-  width: 500px;
+input.form-control-discount {
+  width: 100%;
+  height: 40px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.15);
+  padding: 0 10px;
+  transition: box-shadow 0.3s ease;
+}
+input.form-control-discount:focus {
+  border-color: #b71c1c;
+  box-shadow: none !important;
+  outline: none;
+}
+input.form-control-customer {
+  width: 100%;
   height: 35px;
   border-radius: 5px;
   border: 1px solid #ccc;
@@ -230,20 +243,27 @@ input.form-control-cart:focus {
   transition: box-shadow 0.3s ease;
 }
 
-.input-in4-customer input:focus {
-  outline: none;
-  box-shadow: 0 4px 12px #C92C3C;
+input.form-control-customer:focus,
+textarea.form-control-customer:focus {
   border-color: #b71c1c;
+  box-shadow: none !important;
+  outline: none;
 }
 
-.input-in4-customer textarea {
-  width: 500px;
+textarea.form-control-customer {
+  width: 100%;
   height: 180px;
   border-radius: 5px;
   border: 1px solid #ccc;
   box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.15);
   padding: 0 10px;
   transition: box-shadow 0.3s ease;
+}
+
+input .form-control-customer:focus {
+  border-color: #b71c1c;
+  box-shadow: none !important;
+  outline: none;
 }
 
 .input-in4-customer textarea:focus {
@@ -643,9 +663,12 @@ table td {
 }
 
 
+
+
+
 /*discount*/
 .discount-scroll-wrapper {
-  max-height: 300px;
+  max-height: 250px;
   overflow-y: auto;
   padding-right: 6px;
 
@@ -659,6 +682,7 @@ table td {
 }
 
 .shopee-voucher {
+  margin-top:10px ;
   background-color: #fff5f5;
   border: 1px solid #ff424f;
   border-radius: 8px;

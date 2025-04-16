@@ -47,7 +47,7 @@
                     <td>10</td>
                     <td class="d-flex gap-2">
                         <button type="button" class="btn btn-primary">Sửa</button>
-                        <button class="btn btn-danger">Xoá</button>
+                        <button class="btn btn-danger-delete">Xoá</button>
                         <button class="btn btn-warning">Ẩn</button>
                         <button class="btn btn-dark" data-bs-toggle="modal"
                             data-bs-target="#toppingModal">Toppings</button>
@@ -56,7 +56,7 @@
             </tbody>
         </table>
     </div>
-    <button class="btn btn-danger delete_desktop">Xoá</button>
+    <button class="btn btn-danger-delete delete_desktop">Xoá</button>
 
     <!-- Mobile View -->
     <div class="d-block d-lg-none">
@@ -73,7 +73,7 @@
                         <p class="card-text"><strong>Giá:</strong> 55,000 VNĐ</p>
                         <p class="card-text"><strong>Số lượng:</strong> 10</p>
                         <button class="btn btn-primary btn-sm">Sửa</button>
-                        <button class="btn btn-danger btn-sm">Xoá</button>
+                        <button class="btn btn-danger-delete btn-sm">Xoá</button>
                         <button class="btn btn-warning btn-sm">Ẩn</button><button class="btn btn-dark btn-sm"
                             data-bs-toggle="modal" data-bs-target="#toppingModal">Toppings</button>
                     </div>
@@ -81,7 +81,7 @@
             </div>
         </div>
     </div>
-    <button class="btn btn-danger delete_mobile">Xoá</button>
+    <button class="btn btn-danger-delete delete_mobile">Xoá</button>
 
 
 
@@ -124,7 +124,7 @@
                         <input class="form-check-input" type="checkbox" id="topping4">
                         <label class="form-check-label" for="topping4">Bắp cải tím (+12.000đ)</label>
                     </div>
-                    <button class="btn btn-danger mt-3">Xoá</button>
+                    <button class="btn btn-danger-delete mt-3">Xoá</button>
                 </div>
 
                 <div class="modal-footer">
@@ -189,6 +189,14 @@
 }
 .delete_mobile{
     display: none;
+}
+.btn-danger-delete{
+  background-color: #C92C3C;
+  color: white;
+}
+.btn-danger-delete:hover{
+  background-color: #a51928;
+  color: white;
 }
 @media (max-width: 768px) {
   .table-responsive {

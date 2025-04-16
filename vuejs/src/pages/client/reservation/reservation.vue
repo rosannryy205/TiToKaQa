@@ -14,7 +14,7 @@
   </div>
   <div class="container custom-container">
     <div class="booking-form row w-75" style="border-radius: 0px">
-      <div class="col-md-6 booking-image">
+      <div class="col-md-6 booking-image booking-ipad">
         <img class="img-reservation" src="/img/reservation/Rectangle 48.png" alt="Khuyến mãi Tết" />
       </div>
       <div class="col-md-6 form-section mt-2">
@@ -169,6 +169,7 @@
 </template>
 
 <script>
+
 import { FoodList } from '@/stores/food'
 import { User } from '@/stores/user'
 import axios from 'axios'
@@ -222,7 +223,7 @@ export default {
       user,
     } = User.setup()
 
-    for (let hour = 8; hour <= 19; hour++) {
+    for (let hour = 8; hour <= 20; hour++) {
       let hourStr = hour < 10 ? '0' + hour : '' + hour
       timeOptions.push(hourStr + ':00')
       if (hour !== 19) {

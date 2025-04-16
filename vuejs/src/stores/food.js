@@ -19,6 +19,8 @@ export const FoodList = {
     const selectedCategoryName = ref('Món Ăn')
     const quantity = ref(1)
 
+    const foodOrderAdmin = ref([])
+
     const toggleDropdown = () => {
       isDropdownOpen.value = !isDropdownOpen.value
     }
@@ -54,7 +56,7 @@ export const FoodList = {
       try {
         if (!categoryId) {
           await getFood()
-          return;
+          return
         }
         const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
         foods.value = res.data
@@ -67,7 +69,7 @@ export const FoodList = {
           selectedCategoryName.value = selectedCategory.name
           if (selectedCategory.children && selectedCategory.children.length) {
             const childRequests = selectedCategory.children.map((child) =>
-              axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`)
+              axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
             )
             const childResults = await Promise.all(childRequests)
             childResults.forEach((childRes) => {
@@ -75,9 +77,8 @@ export const FoodList = {
             })
           }
         }
-
       } catch (error) {
-        console.error("Lỗi khi lấy món ăn theo danh mục:", error)
+        console.error('Lỗi khi lấy món ăn theo danh mục:', error)
       }
     }
 
@@ -111,7 +112,6 @@ export const FoodList = {
             item.price = item.price || 0
           })
           isLoading.value = false
-
         } else if (item.type === 'combo') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
           foodDetail.value = res.data
@@ -128,6 +128,32 @@ export const FoodList = {
       }
     }
 
+    const getAllFoodWithTopping = async () => {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/api/foods');
+        console.log(res.data); // Log dữ liệu nhận về từ API
+        foodOrderAdmin.value = res.data;
+
+        // Khởi tạo lại topping theo từng món ăn
+        foodOrderAdmin.value.forEach(food => {
+          food.spicyLevelNull = [];
+          food.spicyLevelNotNull = [];
+
+          food.toppings.forEach(topping => {
+            console.log(topping.price); // Log giá trị price của mỗi topping
+            if (topping.price == null) {
+              food.spicyLevelNull.push(topping);
+            } else {
+              food.spicyLevelNotNull.push(topping);
+            }
+          });
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+
 
     const addToCart = () => {
       const user = JSON.parse(localStorage.getItem('user'))
@@ -139,7 +165,7 @@ export const FoodList = {
       const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
 
       const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')
+        document.querySelectorAll('input[name="topping[]"]:checked'),
       ).map((el) => parseInt(el.value))
 
       const selectedToppings = toppingList.value
@@ -148,7 +174,7 @@ export const FoodList = {
           id: topping.id,
           name: topping.name,
           price: topping.price,
-          food_toppings_id: topping.pivot?.id || null
+          food_toppings_id: topping.pivot?.id || null,
         }))
 
       const cartItem = {
@@ -167,7 +193,7 @@ export const FoodList = {
         (item) =>
           item.id === cartItem.id &&
           item.spicyLevel === cartItem.spicyLevel &&
-          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort())
+          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort()),
       )
 
       if (existingItem !== -1) {
@@ -181,13 +207,12 @@ export const FoodList = {
     }
 
     const increaseQuantity = () => {
-      quantity.value++;
-    };
+      quantity.value++
+    }
 
     const decreaseQuantity = () => {
-      if (quantity.value > 1) quantity.value--;
-    };
-
+      if (quantity.value > 1) quantity.value--
+    }
 
     const flatCategoryList = computed(() => {
       const result = []
@@ -206,10 +231,10 @@ export const FoodList = {
       await getCategory()
       await getFood()
       await getAllCombos()
+      await getAllFoodWithTopping()
       flatCategoryList
-
     })
-
+    // console.log(foodOrderAdmin);
 
     return {
       foods,
@@ -231,7 +256,9 @@ export const FoodList = {
       flatCategoryList,
       increaseQuantity,
       decreaseQuantity,
-      quantity
+      quantity,
+      getAllFoodWithTopping,
+      foodOrderAdmin
     }
-  }
+  },
 }

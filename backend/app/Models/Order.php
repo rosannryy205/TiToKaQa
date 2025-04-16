@@ -30,4 +30,11 @@ class Order extends Model
         return $this->hasMany(Order_detail::class);
     }
 
+    public function tables()
+    {
+        return $this->belongsToMany(Table::class, 'reservation_tables')
+                    ->withPivot('assigned_time', 'reserved_from', 'reserved_to');
+    }
+
+
 }

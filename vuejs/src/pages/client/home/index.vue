@@ -243,7 +243,7 @@
               </form>
 
               </div>
-      
+
           </div>
         </div>
       </div>
@@ -389,11 +389,11 @@ export default {
       try {
         //combo
         const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
-        foodDetail.value = res.data
+        foodDetail.value = { ...res.data, type: 'Combo' }
 
         if (item.type === 'food') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
-          foodDetail.value = res.data
+          foodDetail.value = { ...res.data, type: 'Food' }
 
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
@@ -405,7 +405,7 @@ export default {
           })
         } else if (item.type === 'combo') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
-          foodDetail.value = res.data
+          foodDetail.value = { ...res.data, type: 'Combo' }
         }
 
         const modalElement = document.getElementById('productModal')
@@ -448,6 +448,7 @@ export default {
         spicyLevel: selectedSpicyName,
         toppings: selectedToppings,
         quantity: quantity.value,
+        type: foodDetail.value.type,
       }
 
       let cart = JSON.parse(localStorage.getItem(cartKey)) || []

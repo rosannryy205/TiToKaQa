@@ -52,7 +52,7 @@ const admin = [
                 component: () => import("../pages/admin/Tables/current-order.vue")
             },
             {
-              path: "orders/orders-detail",
+              path: "orders/orders-detail/:id",
               name: "admin-orders-detail",
               component: () => import("../pages/admin/Orders/orders-detail.vue")
             },
@@ -75,6 +75,11 @@ const admin = [
               path: "users/list-role",
               name: "users-list-role",
               component: () => import("../pages/admin/Users/role.vue")
+            },
+            {
+              path: "choose-list-food",
+              name: "list-food",
+              component: () => import("../pages/admin/Tables/listsp.vue")
             }
         ]
     }

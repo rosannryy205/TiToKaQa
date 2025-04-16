@@ -42,7 +42,7 @@
                   <td>25,000 VNĐ</td>
                   <td class="d-flex justify-content-center gap-2">
                       <button type="button" class="btn btn-primary">Sửa</button>
-                      <button class="btn btn-danger">Xoá</button>
+                      <button class="btn btn-danger-delete">Xoá</button>
                       <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal">Chi tiết</button>
 
                   </td>
@@ -50,7 +50,7 @@
           </tbody>
       </table>
   </div>
-  <button class="btn btn-danger delete_desktop">Xoá</button>
+  <button class="btn btn-danger-delete delete_desktop">Xoá</button>
 
 
 <!-- Mobile View -->
@@ -66,14 +66,14 @@
           <h5 class="card-title">Combo 1</h5>
           <p class="card-text"><strong>Giá bán:</strong> 150.000đ </p>
           <button class="btn btn-primary btn-sm">Sửa</button>
-          <button class="btn btn-danger btn-sm">Xoá</button>
+          <button class="btn btn-danger-delete btn-sm">Xoá</button>
           <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal">Chi tiết</button>
         </div>
       </div>
     </div>
   </div>
 </div>
-<button class="btn btn-danger delete_mobile">Xoá</button>
+<button class="btn btn-danger-delete delete_mobile">Xoá</button>
 
 
 
@@ -150,7 +150,7 @@
             </tfoot>
           </table>
         </div>
-        <button class="btn btn-danger btn-sm" id="deleteSelected">Xoá</button>
+        <button class="btn btn-danger-delete btn-sm" id="deleteSelected">Xoá</button>
       </div>
 
       <div class="modal-footer">
@@ -180,6 +180,15 @@ export default {
 }
 .delete_mobile{
     display: none;
+}
+
+.btn-danger-delete{
+  background-color: #C92C3C;
+  color: white;
+}
+.btn-danger-delete:hover{
+  background-color: #a51928;
+  color: white;
 }
 @media (max-width: 768px) {
   .table-responsive {

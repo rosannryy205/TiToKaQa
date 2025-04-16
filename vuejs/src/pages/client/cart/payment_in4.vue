@@ -12,45 +12,21 @@
         <div class="p-4 border rounded shadow-sm bg-white">
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
+        
             <div class="mb-3">
-              <input
-                v-model="form.fullname"
-                type="text"
-                class="form-control"
-                placeholder="Tên của bạn"
-              />
+              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn">
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.email"
-                type="email"
-                class="form-control"
-                placeholder="Email của bạn"
-              />
+              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn">
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.phone"
-                type="text"
-                class="form-control"
-                placeholder="Số điện thoại"
-              />
+              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại">
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.address"
-                type="text"
-                class="form-control"
-                placeholder="Địa chỉ"
-              />
+              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ">
             </div>
             <div class="mb-3">
-              <textarea
-                v-model="note"
-                class="form-control"
-                rows="3"
-                placeholder="Ghi chú"
-              ></textarea>
+              <textarea v-model="note" class="form-control-customer" rows="3" placeholder="Ghi chú"></textarea>
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <router-link to="/cart" class="btn btn-outline-secondary">
@@ -109,6 +85,9 @@
 
           <!-- Discount Code Input -->
           <div class="mb-3">
+            <div v-if="selectedDiscount" class="text-green-600 mb-2">
+              Mã <strong style="color: #c92c3c">{{ selectedDiscount }}</strong> đã được áp dụng ✅.
+            </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
               <input
@@ -119,9 +98,6 @@
                 placeholder="Nhập mã giảm giá..."
               />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
-            </div>
-            <div v-if="selectedDiscount" class="text-green-600 mb-2">
-              Mã <strong style="color: #c92c3c">{{ selectedDiscount }}</strong> đã được áp dụng ✅.
             </div>
           </div>
 
@@ -236,6 +212,7 @@ export default {
         alert('Mã giảm giá không hợp lệ')
       }
     }
+
     const applyDiscountCode = (code) => {
       if (selectedDiscount.value === code) return
       selectedDiscount.value = code
@@ -337,6 +314,12 @@ export default {
     onMounted(() => {
       getAllDiscount()
       loadCart()
+      if (user) {
+        form.value.fullname = user.fullname || ''
+        form.value.email = user.email || ''
+        form.value.phone = user.phone || ''
+        form.value.address = user.address || ''
+      }
     })
 
     return {
@@ -359,9 +342,10 @@ export default {
       discountInput,
       handleDiscountInput,
     }
-  },
+  }
 }
 </script>
+
 
 <style>
 .isLoading-overlay {
