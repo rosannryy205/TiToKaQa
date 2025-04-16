@@ -1,21 +1,7 @@
-<script setup>
-import { onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
-
-onMounted(() => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    alert('Bạn cần đăng nhập để vào giỏ hàng!');
-    router.push('/home'); // chuyển hướng bằng Vue Router
-  }
-});
-</script>
-
 <template>
   <div class="container-sm">
-    <span>Trang chủ / Giỏ hàng</span>
+    <span style="color: #000;"><router-link to="/home" style="text-decoration: none; color: #000; ">Trang
+        chủ</router-link> / Giỏ hàng</span>
     <h3 class="mb-4">Giỏ hàng của bạn</h3>
     <div class="row">
       <!-- Danh sách sản phẩm -->
@@ -43,15 +29,17 @@ onMounted(() => {
               <p class="mb-0 "><strong>Giá:</strong>{{ formatNumber(item.price) }} VNĐ</p>
             </div>
             <div class="text-center me-3 mb-2">
-              <div class="qty-control border rounded px-2 py-1">
-                <button class="btn btn-sm btn-outline-secondary" @click="decreaseQuantity(index)">-</button>
-                <span>{{ item.quantity }}</span>
-                <button class="btn btn-sm btn-outline-secondary" @click="increaseQuantity(index)">+</button>
+              <div class="qty-control rounded px-2 py-1 d-inline-flex align-items-center gap-2">
+                <button class="btn btn-sm px-2 py-0" @click="decreaseQuantity(index)">-</button>
+                <span class="qty-box text-center">{{ item.quantity }}</span>
+                <button class="btn btn-sm px-2 py-0" @click="increaseQuantity(index)">+</button>
               </div>
+
             </div>
-            <div class="mb-2 price">
-              <strong>{{ formatNumber(totalPriceItem(item)) }} VNĐ VNĐ</strong>
+            <div class="mb-2 price text-end fixed-price-width">
+              <strong class="price-text">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
             </div>
+
           </div>
         </div>
 
@@ -92,8 +80,10 @@ onMounted(() => {
 </template>
 <script>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router';
 import numeral from 'numeral'
 import { computed } from 'vue'
+import { Modal } from 'bootstrap';
 export default {
   methods: {
     formatNumber(value) {
@@ -105,31 +95,48 @@ export default {
   },
   setup() {
     const cartItems = ref([])
+    const router = useRouter();
+
+
+    const getCartKey = () => {
+  const user = JSON.parse(localStorage.getItem('user'))
+  const userId = user?.id || 'guest'
+  return `cart_${userId}`
+}
+
 
     const loadCart = () => {
-      const storedCart = localStorage.getItem('cart')
+      const cartKey = getCartKey()
+      const storedCart = localStorage.getItem(cartKey)
       if (storedCart) {
         cartItems.value = JSON.parse(storedCart)
+      }else{
+        cartItems.value = []
       }
     }
 
     const totalPrice = computed(() => {
       return cartItems.value.reduce((sum, item) => {
-        const basePrice = item.price * item.quantity
-        const toppingPrice = item.toppings.reduce((tsum, topping) => tsum + (topping.price * topping.quantity),0)
-        return sum + (basePrice + toppingPrice)
+        const basePrice = Number(item.price) * item.quantity
+        const toppingPrice = item.toppings.reduce((tsum, topping) => {
+          return tsum + (Number(topping.price) * item.quantity)
+        }, 0)
+        return sum + basePrice + toppingPrice
       }, 0)
     })
 
+
     const totalPriceItem = (item) => {
-      const itemPrice = item.price * item.quantity;
-      const toppingPrice = item.toppings.reduce((sum, topping) => sum + (topping.price * item.quantity), 0);
+      const itemPrice = Number(item.price) * item.quantity;
+      const toppingPrice = item.toppings.reduce((sum, topping) => {
+        return sum + (Number(topping.price) * item.quantity);
+      }, 0);
       return itemPrice + toppingPrice;
     };
 
-
     const updateCartStorage = () => {
-      localStorage.setItem('cart', JSON.stringify(cartItems.value))
+      const cartKey = getCartKey()
+      localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
     }
 
     const decreaseQuantity = (index) => {
@@ -146,7 +153,7 @@ export default {
 
     const removeItem = (index) => {
       cartItems.value.splice(index, 1)
-      localStorage.setItem('cart', JSON.stringify(cartItems.value))
+      updateCartStorage()
     }
 
 
@@ -165,4 +172,11 @@ export default {
   }
 }
 </script>
+<style scoped>
+.quantity-box {
+  display: inline-block;
+  width: 15px;
+  text-align: center;
+}
 
+</style>

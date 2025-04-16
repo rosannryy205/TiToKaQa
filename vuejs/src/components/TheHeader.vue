@@ -4,57 +4,58 @@
     <div class="container">
       <div class="navbar-top">
         <nav class="navbar navbar-expand-lg navbar-bottom">
-          <div class="container">
-            <!-- menu small screen  -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
-              <span class="navbar-toggler-icon"></span>
-            </button>
+          <div class="container d-flex justify-content-between align-items-center">
+
+            <div class="d-flex align-items-center">
+              <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasMenu">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="logo-container">
+                <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center">
+
+              <!-- Search -->
+              <div class="input-wrapper me-3 d-none d-lg-block">
+                <button class="icon">
+                  <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                      stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
+                      stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <input type="text" name="text" class="input" placeholder="search.." />
+              </div>
+
+              <!-- Login/Logout -->
+              <div class="d-flex align-items-center me-3">
+                <button v-if="!isLoggedIn" class="icon-btn me-2" data-bs-toggle="modal" @click="openLoginModal">
+                  <i class="bi bi-people"></i>
+                </button>
+
+                <template v-else>
+                  <button class="icon-btn me-2" @click="handleLogout">
+                    <i class="bi bi-person-x"></i>
+                  </button>
+                  <router-link to="/update-user" class="text-decoration-none text-primary-red">
+                    <p class="mb-0 me-2">{{ user.username }}</p>
+                  </router-link>
+                </template>
+              </div>
+              <router-link to="/cart" style="color: black;">
+                <button class="icon-btn"><i class="bi bi-cart"></i></button>
+              </router-link>
+
+            </div>
           </div>
         </nav>
-        <div class="nav-icons d-none d-lg-flex align-items-center">
-          <button v-if="!isLoggedIn" class="icon-btn me-3" data-bs-toggle="modal" @click="openLoginModal">
-            <i class="bi bi-people"></i>
-          </button>
-
-          <template v-else>
-            <button class="icon-btn me-2" @click="handleLogout">
-              <i class="bi bi-person-x"></i>
-            </button>
-            <router-link to="/update-user" class="text-decoration-none text-primary-red">
-              <p class="mb-0 me-3">{{ user.username }}</p>
-            </router-link>
-
-
-          </template>
-
-          <!--sea-->
-          <div class="input-wrapper">
-            <button class="icon">
-              <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-                  stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                </path>
-              </svg>
-            </button>
-            <input type="text" name="text" class="input" placeholder="search.." />
-          </div>
-
-        </div>
-
-        <div class="logo-container">
-          <img src="/img/logonew.png" alt="Logo" class="logo">
-        </div>
-
-        <div class="nav-icons d-none d-lg-block">
-          <button class="icon-btn me-3"><i class="bi bi-telephone"></i></button>
-          <router-link to="/cart" style="color: black;">
-            <button class="icon-btn"><i class="bi bi-cart"></i></button>
-          </router-link>
-
-        </div>
       </div>
+
 
       <!-- menu bottom -->
       <nav class="navbar navbar-expand-lg navbar-bottom">
@@ -104,6 +105,7 @@
         <div class="modal-body px-4 py-3">
           <form @submit.prevent="handleLogin">
             <div v-if="loginError" class="text-danger small text-center">{{ loginError }}</div>
+            <div></div>
 
             <!-- <div class="mb-3 position-relative input-group">
               <span class="input-icon">
@@ -175,44 +177,60 @@
         <div class="modal-body">
           <form @submit.prevent="Handleregister">
             <!-- Username -->
-            <div v-if="errors.username" class="text-danger small text-center">{{ errors.username[0] }}</div>
-            <div class="mb-3 position-relative">
+            <div v-if="registerErrors.username" class="text-danger small text-center" style="min-height: 16px;">{{
+              registerErrors.username[0] }}</div>
+            <div v-else style="height:3px"></div>
+            <div class="mb-3 position-relative ">
 
               <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="text" class="form-control ps-5" placeholder="Tên đăng nhập" v-model="registerData.username">
+              <input type="text" class="form-control ps-5 register-input" placeholder="Tên đăng nhập"
+                v-model="registerData.username">
 
             </div>
 
             <!-- Email -->
-            <div v-if="errors.email" class="text-danger small text-center">{{ errors.email[0] }}</div>
+            <div v-if="registerErrors.email" class="text-danger small text-center error-message">{{
+              registerErrors.email[0]
+              }}
+            </div>
+            <div v-else style="height:3px"></div>
             <div class="mb-3 position-relative">
 
               <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="text" class="form-control ps-5" placeholder="Email" v-model="registerData.email">
+              <input type="text" class="form-control ps-5 register-input" placeholder="Email"
+                v-model="registerData.email">
 
             </div>
 
             <!-- Phone  -->
-            <div v-if="errors.phone" class="text-danger small text-center">{{ errors.phone[0] }}</div>
+            <div v-if="registerErrors.phone" class="text-danger small text-center error-message">{{
+              registerErrors.phone[0]
+              }}
+            </div>
+            <div v-else style="height:3px"></div>
             <div class="mb-3 position-relative">
               <i class="bi bi-telephone position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="text" class="form-control ps-5" id="phone" placeholder="Số điện thoại"
+              <input type="text" class="form-control ps-5 register-input" id="phone" placeholder="Số điện thoại"
                 v-model="registerData.phone">
             </div>
 
             <!-- Password -->
-            <div v-if="errors.password" class="text-danger small text-center">{{ errors.password[0] }}</div>
+            <div v-if="registerErrors.password" class="text-danger small text-center error-message">{{
+              registerErrors.password[0] }}</div>
+            <div v-else style="height:10px"></div>
             <div class="mb-3 position-relative">
 
               <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="password" class="form-control ps-5" placeholder="Mật khẩu" v-model="registerData.password">
+              <input type="password" class="form-control ps-5 register-input" placeholder="Mật khẩu"
+                v-model="registerData.password">
 
             </div>
 
             <!-- Confirm Password -->
+            <div style="height:3px"></div>
             <div class="mb-3 position-relative">
               <i class="bi bi-lock-fill position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
-              <input type="password" class="form-control ps-5" placeholder="Nhập lại mật khẩu"
+              <input type="password" class="form-control ps-5 register-input" placeholder="Nhập lại mật khẩu"
                 v-model="registerData.password_confirmation">
             </div>
 
@@ -228,6 +246,18 @@
             <div class="mb-3 text-end">
               <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Đã có tài
                 khoản</a>
+            </div>
+
+            <div class="divider d-flex align-items-center mb-3">
+              <hr class="flex-grow-1">
+              <span class="px-2 text-muted small">hoặc đăng nhập</span>
+              <hr class="flex-grow-1">
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+              <button type="button" class="btn btn-social"><i class="bi bi-google"></i></button>
+              <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
+              <button type="button" class="btn btn-social"><i class="bi bi-twitter-x"></i></button>
             </div>
           </form>
         </div>
@@ -394,29 +424,44 @@ const seconds = ref(0);
 let countdownInterval = null;
 
 const startCountdown = (expireTime) => {
-  clearInterval(countdownInterval); // clear nếu đang chạy
+  clearInterval(countdownInterval); // Xóa interval cũ nếu có
 
-  const target = new Date(expireTime).getTime();
-  console.log('Target timestamp:', target);
+  const target = expireTime; // Thời gian hết hạn (5 phút từ lúc gửi request)
+  const now = new Date().getTime(); // Thời gian hiện tại lúc nhận được dữ liệu
+  let remainingTime = target - now; // Tính toán thời gian còn lại
+
+  // Nếu thời gian còn lại đã hết, không cần bắt đầu countdown
+  if (remainingTime <= 0) {
+    minutes.value = 0;
+    seconds.value = 0;
+    return;
+  }
+
+  // Cập nhật thời gian ban đầu (phút và giây)
+  minutes.value = Math.floor(remainingTime / 60000); // Phút
+  seconds.value = Math.floor((remainingTime % 60000) / 1000); // Giây
+
   countdownInterval = setInterval(() => {
-    const now = new Date().getTime();
-    const diff = Math.max(0, target - now);
-    console.log('>>> Remaining:', diff);
-    if (diff <= 0) {
-      clearInterval(countdownInterval);
+    remainingTime -= 1000; // Mỗi giây trôi qua, giảm đi 1 giây
+
+    if (remainingTime <= 0) {
+      clearInterval(countdownInterval); // Dừng countdown khi hết thời gian
       minutes.value = 0;
       seconds.value = 0;
       return;
     }
 
-    minutes.value = Math.floor(diff / 60000);
-    seconds.value = Math.floor((diff % 60000) / 1000);
+    // Cập nhật lại phút và giây sau mỗi giây
+    minutes.value = Math.floor(remainingTime / 60000);
+    seconds.value = Math.floor((remainingTime % 60000) / 1000);
   }, 1000);
 };
 
-function stopCountdown() {
-  clearInterval(timer);
-}
+
+
+// function stopCountdown() {
+//   clearInterval(timer);
+// }
 
 // tạo thông tin register
 const registerData = reactive({
@@ -434,7 +479,7 @@ const loginData = reactive({
   password: ''
 });
 // tạo biến báo lỗi đăng ký
-const errors = reactive({});
+const registerErrors = reactive({});
 const firstErrorKey = ref('');
 
 // tạo hiệu ứng load
@@ -464,23 +509,23 @@ const errorVerify = ref('');
 const wait = ref(0);
 // tạo biến báo lỗi login
 const loginError = ref('');
+const loginErrors = reactive({});
 
 // lỗi đặt lại mật khẩu
 const errorResetPass = ref('');
-
-
 
 
 export default {
   setup() {
     onMounted(() => {
       isLoggedIn.value = !!user.value;
+
     });
   }
 }
 //  Đăng ký
 const Handleregister = async () => {
-  Object.keys(errors).forEach(key => delete errors[key]);
+  Object.keys(registerErrors).forEach(key => delete registerErrors[key]);
   loading.value = true;
 
   try {
@@ -514,10 +559,10 @@ const Handleregister = async () => {
         const firstKey = Object.keys(allErrors)[0];
 
         // Xóa hết lỗi cũ
-        Object.keys(errors).forEach(k => delete errors[k]);
+        Object.keys(registerErrors).forEach(k => delete registerErrors[k]);
 
         // Chỉ giữ lỗi đầu tiên
-        errors[firstKey] = allErrors[firstKey];
+        registerErrors[firstKey] = allErrors[firstKey];
         firstErrorKey.value = firstKey;
       }
     } else {
@@ -532,7 +577,7 @@ const Handleregister = async () => {
 
 //  Đăng nhập
 const handleLogin = async () => {
-  Object.keys(errors).forEach(key => delete errors[key]);
+  loginError.value = '';
   loading.value = true;
 
   try {
@@ -556,13 +601,15 @@ const handleLogin = async () => {
     // Reset form
     loginData.login = '';
     loginData.password = '';
+    window.location.reload();
   } catch (error) {
     console.error('Lỗi đăng nhập:', error);
-    loginError.value = '';
 
     if (error.response?.status === 422) {
-      Object.assign(errors, error.response.data.errors);
-      loginError.value = 'Vui lòng nhập đầy đủ thông tin hợp lệ.';
+      // Gộp tất cả lỗi từ backend thành 1 chuỗi
+      const errors = error.response.data.errors;
+      const firstKey = Object.keys(errors)[0];
+      loginError.value = errors[firstKey][0];
     } else if (error.response?.status === 401) {
       loginError.value = 'Sai email hoặc mật khẩu!';
     } else if (error.response?.status === 500) {
@@ -576,6 +623,8 @@ const handleLogin = async () => {
     loading.value = false;
   }
 };
+
+
 
 
 //  Đăng xuất
@@ -643,13 +692,18 @@ const onlyNumber = (event) => {
 
 const forgotPass = async () => {
   loading.value = true;
+  errorSendCode.value = '';
   try {
+    // Tính toán thời gian hết hạn từ lúc gửi request (5 phút từ thời điểm gửi)
+    const expireTime = new Date().getTime() + 5 * 60 * 1000; // 5 phút (tính bằng ms)
+
+    // Gửi request để yêu cầu mã xác nhận
     const response = await axios.post('http://127.0.0.1:8000/api/forgot', {
       email: verify.email
     });
 
     if (response.status === 200) {
-      alert(response.data.message);
+      // alert(response.data.message);
       const modelElement = document.getElementById('forgotPasswordModal');
       const modalInstance = bootstrap.Modal.getInstance(modelElement) || new bootstrap.Modal(modelElement);
       modalInstance.hide();
@@ -660,17 +714,13 @@ const forgotPass = async () => {
     }
 
 
-    console.log('>>> Expired time:', response.data.email_expired_at);
-    if (response.data.email_expired_at) {
-      startCountdown(response.data.email_expired_at);
-    }
 
-
+    // Gọi hàm startCountdown với expireTime tính từ lúc gửi request
+    startCountdown(expireTime);
 
   } catch (error) {
     if (error.response) {
       const status = error.response.status;
-
       if (status === 404 || status === 410) {
         errorSendCode.value = error.response.data.errors?.email?.[0] || error.response.data.message;
       } else if (status === 422) {
@@ -683,14 +733,18 @@ const forgotPass = async () => {
     }
   } finally {
     loading.value = false;
+
   }
 };
+
+
 
 
 
 //hàm nhập code
 const verifyResetCode = async () => {
   loading.value = true;
+
   const code = codeDigits.value.join('')
   try {
     const response = await axios.post('http://127.0.0.1:8000/api/code', {
@@ -740,7 +794,7 @@ const sendCode = async () => {
     });
 
     if (response.status === 200) {
-      alert(response.data.message);
+      // alert(response.data.message);
 
     }
 
@@ -751,9 +805,8 @@ const sendCode = async () => {
     }, 1000);
 
 
-    if (response.data.email_expired_at) {
-      startCountdown(response.data.email_expired_at);
-    }
+    const expireTime = new Date().getTime() + 5 * 60 * 1000;
+    startCountdown(expireTime);
 
   } catch (error) {
     if (error.response) {
@@ -812,7 +865,7 @@ export {
   registerData,
   loginData,
   loginError,
-  errors,
+  registerErrors,
   loading,
   user,
   isLoggedIn,
@@ -835,10 +888,10 @@ export {
   verifyResetCode,
   ResetPass,
   startCountdown
-
-
 }
 </script>
+
+
 <style scoped>
 .text-primary-red {
   color: #ca111f;

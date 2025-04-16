@@ -22,13 +22,6 @@ body {
 #app > div > div.header > div.container > div > nav > div > button > span{
   font-size: 1rem;
 }
-.navbar-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  position: relative;
-}
 body > section > div.header > div > nav {
   border: none;
   padding: 0px;
@@ -873,7 +866,7 @@ color: #c92c3c;
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
   padding: 30px;
 }
-.product-card{
+#app > div > section.foods > section > div > div > div.product-list-wrapper.container-fluid > div > div > div{
   border-right: dashed 1px rgb(211, 211, 211);
 }
 .product-card h3, p{
@@ -943,7 +936,7 @@ color: #c92c3c;
 
 /*modal food*/
 .custom-modal {
-  background-color: #ffffff;
+  background-color:#ffffff ;
   border-radius: 10px;
   box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
   padding: 15px;
@@ -971,7 +964,25 @@ color: #c92c3c;
   box-shadow: none;
   border-color: #aaa;
 }
+/*only dat ban*/
+#productModal > div > div > div > div > div > form > div.text-center.mb-2 > div > button{
+  padding: 0 15px;
+  font-size: 20px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  transition: background-color 0.2s, color 0.2s;
+}
+#productModal > div > div > div > div > div > form > div.topping-container.mb-3{
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  padding: 10px;
+  background-color: #fafafa;
+  border-radius: 6px;
+  margin-top: 20px;
+}
 
+/**/
 .topping-container {
   max-height: 150px;
   overflow-y: auto;
@@ -1008,7 +1019,7 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   color: #c92c3c;
 }
 .topping-container {
-  max-height: 150px;
+  max-height: 200px;
   overflow-y: auto;
   border: 1px solid #ddd;
   padding: 10px;
@@ -1046,7 +1057,23 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   margin-top:5%;
   padding-bottom: 40px;
 }
+/* .error-message{
+  max-height: 10px;
+} */
+.error-message {
+  height: 3px;
+  font-size: 0.875rem; /* tương đương small */
+  color: red;
+  text-align: center;
+  display: flex;
+  align-items: center;   /* Căn giữa theo chiều dọc */
+  justify-content: center; /* Căn giữa theo chiều ngang */
+}
 
+
+.register-input{
+  margin: 10px 0px;
+}
 
 .booking-form {
   padding: 30px;
