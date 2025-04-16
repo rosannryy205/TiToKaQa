@@ -3,6 +3,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ComboController;
 use App\Http\Controllers\FoodController;
@@ -13,10 +14,16 @@ Route::post('/chatbot', [ChatbotController::class, 'chat']);
 Route::get('/home', [HomeController::class, 'index']);
 
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Socialite\ProviderCallbackController;
+use App\Http\Controllers\Socialite\ProviderRedirectController;
+use Laravel\Socialite\Contracts\Provider;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
 Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
+//search
+// Route::get('/foods/search', [FoodController::class, 'search'])   ;
+
 Route::get('/home/food/{id}', [FoodController::class, 'getFoodById']);
 Route::get('/home/category/{id}/food', [FoodController::class, 'getFoodByCategory']);
 //home combo
@@ -51,8 +58,11 @@ Route::put('/order-history-info/update-address/{id}', [OrderController::class, '
 Route::middleware('auth:sanctum')->group(function () {
     Route::resource('user', UserController::class);
 });
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
 
-
+// đăng ký đăng nhập quên mật khẩu
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/forgot',[UserController::class,'forgotPass']);
@@ -62,13 +72,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
 });
 
+// tìm kiếm
+
+// 1. Route để hiển thị kết quả ban đầu
+Route::get('/search', [HomeController::class, 'search']);
+
+
+
+
 
 //cart
 Route::post('/order',[CartController::class,'order']);
-Route::get('/order_info/{id}',[CartController::class,'getIn4Order']);
-Route::get('/ping', function () {
-    return response()->json(['pong' => true]);
-});
+Route::get('/order_detail/{id}',[CartController::class,'get_order_detail']);
+Route::get('/get_all_orders',[CartController::class,'get_all_orders']);
 
+
+
+
+//gg
+Route::get('/auth/{provider}/redirect', ProviderRedirectController::class)->name('auth.redirect');
+Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name('auth.callback');
 
 

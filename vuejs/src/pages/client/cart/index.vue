@@ -20,6 +20,9 @@
               <h5 class="mb-1 product-title"><strong>{{ item.name }}</strong></h5>
               <p class="text-muted mb-2">{{ item.spicyLevel }}</p>
               <p class="text-muted mb-2">
+                Loại: {{ item.type }}
+              </p>
+              <p class="text-muted mb-2">
                 Topping:
                 <span v-if="item.toppings && item.toppings.length">
                   <ul>
@@ -67,7 +70,7 @@
             <span><strong>Tổng tiền thanh toán</strong></span>
             <strong>{{ formatNumber(totalPrice) }} VNĐ</strong>
           </div>
-            <button @click="goToCheckout" class="btn btn-checkout w-100 mt-4">Thanh toán ngay</button>
+          <button @click="goToCheckout" class="btn btn-checkout w-100 mt-4">Thanh toán ngay</button>
           <div class="mt-4 d-flex align-items-center flex-wrap">
             <i class="bi bi-telephone-fill me-2 fs-4"></i>
             <div>
@@ -117,7 +120,7 @@
             <span><strong>Tổng tiền thanh toán</strong></span>
             <strong>{{ formatNumber(totalPrice) }} VNĐ</strong>
           </div>
-            <button @click="goToCheckout" class="btn btn-checkout w-100 mt-4" :disabled="loading">Thanh toán ngay</button>
+          <button @click="goToCheckout" class="btn btn-checkout w-100 mt-4" :disabled="loading">Thanh toán ngay</button>
 
           <div class="mt-4 d-flex align-items-center flex-wrap">
             <i class="bi bi-telephone-fill me-2 fs-4"></i>
@@ -140,7 +143,7 @@ import { Modal } from 'bootstrap';
 export default {
   methods: {
     formatNumber(value) {
-      return numeral(value).format('0,0.00')
+      return numeral(value).format('0,0')
     },
     getImageUrl(image) {
       return `/img/food/${image}`
@@ -208,12 +211,15 @@ export default {
     }
 
     const removeItem = (index) => {
-      cartItems.value.splice(index, 1)
-      updateCartStorage()
+      const confirmed = window.confirm('Bạn có chắc chắn xóa món này khỏi giỏ hàng ?')
+      if (confirmed) {
+        cartItems.value.splice(index, 1)
+        updateCartStorage()
+      }
     }
 
     const goToCheckout = () => {
-      if(cartItems.value.length === 0){
+      if (cartItems.value.length === 0) {
         alert('Giỏ hàng của bạn đang trống');
         return;
       } else {

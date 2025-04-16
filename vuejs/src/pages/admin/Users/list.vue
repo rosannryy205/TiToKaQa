@@ -54,14 +54,14 @@
           </td>
           <td class="d-flex justify-content-center gap-2">
             <button type="button" class="btn btn-primary">Sửa</button>
-            <button class="btn btn-danger">Xoá</button>
+            <button class="btn btn-danger-delete">Xoá</button>
             <button class="btn btn-warning">Khoá</button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
-  <button class="btn btn-danger delete_desktop">Xoá</button>
+  <button class="btn btn-danger-delete delete_desktop">Xoá</button>
 
   <!-- Mobile View -->
   <div class="d-block d-lg-none">
@@ -84,7 +84,7 @@
               </select>
             </p>
             <button class="btn btn-primary btn-sm">Sửa</button>
-            <button class="btn btn-danger btn-sm">Xoá</button>
+            <button class="btn btn-danger-delete btn-sm">Xoá</button>
             <button class="btn btn-warning">Khoá</button>
 
           </div>
@@ -93,7 +93,7 @@
     </div>
   </div>
 
-  <button class="btn btn-danger delete_mobile">Xoá</button>
+  <button class="btn btn-danger-delete delete_mobile">Xoá</button>
 </template>
 
 <script>
@@ -108,6 +108,14 @@ export default {
 <style scoped>
 .delete_mobile {
   display: none;
+}
+.btn-danger-delete{
+  background-color: #C92C3C;
+  color: white;
+}
+.btn-danger-delete:hover{
+  background-color: #a51928;
+  color: white;
 }
 @media (max-width: 768px) {
   .table-responsive {

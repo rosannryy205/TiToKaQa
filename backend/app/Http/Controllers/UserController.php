@@ -72,7 +72,8 @@ class UserController extends Controller
             'phone' => $request->phone ?? '',
             'password' => bcrypt($request->password),
             'address' => $request->address ?? '',
-            'fullname' => $request->fullname ?? ''
+            'fullname' => $request->fullname ?? '',
+            'role'=>'user'
 
         ]);
         Auth::login($user);
@@ -156,6 +157,50 @@ class UserController extends Controller
 
     public function forgotPass(Request $request)
     {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'email' => 'required|email'
+            ],
+            [
+                'email.required' => "vui lòng nhập địa chỉ email",
+                'email.email' => 'Địa chỉ email không hợp lệ'
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json([
+                'errors' => ['email' => ['Email không tồn tại trong hệ thống']]
+            ], 404);
+        }
+
+        $code = rand(100000, 999999);
+        // $code = strtoupper(Str::random(6)); có chữ
+        $user->verify_code = $code;
+        $user->verify_expiry = now()->addMinutes(5);
+        $user->save();
+
+        try {
+            Mail::to($user->email)->send(new \App\Mail\ResetPasswordCode($code));
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi gửi email',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'message' => 'Mã xác nhận đã được gửi qua email.',
+            'email_expired_at' => $user->verify_expiry
+        ]);
+    }
+
+    public function sendCode(Request $request){
         $validator = Validator::make(
             $request->all(),
             [
