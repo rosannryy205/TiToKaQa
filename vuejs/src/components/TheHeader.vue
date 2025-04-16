@@ -12,7 +12,8 @@
                 <span class="navbar-toggler-icon"></span>
               </button>
               <div class="logo-container ">
-                <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
+                <a href="/home"><img src="/img/logonew.png" alt="Logo" class="logo" width="80px"></a>
+
               </div>
             </div>
 
@@ -39,7 +40,9 @@
                     <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
                       {{ item.name }}
                     </li>
-                    <li v-if="loading" class="loading">Đang tải thêm...</li>
+
+                    <li v-if="loading" class="loading"><span v-if="loading"
+                      class="spinner-border spinner-border-sm me-2"></span> Đang tải thêm...</li>
                     <li v-if="!hasMore && !loading" class="no-more">Đã hết kết quả</li>
                   </ul>
                 </div>
@@ -457,7 +460,7 @@ const loginWithGoogle = () => {
 
 //search
 // const searchQuery = ref('');
-// // const route = useRoute();
+const router = useRouter();
 // const router = useRouter();// const res = ref([]);
 // const searchProduct = () => {
 //   const query = searchQuery.value.trim()
@@ -1059,8 +1062,12 @@ const selectItem = (item) => {
 
 // Hàm tìm kiếm sản phẩm khi người dùng nhấn Enter hoặc submit
 const searchProduct = () => {
-  if (suggestions.value.length) {
-    selectItem(suggestions.value[0]);
+  if (searchQuery.value.trim()) {
+    showSuggestions.value = false;
+    router.push({
+      path: '/search', // đường dẫn của route
+      query: { search: searchQuery.value }
+    });
   }
 };
 
@@ -1100,7 +1107,7 @@ onBeforeUnmount(() => {
   top: 100%;
   left: 0;
   right: 0;
-  max-height: 200px;  /* 👈 Cố định chiều cao để buộc scroll */
+  max-height: 270px;  /* 👈 Cố định chiều cao để buộc scroll */
   overflow-y: auto;
   background: #fff;
   border: 1px solid #ddd;
@@ -1113,8 +1120,8 @@ onBeforeUnmount(() => {
 }
 
 .suggestion-dropdown li {
-  padding: 12px 16px;
-  font-size: 14px;
+  padding: 17px 16px;
+  font-size: 16px;
   cursor: pointer;
 }
 
