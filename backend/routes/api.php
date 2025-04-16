@@ -14,10 +14,16 @@ Route::post('/chatbot', [ChatbotController::class, 'chat']);
 Route::get('/home', [HomeController::class, 'index']);
 
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Socialite\ProviderCallbackController;
+use App\Http\Controllers\Socialite\ProviderRedirectController;
+use Laravel\Socialite\Contracts\Provider;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
 Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
+//search
+Route::get('/foods/search', [FoodController::class, 'search']);
+
 Route::get('/home/food/{id}', [FoodController::class, 'getFoodById']);
 Route::get('/home/category/{id}/food', [FoodController::class, 'getFoodByCategory']);
 //home combo
@@ -42,6 +48,9 @@ Route::put('/order-history-info/update-address/{id}', [OrderController::class, '
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
     Route::resource('user', UserController::class);
+});
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
 });
 
 // đăng ký đăng nhập quên mật khẩu
@@ -71,5 +80,10 @@ Route::get('/ping', function () {
     return response()->json(['pong' => true]);
 });
 
+
+
+//gg
+Route::get('/auth/{provider}/redirect', ProviderRedirectController::class)->name('auth.redirect');
+Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name('auth.callback');
 
 

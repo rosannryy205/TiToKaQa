@@ -1,38 +1,39 @@
 <template>
   <!-- top header-->
-  <div class="header">
-    <div class="container">
-      <div class="navbar-top">
-        <nav class="navbar navbar-expand-lg navbar-bottom">
-          <div class="container d-flex justify-content-between align-items-center">
-
-            <div class="d-flex align-items-center">
-              <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#offcanvasMenu">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="logo-container">
-                <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
-              </div>
+  <div class="header position-sticky top-0 bg-white bg-opacity-90 shadow-sm z-3">
+  <div class="container">
+    <div class="navbar-top">
+      <nav class="navbar navbar-expand-lg navbar-bottom">
+        <div class="container d-flex justify-content-between align-items-center">
+          <!---->
+          <div class="d-flex align-items-center">
+            <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="logo-container ">
+              <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
             </div>
+          </div>
 
-            <div class="d-flex align-items-center">
+          <div class="d-flex align-items-center">
+            <!-- Search -->
+            <form @submit.prevent="searchProduct">
+    <div class="input-wrapper me-3 d-none d-lg-block">
+      <button class="icon">
+        <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+            stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <input v-model="searchQuery" type="text" name="text" class="input" placeholder="search.." />
+    </div>
+  </form>
 
-              <!-- Search -->
-              <div class="input-wrapper me-3 d-none d-lg-block">
-                <button class="icon">
-                  <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-                      stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                    <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
-                      stroke-linejoin="round"></path>
-                  </svg>
-                </button>
-                <input type="text" name="text" class="input" placeholder="search.." />
-              </div>
-
-              <!-- Login/Logout -->
+            <!-- Login/Logout -->
+            <div class="d-none d-lg-block">
               <div class="d-flex align-items-center me-3">
                 <button v-if="!isLoggedIn" class="icon-btn me-2" data-bs-toggle="modal" @click="openLoginModal">
                   <i class="bi bi-people"></i>
@@ -43,57 +44,76 @@
                     <i class="bi bi-person-x"></i>
                   </button>
                   <router-link to="/update-user" class="text-decoration-none text-primary-red">
-                    <p class="mb-0 me-2">{{ user.username }}</p>
+                    <p v-if="auth.user" class="mb-0 me-2">{{ auth.user.username }}</p>
                   </router-link>
                 </template>
               </div>
+            </div>
+            <div class="d-none d-lg-block">
               <router-link to="/cart" style="color: black;">
                 <button class="icon-btn"><i class="bi bi-cart"></i></button>
               </router-link>
-
             </div>
           </div>
-        </nav>
-      </div>
-
-
-      <!-- menu bottom -->
-      <nav class="navbar navbar-expand-lg navbar-bottom">
-        <div class="collapse navbar-collapse text-start d-none d-lg-flex">
-          <ul class="navbar-nav fs-5">
-            <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
-            <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
-            <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
-          </ul>
         </div>
       </nav>
     </div>
 
-    <!-- offcanvas menu small screen -->
-    <div class="offcanvas offcanvas-start" id="offcanvasMenu">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title">Menu</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
+    <!-- Menu bottom -->
+    <nav class="navbar navbar-expand-lg navbar-bottom">
+      <div class="collapse navbar-collapse text-start d-none d-lg-flex">
+        <ul class="navbar-nav fs-5">
+          <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
           <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
           <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
-          <div class="icon">
-            <button class="icon-btn me-3" data-bs-toggle="modal" data-bs-target="#loginModal">
-              <i class="bi bi-people"></i>
-            </button>
-            <button class="icon-btn"><i class="bi bi-search"></i></button>
-            <button class="icon-btn me-3"><i class="bi bi-telephone"></i></button>
-            <router-link to="/cart" style="color: black;">
-              <button class="icon-btn"><i class="bi bi-cart"></i></button>
-            </router-link>
-          </div>
         </ul>
+      </div>
+    </nav>
+  </div>
+
+  <!-- offcanvas menu small screen -->
+  <div class="offcanvas offcanvas-start" id="offcanvasMenu">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Menu</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
+        <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
+        <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
+      </ul>
+
+      <!-- Các icon hiển thị trên mobile -->
+      <div class="d-flex justify-content-around mt-4 d-lg-none">
+        <div class="input-wrapper">
+              <button class="icon">
+                <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                    stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+                </svg>
+              </button>
+              <input type="text" name="text" class="input" placeholder="search.." />
+            </div>
+        <button class="icon-btn ms-3" data-bs-toggle="modal" @click="openLoginModal">
+          <i class="bi bi-people"></i>
+        </button>
+
+        <button class="icon-btn ms-3">
+          <i class="bi bi-telephone"></i>
+        </button>
+
+        <router-link to="/cart" style="color: black;">
+          <button class="icon-btn ms-3"><i class="bi bi-cart"></i></button>
+        </router-link>
       </div>
     </div>
   </div>
+</div>
+
 
   <!-- Modal đăng nhập -->
   <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
@@ -158,7 +178,7 @@
             </div>
 
             <div class="d-flex justify-content-center gap-3">
-              <button type="button" class="btn btn-social"><i class="bi bi-google"></i></button>
+              <button @click="loginWithGoogle" type="button" class="btn btn-social"><i class="bi bi-google"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-twitter-x"></i></button>
             </div>
@@ -402,12 +422,53 @@
   <router-view></router-view>
 
 </template>
-
 <script setup>
 import { useCountdown } from "../stores/countDown";
+import { useAuthStore } from '@/stores/auth';
+import { useRoute, useRouter } from 'vue-router';
 
 const { formattedTime, isCounting, startCountdown } = useCountdown(60);
+const auth = useAuthStore();
+//Google
+const loginWithGoogle = () => {
+  window.location.href = 'http://localhost:8000/api/auth/google/redirect';
+};
+
+//search
+const searchQuery = ref('');
+// const route = useRoute();
+const router = useRouter();// const res = ref([]);
+const searchProduct = () => {
+  const query = searchQuery.value.trim()
+  if (!query) return
+
+  router.push({
+    path: '/search',
+    query: { search: query }
+  })
+}
+
+// const handleGoogleLogin = async () => {
+//   try {
+//     const token = route.query.token;
+
+//     if (token) {
+//         localStorage.setItem('token', token);
+//         router.push('/home'); // chuyển về trang chính
+//       } else {
+//         // xử lý lỗi nếu không có token
+//         console.error("Token not found");
+//       }
+//   } catch (error) {
+//     console.error("Google login error:", error);
+//   }
+// };
+
+
 </script>
+
+
+
 
 
 <script>
@@ -859,6 +920,10 @@ const ResetPass = async () => {
   } finally {
     loading.value = false;
   }
+
+  return{
+
+}
 };
 
 export {
@@ -887,8 +952,12 @@ export {
   sendCode,
   verifyResetCode,
   ResetPass,
-  startCountdown
+  startCountdown,
+
+
+
 }
+
 </script>
 
 
@@ -896,4 +965,11 @@ export {
 .text-primary-red {
   color: #ca111f;
 }
+.hover-scale {
+  transition: transform 0.2s ease;
+}
+.hover-scale:hover {
+  transform: scale(1.1);
+}
+
 </style>

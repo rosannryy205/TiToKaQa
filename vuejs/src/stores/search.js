@@ -1,13 +1,24 @@
+
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
-import { computed } from 'vue'
 
-export const FoodList = {
+export const FoodListSearch= {
+  name: 'HomePage',
+  methods: {
+    formatNumber(value) {
+      return numeral(value).format('0,0')
+    },
+    getImageUrl(image) {
+      return `/img/food/${image}`
+    },
+    getImageMenuUrl(image) {
+      return `/img/food/imgmenu/${image}`
+    },
+  },
   setup() {
     const foods = ref([])
-    const combos = ref([])
     const categories = ref([])
     const foodDetail = ref([])
     const toppings = ref([])
@@ -17,18 +28,23 @@ export const FoodList = {
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
     const selectedCategoryName = ref('Món Ăn')
-    const quantity = ref(1)
+    const selectedCategoryImage = ref('')
+
+    const currentIndex = ref(0)
+    const images = [
+      '/img/banner/Banner (1).webp',
+      '/img/banner/Banner (2).png',
+      '/img/banner/Banner.png',
+    ]
+    let intervalId = null
 
     const toggleDropdown = () => {
       isDropdownOpen.value = !isDropdownOpen.value
     }
 
-    const formatNumber = (value) => {
-      return numeral(value).format('0,0')
-    }
-
-    const getImageUrl = (image) => {
-      return `/img/food/${image}`
+    const changeSlide = (direction) => {
+      const total = images.length
+      currentIndex.value = (currentIndex.value + direction + total) % total
     }
 
     const getCategory = async () => {
@@ -52,47 +68,68 @@ export const FoodList = {
 
     const getFoodByCategory = async (categoryId) => {
       try {
-        if (!categoryId) {
-          await getFood()
-          return;
-        }
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
-        foods.value = res.data
-        const selectedCategory = categories.value.find((c) => c.id == categoryId)
-        if (categoryId.value == '' || selectedCategory.value == '') {
-          getFood()
+        if (!categories.value.length) {
+          console.warn('Categories chưa được load.')
           return
         }
-        if (selectedCategory) {
-          selectedCategoryName.value = selectedCategory.name
-          if (selectedCategory.children && selectedCategory.children.length) {
-            const childRequests = selectedCategory.children.map((child) =>
-              axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`)
-            )
-            const childResults = await Promise.all(childRequests)
-            childResults.forEach((childRes) => {
-              foods.value = [...foods.value, ...childRes.data]
-            })
+
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
+        let allFoods = res.data.map((item) => ({ ...item, type: 'food' }))
+
+        let parentName = ''
+        let childName = ''
+        let parentImage = ''
+
+        for (const parent of categories.value) {
+          if (parent.id === categoryId) {
+            parentName = parent.name
+            parentImage = parent.images || ''
+            break
+          }
+          if (parent.children && parent.children.length) {
+            const child = parent.children.find((c) => c.id === categoryId)
+            if (child) {
+              parentName = parent.name
+              childName = child.name
+              parentImage = child.images || ''
+              if(!child.images){
+                parentImage = parent.images
+              }
+              break
+            }
           }
         }
 
-      } catch (error) {
-        console.error("Lỗi khi lấy món ăn theo danh mục:", error)
-      }
-    }
+        selectedCategoryName.value = childName
+          ? `${parentName} > ${childName}`
+          : parentName || 'Món Ăn'
+        selectedCategoryImage.value = parentImage
 
-    const getAllCombos = async () => {
-      try {
-        const res = await axios.get('http://127.0.0.1:8000/api/home/combos')
-        combos.value = res.data
+        const selectedCategory = categories.value.find((c) => c.id === categoryId)
+        if (selectedCategory?.children?.length) {
+          const childRequests = selectedCategory.children.map((child) =>
+            axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
+          )
+          const childResults = await Promise.all(childRequests)
+          childResults.forEach((childRes) => {
+            const childFoods = childRes.data.map((item) => ({ ...item, type: 'food' }))
+            allFoods = [...allFoods, ...childFoods]
+          })
+        }
+
+        if (categoryId === 14) {
+          const comboRes = await axios.get(`http://127.0.0.1:8000/api/home/combos`)
+          const combosWithType = comboRes.data.map((item) => ({ ...item, type: 'combo' }))
+          allFoods = [...allFoods, ...combosWithType]
+        }
+
+        foods.value = allFoods
       } catch (error) {
         console.error(error)
       }
     }
 
     const openModal = async (item) => {
-      isLoading.value = true
-
       foodDetail.value = {}
       toppings.value = []
       spicyLevel.value = []
@@ -110,12 +147,9 @@ export const FoodList = {
           toppingList.value.forEach((item) => {
             item.price = item.price || 0
           })
-          isLoading.value = false
-
         } else if (item.type === 'combo') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
           foodDetail.value = res.data
-          isLoading.value = false
         }
 
         const modalElement = document.getElementById('productModal')
@@ -128,7 +162,6 @@ export const FoodList = {
       }
     }
 
-
     const addToCart = () => {
       const user = JSON.parse(localStorage.getItem('user'))
       const userId = user?.id || 'guest'
@@ -139,7 +172,7 @@ export const FoodList = {
       const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
 
       const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')
+        document.querySelectorAll('input[name="topping[]"]:checked'),
       ).map((el) => parseInt(el.value))
 
       const selectedToppings = toppingList.value
@@ -148,7 +181,7 @@ export const FoodList = {
           id: topping.id,
           name: topping.name,
           price: topping.price,
-          food_toppings_id: topping.pivot?.id || null
+          food_toppings_id: topping.pivot?.id || null,
         }))
 
       const cartItem = {
@@ -158,7 +191,7 @@ export const FoodList = {
         price: foodDetail.value.price,
         spicyLevel: selectedSpicyName,
         toppings: selectedToppings,
-        quantity: quantity.value,
+        quantity: 1,
       }
 
       let cart = JSON.parse(localStorage.getItem(cartKey)) || []
@@ -167,7 +200,7 @@ export const FoodList = {
         (item) =>
           item.id === cartItem.id &&
           item.spicyLevel === cartItem.spicyLevel &&
-          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort())
+          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort()),
       )
 
       if (existingItem !== -1) {
@@ -180,40 +213,20 @@ export const FoodList = {
       alert('Đã thêm vào giỏ hàng!')
     }
 
-    const increaseQuantity = () => {
-      quantity.value++;
-    };
-
-    const decreaseQuantity = () => {
-      if (quantity.value > 1) quantity.value--;
-    };
-
-
-    const flatCategoryList = computed(() => {
-      const result = []
-      categories.value.forEach((parent) => {
-        result.push({ id: parent.id, name: parent.name, indent: '' })
-        if (parent.children && parent.children.length) {
-          parent.children.forEach((child) => {
-            result.push({ id: child.id, name: child.name, indent: '   -- ' })
-          })
-        }
-      })
-      return result
-    })
-
     onMounted(async () => {
       await getCategory()
       await getFood()
-      await getAllCombos()
-      flatCategoryList
-
+      intervalId = setInterval(() => {
+        currentIndex.value = (currentIndex.value + 1) % images.length
+      }, 3000)
     })
 
+    onBeforeUnmount(() => {
+      clearInterval(intervalId)
+    })
 
     return {
       foods,
-      combos,
       categories,
       foodDetail,
       toppings,
@@ -222,16 +235,14 @@ export const FoodList = {
       isLoading,
       isDropdownOpen,
       selectedCategoryName,
+      selectedCategoryImage,
+      currentIndex,
+      images,
       getFoodByCategory,
       openModal,
       addToCart,
       toggleDropdown,
-      formatNumber,
-      getImageUrl,
-      flatCategoryList,
-      increaseQuantity,
-      decreaseQuantity,
-      quantity
+      changeSlide,
     }
-  }
+  },
 }

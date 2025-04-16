@@ -175,61 +175,81 @@
   </section>
   <!-- modal food -->
   <div class="modal fade" id="productModal">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content custom-modal modal-ct">
-      <div class="modal-body position-relative">
-        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
-          aria-label="Close"></button>
-        <div class="row">
-
-          <div class="col-md-6 border-end">
-            <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
-
-            <div class="text-center mb-3">
-              <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
-            </div>
-
-            <p class="text-danger fw-bold fs-5 text-center">{{ formatNumber(foodDetail.price) }} VNĐ</p>
-            <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
-          </div>
-          <div class="col-md-6">
-            <form @submit.prevent="addToCart">
-              <div class="topping-container mb-3" v-if="toppingList.length">
-                <div class="mb-3" v-if="spicyLevel.length">
-                <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
-                <select class="form-select" id="spicyLevel">
-                  <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
-                    {{ item.name }}
-                  </option>
-                </select>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content custom-modal modal-ct">
+        <div class="modal-body position-relative">
+          <button
+            type="button"
+            class="btn-close position-absolute top-0 end-0 m-2"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+          <div class="row">
+            <div class="col-md-6 border-end">
+              <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
+              <div class="text-center mb-3">
+                <img
+                  :src="getImageUrl(foodDetail.image)"
+                  :alt="foodDetail.name"
+                  class="modal-image img-fluid"
+                />
               </div>
-                <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-                <div v-for="topping in toppingList" :key="topping.id"
-                  class="d-flex justify-content-between align-items-center mb-2">
-                  <label class="d-flex align-items-center">
-                    <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
-                    {{ topping.name }}
-                  </label>
-                  <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+              <p class="text-danger fw-bold fs-5 text-center">
+                {{ formatNumber(foodDetail.price) }} VNĐ
+              </p>
+              <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
+                <div class="flex-grow-1">
+                  <div class="topping-container mb-3" v-if="toppingList.length">
+                    <div class="mb-3" v-if="spicyLevel.length">
+                      <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
+                      <select class="form-select" id="spicyLevel">
+                        <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                          {{ item.name }}
+                        </option>
+                      </select>
+                    </div>
+                    <label class="form-label fw-bold">🧀 Chọn Topping:</label>
+                    <div
+                      v-for="topping in toppingList"
+                      :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2"
+                    >
+                      <label class="d-flex align-items-center">
+                        <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
+                        {{ topping.name }}
+                      </label>
+                      <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+                    </div>
+                  </div>
+                  <div v-else class="mt-5">
+                    <p class="text-center text-muted">Không có topping cho món này.</p>
+                  </div>
                 </div>
-              </div>
-              <div class="text-center mb-2">
+
+                <!---->
+                <div class="mt-auto">
+                  <div class="text-center mb-2">
               <div class="qty-control px-2 py-1">
-                <button type="button" class="btn-lg" style="background-color: #fff;">-</button>
-                <span>1</span>
-                <button type="button" class="btn-lg" style="background-color: #fff;">+</button>
+                <button type="button" @click="decreaseQuantity" class="btn-lg" style="background-color: #fff;">-</button>
+                <span>{{ quantity }}</span>
+                <button type="button" @click="increaseQuantity" class="btn-lg" style="background-color: #fff;">+</button>
               </div>
             </div>
-              <button class="btn btn-danger w-100 fw-bold">
-                🛒 Thêm vào giỏ hàng
-              </button>
-            </form>
+                  <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                </div>
+              </form>
+
+              </div>
+      
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+
 
 </template>
 <script>
@@ -260,6 +280,8 @@ export default {
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
     const selectedCategoryName = ref('Món Ăn')
+
+    const quantity = ref(1);
 
     const currentIndex = ref(0)
     const images = [
@@ -363,6 +385,7 @@ export default {
       toppings.value = []
       spicyLevel.value = []
       toppingList.value = []
+      quantity.value = 1
       try {
         //combo
         const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
@@ -424,7 +447,7 @@ export default {
         price: foodDetail.value.price,
         spicyLevel: selectedSpicyName,
         toppings: selectedToppings,
-        quantity: 1,
+        quantity: quantity.value,
       }
 
       let cart = JSON.parse(localStorage.getItem(cartKey)) || []
@@ -445,8 +468,16 @@ export default {
       localStorage.setItem(cartKey, JSON.stringify(cart))
       alert('Đã thêm vào giỏ hàng!')
     }
+    const increaseQuantity = () => {
+      quantity.value += 1
+    }
 
 
+    const decreaseQuantity = () => {
+      if (quantity.value > 1) {
+        quantity.value -= 1
+      }
+    }
     onMounted(async () => {
       await getCategory()
       await getFood()
@@ -478,6 +509,9 @@ export default {
       addToCart,
       toggleDropdown,
       changeSlide,
+      quantity,
+      increaseQuantity,
+      decreaseQuantity
     }
   },
 }
