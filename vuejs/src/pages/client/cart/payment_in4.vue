@@ -12,19 +12,19 @@
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
             <div class="mb-3">
-              <input v-model="form.fullname" type="text" class="form-control" placeholder="Tên của bạn">
+              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn">
             </div>
             <div class="mb-3">
-              <input v-model="form.email" type="email" class="form-control" placeholder="Email của bạn">
+              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn">
             </div>
             <div class="mb-3">
-              <input v-model="form.phone" type="text" class="form-control" placeholder="Số điện thoại">
+              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại">
             </div>
             <div class="mb-3">
-              <input v-model="form.address" type="text" class="form-control" placeholder="Địa chỉ">
+              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ">
             </div>
             <div class="mb-3">
-              <textarea v-model="note" class="form-control" rows="3" placeholder="Ghi chú"></textarea>
+              <textarea v-model="note" class="form-control-customer" rows="3" placeholder="Ghi chú"></textarea>
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <router-link to="/cart" class="btn btn-outline-secondary">
@@ -85,7 +85,7 @@
           <div class="mb-3">
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input type="text" id="discount" class="form-control" placeholder="Nhập mã giảm giá...">
+              <input type="text" id="discount" class="form-control-customer" placeholder="Nhập mã giảm giá...">
               <button class="btn btn-outline-primary">Áp dụng</button>
             </div>
           </div>

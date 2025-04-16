@@ -145,9 +145,9 @@ body > section > div.header > div > nav {
 @media (max-width: 991px) {
   #offcanvasMenu > .offcanvas-body > div {
     display: flex;
-    flex-direction: column; 
-    align-items: start;  
-    gap: 10px;            
+    flex-direction: column;
+    align-items: start;
+    gap: 10px;
 }
 
 }
@@ -315,7 +315,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   list-style: none;
   gap: 7px;
   padding: 0;
-  
+
 }
 
 .menu-list li {

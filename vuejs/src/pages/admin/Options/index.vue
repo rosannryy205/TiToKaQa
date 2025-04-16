@@ -43,7 +43,8 @@
                     <td>25,000 VNĐ</td>
                     <td class="d-flex justify-content-center gap-2">
                         <button type="button" class="btn btn-primary">Sửa</button>
-                        <button class="btn btn-danger">Xoá</button>
+                        <button class="btn btn-danger-delete
+                        ">Xoá</button>
                     </td>
                 </tr>
 
@@ -54,13 +55,15 @@
                     <td>Miễn phí</td>
                     <td class="d-flex justify-content-center gap-2">
                         <button type="button" class="btn btn-primary">Sửa</button>
-                        <button class="btn btn-danger">Xoá</button>
+                        <button class="btn btn-danger-delete
+                        ">Xoá</button>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
-    <button class="btn btn-danger delete_desktop">Xoá</button>
+    <button class="btn btn-danger-delete
+     delete_desktop">Xoá</button>
 
 
   <!-- Mobile View -->
@@ -77,7 +80,8 @@
             <p class="card-text"><strong>Danh mục:</strong> Cấp độ </p>
             <p class="card-text"><strong>Giá:</strong>  </p>
             <button class="btn btn-primary btn-sm">Sửa</button>
-            <button class="btn btn-danger btn-sm">Xoá</button>
+            <button class="btn btn-danger-delete
+             btn-sm">Xoá</button>
           </div>
         </div>
       </div>
@@ -97,7 +101,8 @@
             <p class="card-text"><strong>Danh mục:</strong> Món thêm </p>
             <p class="card-text"><strong>Giá:</strong> 25.000 VNĐ </p>
             <button class="btn btn-primary btn-sm">Sửa</button>
-            <button class="btn btn-danger btn-sm">Xoá</button>
+            <button class="btn btn-danger-delete
+             btn-sm">Xoá</button>
           </div>
         </div>
       </div>
@@ -107,7 +112,8 @@
 
 
   </div>
-  <button class="btn btn-danger delete_mobile">Xoá</button>
+  <button class="btn btn-danger-delete
+   delete_mobile">Xoá</button>
 
 
 
@@ -166,6 +172,14 @@ export default {
 <style scoped>
 .delete_mobile{
   display: none;
+}
+.btn-danger-delete{
+  background-color: #C92C3C;
+  color: white;
+}
+.btn-danger-delete:hover{
+  background-color: #a51928;
+  color: white;
 }
 @media (max-width: 768px) {
   .table-responsive {

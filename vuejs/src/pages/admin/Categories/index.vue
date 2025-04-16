@@ -57,7 +57,7 @@
           <td class="d-flex justify-content-center gap-2">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
               data-bs-target="#editCategoryModal">Sửa</button>
-            <button class="btn btn-danger">Xoá</button>
+            <button class="btn btn-danger-delete">Xoá</button>
             <button class="btn btn-warning">Thêm sản phẩm</button>
 
           </td>
@@ -71,7 +71,7 @@
           <td class="d-flex justify-content-center gap-2">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
               data-bs-target="#editCategoryModal">Sửa</button>
-            <button class="btn btn-danger">Xoá</button>
+            <button class="btn btn-danger-delete">Xoá</button>
             <button class="btn btn-warning">Thêm sản phẩm</button>
 
           </td>
@@ -79,7 +79,7 @@
       </tbody>
     </table>
   </div>
-  <button class="btn btn-danger delete_desktop">Xoá</button>
+  <button class="btn btn-danger-delete delete_desktop">Xoá</button>
 
 
   <!-- Mobile View -->
@@ -95,7 +95,7 @@
             <h5 class="card-title">Chưa phân loại</h5>
             <p class="card-text"><strong>Danh mục cha:</strong> </p>
             <button class="btn btn-primary btn-sm">Sửa</button>
-            <button class="btn btn-danger btn-sm">Xoá</button>
+            <button class="btn btn-danger-delete btn-sm">Xoá</button>
             <button class="btn btn-warning">Thêm sản phẩm</button>
 
           </div>
@@ -116,7 +116,7 @@
             <h5 class="card-title">Chưa phân loại</h5>
             <p class="card-text"><strong>Danh mục cha:</strong> </p>
             <button class="btn btn-primary btn-sm">Sửa</button>
-            <button class="btn btn-danger btn-sm">Xoá</button>
+            <button class="btn btn-danger-delete btn-sm">Xoá</button>
             <button class="btn btn-warning">Thêm sản phẩm</button>
 
           </div>
@@ -138,7 +138,7 @@
             <h5 class="card-title">Chưa phân loại</h5>
             <p class="card-text"><strong>Danh mục cha:</strong> </p>
             <button class="btn btn-primary btn-sm">Sửa</button>
-            <button class="btn btn-danger btn-sm">Xoá</button>
+            <button class="btn btn-danger-delete btn-sm">Xoá</button>
             <button class="btn btn-warning">Thêm sản phẩm</button>
 
           </div>
@@ -149,7 +149,7 @@
     </div>
 
   </div>
-  <button class="btn btn-danger delete_mobile">Xoá</button>
+  <button class="btn btn-danger-delete delete_mobile">Xoá</button>
 
 
   <!-- Modal Thêm Danh Mục -->
@@ -244,6 +244,14 @@ export default {
 </script>
 
 <style scoped>
+.btn-danger-delete{
+  background-color: #C92C3C;
+  color: white;
+}
+.btn-danger-delete:hover{
+  background-color: #a51928;
+  color: white;
+}
 .delete_mobile{
   display: none;
 }
