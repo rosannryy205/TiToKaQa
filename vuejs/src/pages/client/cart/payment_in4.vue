@@ -85,7 +85,7 @@
           <div class="mb-3">
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input type="text" id="discount" class="form-control-customer" placeholder="Nhập mã giảm giá...">
+              <input type="text" id="discount" class="form-control-discount" placeholder="Nhập mã giảm giá...">
               <button class="btn btn-outline-primary">Áp dụng</button>
             </div>
           </div>

@@ -3,6 +3,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ComboController;
 use App\Http\Controllers\FoodController;
@@ -21,7 +22,7 @@ Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
 Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
 //search
-Route::get('/foods/search', [FoodController::class, 'search']);
+// Route::get('/foods/search', [FoodController::class, 'search'])   ;
 
 Route::get('/home/food/{id}', [FoodController::class, 'getFoodById']);
 Route::get('/home/category/{id}/food', [FoodController::class, 'getFoodByCategory']);
@@ -52,7 +53,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
+// đăng ký đăng nhập quên mật khẩu
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/forgot',[UserController::class,'forgotPass']);
@@ -61,6 +62,14 @@ Route::post('/reset-password',[UserController::class,'ChangePassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
 });
+
+// tìm kiếm
+
+// 1. Route để hiển thị kết quả ban đầu
+Route::get('/search', [HomeController::class, 'search']);
+
+
+
 
 
 //cart
