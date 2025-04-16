@@ -137,7 +137,7 @@
       </button>
     </div>
   </section>
-  
+
   <section class="pots-section container mt-5">
     <h2 class="text-center text-md-start mb-3 fw-bold">Bài Viết & Thông Tin<span>📢</span></h2>
     <hr />
@@ -213,7 +213,7 @@
                 </div>
                 <!---->
                 <div class="mt-auto">
-             
+
                   <div class="text-center mb-2">
               <div class="qty-control px-2 py-1">
                 <button @click="decreaseQuantity" type="button" class="btn-lg" style="background-color: #fff;">-</button>
@@ -374,7 +374,7 @@ export default {
       try {
         if (item.type === 'food') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
-          foodDetail.value = res.data
+          foodDetail.value = { ...res.data, type: 'Food' }
 
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
@@ -386,7 +386,7 @@ export default {
           })
         } else if (item.type === 'combo') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
-          foodDetail.value = res.data
+          foodDetail.value = { ...res.data, type: 'Combo' }
         }
 
         const modalElement = document.getElementById('productModal')
@@ -421,7 +421,7 @@ export default {
       const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
 
       const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked'),
+        document.querySelectorAll('input[name="topping[]"]:checked')
       ).map((el) => parseInt(el.value))
 
       const selectedToppings = toppingList.value
@@ -430,7 +430,7 @@ export default {
           id: topping.id,
           name: topping.name,
           price: topping.price,
-          food_toppings_id: topping.pivot?.id || null,
+          food_toppings_id: topping.pivot?.id || null
         }))
 
       const cartItem = {
@@ -441,6 +441,7 @@ export default {
         spicyLevel: selectedSpicyName,
         toppings: selectedToppings,
         quantity: quantity.value,
+        type: foodDetail.value.type,
       }
 
       let cart = JSON.parse(localStorage.getItem(cartKey)) || []
@@ -449,7 +450,7 @@ export default {
         (item) =>
           item.id === cartItem.id &&
           item.spicyLevel === cartItem.spicyLevel &&
-          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort()),
+          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort())
       )
 
       if (existingItem !== -1) {

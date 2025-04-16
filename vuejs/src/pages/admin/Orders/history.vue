@@ -54,7 +54,7 @@
         <thead class="table-light">
           <tr>
             <th>STT</th>
-            <th>Nhân viên</th>
+            <!-- <th>Nhân viên</th> -->
             <th>Khu vực/Bàn</th>
             <th>Thông tin KH</th>
             <th>Loại đơn</th>
@@ -64,22 +64,22 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td class="text-truncate" title="Nguyễn Thị Thuỷ Tiên">Nguyễn Thị Thuỷ Tiên</td>
-            <td>Sảnh chính, bàn 2</td>
-            <td class="text-truncate" title="Nguyễn Thị Thuỷ Tiên - 0918778133">Nguyễn Thị Thuỷ Tiên - 0918778133</td>
-            <td>Đặt bàn</td>
-            <td>632,000 đ</td>
+          <tr v-for="(item, index) in order" :key="item.id">
+            <td>{{ item.id }}</td>
+            <!-- <td class="text-truncate" title="Nguyễn Thị Thuỷ Tiên">Nguyễn Thị Thuỷ Tiên</td> -->
+            <td>{{ item.reservations_time ? item.reservations_time : 'Không có' }}</td>
+            <td class="text-truncate" :title="item.guest_name + ' - ' + item.guest_phone">{{ item.guest_name }} - {{ item.guest_phone }}</td>
+            <td>{{ item.reservations_time ? 'Đặt bàn' : 'Mang về' }}</td>
+            <td>{{formatNumber(item.total_price)}} VNĐ</td>
             <td>
               <select class="form-select">
-                <option selected>Đã thanh toán</option>
+                <option selected>{{ item.order_status }}</option>
                 <option>Chưa xác nhận</option>
                 <option>Đã hủy</option>
               </select>
             </td>
             <td>
-              <router-link :to="{ name: 'admin-orders-detail' }" class="btn btn-primary btn-sm">Chi tiết</router-link>
+              <router-link :to="{ name: 'admin-orders-detail', params: {id: item.id} }" class="btn btn-primary btn-sm">Chi tiết</router-link>
               <button class="btn btn-secondary btn-sm">In</button>
             </td>
           </tr>
@@ -90,38 +90,16 @@
     <!-- Mobile View -->
     <div class="d-block d-lg-none mt-2">
       <div class="card mb-3">
-        <div class="card-body">
+        <div class="card-body" v-for="(item, index) in order" :key="item.id">
           <h5 class="card-title fw-bold">Đơn #1</h5>
           <p><strong>Nhân viên:</strong> Nguyễn Thị Thuỷ Tiên</p>
-          <p><strong>Khu vực/Bàn:</strong> Vip - bàn 2</p>
-          <p><strong>Thông tin KH:</strong> Nguyễn Thị Thuỷ Tiên - 0918778133</p>
-          <p><strong>Loại đơn:</strong> Đặt bàn</p>
-          <p><strong>Tổng tiền:</strong> 632,000 đ</p>
+          <p><strong>Khu vực/Bàn:</strong> {{ item.reservations_time ? item.reservations_time : 'Không có' }}</p>
+          <p :title="item.guest_name + ' - ' + item.guest_phone"><strong>Thông tin KH:</strong> {{ item.guest_name }} - {{ item.guest_phone }}</p>
+          <p><strong>Loại đơn:</strong>{{ item.reservations_time ? 'Đặt bàn' : 'Mang về' }}</p>
+          <p><strong>Tổng tiền:</strong> {{formatNumber(item.total_price)}} đ</p>
           <p><strong>Trạng thái:</strong>
             <select class="form-select">
-              <option selected>Đã thanh toán</option>
-              <option>Chưa xác nhận</option>
-              <option>Đã hủy</option>
-            </select>
-          </p>
-          <div class="d-flex gap-2">
-            <button class="btn btn-primary btn-sm flex-grow-1">Chi tiết</button>
-            <button class="btn btn-secondary btn-sm flex-grow-1">In</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title fw-bold">Đơn #1</h5>
-          <p><strong>Nhân viên:</strong> Nguyễn Thị Thuỷ Tiên</p>
-          <p><strong>Khu vực/Bàn:</strong> Vip - bàn 2</p>
-          <p><strong>Thông tin KH:</strong> Nguyễn Thị Thuỷ Tiên - 0918778133</p>
-          <p><strong>Loại đơn:</strong> Đặt bàn</p>
-          <p><strong>Tổng tiền:</strong> 632,000 đ</p>
-          <p><strong>Trạng thái:</strong>
-            <select class="form-select">
-              <option selected>Đã thanh toán</option>
+              <option selected>{{ item.order_status }}</option>
               <option>Chưa xác nhận</option>
               <option>Đã hủy</option>
             </select>
@@ -136,17 +114,60 @@
   </div>
 </template>
 <script>
+import axios from 'axios'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import numeral from 'numeral'
 export default {
   data() {
     return {
       activeTab: 'Tất cả',
     };
   },
+
+
   methods: {
     setActive(tab) {
       this.activeTab = tab;
     },
+    formatNumber(value) {
+      return numeral(value).format('0,0')
+    },
+    getImageUrl(image) {
+      return `/img/food/${image}`
+    },
   },
+
+
+
+  setup(){
+    const order = ref([])
+
+    const getOrders = () =>{
+      axios.get(`http://127.0.0.1:8000/api/get_all_orders`)
+      .then(response => {
+        order.value = (response.data.orders ?? []).sort((a,b) => a.id - b.id)
+
+        console.log('Danh sách order:', order.value)
+      })
+      .catch(error => {
+        console.error('Lỗi khi lấy đơn hàng:',error)
+      })
+    }
+
+
+
+    onMounted(()=>{
+      getOrders()
+    })
+
+    return{
+    order,
+    getOrders,
+  }
+  }
+
+
+
 };
 </script>
 <style>
