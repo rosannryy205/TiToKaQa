@@ -56,10 +56,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 //cart
 Route::post('/order',[CartController::class,'order']);
-Route::get('/order_info/{id}',[CartController::class,'getIn4Order']);
-Route::get('/ping', function () {
-    return response()->json(['pong' => true]);
-});
+Route::get('/order_info/{id}',[CartController::class,'get_order_detail']);
+Route::get('/get_all_orders',[CartController::class,'get_all_orders']);
+
 
 
 

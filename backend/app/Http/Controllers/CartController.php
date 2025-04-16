@@ -90,9 +90,9 @@ class CartController extends Controller
         }
     }
 
-    public function getIn4Order(Request $request){
+    public function get_order_detail(Request $request){
         $order = Order::with([
-            'details.food', //lấy tên món ăn
+            'details.foods', //lấy tên món ăn
             'details.toppings.food_toppings.toppings' //lấy tên toppingtopping
         ])->find($request->id);
         if ($order){
@@ -100,7 +100,7 @@ class CartController extends Controller
                 return [
                     'id' => $detail->id,
                     'food_id' => $detail->food_id,
-                    'food_name' => $detail->food_name ?? null,
+                    'food_name' =>optional($detail->foods)->name,
                     'quantity' => $detail->quantity,
                     'price' => $detail->price,
                     'image' => $detail->foods->image,
@@ -108,7 +108,7 @@ class CartController extends Controller
                     'toppings' => $detail->toppings->map(function ($toppings){
                         return [
                             'food_toppings_id' => $toppings->food_toppings_id,
-                            'topping_name' => $toppings->food_toppings->topping->name ?? null,
+                            'topping_name' => optional($toppings->food_toppings->toppings)->name,
                             'price' => $toppings->price,
                         ];
                     })
@@ -149,4 +149,74 @@ class CartController extends Controller
         }
     }
 
+
+    public function get_all_orders(){
+        $orders = Order::with([
+            'details.foods', // lấy tên món ăn
+            'details.toppings.food_toppings.toppings' // lấy tên topping
+        ])->orderByDesc('order_time')->get();
+
+        if ($orders->isNotEmpty()) {
+            $data = $orders->map(function ($order) {
+                $details = $order->details->map(function ($detail) {
+                    return [
+                        'id' => $detail->id,
+                        'food_id' => $detail->food_id,
+                        'food_name' => $detail->food_name ?? null,
+                        'quantity' => $detail->quantity,
+                        'price' => $detail->price,
+                        'image' => $detail->foods->image,
+                        'type' => $detail->type,
+                        'toppings' => $detail->toppings->map(function ($toppings) {
+                            return [
+                                'food_toppings_id' => $toppings->food_toppings_id,
+                                'topping_name' => $toppings->food_toppings->topping->name ?? null,
+                                'price' => $toppings->price,
+                            ];
+                        })
+                    ];
+                });
+
+                return [
+                    'id' => $order->id,
+                    'user_id' => $order->user_id,
+                    'discount_id' => $order->discount_id,
+                    'order_time' => $order->order_time,
+                    'order_status' => $order->order_status,
+                    'total_price' => $order->total_price,
+                    'comment' => $order->comment,
+                    'review_time' => $order->review_time,
+                    'rating' => $order->rating,
+                    'guest_name' => $order->guest_name,
+                    'guest_phone' => $order->guest_phone,
+                    'guest_email' => $order->guest_email,
+                    'guest_address' => $order->guest_address,
+                    'guest_count' => $order->guest_count,
+                    'note' => $order->note,
+                    'deposit_amount' => $order->deposit_amount,
+                    'check_in_time' => $order->check_in_time,
+                    'reservations_time' => $order->reservations_time,
+                    'expiration_time' => $order->expiration_time,
+                    'reservation_status' => $order->reservation_status,
+                    'details' => $details
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'mess' => 'Lấy danh sách đơn hàng thành công',
+                'orders' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'mess' => 'Không có đơn hàng nào'
+            ]);
+        }
+    }
+
+
 }
+
+
+

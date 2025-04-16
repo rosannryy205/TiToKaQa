@@ -41,6 +41,8 @@
         <div class="col-6 text-end"></div>
         <div class="col-6">Địa chỉ:</div>
         <div class="col-6 text-end"></div>
+        <div class="col-6">Ngày đặt hàng:</div>
+        <div class="col-6 text-end"></div>
       </div>
     </div>
 

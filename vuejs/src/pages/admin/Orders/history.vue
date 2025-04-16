@@ -54,7 +54,7 @@
         <thead class="table-light">
           <tr>
             <th>STT</th>
-            <th>Nhân viên</th>
+            <!-- <th>Nhân viên</th> -->
             <th>Khu vực/Bàn</th>
             <th>Thông tin KH</th>
             <th>Loại đơn</th>
@@ -64,16 +64,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td class="text-truncate" title="Nguyễn Thị Thuỷ Tiên">Nguyễn Thị Thuỷ Tiên</td>
+          <tr v-for="(item, index) in order" :key="item.id">
+            <td>{{ item.id }}</td>
+            <!-- <td class="text-truncate" title="Nguyễn Thị Thuỷ Tiên">Nguyễn Thị Thuỷ Tiên</td> -->
             <td>Sảnh chính, bàn 2</td>
-            <td class="text-truncate" title="Nguyễn Thị Thuỷ Tiên - 0918778133">Nguyễn Thị Thuỷ Tiên - 0918778133</td>
-            <td>Đặt bàn</td>
-            <td>632,000 đ</td>
+            <td class="text-truncate" :title="item.guest_name + ' - ' + item.guest_phone">{{ item.guest_name }} - {{ item.guest_phone }}</td>
+            <td>{{ item.reservations_time ? 'Đặt bàn' : 'Mang về' }}</td>
+            <td>{{formatNumber(item.total_price)}} đ</td>
             <td>
               <select class="form-select">
-                <option selected>Đã thanh toán</option>
+                <option selected>{{ item.order_status }}</option>
                 <option>Chưa xác nhận</option>
                 <option>Đã hủy</option>
               </select>
@@ -95,7 +95,7 @@
           <p><strong>Nhân viên:</strong> Nguyễn Thị Thuỷ Tiên</p>
           <p><strong>Khu vực/Bàn:</strong> Vip - bàn 2</p>
           <p><strong>Thông tin KH:</strong> Nguyễn Thị Thuỷ Tiên - 0918778133</p>
-          <p><strong>Loại đơn:</strong> Đặt bàn</p>
+          <p><strong>Loại đơn:</strong></p>
           <p><strong>Tổng tiền:</strong> 632,000 đ</p>
           <p><strong>Trạng thái:</strong>
             <select class="form-select">
@@ -117,7 +117,7 @@
           <p><strong>Nhân viên:</strong> Nguyễn Thị Thuỷ Tiên</p>
           <p><strong>Khu vực/Bàn:</strong> Vip - bàn 2</p>
           <p><strong>Thông tin KH:</strong> Nguyễn Thị Thuỷ Tiên - 0918778133</p>
-          <p><strong>Loại đơn:</strong> Đặt bàn</p>
+          <p><strong>Loại đơn:</strong></p>
           <p><strong>Tổng tiền:</strong> 632,000 đ</p>
           <p><strong>Trạng thái:</strong>
             <select class="form-select">
@@ -136,17 +136,60 @@
   </div>
 </template>
 <script>
+import axios from 'axios'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import numeral from 'numeral'
 export default {
   data() {
     return {
       activeTab: 'Tất cả',
     };
   },
+
+
   methods: {
     setActive(tab) {
       this.activeTab = tab;
     },
+    formatNumber(value) {
+      return numeral(value).format('0,0')
+    },
+    getImageUrl(image) {
+      return `/img/food/${image}`
+    },
   },
+
+
+
+  setup(){
+    const order = ref([])
+
+    const getOrders = () =>{
+      axios.get(`http://127.0.0.1:8000/api/get_all_orders`)
+      .then(response => {
+        order.value = (response.data.orders ?? []).sort((a,b) => a.id - b.id)
+
+        console.log('Danh sách order:', order.value)
+      })
+      .catch(error => {
+        console.error('Lỗi khi lấy đơn hàng:',error)
+      })
+    }
+
+
+
+    onMounted(()=>{
+      getOrders()
+    })
+
+    return{
+    order,
+    getOrders,
+  }
+  }
+
+
+
 };
 </script>
 <style>
