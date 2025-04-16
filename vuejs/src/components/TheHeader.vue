@@ -44,7 +44,7 @@
                     <i class="bi bi-person-x"></i>
                   </button>
                   <router-link to="/update-user" class="text-decoration-none text-primary-red">
-                    <p v-if="auth.user" class="mb-0 me-2">{{ auth.user.username }}</p>
+                    <p class="mb-0 me-2">{{ user.username }}</p>
                   </router-link>
                 </template>
               </div>
@@ -380,11 +380,10 @@
 </template>
 <script setup>
 import { useCountdown } from "../stores/countDown";
-import { useAuthStore } from '@/stores/auth';
+// import { useAuthStore } from '@/stores/auth';
 import { useRoute, useRouter } from 'vue-router';
 
 const { formattedTime, isCounting, startCountdown } = useCountdown(60);
-const auth = useAuthStore();
 //Google
 const loginWithGoogle = () => {
   window.location.href = 'http://localhost:8000/api/auth/google/redirect';

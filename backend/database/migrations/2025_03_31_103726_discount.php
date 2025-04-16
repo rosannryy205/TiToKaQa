@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('code')->unique(); 
             $table->string('name');         
             $table->integer('discount_value'); 
-            $table->enum('type', ['percent', 'fixed'])->default('fixed'); 
+            $table->enum('discount_method', ['percent', 'fixed'])->default('fixed'); 
+            $table->enum('discount_type', ['freeship', 'salefood'])->default('freeship'); 
             $table->timestamp('start_date')->nullable(); 
             $table->timestamp('end_date')->nullable();   
             $table->enum('status', ['active', 'inactive'])->default('active'); 

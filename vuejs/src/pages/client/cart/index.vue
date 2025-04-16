@@ -220,8 +220,6 @@ export default {
         router.push('/payment_if');
       }
     }
-
-
     onMounted(() => {
       loadCart();
     });

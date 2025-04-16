@@ -3,24 +3,25 @@
   </template>
   
   <script setup>
-  import { useRoute, useRouter } from 'vue-router';
-  import { onMounted } from 'vue';
-  import { useAuthStore } from '@/stores/auth';
+  import { onMounted } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
   
-  const route = useRoute();
-  const router = useRouter();
+  const route = useRoute()
+  const router = useRouter()
   
   onMounted(() => {
-  const token = route.query.token;
-  const user = JSON.parse(route.query.user);
-
-  if (token && user) {
-    const auth = useAuthStore();
-    auth.setAuth(token, user);
-    router.push('/');
-  } else {
-    console.error("Không tìm thấy token trong URL");
-  }
-});
-  </script>
+    const token = route.query.token
+    const user = route.query.user ? JSON.parse(route.query.user) : null
   
+    if (token && user) {
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(user))
+
+      router.push('/').then(() => {
+        window.location.reload()
+      })
+    } else {
+      console.error("Không tìm thấy token hoặc user trong URL")
+    }
+  })
+  </script>

@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ComboController;
+use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
@@ -15,6 +16,7 @@ Route::get('/home', [HomeController::class, 'index']);
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
+use App\Models\Discount;
 use Laravel\Socialite\Contracts\Provider;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
@@ -70,6 +72,8 @@ Route::get('/ping', function () {
     return response()->json(['pong' => true]);
 });
 
+//discount
+Route::get('/discounts',[DiscountController::class,'getAllDiscounts']);
 
 
 //gg
