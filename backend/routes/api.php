@@ -22,7 +22,7 @@ Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
 Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
 //search
-Route::get('/foods/search', [FoodController::class, 'search']);
+// Route::get('/foods/search', [FoodController::class, 'search'])   ;
 
 Route::get('/home/food/{id}', [FoodController::class, 'getFoodById']);
 Route::get('/home/category/{id}/food', [FoodController::class, 'getFoodByCategory']);
@@ -66,10 +66,9 @@ Route::middleware('auth:sanctum')->group(function () {
 // tìm kiếm
 
 // 1. Route để hiển thị kết quả ban đầu
-Route::get('/search/{keyword}', [HomeController::class, 'searchPage']);
+Route::get('/search', [HomeController::class, 'search']);
 
-// 2. Route để scroll (AJAX load thêm)
-Route::get('/search-load', [HomeController::class, 'loadMore']);
+
 
 
 

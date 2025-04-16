@@ -65,55 +65,37 @@ class HomeController extends Controller
     //     ]);
     // }
 
-    public function searchPage($keyword)
+    public function search(Request $request)
     {
-        $results = $this->searchAll($keyword, 0, 5);
-        
-        return response()->json([
-            'keyword' => $keyword,
-            'results' => $results
-        ], $results->isEmpty() ? 404 : 200); // Nếu mảng trống, trả về mã lỗi 404
-    }
+        $keyword = $request->input('search');
+        $offset = $request->input('offset', 0);
+        $limit = $request->input('limit', 5);
 
-    public function loadMore(Request $request)
-    {
-        $keyword = $request->input('keyword');
-        $offset = (int) $request->input('offset', 0);
-
-        $results = $this->searchAll($keyword, $offset, 5);
-
-        return response()->json([
-            'results' => $results
-        ], $results->isEmpty() ? 404 : 200); // Nếu mảng trống, trả về mã lỗi 404
-    }
-
-
-
-    private function searchAll($keyword, $offset, $limit)
-    {
-        $foods = Food::where('name', 'like', "%$keyword%")
+        // Lấy foods có liên kết category
+        $foods = Food::with('category')
+            ->where('name', 'like', "%$keyword%")
             ->get()
             ->map(function ($item) {
-                $item->type = 'food';
+                $item->setAttribute('type', 'food');
                 return $item;
             });
 
-        $toppings = Topping::where('name', 'like', "%$keyword%")
-            ->get()
-            ->map(function ($item) {
-                $item->type = 'topping';
-                return $item;
-            });
-
+        // Lấy combos KHÔNG có category
         $combos = Combo::where('name', 'like', "%$keyword%")
             ->get()
             ->map(function ($item) {
-                $item->type = 'combo';
+                $item->setAttribute('type', 'combo');
                 return $item;
             });
 
-        $merged = $foods->merge($toppings)->merge($combos)->sortBy('name')->values();
+        // Gộp lại và phân trang
+        $all = $foods->concat($combos);
+        $sorted = $all->sortBy('name')->values();
+        $paged = $sorted->slice($offset, $limit)->values();
 
-        return $merged->slice($offset, $limit)->values();
+        return response()->json([
+            'results' => $paged,
+            'total' => $sorted->count()
+        ]);
     }
 }

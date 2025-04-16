@@ -1,118 +1,135 @@
 <template>
   <!-- top header-->
   <div class="header position-sticky top-0 bg-white bg-opacity-90 shadow-sm z-3">
-  <div class="container">
-    <div class="navbar-top">
-      <nav class="navbar navbar-expand-lg navbar-bottom">
-        <div class="container d-flex justify-content-between align-items-center">
-          <!---->
-          <div class="d-flex align-items-center">
-            <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="logo-container ">
-              <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
-            </div>
-          </div>
-
-          <div class="d-flex align-items-center">
-            <!-- Search -->
-            <form @submit.prevent="searchProduct">
-    <div class="input-wrapper me-3 d-none d-lg-block">
-      <button class="icon">
-        <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none"
-          xmlns="http://www.w3.org/2000/svg">
-          <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-            stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
-      </button>
-      <input v-model="searchQuery" type="text" name="text" class="input" placeholder="search.." />
-    </div>
-  </form>
-
-            <!-- Login/Logout -->
-            <div class="d-none d-lg-block">
-              <div class="d-flex align-items-center me-3">
-                <button v-if="!isLoggedIn" class="icon-btn me-2" data-bs-toggle="modal" @click="openLoginModal">
-                  <i class="bi bi-people"></i>
-                </button>
-
-                <template v-else>
-                  <button class="icon-btn me-2" @click="handleLogout">
-                    <i class="bi bi-person-x"></i>
-                  </button>
-                  <router-link to="/update-user" class="text-decoration-none text-primary-red">
-                    <p v-if="auth.user" class="mb-0 me-2">{{ auth.user.username }}</p>
-                  </router-link>
-                </template>
+    <div class="container">
+      <div class="navbar-top">
+        <nav class="navbar navbar-expand-lg navbar-bottom">
+          <div class="container d-flex justify-content-between align-items-center">
+            <!---->
+            <div class="d-flex align-items-center">
+              <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasMenu">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="logo-container ">
+                <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
               </div>
             </div>
-            <div class="d-none d-lg-block">
-              <router-link to="/cart" style="color: black;">
-                <button class="icon-btn"><i class="bi bi-cart"></i></button>
-              </router-link>
+
+            <div class="d-flex align-items-center">
+              <!-- Search -->
+              <!-- Hiển thị kết quả tìm kiếm -->
+              <form @submit.prevent="searchProduct">
+                <div class="input-wrapper me-3 d-none d-lg-block position-relative " ref="wrapperRef">
+                  <button class="icon" type="submit">
+                    <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                        stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                      <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round"></path>
+                    </svg>
+                  </button>
+                  <input v-model="searchQuery" type="text" class="input" placeholder="search..." @input="handleInput"
+                    @focus="() => { handleInput(); showSuggestions = true; }" @keydown.enter="searchProduct" />
+
+                  <!-- Dropdown gợi ý -->
+                  <ul v-if="suggestions.length && showSuggestions" class="suggestion-dropdown"
+                    @scroll.passive="handleScroll">
+                    <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
+                      {{ item.name }}
+                    </li>
+                    <li v-if="loading" class="loading">Đang tải thêm...</li>
+                    <li v-if="!hasMore && !loading" class="no-more">Đã hết kết quả</li>
+                  </ul>
+                </div>
+              </form>
+
+
+
+
+
+              <!-- Login/Logout -->
+              <div class="d-none d-lg-block">
+                <div class="d-flex align-items-center me-3">
+                  <button v-if="!isLoggedIn" class="icon-btn me-2" data-bs-toggle="modal" @click="openLoginModal">
+                    <i class="bi bi-people"></i>
+                  </button>
+
+                  <template v-else>
+                    <button class="icon-btn me-2" @click="handleLogout">
+                      <i class="bi bi-person-x"></i>
+                    </button>
+                    <router-link to="/update-user" class="text-decoration-none text-primary-red">
+                      <p v-if="auth.user" class="mb-0 me-2">{{ auth.user.username }}</p>
+                    </router-link>
+                  </template>
+                </div>
+              </div>
+              <div class="d-none d-lg-block">
+                <router-link to="/cart" style="color: black;">
+                  <button class="icon-btn"><i class="bi bi-cart"></i></button>
+                </router-link>
+              </div>
             </div>
           </div>
+        </nav>
+      </div>
+
+      <!-- Menu bottom -->
+      <nav class="navbar navbar-expand-lg navbar-bottom">
+        <div class="collapse navbar-collapse text-start d-none d-lg-flex">
+          <ul class="navbar-nav fs-5">
+            <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
+            <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
+            <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
+          </ul>
         </div>
       </nav>
     </div>
 
-    <!-- Menu bottom -->
-    <nav class="navbar navbar-expand-lg navbar-bottom">
-      <div class="collapse navbar-collapse text-start d-none d-lg-flex">
-        <ul class="navbar-nav fs-5">
+    <!-- offcanvas menu small screen -->
+    <div class="offcanvas offcanvas-start" id="offcanvasMenu">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav">
           <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
           <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
           <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
         </ul>
-      </div>
-    </nav>
-  </div>
 
-  <!-- offcanvas menu small screen -->
-  <div class="offcanvas offcanvas-start" id="offcanvasMenu">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title">Menu</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-    </div>
-    <div class="offcanvas-body">
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
-        <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
-        <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
-      </ul>
+        <!-- Các icon hiển thị trên mobile -->
+        <div class="d-flex justify-content-around mt-4 d-lg-none">
+          <div class="input-wrapper">
+            <button class="icon">
+              <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                  stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                </path>
+              </svg>
+            </button>
+            <input type="text" name="text" class="input" placeholder="search.." />
+          </div>
+          <button class="icon-btn ms-3" data-bs-toggle="modal" @click="openLoginModal">
+            <i class="bi bi-people"></i>
+          </button>
 
-      <!-- Các icon hiển thị trên mobile -->
-      <div class="d-flex justify-content-around mt-4 d-lg-none">
-        <div class="input-wrapper">
-              <button class="icon">
-                <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-                    stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                  <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
-                    stroke-linejoin="round"></path>
-                </svg>
-              </button>
-              <input type="text" name="text" class="input" placeholder="search.." />
-            </div>
-        <button class="icon-btn ms-3" data-bs-toggle="modal" @click="openLoginModal">
-          <i class="bi bi-people"></i>
-        </button>
+          <button class="icon-btn ms-3">
+            <i class="bi bi-telephone"></i>
+          </button>
 
-        <button class="icon-btn ms-3">
-          <i class="bi bi-telephone"></i>
-        </button>
-
-        <router-link to="/cart" style="color: black;">
-          <button class="icon-btn ms-3"><i class="bi bi-cart"></i></button>
-        </router-link>
+          <router-link to="/cart" style="color: black;">
+            <button class="icon-btn ms-3"><i class="bi bi-cart"></i></button>
+          </router-link>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 
   <!-- Modal đăng nhập -->
@@ -178,7 +195,8 @@
             </div>
 
             <div class="d-flex justify-content-center gap-3">
-              <button @click="loginWithGoogle" type="button" class="btn btn-social"><i class="bi bi-google"></i></button>
+              <button @click="loginWithGoogle" type="button" class="btn btn-social"><i
+                  class="bi bi-google"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-twitter-x"></i></button>
             </div>
@@ -264,7 +282,7 @@
 
             <!-- Chuyển sang đăng nhập -->
             <div class="mb-3 text-end">
-              <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">Đã có tài
+              <a href="#" data-bs-toggle="modal" @click="openLoginModal">Đã có tài
                 khoản</a>
             </div>
 
@@ -426,8 +444,11 @@
 import { useCountdown } from "../stores/countDown";
 import { useAuthStore } from '@/stores/auth';
 import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
+import { reactive, ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import * as bootstrap from 'bootstrap';
 
-const { formattedTime, isCounting, startCountdown } = useCountdown(60);
+// const { formattedTime, isCounting, startCountdown } = useCountdown(60);
 const auth = useAuthStore();
 //Google
 const loginWithGoogle = () => {
@@ -435,18 +456,18 @@ const loginWithGoogle = () => {
 };
 
 //search
-const searchQuery = ref('');
-// const route = useRoute();
-const router = useRouter();// const res = ref([]);
-const searchProduct = () => {
-  const query = searchQuery.value.trim()
-  if (!query) return
+// const searchQuery = ref('');
+// // const route = useRoute();
+// const router = useRouter();// const res = ref([]);
+// const searchProduct = () => {
+//   const query = searchQuery.value.trim()
+//   if (!query) return
 
-  router.push({
-    path: '/search',
-    query: { search: query }
-  })
-}
+//   router.push({
+//     path: '/search',
+//     query: { search: query }
+//   })
+// }
 
 // const handleGoogleLogin = async () => {
 //   try {
@@ -463,18 +484,6 @@ const searchProduct = () => {
 //     console.error("Google login error:", error);
 //   }
 // };
-
-
-</script>
-
-
-
-
-
-<script>
-import axios from 'axios';
-import { reactive, ref, onMounted } from 'vue';
-import * as bootstrap from 'bootstrap';
 
 
 window.bootstrap = bootstrap;
@@ -550,6 +559,12 @@ const loadingSend = ref(false);
 // kiểm tra đã đăng nhập chưa
 const user = ref(JSON.parse(localStorage.getItem('user')) || null);
 const isLoggedIn = ref(!!user.value);
+onMounted(() => {
+  const storedUser = JSON.parse(localStorage.getItem('user'));
+  user.value = storedUser;
+  isLoggedIn.value = !!storedUser
+
+});
 
 
 // tạo thông tin quên mật khẩu
@@ -576,14 +591,9 @@ const loginErrors = reactive({});
 const errorResetPass = ref('');
 
 
-export default {
-  setup() {
-    onMounted(() => {
-      isLoggedIn.value = !!user.value;
 
-    });
-  }
-}
+
+
 //  Đăng ký
 const Handleregister = async () => {
   Object.keys(registerErrors).forEach(key => delete registerErrors[key]);
@@ -921,42 +931,153 @@ const ResetPass = async () => {
     loading.value = false;
   }
 
-  return{
+  return {
 
-}
+  }
 };
 
-export {
-  registerData,
-  loginData,
-  loginError,
-  registerErrors,
-  loading,
-  user,
-  isLoggedIn,
-  errorSendCode,
-  errorVerify,
-  firstErrorKey,
-  codeDigits,
-  verify,
-  isComposing,
-  inputs,
-  errorResetPass,
-  Handleregister,
-  handleLogin,
-  handleLogout,
-  openLoginModal,
-  moveToNext,
-  onlyNumber,
-  forgotPass,
-  sendCode,
-  verifyResetCode,
-  ResetPass,
-  startCountdown,
+// export {
+//   registerData,
+//   loginData,
+//   loginError,
+//   registerErrors,
+//   loading,
+//   user,
+//   isLoggedIn,
+//   errorSendCode,
+//   errorVerify,
+//   firstErrorKey,
+//   codeDigits,
+//   verify,
+//   isComposing,
+//   inputs,
+//   errorResetPass,
+//   Handleregister,
+//   handleLogin,
+//   handleLogout,
+//   openLoginModal,
+//   moveToNext,
+//   onlyNumber,
+//   forgotPass,
+//   sendCode,
+//   verifyResetCode,
+//   ResetPass,
+//   startCountdown,
 
 
 
+// }const searchQuery = ref('')
+const searchQuery = ref(''); // Từ khóa tìm kiếm
+const suggestions = ref([]); // Danh sách kết quả
+const offset = ref(0); // Vị trí bắt đầu
+const limit = 5; // Số kết quả mỗi lần
+const hasMore = ref(true); // Kiểm tra có còn dữ liệu để tải thêm không
+const showSuggestions = ref(false); // Biến để điều khiển dropdown
+const wrapperRef = ref(null); // Ref để gắn vào input-wrapper
+
+// Hàm debounce để tránh gọi API quá nhanh
+function debounce(fn, delay = 300) {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn.apply(this, args), delay);
+  };
 }
+
+// Hàm xử lý khi người dùng nhập từ khóa tìm kiếm
+const handleInput = debounce(() => {
+  if (searchQuery.value.trim()) {
+    offset.value = 0;
+    suggestions.value = [];
+    hasMore.value = true;
+    showSuggestions.value = true;
+    fetchSuggestions();
+  } else {
+    suggestions.value = [];
+    showSuggestions.value = false;
+  }
+}, 300);
+// 300ms debounce
+
+// Hàm lấy dữ liệu từ API
+const fetchSuggestions = async () => {
+  if (loading.value || !searchQuery.value.trim() || !hasMore.value) return;
+
+  loading.value = true;
+  try {
+    const res = await axios.get('http://localhost:8000/api/search', {
+      params: {
+        search: searchQuery.value,
+        offset: offset.value,
+        limit: limit,
+      },
+    });
+
+    const results = res.data.results || [];
+    const total = res.data.total || 0;
+
+    console.log("Load thêm:", results.length, "offset:", offset.value, "total:", total);
+
+    suggestions.value.push(...results);
+
+    offset.value += results.length;
+    hasMore.value = offset.value < total;
+  } catch (error) {
+    console.error('Lỗi khi fetch gợi ý:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+
+
+// Hàm xử lý cuộn để tải thêm dữ liệu
+const handleScroll = (e) => {
+  console.log("Đang scroll suggestion dropdown...");
+  const el = e.target;
+  if (
+    el.scrollTop + el.clientHeight >= el.scrollHeight - 10 &&
+    hasMore.value &&
+    !loading.value
+  ) {
+    console.log("Gần cuối dropdown, tải thêm...");
+    fetchSuggestions();
+  }
+};
+
+
+
+
+
+// Hàm xử lý khi người dùng chọn một item trong danh sách gợi ý
+const selectItem = (item) => {
+  console.log("Selected item:", item);
+  searchQuery.value = item.name;
+  suggestions.value = [];
+  showSuggestions.value = false; // Ẩn dropdown khi chọn item
+};
+
+// Hàm tìm kiếm sản phẩm khi người dùng nhấn Enter hoặc submit
+const searchProduct = () => {
+  if (suggestions.value.length) {
+    selectItem(suggestions.value[0]);
+  }
+};
+
+// Hàm xử lý khi người dùng click ngoài để ẩn dropdown
+const handleClickOutside = (e) => {
+  if (wrapperRef.value && !wrapperRef.value.contains(e.target)) {
+    showSuggestions.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 
 </script>
 
@@ -965,11 +1086,46 @@ export {
 .text-primary-red {
   color: #ca111f;
 }
+
 .hover-scale {
   transition: transform 0.2s ease;
 }
+
 .hover-scale:hover {
   transform: scale(1.1);
 }
 
+.suggestion-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;  /* 👈 Cố định chiều cao để buộc scroll */
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  z-index: 999;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.suggestion-dropdown li {
+  padding: 12px 16px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.suggestion-dropdown li:hover {
+  background-color: #f6f6f6;
+}
+
+.loading,
+.no-more {
+  padding: 10px;
+  text-align: center;
+  color: #888;
+}
 </style>
