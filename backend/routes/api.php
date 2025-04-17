@@ -84,4 +84,9 @@ Route::get('/get_all_orders',[CartController::class,'get_all_orders']);
 Route::get('/auth/{provider}/redirect', ProviderRedirectController::class)->name('auth.redirect');
 Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name('auth.callback');
 
+//admin
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+
+
+});
 

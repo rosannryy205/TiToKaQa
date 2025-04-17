@@ -42,7 +42,7 @@
                     </li>
 
                     <li v-if="loading" class="loading"><span v-if="loading"
-                      class="spinner-border spinner-border-sm me-2"></span> Đang tải thêm...</li>
+                        class="spinner-border spinner-border-sm me-2"></span> Đang tải thêm...</li>
                     <li v-if="!hasMore && !loading" class="no-more">Đã hết kết quả</li>
                   </ul>
                 </div>
@@ -64,7 +64,7 @@
                       <i class="bi bi-person-x"></i>
                     </button>
                     <router-link to="/update-user" class="text-decoration-none text-primary-red">
-                      <p v-if="auth.user" class="mb-0 me-2">{{ auth.user.username }}</p>
+                      <p v-if="user.username" class="mb-0 me-2">{{ user.username }}</p>
                     </router-link>
                   </template>
                 </div>
@@ -232,7 +232,7 @@
             <!-- Email -->
             <div v-if="registerErrors.email" class="text-danger small text-center error-message">{{
               registerErrors.email[0]
-              }}
+            }}
             </div>
             <div v-else style="height:3px"></div>
             <div class="mb-3 position-relative">
@@ -246,7 +246,7 @@
             <!-- Phone  -->
             <div v-if="registerErrors.phone" class="text-danger small text-center error-message">{{
               registerErrors.phone[0]
-              }}
+            }}
             </div>
             <div v-else style="height:3px"></div>
             <div class="mb-3 position-relative">
@@ -648,7 +648,6 @@ const Handleregister = async () => {
   }
 };
 
-
 //  Đăng nhập
 const handleLogin = async () => {
   loginError.value = '';
@@ -672,10 +671,17 @@ const handleLogin = async () => {
     document.body.classList.remove('modal-open');
     document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
 
+    console.log(user.value);
+
     // Reset form
     loginData.login = '';
     loginData.password = '';
-    window.location.reload();
+    if (user.value.role === 'admin') {
+      router.push('/admin');
+      
+    } else {
+      router.push('/home');
+    }
   } catch (error) {
     console.error('Lỗi đăng nhập:', error);
 
@@ -722,7 +728,7 @@ const handleLogout = async () => {
     isLoggedIn.value = false;
 
     alert('Đăng xuất thành công');
-    // window.location.href = '/home';
+    window.location.href = '/home';
   } catch (error) {
     console.error('Lỗi đăng xuất:', error);
     alert('Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!');
@@ -1107,7 +1113,8 @@ onBeforeUnmount(() => {
   top: 100%;
   left: 0;
   right: 0;
-  max-height: 270px;  /* 👈 Cố định chiều cao để buộc scroll */
+  max-height: 270px;
+  /* 👈 Cố định chiều cao để buộc scroll */
   overflow-y: auto;
   background: #fff;
   border: 1px solid #ddd;
