@@ -671,14 +671,13 @@ const handleLogin = async () => {
     document.body.classList.remove('modal-open');
     document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
 
-    console.log(user.value);
+
 
     // Reset form
     loginData.login = '';
     loginData.password = '';
     if (user.value.role === 'admin') {
       router.push('/admin');
-      
     } else {
       router.push('/home');
     }

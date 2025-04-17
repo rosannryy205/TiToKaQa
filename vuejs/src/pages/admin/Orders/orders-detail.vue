@@ -1,32 +1,33 @@
 <template>
-  <div class="container" v-if="orderById">
+  <div class="container">
     <div class="card p-3">
-      <h5 class="border-bottom pb-2">Thông tin đặt bàn</h5>
+      <h5 class="border-bottom pb-2">Thông tin</h5>
       <div class="row">
-        <div class="col-6">Ngày đặt bàn: </div>
-        <div class="col-6 text-end">{{ orderById.reservations_time ? orderById.reservations_time : 'Không có' }}</div>
-        <div class="col-6">Ngày dự kiến nhận bàn:</div>
-        <div class="col-6 text-end">02/06/2023</div>
-        <div class="col-6">Giờ nhận bàn dự kiến:</div>
-        <div class="col-6 text-end">{{ orderById.reservations_time ? orderById.expiration_time : 'Không có' }}</div>
-        <div class="col-6">Số khách hàng:</div>
-        <div class="col-6 text-end">{{ orderById.reguest_count ? orderById.guest_count : 'Không có' }}</div>
-        <div class="col-6">Tham chiếu:</div>
-        <div class="col-6 text-end"><a href="#">{{ orderById.id }}</a></div>
+        <div class="col-6">Ngày đặt:</div>
+        <div class="col-6 text-end">{{ formatDate(info.order_time) }}</div>
+        <div class="col-6" v-show="info.reservations_time">Ngày dự kiến nhận bàn:</div>
+        <div class="col-6 text-end" v-show="info.reservations_time">{{ formatDate(info.reservations_time) }}</div>
+        <div class="col-6" v-show="info.reservations_time">Giờ nhận bàn dự kiến:</div>
+        <div class="col-6 text-end" v-show="info.reservations_time">
+          {{ formatTime(info.reservations_time) }} - {{ formatTime(info.expiration_time) }} giờ
+        </div>
+        <div class="col-6" v-show="info.reservations_time">Lượng khách:</div>
+        <div class="col-6 text-end" v-show="info.reservations_time">{{ info.guest_count }} người</div>
+        <div class="col-6" v-show="info.reservations_time">Bàn: </div>
+        <div class="col-6 text-end" v-show="info.reservations_time">
+          {{ tableNumbers || 'Chưa xếp' }}
+        </div>
+        <div class="col-6">Phương thức thanh toán:</div>
+        <div class="col-6 text-end">Chưa rõ</div>
+        <div class="col-6">Trạng thái thanh toán:</div>
+        <div class="col-6 text-end">Chưa rõ</div>
         <div class="col-6">Trạng thái đơn:</div>
-        <div class="col-6 text-end"><span class="badge bg-success">{{ orderById.order_status }}</span></div>
-      </div>
-    </div>
-
-    <div class="card p-3 mt-3">
-      <h5 class="border-bottom pb-2">Bàn và khu vực</h5>
-      <div class="row">
-        <div class="col-6">Khu vực:</div>
-        <div class="col-6 text-end">{{ orderById.reservations_time ? orderById.reservations_time : 'Không có' }}</div>
-        <div class="col-6">Bàn:</div>
-        <div class="col-6 text-end">{{ orderById.reservations_time ? orderById.reservations_time : 'Không có' }}</div>
-        <div class="col-6">Số người:</div>
-        <div class="col-6 text-end">{{ orderById.reservations_time ? orderById.reservations_time : 'Không có' }}</div>
+        <div class="col-6 text-end">
+          <span v-if="info.reservations_time">{{ info.reservation_status }}</span>
+          <span v-else>{{ info.order_status }}</span>
+        </div>
+        <div class="col-6">Ghi chú:</div>
+        <div class="col-6 text-end">{{ info.note || 'không có' }}</div>
       </div>
     </div>
 
@@ -34,18 +35,15 @@
       <h5 class="border-bottom pb-2">Thông tin khách hàng</h5>
       <div class="row">
         <div class="col-6">Họ tên:</div>
-        <div class="col-6 text-end">{{ orderById.guest_name }}</div>
+        <div class="col-6 text-end">{{ info.guest_name }}</div>
         <div class="col-6">Số điện thoại:</div>
-        <div class="col-6 text-end">{{ orderById.guest_phone }}</div>
+        <div class="col-6 text-end">{{ info.guest_phone }}</div>
         <div class="col-6">Email:</div>
-        <div class="col-6 text-end">{{ orderById.guest_email }}</div>
+        <div class="col-6 text-end">{{ info.guest_email }}</div>
         <div class="col-6">Địa chỉ:</div>
-        <div class="col-6 text-end">{{ orderById.guest_address }}</div>
-        <div class="col-6">Ngày đặt hàng:</div>
-        <div class="col-6 text-end">{{ orderById.order_time }}</div>
+        <div class="col-6 text-end">{{ info.guest_address || '' }}</div>
       </div>
     </div>
-
 
     <!-- Chi tiết hóa đơn -->
     <div class="card p-3 mt-3">
@@ -61,7 +59,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in orderById.details" :key="item.id">
+          <tr v-for="item in info.details" :key="item.id">
             <td>{{ item.food_id }}</td>
             <td>
               <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
@@ -74,93 +72,68 @@
             </td>
             <td>{{ formatNumber(item.price) }} VNĐ</td>
             <td>{{ item.quantity }}</td>
-            <td>{{ formatNumber(totalPriceItem(item)) }} VNĐ</td>
+            <td>{{ formatNumber(item.price * item.quantity) }} VNĐ</td>
           </tr>
         </tbody>
       </table>
       <div class="text-end">
-        <p>Tạm tính: {{ formatNumber(totalPrice) }} VNĐ</p>
+        <p>Tạm tính: {{ formatNumber(info.total_price) }} VNĐ</p>
         <p>Khuyến mãi: 0 đ</p>
-        <h5>Tổng cộng (VAT): {{ formatNumber(totalPrice) }} VNĐ</h5>
+        <h5>Tổng cộng (VAT): {{ formatNumber(info.total_price) }} VNĐ</h5>
       </div>
     </div>
 
-    <button class="btn btn-secondary mt-3" @click="goBack">Quay lại</button>
+    <button class="btn btn-secondary mt-2 p-2" @click="goBack">Quay lại</button>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-import { useRoute } from 'vue-router';
-import { ref, onMounted, computed } from 'vue';
-import numeral from 'numeral'; // đúng cú pháp import
+import { Info } from '@/stores/info-order-reservation';
+import { useRoute } from 'vue-router'
+import { onMounted } from 'vue';
+import { computed } from 'vue';
 
 export default {
+  methods: {
+    goBack() {
+      window.history.back();
+    }
+  },
   setup() {
     const route = useRoute();
     const orderId = route.params.id;
-    const orderById = ref([]);
 
-    const getOrderById = () => {
-      axios.get(`http://127.0.0.1:8000/api/order_detail/${orderId}`)
-        .then(response => {
-          orderById.value = response.data.order_detail;
-          console.log('Danh sách chi tiết:', orderById.value);
-        })
-        .catch(error => {
-          console.error('Lỗi khi lấy đơn hàng:', error);
-          console.log("orderId từ route:", orderId);
-        });
-    };
+    const {
+      info,
+      getInfo,
+      formatNumber,
+      formatDate,
+      getImageUrl,
+      formatTime
+    } = Info.setup()
 
 
-    const totalPrice = computed(() => {
-      if (!orderById.value.details || !Array.isArray(orderById.value.details)) {
-        return 0;
+    const tableNumbers = computed(() => {
+      return info.value.tables ? info.value.tables.map(table => table.table_number).join(', ') : '';
+    });
+    onMounted(async () => {
+      try {
+        await getInfo('order', orderId);
+        console.log(info.value);
+
+      } catch (error) {
+        console.error("getInfo:", error);
       }
-      return orderById.value.details.reduce((sum, item) => {
-        const basePrice = Number(item.price) * item.quantity
-        const toppingPrice = item.toppings.reduce((tsum, topping) => {
-          return tsum + (Number(topping.price) * item.quantity)
-        }, 0)
-        return sum + basePrice + toppingPrice
-      }, 0)
-    })
-
-
-    const totalPriceItem = (item) => {
-      const itemPrice = Number(item.price) * item.quantity;
-      const toppingPrice = item.toppings.reduce((sum, topping) => {
-        return sum + (Number(topping.price) * item.quantity);
-      }, 0);
-      return itemPrice + toppingPrice;
-    };
-
-    const formatNumber = (value) => {
-      return numeral(value).format('0,0');
-    };
-
-    const getImageUrl = (image) => {
-      return `/img/food/${image}`;
-    };
-
-    const goBack = () => {
-      window.history.back();
-    };
-
-    onMounted(() => {
-      getOrderById();
     });
 
     return {
-      orderById,
       orderId,
-      getOrderById,
+      info,
+      formatDate,
       formatNumber,
       getImageUrl,
-      goBack,
-      totalPriceItem,
-      totalPrice
+      formatTime,
+      tableNumbers
     };
   }
 };

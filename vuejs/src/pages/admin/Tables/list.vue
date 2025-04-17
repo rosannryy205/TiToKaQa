@@ -15,7 +15,7 @@
             </li>
         </ul>
 
-        <!-- Bộ lọc khu vực -->
+        <!-- Bộ lọc khu vực
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
                 <label class="me-2">Khu vực:</label>
@@ -25,23 +25,60 @@
                     <option>Trong phòng</option>
                 </select>
             </div>
-        </div>
+        </div> -->
 
         <!-- Danh sách bàn -->
         <div class="row row-cols-2 row-cols-md-4 g-4">
-            <div class="col" v-for="n in 6" :key="n">
-                <div class="table-card text-center p-3">
-                    <div class="table-number">{{ n }}</div>
-                    <p class="status">Bàn trống - 2 người</p>
-                    <hr>
-                    <p class="area">Ngoài trời</p>
-                </div>
+          <div class="col" v-for="table in tables" :key="table.id">
+            <div class="table-card p-3 text-center" :class="table.status">
+              <div class="icon-wrap mb-2">
+                <i class="bi bi-person-fill"></i>
+              </div>
+              <h5 class="table-number">Bàn {{ table.table_number }}</h5>
+              <p class="status-text">{{ (table.status) }} - {{ table.capacity }} người</p>
             </div>
+          </div>
+
         </div>
     </div>
 </template>
+<script>
+import axios from 'axios';
+import { ref, onMounted } from 'vue';
+export default{
+  setup(){
+    const tables = ref([])
+
+    const getTable = async () => {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/api/tables')
+        tables.value = res.data
+        console.log(tables.value);
+
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+
+    onMounted(() => {
+      getTable();
+
+    })
+
+    return{
+      tables,
+    }
+  }
+}
+</script>
+
 
 <style scoped>
+.bi-person-fill{
+  color: #c62c37;
+  font-size: 30px;
+}
 .table-card {
     background: #f8f9fa;
     border-radius: 10px;
@@ -54,10 +91,7 @@
     transform: scale(1.05);
 }
 .table-number {
-    width: 40px;
-    height: 40px;
-    background: #d12d43;
-    color: white;
+    color: black;
     font-weight: bold;
     border-radius: 5px;
     display: flex;
@@ -65,7 +99,7 @@
     justify-content: center;
     margin: 0 auto;
 }
-.status {
+.status-text {
     margin-top: 10px;
 }
 .area{

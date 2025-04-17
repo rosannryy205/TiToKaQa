@@ -60,15 +60,6 @@ class FoodController extends Controller
         return response()->json($foods);
     }
 
-    // public function getToppingByFood($id)
-    // {
-    //     $food = Food::with('toppings')->find($id);
-    //     return response()->json($food->toppings);
-    //                 $query->with('toppings'); // lấy cả thông tin topping gốc nếu cần
-    //     }])->find($id);
-
-    //     return response()->json($food->food_toppings); // trả về bảng trung gian
-    // }
     public function getToppingByFood($id)
     {
         $food = Food::with('toppings')->find($id);
@@ -110,7 +101,7 @@ class FoodController extends Controller
         return response()->json($result->values());
     }
 
-    
+
     private function removeVietnameseTones($str)
     {
         $unicode = [

@@ -8,6 +8,7 @@ export const Info = {
     const info = ref({});
     const route = useRoute();
     const orderId = route.params.orderId;
+    const orders = ref([])
 
     const getInfo = async (type, orderId) => {
       try {
@@ -18,7 +19,7 @@ export const Info = {
           }
         })
         info.value = res.data.info
-        console.log(res.data);
+        // console.log(info.value);
 
       } catch (error) {
         console.log(error);
@@ -47,6 +48,8 @@ export const Info = {
       });
     };
 
+
+
     return {
       info,
       getInfo,
@@ -54,7 +57,8 @@ export const Info = {
       getImageUrl,
       orderId,
       formatDate,
-      formatTime
+      formatTime,
+      orders
     }
   }
 }

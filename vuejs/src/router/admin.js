@@ -91,6 +91,11 @@ const admin = [
               path: "users/list-role",
               name: "users-list-role",
               component: () => import("../pages/admin/Users/role.vue")
+            },
+            {
+              path: "choose-list-food",
+              name: "list-food",
+              component: () => import("../pages/admin/Tables/listsp.vue")
             }
         ]
     }

@@ -177,6 +177,17 @@ class CartController extends Controller
                     ];
                 });
 
+                // lấy thông tin các bàn của đơn hàng
+                $tables = $order->tables->map(function ($table) {
+                    return [
+                        'table_id' => $table->id,
+                        'table_number' => $table->table_number,
+                        'assigned_time' => $table->pivot->assigned_time,
+                        'reserved_from' => $table->pivot->reserved_from,
+                        'reserved_to' => $table->pivot->reserved_to,
+                    ];
+                });
+
                 return [
                     'id' => $order->id,
                     'user_id' => $order->user_id,
@@ -198,7 +209,8 @@ class CartController extends Controller
                     'reservations_time' => $order->reservations_time,
                     'expiration_time' => $order->expiration_time,
                     'reservation_status' => $order->reservation_status,
-                    'details' => $details
+                    'details' => $details,
+                    'tables' => $tables
                 ];
             });
 

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isLoading" class="isLoading-overlay">
+  <div v-if="isLoading" class="isLoading-overlay">
     <div class="spinner-border text-danger" role="status">
       <span class="visually-hidden">isLoading...</span>
     </div>
@@ -10,14 +10,18 @@
       <div class="row">
         <div class="col-6">Ngày đặt:</div>
         <div class="col-6 text-end">{{ formatDate(info.order_time) }}</div>
-        <div class="col-6" v-if="info.reservations_time">Ngày dự kiến nhận bàn:</div>
-        <div class="col-6 text-end" v-if="info.reservations_time">{{ formatDate(info.reservations_time) }}</div>
-        <div class="col-6" v-if="info.reservations_time">Giờ nhận bàn dự kiến:</div>
-        <div class="col-6 text-end" v-if="info.reservations_time">
+        <div class="col-6" v-show="info.reservations_time">Ngày dự kiến nhận bàn:</div>
+        <div class="col-6 text-end" v-show="info.reservations_time">{{ formatDate(info.reservations_time) }}</div>
+        <div class="col-6" v-show="info.reservations_time">Giờ nhận bàn dự kiến:</div>
+        <div class="col-6 text-end" v-show="info.reservations_time">
           {{ formatTime(info.reservations_time) }} - {{ formatTime(info.expiration_time) }} giờ
         </div>
-        <div class="col-6" v-if="info.reservations_time">Lượng khách:</div>
-        <div class="col-6 text-end" v-if="info.reservations_time">{{ info.guest_count }} người</div>
+        <div class="col-6" v-show="info.reservations_time">Lượng khách:</div>
+        <div class="col-6 text-end" v-show="info.reservations_time">{{ info.guest_count }} người</div>
+        <div class="col-6" v-show="info.reservations_time">Bàn: </div>
+        <div class="col-6 text-end" v-show="info.reservations_time">
+          {{ tableNumbers || 'Chưa xếp' }}
+        </div>
         <div class="col-6">Phương thức thanh toán:</div>
         <div class="col-6 text-end">Chưa rõ</div>
         <div class="col-6">Trạng thái thanh toán:</div>
@@ -28,17 +32,7 @@
           <span v-else>{{ info.order_status }}</span>
         </div>
         <div class="col-6">Ghi chú:</div>
-        <div class="col-6 text-end">{{ info.note }}</div>
-      </div>
-    </div>
-
-    <div class="card p-3 mt-3" v-if="info.reservations_time">
-      <h5 class="border-bottom pb-2">Bàn và khu vực</h5>
-      <div class="row">
-        <div class="col-6">Bàn:</div>
-        <div class="col-6 text-end">Chưa rõ</div>
-        <div class="col-6">Số người:</div>
-        <div class="col-6 text-end">Chưa rõ</div>
+        <div class="col-6 text-end">{{ info.note || 'không có' }}</div>
       </div>
     </div>
 
@@ -70,16 +64,20 @@
           </tr>
         </thead>
         <tbody v-if="info.details && info.details.length">
-          <tr v-for="(detail, index) in info.details" :key="index">
-            <td>{{ ++index }}</td>
+          <tr v-for="item in info.details" :key="item.id">
+            <td>{{ item.food_id }}</td>
             <td>
-              <img :src="getImageUrl(detail.image)" style="width: 50px; height: auto; margin-right: 10px;" class="me-2"
-                alt="img">
-              {{ detail.food_name }}
+              <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
+              {{ item.food_name }}
+              <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3 ">
+                <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
+                  + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }} đ)
+                </li>
+              </ul>
             </td>
-            <td>{{ formatNumber(detail.price) }} VND</td>
-            <td>{{ detail.quantity }}</td>
-            <td>{{ formatNumber(detail.price * detail.quantity) }} VNĐ</td>
+            <td>{{ formatNumber(item.price) }} VNĐ</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ formatNumber(item.price * item.quantity) }} VNĐ</td>
           </tr>
         </tbody>
       </table>
@@ -89,14 +87,15 @@
         <h5>Tổng cộng (VAT): {{ formatNumber(info.total_price) }} VNĐ</h5>
       </div>
     </div>
-    <button class="btn btn-secondary mt-2" @click="goBack">Quay lại</button>
-    <button class="btn btn-info mt-2 ms-2"
+    <button class="btn btn-secondary mt-2 p-2" @click="goBack">Quay lại</button>
+    <button class="btn btn-info mt-2 ms-2 p-2 fw-semibold" style="color: white;"
       v-if="(info.order_status == 'Chờ xác nhận' || info.order_status == 'Đã xác nhận') && info.guest_address"
       @click="showModal">
       Thay đổi địa chỉ nhận
     </button>
 
-    <button v-if="info.order_status == 'Chờ xác nhận' || info.order_status == 'Đã xác nhận'" @click="cancelOrderForOrder" class="btn btn-danger mt-2 ms-2" style="width: 100px;">Hủy đơn</button>
+    <button v-if="info.order_status == 'Chờ xác nhận' || info.order_status == 'Đã xác nhận'"
+      @click="cancelOrderForOrder" class="btn btn-danger1 mt-2 ms-2 p-2" style="width: 100px;">Hủy đơn</button>
 
 
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
@@ -129,6 +128,7 @@ import { Modal } from 'bootstrap'
 import { onMounted } from 'vue';
 import axios from 'axios';
 import { ref } from 'vue';
+import { computed } from 'vue';
 export default {
   methods: {
     goBack() {
@@ -140,6 +140,7 @@ export default {
     const id = route.params.id
     const address = ref('')
     const isLoading = ref(false)
+    const table = ref([])
 
     const {
       info,
@@ -163,7 +164,7 @@ export default {
       } catch (error) {
         console.error(error)
         alert('Cập nhật thất bại.')
-      }finally {
+      } finally {
         isLoading.value = false
       }
     }
@@ -187,7 +188,7 @@ export default {
       } catch (error) {
         console.error(error);
         alert('Cập nhật thất bại.');
-      }finally {
+      } finally {
         isLoading.value = false
       }
     };
@@ -205,7 +206,7 @@ export default {
       } catch (error) {
         console.log(error);
 
-      }finally {
+      } finally {
         isLoading.value = false
       }
 
@@ -216,10 +217,16 @@ export default {
       await getInfo('order', id)
     }
 
+    const tableNumbers = computed(() => {
+      return info.value.tables ? info.value.tables.map(table => table.table_number).join(', ') : '';
+    });
     onMounted(async () => {
       try {
         await getInfo('order', id);
         address.value = info.value.guest_address;
+        table.value = info.value.tables
+        console.log(info.value);
+
       } catch (error) {
         console.error("getInfo:", error);
       }
@@ -239,7 +246,8 @@ export default {
       showModal,
       updateAddressForOrder,
       cancelOrderForOrder,
-      isLoading
+      isLoading,
+      tableNumbers
     }
   }
 
@@ -265,6 +273,7 @@ a {
   text-decoration: none;
   color: #007bff;
 }
+
 .isLoading-overlay {
   position: fixed;
   top: 0;
