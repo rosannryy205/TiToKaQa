@@ -5,22 +5,7 @@ const admin = [
         name: "admin",
         component: () => import("../components/layouts/LayoutAdmin.vue"),
         redirect: "/admin/dashboard",
-        beforeEnter: (to, from, next) => {
-          const userRaw = localStorage.getItem("user");
-
-          // Nếu chưa đăng nhập
-          if (!userRaw) {
-            return next("/home");
-          }
-          const user = JSON.parse(userRaw);
-
-          // Nếu không phải admin
-          if (user.role !== "admin") {
-            return next("/home");
-          }
-          // Nếu là admin
-          next();
-        },
+        
         children: [
             {
                 path: "dashboard",
@@ -91,11 +76,6 @@ const admin = [
               path: "users/list-role",
               name: "users-list-role",
               component: () => import("../pages/admin/Users/role.vue")
-            },
-            {
-              path: "choose-list-food",
-              name: "list-food",
-              component: () => import("../pages/admin/Tables/listsp.vue")
             }
         ]
     }
