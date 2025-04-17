@@ -16,4 +16,6 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Lỗi khi lấy danh sách danh mục', 'error' => $e->getMessage()], 500);
         }
     }
+
+    
 }
