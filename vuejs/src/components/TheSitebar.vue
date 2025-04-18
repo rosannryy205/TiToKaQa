@@ -7,7 +7,7 @@
 
     <!-- Sidebar -->
     <div :class="['sidebar z-3', { 'active': isSidebarOpen || isLargeScreen }]">
-      <h2>Admin</h2>
+      <h2 v-if="user">{{ user.username }}</h2>
       <ul class="sidebar-menu">
         <li><router-link :to="{ name: 'admin' }"><i class="fas fa-tachometer-alt"></i> Tổng quan</router-link>
         </li>
@@ -94,6 +94,8 @@
 </template>
 
 <script>
+
+import { onMounted, ref } from 'vue';
 export default {
   data() {
     return {
@@ -103,6 +105,7 @@ export default {
       isProductMenuOpen1: false,
       isProductMenuOpen2: false,
       isProductMenuOpen3: false,
+      user: null,
     };
   },
   methods: {
@@ -129,10 +132,24 @@ export default {
   },
   mounted() {
     window.addEventListener("resize", this.checkScreenSize);
+    const userRaw = localStorage.getItem("user");
+    if (!userRaw) {
+      this.$router.push('/home');
+      return;
+    }
+    const user = JSON.parse(userRaw);
+    if (user.role !== 'admin') {
+      this.$router.push('/home');
+      return;
+    }
+    this.user = user;
+    console.log('Admin đã đăng nhập:', this.user);
   },
   beforeUnmount() {
     window.removeEventListener("resize", this.checkScreenSize);
-  }
+  },
+
+
 };
 </script>
 

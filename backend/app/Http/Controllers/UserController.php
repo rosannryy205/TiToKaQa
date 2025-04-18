@@ -87,6 +87,8 @@ class UserController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
+                'email' => $user->email,
+                'phone' => $user->phone,
                 'role' => $user->role
             ],
             'token' => $token
@@ -129,6 +131,8 @@ class UserController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
+                'email' => $user->email,
+                'phone' => $user->phone,
                 'role' => $user->role
             ],
             'token' => $token

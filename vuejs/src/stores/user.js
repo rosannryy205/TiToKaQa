@@ -19,7 +19,7 @@ export const User = {
 
     const personally = async (userId) => {
       try {
-        const res = await axios.get(`http://localhost:8000/api/user/${userId}`, {
+        const res = await axios.get(`http://127.0.0.1:8000/api/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           }
