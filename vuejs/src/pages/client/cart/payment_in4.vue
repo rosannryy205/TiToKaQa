@@ -12,7 +12,7 @@
         <div class="p-4 border rounded shadow-sm bg-white">
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
-        
+
             <div class="mb-3">
               <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn">
             </div>

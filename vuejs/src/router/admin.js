@@ -77,7 +77,7 @@ const admin = [
               component: () => import("../pages/admin/Users/role.vue")
             },
             {
-              path: "choose-list-food",
+              path: "choose-list-food/:id",
               name: "list-food",
               component: () => import("../pages/admin/Tables/listsp.vue")
             }

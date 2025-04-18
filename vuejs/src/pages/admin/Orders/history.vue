@@ -87,7 +87,7 @@
             <td>
               <router-link :to="{ name: 'admin-orders-detail', params: { id: item.id } }"
                 class="btn btn-primary btn-sm">Chi tiết</router-link>
-              <button class="btn btn-secondary btn-sm">In</button>
+              <button class="btn btn-secondary btn-sm" @click="exportPDF(item.id)">In</button>
             </td>
           </tr>
         </tbody>
@@ -101,7 +101,7 @@
           <h5 class="card-title fw-bold">Đơn #1</h5>
           <p><strong>Nhân viên:</strong> Nguyễn Thị Thuỷ Tiên</p>
           <p><strong>Khu vực/Bàn:</strong> {{item.tables && item.tables.length ? item.tables.map(t =>
-            t.table_number).join(', ') : 'Không có' }}</p>
+            t.table_number).join(', ') : 'Không có'}}</p>
           <p :title="item.guest_name + ' - ' + item.guest_phone"><strong>Thông tin KH:</strong> {{ item.guest_name }} -
             {{ item.guest_phone }}</p>
           <p><strong>Loại đơn:</strong>{{ item.reservations_time ? 'Đặt bàn' : 'Mang về' }}</p>
@@ -165,6 +165,27 @@ export default {
 
 
 
+    const exportPDF = async (id) => {
+    try {
+      const res = await axios.get(`http://127.0.0.1:8000/api/invoice/${id}`, { responseType: 'blob' });
+      const blob = res.data;
+
+      // Tạo URL từ Blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Mở PDF trong tab mới của trình duyệt
+      window.open(url, '_blank');
+
+      // Giải phóng URL khi không còn cần thiết
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Lỗi khi xuất PDF:', error);
+    }
+  }
+
+
+
+
     onMounted(async () => {
       await getOrders();
     });
@@ -173,6 +194,7 @@ export default {
     return {
       order,
       getOrders,
+      exportPDF
     }
   }
 

@@ -133,10 +133,12 @@ export default {
       orderId
     } = Info.setup()
 
-    onMounted(() => {
-      getInfo('order', orderId)
-      console.log(info);
+    onMounted(async () => {
+      await getInfo('order', orderId)
+      // console.log(info.value);
+      console.log(info.value.total_price);
     })
+
 
     return {
       info,

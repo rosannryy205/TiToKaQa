@@ -50,7 +50,8 @@ Route::get('/foods', [OrderController::class, 'getAllFoodsWithToppings']);
 Route::post('/reservation-update-status', [OrderController::class, 'updateStatus']);
 Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
 Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
-
+Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
+Route::post('/order-for-user', [OrderController::class, 'orderFoodForUser']);
 
 //history
 Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);
