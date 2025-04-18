@@ -8,10 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Category extends Model
 {
     use HasFactory;
-    protected $table= "categories";
+    protected $table = "categories";
     public function children()
-{
-    return $this->hasMany(Category::class, 'parent_id');
-}
-
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
 }

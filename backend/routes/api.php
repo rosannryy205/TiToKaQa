@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\AdminFoodController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
@@ -101,8 +103,9 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 
 //admin
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-
-
+    Route::get('/admin/foods', [AdminFoodController::class, 'index']);
+    Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
+    Route::post('/admin/foods', [AdminFoodController::class, 'store']);
 });
 
 Route::resource('/payment', PaymentController::class);

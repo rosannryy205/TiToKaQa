@@ -8,8 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class Food extends Model
 {
     use HasFactory;
-    protected $table= "foods";
-    
+    protected $table = "foods";
+    protected $fillable = [
+        'name',          // Tên món ăn
+        'price',         // Giá món ăn
+        'sale_price',    // Giá sale
+        'stock',         // Số lượng
+        'category_id',   // ID danh mục
+        'description',   // Mô tả
+        'image',         // Hình ảnh
+    ];
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -20,13 +29,13 @@ class Food extends Model
     // }
 
     public function toppings()
-{
-    return $this->belongsToMany(Topping::class, 'food_toppings')
-                ->using(Food_topping::class) // dùng model trung gian
-                ->withPivot('id', 'price');
-}
-public function combos()
-{
-    return $this->belongsToMany(Combo::class, 'combo_details', 'food_id', 'combo_id');
-}
+    {
+        return $this->belongsToMany(Topping::class, 'food_toppings')
+            ->using(Food_topping::class) // dùng model trung gian
+            ->withPivot('id', 'price');
+    }
+    public function combos()
+    {
+        return $this->belongsToMany(Combo::class, 'combo_details', 'food_id', 'combo_id');
+    }
 }
