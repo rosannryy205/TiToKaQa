@@ -19,6 +19,7 @@ use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Models\Discount;
 use Laravel\Socialite\Contracts\Provider;
+use App\Http\Controllers\PaymentController;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
@@ -103,4 +104,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
 
 });
+
+Route::resource('/payment', PaymentController::class);
+// routes/api.php
+Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 
