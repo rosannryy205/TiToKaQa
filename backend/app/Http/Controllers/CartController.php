@@ -47,8 +47,7 @@ class CartController extends Controller
                     'guest_email' => $data['guest_email'],
                     'guest_address' => $data['guest_address'],
                     'total_price' => $data['total_price'],
-                    'note' => $data['note'] ?? null,
-                    'order_time' => now(),
+                    'note' => $data['note'] ?? null
                 ]);
 
 

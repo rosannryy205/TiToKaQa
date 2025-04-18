@@ -131,7 +131,7 @@ export const FoodList = {
     const getAllFoodWithTopping = async () => {
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/foods');
-        console.log(res.data); // Log dữ liệu nhận về từ API
+        // console.log(res.data); // Log dữ liệu nhận về từ API
         foodOrderAdmin.value = res.data;
 
         // Khởi tạo lại topping theo từng món ăn
@@ -140,7 +140,7 @@ export const FoodList = {
           food.spicyLevelNotNull = [];
 
           food.toppings.forEach(topping => {
-            console.log(topping.price); // Log giá trị price của mỗi topping
+            // console.log(topping.price); // Log giá trị price của mỗi topping
             if (topping.price == null) {
               food.spicyLevelNull.push(topping);
             } else {

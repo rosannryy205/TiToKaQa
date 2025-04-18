@@ -19,7 +19,7 @@ export const Info = {
           }
         })
         info.value = res.data.info
-        // console.log(info.value);
+        console.log(info.value);
 
       } catch (error) {
         console.log(error);

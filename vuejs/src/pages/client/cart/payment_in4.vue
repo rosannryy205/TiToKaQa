@@ -50,13 +50,7 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img
-                :src="getImageUrl(item.image)"
-                alt=""
-                class="me-3 rounded"
-                width="80"
-                height="80"
-              />
+              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>{{ item.spicyLevel }}</div>
@@ -93,45 +87,38 @@
             </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input
-                v-model="discountInput"
-                type="text"
-                id="discount"
-                class="form-control"
-                placeholder="Nhập mã giảm giá..."
-              />
+              <input v-model="discountInput" type="text" id="discount" class="form-control"
+                placeholder="Nhập mã giảm giá..." />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
           </div>
 
           <!---->
           <div class="discount-scroll-wrapper">
-          <div v-for="discount in discounts" :key="discount.id">
-            <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2" @click="applyDiscountCode(discount.code)">
-  <div class="voucher-left d-flex align-items-center">
-    <div class="voucher-logo d-flex flex-column align-items-center justify-content-center">
-      <div class="logo-text">TITOKAQA</div>
-      <div class="logo-small">Mall</div>
-    </div>
-    <div class="voucher-info ps-3">
-      <div class="voucher-title">{{ discount.name }}</div>
-      <div class="voucher-title">Mã {{ discount.code }}</div>
-      <div class="voucher-time"><i class="fa-regular fa-clock me-1"></i>Hiệu lực sau: 2 ngày</div>
-    </div>
-  </div>
-  <div class="voucher-right text-end">
-    <div
-  class="voucher-status"
-  :class="{ 'text-success': selectedDiscount === discount.code }"
->
-  <span v-if="selectedDiscount === discount.code">Đã dùng ✅</span>
-  <span v-else>Dùng ngay</span>
-</div>
-    <div class="voucher-tag">Mới!</div>
-  </div>
-</div>
-</div>
-</div>
+            <div v-for="discount in discounts" :key="discount.id">
+              <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
+                @click="applyDiscountCode(discount.code)">
+                <div class="voucher-left d-flex align-items-center">
+                  <div class="voucher-logo d-flex flex-column align-items-center justify-content-center">
+                    <div class="logo-text">TITOKAQA</div>
+                    <div class="logo-small">Mall</div>
+                  </div>
+                  <div class="voucher-info ps-3">
+                    <div class="voucher-title">{{ discount.name }}</div>
+                    <div class="voucher-title">Mã {{ discount.code }}</div>
+                    <div class="voucher-time"><i class="fa-regular fa-clock me-1"></i>Hiệu lực sau: 2 ngày</div>
+                  </div>
+                </div>
+                <div class="voucher-right text-end">
+                  <div class="voucher-status" :class="{ 'text-success': selectedDiscount === discount.code }">
+                    <span v-if="selectedDiscount === discount.code">Đã dùng ✅</span>
+                    <span v-else>Dùng ngay</span>
+                  </div>
+                  <div class="voucher-tag">Mới!</div>
+                </div>
+              </div>
+            </div>
+          </div>
           <!-- Payment Methods -->
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
@@ -167,11 +154,13 @@
 </template>
 
 <script>
-import { User } from '@/stores/user'
+// import { User } from '@/stores/user'
 import { FoodList } from '@/stores/food'
 import { Payment } from '@/stores/payment'
+import { Discounts } from '@/stores/discount'
 import { onMounted } from 'vue'
 import numeral from 'numeral'
+import { useRouter } from 'vue-router'
 
 export default {
   methods: {
@@ -183,55 +172,82 @@ export default {
     },
   },
   setup() {
+
+    const { isLoading } = FoodList.setup()
+
     const {
+      user,
       form,
-      handleSubmit
-    } = User.setup()
-
-    const {
-      isLoading
-    } = FoodList.setup()
-
-    const {
-      cartItems,
-      fullname,
-      email,
-      phone,
-      address,
       note,
+      handleSubmit,
       paymentMethod,
       check_out,
       loadCart,
-      totalPrice,
       totalPriceItem,
       totalQuantity,
-      submitOrder,
+      submitOrder
     } = Payment.setup()
 
+    // const {
+    //   user,
+    //   form
+    // } = User.setup()
+
+    const {
+      route,
+      cartItems,
+      totalPrice,
+      finalTotal,
+      discounts,
+      discountInput,
+      selectedDiscount,
+      showMoreDiscounts,
+      getAllDiscount,
+      handleDiscountInput,
+      applyDiscountCode,
+      discountAmount
+    } = Discounts.setup()
 
 
+    const updateCartStorage = () => {
+      const cartKey = getCartKey()
+      localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
+    }
 
     onMounted(() => {
-      getAllDiscount()
       loadCart()
+      // if (user.value && user.value.id) {
+      //   form.value.fullname = user.value.fullname || ''
+      //   form.value.email = user.value.email || ''
+      //   form.value.phone = user.value.phone || ''
+      //   form.value.address = user.value.address || ''
+      // }
     })
 
     return {
-      cartItems,
-      totalPrice,
+      user,
       totalPriceItem,
       totalQuantity,
-      fullname,
-      email,
-      phone,
-      address,
-      note,
       check_out,
       form,
       handleSubmit,
       submitOrder,
       isLoading,
       paymentMethod,
+      note,
+
+      updateCartStorage,
+      cartItems,
+      totalPrice,
+      finalTotal,
+      discounts,
+      discountInput,
+      selectedDiscount,
+      showMoreDiscounts,
+      getAllDiscount,
+      handleDiscountInput,
+      applyDiscountCode,
+      discountAmount
     }
   }
 }
@@ -251,6 +267,7 @@ export default {
   justify-content: center;
   align-items: center;
 }
+
 .text-success {
   color: #28a745;
   font-weight: bold;
