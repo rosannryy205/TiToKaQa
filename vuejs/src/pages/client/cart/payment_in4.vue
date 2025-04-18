@@ -165,7 +165,7 @@ import { useRouter } from 'vue-router'
 import { User } from '@/stores/user'
 import { FoodList } from '@/stores/food'
 import axios from 'axios'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import numeral from 'numeral'
 
 export default {
@@ -189,22 +189,29 @@ export default {
     const loading = ref(false)
     const discounts = ref([])
     const discountInput = ref('')
-    const moreDiscounts = ['HELLO50', 'NEWUSER', 'BUY2GET1', 'FLASH15', 'WELCOME30']
     const selectedDiscount = ref('')
     const showMoreDiscounts = ref(false)
+    const discountId = ref(null)
 
     const getAllDiscount = async () => {
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/discounts')
         discounts.value = res.data
+
+        if (selectedDiscount.value) {
+          applyDiscountCode(selectedDiscount.value)
+        }
       } catch (err) {
         console.error(err)
       }
     }
+    const discountInputId = ref(null);
 
     const handleDiscountInput = () => {
       const code = discountInput.value.trim().toUpperCase()
       const discount = discounts.value.find((d) => d.code === code)
+      discountInputId.value = discount.id
+      console.log('day la id cua ma nhap', discountInputId.value)
       if (discount) {
         applyDiscountCode(code)
         discountInput.value = ''
@@ -214,9 +221,13 @@ export default {
     }
 
     const applyDiscountCode = (code) => {
-      if (selectedDiscount.value === code) return
+      const selected = discounts.value.find(d => d.code === code)
+      if (!selected) {
+        alert('Mã giảm giá không hợp lệ')
+        return
+      }
       selectedDiscount.value = code
-      console.log(selectedDiscount.value)
+      discountId.value = selected.id
       showMoreDiscounts.value = false
     }
 
@@ -232,10 +243,6 @@ export default {
       }
 
       return 0
-    })
-
-    const finalTotal = computed(() => {
-      return Math.max(totalPrice.value - discountAmount.value, 0)
     })
 
     const loadCart = () => {
@@ -259,6 +266,10 @@ export default {
       return itemPrice + toppingPrice
     }
 
+    const finalTotal = computed(() => {
+      return Math.max(totalPrice.value - discountAmount.value, 0)
+    })
+
     const totalQuantity = computed(() => {
       return cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
     })
@@ -272,7 +283,8 @@ export default {
           guest_phone: form.value.phone,
           guest_address: form.value.address,
           note: note.value,
-          total_price: totalPrice.value,
+          total_price: finalTotal.value,
+          discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
             combo_id: null,
@@ -312,6 +324,7 @@ export default {
     }
 
     onMounted(() => {
+      selectedDiscount.value = ''
       getAllDiscount()
       loadCart()
       if (user) {
@@ -320,6 +333,14 @@ export default {
         form.value.phone = user.phone || ''
         form.value.address = user.address || ''
       }
+    })
+
+    watch(selectedDiscount, (val) => {
+      localStorage.setItem('selected_discount', val)
+    })
+
+    watch(discountId, (newVal) => {
+      console.log('Discount ID updated:', newVal)
     })
 
     return {
@@ -334,17 +355,18 @@ export default {
       submitOrder,
       discounts,
       applyDiscountCode,
-      moreDiscounts,
       showMoreDiscounts,
       selectedDiscount,
       finalTotal,
       discountAmount,
       discountInput,
       handleDiscountInput,
+      discountId
     }
   }
 }
 </script>
+
 
 
 <style>

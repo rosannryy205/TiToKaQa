@@ -72,7 +72,7 @@
               <td colspan="3"></td>
               <td><strong>Tổng cộng</strong></td>
               <td>
-                <strong>{{ formatNumber(info.total_price) }} VNĐ</strong>
+                <strong>{{ formatNumber(info.getgetTotalPrice) }} VNĐ</strong>
               </td>
             </tr>
           </tbody>
@@ -100,9 +100,9 @@
               class="form-control"
               placeholder="Nhập mã giảm giá"
               v-model="discountInput"
-              @keyup.enter="handleDiscountInput"
+              @keyup.enter="submitPriceUpdate"
             />
-            <button class="btn btn-outline-secondary" type="button" @click="handleDiscountInput">
+            <button class="btn btn-outline-secondary" type="button" @click="submitPriceUpdate">
               Áp dụng
             </button>
           </div>
@@ -118,7 +118,8 @@
                   'bg-light text-dark': selectedDiscount !== code.code,
                 }"
                 style="cursor: pointer; margin-right: 6px"
-                @click="applyDiscountCode(code.code)"
+                @click="submitUpdate(code.code, orderId)"
+
               >
                 {{ code.code }}
               </span>
@@ -162,26 +163,22 @@
 </template>
 
 <script>
-import { onMounted } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
 import { Discounts } from '@/stores/discount'
-import { computed } from 'vue'
+import axios from 'axios'
 
 export default {
   setup() {
     const { info, getInfo, formatNumber, getImageUrl, orderId } = Info.setup()
 
     const {
-      cartItems,
-      totalPrice,
-      totalPriceItem,
-      totalQuantity,
       discounts,
-      applyDiscountCode,
-      moreDiscounts,
-      showMoreDiscounts,
-      selectedDiscount,
       discountInput,
+      selectedDiscount,
+      discountId,
+      discountInputId,
+      applyDiscountCode,
       handleDiscountInput,
     } = Discounts.setup()
 
@@ -200,32 +197,65 @@ export default {
     })
 
     const finalTotal = computed(() => {
-      return Math.max(totalPrice.value - discountAmount.value, 0)
+      return Math.max(info.value.total_price - discountAmount.value, 0)
     })
-    onMounted(() => {
-      getInfo('order', orderId)
+
+    const updateOrder = async (orderId) => {
+      try {
+        await axios.put(`http://127.0.0.1:8000/api/update/order/${orderId}`, {
+          discount_id: discountId.value || discountInputId.value,
+        })
+      } catch (error) {
+        console.error('Lỗi cập nhật Order:', error)
+      }
+    }
+
+    const updateReservationOrder = async (orderId) => {
+      try {
+        await axios.put(`http://127.0.0.1:8000/api/update/reservation-order/${orderId}`, {
+          total_price: finalTotal.value,
+        })
+      } catch (error) {
+        console.error('Lỗi cập nhật Reservation:', error)
+      }
+    }
+
+    const submitUpdate = async (code, orderId) => {
+      try {
+        applyDiscountCode(code)
+        await updateOrder(orderId)
+        await updateReservationOrder(orderId)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const submitPriceUpdate = async () => {
+      try {
+        handleDiscountInput()
+        await updateOrder(orderId)
+        await updateReservationOrder(orderId)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    onMounted(async () => {
+      await getInfo('order', orderId)
     })
 
     return {
       info,
-      getInfo,
       formatNumber,
       getImageUrl,
       orderId,
-
-      cartItems,
-      totalPrice,
-      totalPriceItem,
-      totalQuantity,
       discounts,
-      applyDiscountCode,
-      moreDiscounts,
-      showMoreDiscounts,
-      selectedDiscount,
-      finalTotal,
-      discountAmount,
       discountInput,
-      handleDiscountInput,
+      selectedDiscount,
+      discountAmount,
+      finalTotal,
+      submitUpdate,
+      submitPriceUpdate,
     }
   },
 }

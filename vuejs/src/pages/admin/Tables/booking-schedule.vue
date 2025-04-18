@@ -53,7 +53,7 @@
                       @click="selectOrder(order.order_id)" v-if="order.reservation_status == 'Chờ Xác Nhận'">Xếp bàn</a>
                   </li>
                   <li>
-                    <router-link :to="{ name: 'list-food' }" class="dropdown-item1"
+                    <router-link :to="{ name: 'list-food', params: { id: order.order_id } }" class="dropdown-item1"
                       v-if="order.reservation_status !== 'Hoàn Thành' && order.reservation_status !== 'Đã hủy'">Chọn
                       món</router-link>
                   </li>

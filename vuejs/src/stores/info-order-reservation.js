@@ -38,7 +38,6 @@ export const Info = {
       const date = new Date(dateStr);
       return date.toLocaleDateString('vi-VN'); // chỉ hiển thị ngày
     };
-
     const formatTime = (dateStr) => {
       if (!dateStr) return '';
       const date = new Date(dateStr);

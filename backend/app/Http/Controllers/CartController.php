@@ -21,6 +21,7 @@ class CartController extends Controller
                 'guest_email' => 'required|email',
                 'guest_address' => 'required|string|max:255',
                 'total_price' => 'required|numeric',
+                'discount_id' => 'nullable|numeric',
                 'order_detail' => 'nullable|array',
                 'note' => 'nullable|string',
             ],
@@ -38,6 +39,7 @@ class CartController extends Controller
 
                 'reservations_time.required' => 'Vui lòng nhập ngày nhận bàn.',
             ]);
+            
 
             try {
                 $order = Order::create([
@@ -47,6 +49,7 @@ class CartController extends Controller
                     'guest_email' => $data['guest_email'],
                     'guest_address' => $data['guest_address'],
                     'total_price' => $data['total_price'],
+                    'discount_id' => $data['discount_id'] ?? null,
                     'note' => $data['note'] ?? null,
                     'order_time' => now(),
                 ]);

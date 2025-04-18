@@ -42,6 +42,7 @@ class OrderController extends Controller
                 'expiration_time' => 'required|date',
                 'total_price' => 'required|numeric',
                 'order_details' => 'nullable|array',
+                'discount_id' => 'nullable|numeric',
             ], [
                 'guest_name.required' => 'Vui lòng nhập họ tên.',
                 'guest_count.required' => 'Vui lòng nhập số lượng khách nhận bàn.',
@@ -56,6 +57,7 @@ class OrderController extends Controller
 
             $order = Order::create([
                 'user_id' => $data['user_id'] ?? null,
+                'discount_id' => $data['discount_id'] ?? null,
                 'guest_name' => $data['guest_name'],
                 'guest_phone' => $data['guest_phone'],
                 'guest_email' => $data['guest_email'],
@@ -144,6 +146,73 @@ class OrderController extends Controller
                 'message' => 'Đặt bàn thành công',
                 'order_id' => $order->id
             ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->getMessage()
+            ], 422);
+        }
+    }
+    public function reservationUpdatePrice(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'total_price' => 'required|numeric',
+            ]);
+
+            $order = Order::find($request->id);
+            $order->update([
+                'total_price' => $data['total_price'],
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+    public function orderFoodForUser(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'price' => 'required|numeric',
+                'order_id' => 'required|numeric',
+                'food_id' => 'required|numeric',
+                'combo_id' => 'nullable|numeric',
+                'quantity' => 'required|numeric',
+                'type' => 'required|string',
+                'order_toppings' => 'nullable|array',
+                'order_toppings.*.food_toppings_id' => 'required|numeric',
+                'order_toppings.*.price' => 'required|numeric',
+            ]);
+
+            $orderDetail = Order_detail::create([
+                'order_id' => $data['order_id'],
+                'food_id' => $data['food_id'],
+                'combo_id' => $data['combo_id'] ?? null,
+                'quantity' => $data['quantity'],
+                'price' => $data['price'],
+                'type' => $data['type'],
+            ]);
+
+            // Thêm topping nếu có
+            if (!empty($data['order_toppings'])) {
+                foreach ($data['order_toppings'] as $toppingId) {
+                    $foodTopping = Food_topping::find($toppingId);
+                    if ($foodTopping) {
+                        Order_topping::create([
+                            'food_toppings_id' => $toppingId['food_toppings_id'],
+                            'order_detail_id' => $orderDetail->id,
+                            'price' => $toppingId['price'], // hoặc $foodTopping->price nếu bạn luôn lấy từ DB
+                        ]);
+                        
+                    }
+                }
+            }
+
+            return response()->json(['status' => true, 'message' => 'Thêm món thành công!']);
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => false,
@@ -154,7 +223,22 @@ class OrderController extends Controller
         }
     }
 
+    public function reservationUpdate(Request $request)
+    {
+        try {
+            $order = Order::find($request->id);
+            $data = $request->validate([
+                'discount_id' => 'nullable|numeric',
+            ]);
 
+            $order->update([
+                'discount_id' => $data['discount_id'] ?? null,
+            ]);
+            return response()->json(['order' => $order]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
     public function getInfoReservation(Request $request)
     {
         $value = $request->query('value');
@@ -265,7 +349,6 @@ class OrderController extends Controller
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
-
         $order->order_status = 'Đã hủy';
         $order->reservation_status = 'Đã hủy';
         $order->save();
@@ -433,10 +516,12 @@ class OrderController extends Controller
             $foods = Food::with('toppings')->get();
             return response()->json($foods);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Lỗi khi lấy danh sách món ăn và topping', 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'Lỗi khi lấy danh sách món ăn và topping',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
-
     public function updateStatus(Request $request)
     {
         $order = Order::find($request->id);

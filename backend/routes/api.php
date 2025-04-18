@@ -50,6 +50,7 @@ Route::get('/foods', [OrderController::class, 'getAllFoodsWithToppings']);
 Route::post('/reservation-update-status', [OrderController::class, 'updateStatus']);
 Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
 Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
+Route::post('/order-for-user', [OrderController::class, 'orderFoodForUser']);
 
 
 //history
@@ -86,6 +87,10 @@ Route::get('/search', [HomeController::class, 'search']);
 
 //cart
 Route::post('/order',[CartController::class,'order']);
+
+Route::put('/update/order/{id}',[OrderController::class,'reservationUpdate']);
+Route::put('/update/reservation-order/{id}',[OrderController::class,'reservationUpdatePrice']);
+
 Route::get('/order_detail/{id}',[CartController::class,'get_order_detail']);
 Route::get('/get_all_orders',[CartController::class,'get_all_orders']);
 

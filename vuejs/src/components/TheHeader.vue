@@ -296,7 +296,7 @@
             </div>
 
             <div class="d-flex justify-content-center gap-3">
-              <button type="button" class="btn btn-social"><i class="bi bi-google"></i></button>
+              <button type="button" class="btn btn-social" @click="loginWithGoogle"><i class="bi bi-google"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-twitter-x"></i></button>
             </div>
