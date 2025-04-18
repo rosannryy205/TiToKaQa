@@ -43,10 +43,7 @@
             <tr v-for="(detail, index) in info.details" :key="index">
               <td>{{ ++index }}</td>
               <td>
-                <img
-                  :src="getImageUrl(detail.image)"
-                  style="width: 50px; height: auto; margin-right: 10px"
-                />
+                <img :src="getImageUrl(detail.image)" style="width: 50px; height: auto; margin-right: 10px" />
                 {{ detail.food_name }} <br />
                 <div class="text-start" v-for="(topping, index) in detail.toppings" :key="index">
                   <small class="text-muted">
@@ -61,7 +58,7 @@
                 {{
                   formatNumber(
                     detail.price * detail.quantity +
-                      detail.toppings.reduce((sum, topping) => sum + parseFloat(topping.price), 0),
+                    detail.toppings.reduce((sum, topping) => sum + parseFloat(topping.price), 0),
                   )
                 }}
                 VNĐ
@@ -123,12 +120,8 @@
               >
                 {{ code.code }}
               </span>
-              <span
-                v-if="selectedDiscount"
-                class="badge bg-danger text-white"
-                style="cursor: pointer"
-                @click="selectedDiscount = ''"
-              >
+              <span v-if="selectedDiscount" class="badge bg-danger text-white" style="cursor: pointer"
+                @click="selectedDiscount = ''">
                 Bỏ chọn
               </span>
             </small>
@@ -142,16 +135,20 @@
           <div class="mb-3">
             <label class="form-label fw-bold">Phương thức thanh toán</label>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="pay1" checked />
-              <label class="form-check-label" for="pay1">Thanh toán tại nhà hàng</label>
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY"
+                v-model="paymentMethod">
+              <label class="form-check-label d-flex align-items-center" for="vnpay">
+                <span class="me-2">Thanh toán qua VNPAY</span>
+                <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
+              </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="pay2" />
-              <label class="form-check-label" for="pay2">Thanh toán bằng VNPAY</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="pay3" />
-              <label class="form-check-label" for="pay3">Thanh toán bằng MoMo</label>
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO"
+                v-model="paymentMethod">
+              <label class="form-check-label d-flex align-items-center" for="momo">
+                <span class="me-2">Thanh toán qua Momo</span>
+                <img src="/img/momo.png" height="20" width="20" alt="" />
+              </label>
             </div>
           </div>
 
@@ -161,39 +158,49 @@
     </div>
   </div>
 </template>
-
 <script>
-import { onMounted, computed, ref } from 'vue'
+import { User } from '@/stores/user'
+import { onMounted } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
+import { FoodList } from '@/stores/food'
+import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
 import axios from 'axios'
+import { computed } from 'vue'
 
 export default {
   setup() {
-    const { info, getInfo, formatNumber, getImageUrl, orderId } = Info.setup()
+    const { info, getInfo, formatNumber, getImageUrl, orderId, } = Info.setup()
+
+    const { form, handleSubmit } = User.setup()
+
+    const { isLoading } = FoodList.setup()
+
+    // Thanh toán
+    const { paymentMethod, check_out,
+      loadCart,  totalPriceItem,
+      totalQuantity, submitOrder } = Payment.setup()
 
     const {
       discounts,
       discountInput,
       selectedDiscount,
+      getAllDiscount,
+      handleDiscountInput,
+      applyDiscountCode,
+      discountAmount,
       discountId,
       discountInputId,
-      applyDiscountCode,
-      handleDiscountInput,
+      cartItems,
+      totalPrice,
     } = Discounts.setup()
 
-    const discountAmount = computed(() => {
-      const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
-      if (!discount) return 0
 
-      if (discount.discount_method === 'percent') {
-        return (info.value.total_price * discount.discount_value) / 100
-      }
-      if (discount.discount_method === 'fixed') {
-        return discount.discount_value
-      }
-
-      return 0
+    onMounted(async () => {
+      loadCart()
+      await getInfo('order', orderId)
+      console.log('thông tin:',info.value);
+      console.log('tam tính:', info.value.total_price);
     })
 
     const finalTotal = computed(() => {
@@ -249,14 +256,29 @@ export default {
       formatNumber,
       getImageUrl,
       orderId,
+      submitUpdate,
+      submitPriceUpdate,
+      totalPriceItem,
+      totalQuantity,
+      check_out,
+      form,
+      handleSubmit,
+      submitOrder,
+      isLoading,
+      paymentMethod,
+      cartItems,
+      totalPrice,
+      finalTotal,
       discounts,
       discountInput,
       selectedDiscount,
+      getAllDiscount,
+      handleDiscountInput,
+      applyDiscountCode,
       discountAmount,
-      finalTotal,
-      submitUpdate,
-      submitPriceUpdate,
+      discountId
     }
-  },
+  }
+
 }
 </script>

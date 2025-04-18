@@ -12,7 +12,7 @@
         <div class="p-4 border rounded shadow-sm bg-white">
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
-        
+
             <div class="mb-3">
               <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn">
             </div>
@@ -32,7 +32,11 @@
               <router-link to="/cart" class="btn btn-outline-secondary">
                 <i class="bi bi-chevron-left"></i> Quay về giỏ hàng
               </router-link>
-              <button type="submit" class="btn btn-check-out">Đặt hàng</button>
+              <button type="submit" class="btn btn-check-out"
+                :title="!paymentMethod ? 'Vui lòng chọn phương thức thanh toán' : ''">
+                Đặt hàng
+              </button>
+
             </div>
           </form>
         </div>
@@ -47,13 +51,7 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img
-                :src="getImageUrl(item.image)"
-                alt=""
-                class="me-3 rounded"
-                width="80"
-                height="80"
-              />
+              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>{{ item.spicyLevel }}</div>
@@ -90,64 +88,60 @@
             </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input
-                v-model="discountInput"
-                type="text"
-                id="discount"
-                class="form-control"
-                placeholder="Nhập mã giảm giá..."
-              />
+              <input v-model="discountInput" type="text" id="discount" class="form-control"
+                placeholder="Nhập mã giảm giá..." />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
           </div>
 
           <!---->
           <div class="discount-scroll-wrapper">
-          <div v-for="discount in discounts" :key="discount.id">
-            <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2" @click="applyDiscountCode(discount.code)">
-  <div class="voucher-left d-flex align-items-center">
-    <div class="voucher-logo d-flex flex-column align-items-center justify-content-center">
-      <div class="logo-text">TITOKAQA</div>
-      <div class="logo-small">Mall</div>
-    </div>
-    <div class="voucher-info ps-3">
-      <div class="voucher-title">{{ discount.name }}</div>
-      <div class="voucher-title">Mã {{ discount.code }}</div>
-      <div class="voucher-time"><i class="fa-regular fa-clock me-1"></i>Hiệu lực sau: 2 ngày</div>
-    </div>
-  </div>
-  <div class="voucher-right text-end">
-    <div
-  class="voucher-status"
-  :class="{ 'text-success': selectedDiscount === discount.code }"
->
-  <span v-if="selectedDiscount === discount.code">Đã dùng ✅</span>
-  <span v-else>Dùng ngay</span>
-</div>
-    <div class="voucher-tag">Mới!</div>
-  </div>
-</div>
-</div>
-</div>
+            <div v-for="discount in discounts" :key="discount.id">
+              <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
+                @click="applyDiscountCode(discount.code)">
+                <div class="voucher-left d-flex align-items-center">
+                  <div class="voucher-logo d-flex flex-column align-items-center justify-content-center">
+                    <div class="logo-text">TITOKAQA</div>
+                    <div class="logo-small">Mall</div>
+                  </div>
+                  <div class="voucher-info ps-3">
+                    <div class="voucher-title">{{ discount.name }}</div>
+                    <div class="voucher-title">Mã {{ discount.code }}</div>
+                    <div class="voucher-time"><i class="fa-regular fa-clock me-1"></i>Hiệu lực sau: 2 ngày</div>
+                  </div>
+                </div>
+                <div class="voucher-right text-end">
+                  <div class="voucher-status" :class="{ 'text-success': selectedDiscount === discount.code }">
+                    <span v-if="selectedDiscount === discount.code">Đã dùng ✅</span>
+                    <span v-else>Dùng ngay</span>
+                  </div>
+                  <div class="voucher-tag">Mới!</div>
+                </div>
+              </div>
+            </div>
+          </div>
           <!-- Payment Methods -->
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="radio" name="payment" id="vnpay" />
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY"
+                v-model="paymentMethod">
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
                 <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
               </label>
             </div>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="radio" name="payment" id="momo" />
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO"
+                v-model="paymentMethod">
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
                 <img src="/img/momo.png" height="20" width="20" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="cod" checked />
+              <input class="form-check-input" type="radio" name="payment" id="cod" value="Thanh toán COD"
+                v-model="paymentMethod">
               <label class="form-check-label d-flex align-items-center" for="cod">
                 <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
                 <img src="/img/cod.png" height="30" width="30" alt="" />
@@ -161,12 +155,14 @@
 </template>
 
 <script>
-import { useRouter } from 'vue-router'
-import { User } from '@/stores/user'
+// import { User } from '@/stores/user'
 import { FoodList } from '@/stores/food'
-import axios from 'axios'
-import { ref, onMounted, computed, watch } from 'vue'
+import { onMounted, watch } from 'vue'
+import { Payment } from '@/stores/payment'
+import { Discounts } from '@/stores/discount'
 import numeral from 'numeral'
+import axios from 'axios'
+
 
 export default {
   methods: {
@@ -178,12 +174,7 @@ export default {
     },
   },
   setup() {
-    const router = useRouter()
-    const user = JSON.parse(localStorage.getItem('user')) || {}
 
-    const cartItems = ref([])
-    const note = ref('')
-    const { form } = User.setup()
     const { isLoading } = FoodList.setup()
 
     const loading = ref(false)
@@ -191,27 +182,19 @@ export default {
     const discountInput = ref('')
     const selectedDiscount = ref('')
     const showMoreDiscounts = ref(false)
-    const discountId = ref(null)
 
     const getAllDiscount = async () => {
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/discounts')
         discounts.value = res.data
-
-        if (selectedDiscount.value) {
-          applyDiscountCode(selectedDiscount.value)
-        }
       } catch (err) {
         console.error(err)
       }
     }
-    const discountInputId = ref(null);
 
     const handleDiscountInput = () => {
       const code = discountInput.value.trim().toUpperCase()
       const discount = discounts.value.find((d) => d.code === code)
-      discountInputId.value = discount.id
-      console.log('day la id cua ma nhap', discountInputId.value)
       if (discount) {
         applyDiscountCode(code)
         discountInput.value = ''
@@ -221,13 +204,9 @@ export default {
     }
 
     const applyDiscountCode = (code) => {
-      const selected = discounts.value.find(d => d.code === code)
-      if (!selected) {
-        alert('Mã giảm giá không hợp lệ')
-        return
-      }
+      if (selectedDiscount.value === code) return
       selectedDiscount.value = code
-      discountId.value = selected.id
+      console.log(selectedDiscount.value)
       showMoreDiscounts.value = false
     }
 
@@ -243,6 +222,10 @@ export default {
       }
 
       return 0
+    })
+
+    const finalTotal = computed(() => {
+      return Math.max(totalPrice.value - discountAmount.value, 0)
     })
 
     const loadCart = () => {
@@ -266,10 +249,6 @@ export default {
       return itemPrice + toppingPrice
     }
 
-    const finalTotal = computed(() => {
-      return Math.max(totalPrice.value - discountAmount.value, 0)
-    })
-
     const totalQuantity = computed(() => {
       return cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
     })
@@ -283,8 +262,7 @@ export default {
           guest_phone: form.value.phone,
           guest_address: form.value.address,
           note: note.value,
-          total_price: finalTotal.value,
-          discount_id: discountId.value || null,
+          total_price: totalPrice.value,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
             combo_id: null,
@@ -344,24 +322,32 @@ export default {
     })
 
     return {
-      cartItems,
-      totalPrice,
+      user,
       totalPriceItem,
       totalQuantity,
-      note,
+      check_out,
       form,
-      isLoading,
-      loading,
+      handleSubmit,
       submitOrder,
+      isLoading,
+      paymentMethod,
+      note,
+      // updateCartStorage,
+      cartItems,
+      totalPrice,
+      finalTotal,
       discounts,
+      discountInput,
+      selectedDiscount,
       applyDiscountCode,
       showMoreDiscounts,
-      selectedDiscount,
-      finalTotal,
-      discountAmount,
-      discountInput,
+      getAllDiscount,
       handleDiscountInput,
-      discountId
+      discountId,
+      applyDiscountCode,
+      discountAmount,
+      route
+
     }
   }
 }
@@ -382,6 +368,7 @@ export default {
   justify-content: center;
   align-items: center;
 }
+
 .text-success {
   color: #28a745;
   font-weight: bold;

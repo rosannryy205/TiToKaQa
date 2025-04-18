@@ -52,6 +52,7 @@ class CartController extends Controller
                     'discount_id' => $data['discount_id'] ?? null,
                     'note' => $data['note'] ?? null,
                     'order_time' => now(),
+                    'note' => $data['note'] ?? null
                 ]);
 
 

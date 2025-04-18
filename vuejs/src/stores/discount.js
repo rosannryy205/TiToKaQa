@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import numeral from 'numeral'
+import { useRouter } from 'vue-router'
+import { computed } from 'vue'
 
 export const Discounts = {
   methods: {
@@ -9,13 +11,19 @@ export const Discounts = {
     },
   },
   setup() {
+
+    const router = useRouter()
     const cartItems = ref([])
+    const user = JSON.parse(localStorage.getItem('user')) || {}
+    const userId = user?.id || 'guest'
+    const cartKey = `cart_${userId}`
     const discounts = ref([])
     const discountInput = ref('')
+    const moreDiscounts = ['HELLO50', 'NEWUSER', 'BUY2GET1', 'FLASH15', 'WELCOME30']
     const selectedDiscount = ref('')
     const discountId = ref(null)
-    const discountInputId = ref(null)
     const showMoreDiscounts = ref(false)
+    const discountInputId = ref(null);
 
     const getAllDiscount = async () => {
       try {
@@ -26,43 +34,96 @@ export const Discounts = {
       }
     }
 
+    
+
     const applyDiscountCode = (code) => {
-      const selected = discounts.value.find((d) => d.code === code)
-      if (!selected) {
-        alert('Mã giảm giá không hợp lệ')
-        return
-      }
+      if (selectedDiscount.value === code) return
       selectedDiscount.value = code
-      discountId.value = selected.id
+      console.log('applyDiscountCode',selectedDiscount.value)
       showMoreDiscounts.value = false
     }
+    
 
     const handleDiscountInput = () => {
       const code = discountInput.value.trim().toUpperCase()
       const discount = discounts.value.find((d) => d.code === code)
+      discountInputId.value = discount.id
+      console.log('day la id cua ma nhap', discountInputId.value)
       if (discount) {
-        discountInputId.value = discount.id
         applyDiscountCode(code)
         discountInput.value = ''
       } else {
         alert('Mã giảm giá không hợp lệ')
       }
     }
+    const finalTotal = computed(() => {
+      return Math.max(totalPrice.value - discountAmount.value, 0)
+    })
+    const totalPrice = computed(() => {
+      return cartItems.value.reduce((sum, item) => {
+        const basePrice = Number(item.price) * item.quantity
+        const toppingPrice = item.toppings.reduce((tsum, topping) => {
+          return tsum + (Number(topping.price) * item.quantity)
+        }, 0)
+        return sum + basePrice + toppingPrice
+      }, 0)
+    })
+
+    const totalPriceItem = (item) => {
+      const itemPrice = Number(item.price) * item.quantity;
+      const toppingPrice = item.toppings.reduce((sum, topping) => {
+        return sum + (Number(topping.price) * item.quantity);
+      }, 0);
+      return itemPrice + toppingPrice;
+    };
+
+    const totalQuantity = computed(() => {
+      return cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
+    })
+
+    const discountAmount = computed(() => {
+      const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
+      if (!discount) return 0
+
+      if (discount.discount_method === 'percent') {
+        return (totalPrice.value * discount.discount_value) / 100
+      }
+      if (discount.discount_method === 'fixed') {
+        return discount.discount_value
+      }
+
+      return 0
+    })
+
+    const loadCart = () => {
+      const storedCart = localStorage.getItem(cartKey)
+      cartItems.value = storedCart ? JSON.parse(storedCart) : []
+    }
 
     onMounted(() => {
       getAllDiscount()
+      loadCart()
     })
 
     return {
+
+      cartKey,
       cartItems,
       discounts,
+      moreDiscounts,
       discountInput,
       selectedDiscount,
       discountId,
       discountInputId,
       applyDiscountCode,
-      handleDiscountInput,
       showMoreDiscounts,
+      finalTotal,
+      discountAmount,
+      loadCart,
+      totalQuantity,
+      totalPriceItem,
+      handleDiscountInput
+
     }
   },
 }

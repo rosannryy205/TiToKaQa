@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\AdminFoodController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
@@ -19,6 +21,7 @@ use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Models\Discount;
 use Laravel\Socialite\Contracts\Provider;
+use App\Http\Controllers\PaymentController;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
@@ -50,8 +53,11 @@ Route::get('/foods', [OrderController::class, 'getAllFoodsWithToppings']);
 Route::post('/reservation-update-status', [OrderController::class, 'updateStatus']);
 Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
 Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
+
 Route::post('/order-for-user', [OrderController::class, 'orderFoodForUser']);
 
+Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
+Route::post('/order-for-user', [OrderController::class, 'orderFoodForUser']);
 
 //history
 Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);
@@ -103,4 +109,14 @@ Route::get('/discounts',[DiscountController::class,'getAllDiscounts']);
 Route::get('/auth/{provider}/redirect', ProviderRedirectController::class)->name('auth.redirect');
 Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name('auth.callback');
 
+//admin
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/admin/foods', [AdminFoodController::class, 'index']);
+    Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
+    Route::post('/admin/foods', [AdminFoodController::class, 'store']);
+});
+
+Route::resource('/payment', PaymentController::class);
+// routes/api.php
+Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 

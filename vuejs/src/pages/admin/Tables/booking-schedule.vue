@@ -107,7 +107,6 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
 import { FoodList } from '@/stores/food'
-import OrdersDetail from '../Orders/orders-detail.vue'
 export default {
   setup() {
     const { info, getInfo, formatDate, formatTime, formatNumber } = Info.setup()

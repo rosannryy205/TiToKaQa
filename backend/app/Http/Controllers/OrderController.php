@@ -16,6 +16,7 @@ use App\Models\Food;
 use App\Models\Food_topping;
 use App\Models\Reservation_table;
 use App\Models\Table;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
 Carbon::setLocale('vi');
@@ -137,7 +138,7 @@ class OrderController extends Controller
                 'order_details' => $orderDetailsWithNames,
             ];
 
-            // // Gửi email xác nhận đặt bàn
+            // Gửi email xác nhận đặt bàn
             // $emailTo = $mailData['guest_email'];
             // Mail::to($emailTo)->send(new ReservationMail($mailData));
 
@@ -244,7 +245,6 @@ class OrderController extends Controller
         $value = $request->query('value');
         $type = $request->query('type');
 
-        // Lấy đơn đặt bàn
         if ($type === 'user') {
             $reservation = Order::with([
                 'details.foods',
@@ -266,7 +266,6 @@ class OrderController extends Controller
             ], 404);
         }
 
-        // Danh sách món ăn + topping
         $details = $reservation->details->map(function ($detail) {
             return [
                 'id' => $detail->id,
@@ -286,7 +285,6 @@ class OrderController extends Controller
             ];
         });
 
-        // // Thông tin bàn đã xếp
         $tables = $reservation->tables->map(function ($table) {
             return [
                 'table_id' => $table->id,
@@ -562,5 +560,111 @@ class OrderController extends Controller
         return response()->json([
             'message' => 'Đã huỷ ' . $orders->count() . ' đơn quá hạn chưa check-in.',
         ]);
+    }
+
+    public function generateInvoice(Request $request)
+    {
+        try {
+            $order = Order::with([
+                'details.foods',
+                'details.toppings.food_toppings.toppings',
+                'tables'
+            ])->find($request->id);
+
+            $orderDetailsWithNames = [];
+            foreach ($order->details as $item) {
+                $name = $item->foods->name ?? 'Món ăn không tồn tại';
+                $toppingsWithNames = [];
+                foreach ($item->toppings as $topping) {
+                    $foodToppingModel = $topping->food_toppings;
+                    $toppingModel = $foodToppingModel?->toppings;
+                    $toppingsWithNames[] = [
+                        'name' => $toppingModel?->name ?? 'Topping không tồn tại',
+                        'price' => $topping->price
+                    ];
+                }
+                $orderDetailsWithNames[] = [
+                    'name' => $name,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'type' => $item->type,
+                    'toppings' => $toppingsWithNames,
+                ];
+            }
+
+            $pdfData = [
+                'order_id' => $order->id,
+                'guest_name' => $order->guest_name,
+                'guest_phone' => $order->guest_phone,
+                'guest_email' => $order->guest_email,
+                'total_price' => $order->total_price,
+                'note' => $order->note,
+                'order_details' => $orderDetailsWithNames,
+                'tables' => $order->tables->pluck('table_number')->toArray(),
+                'order_time' => $order->order_time,
+                'reservations_time' => $order->reservations_time,
+            ];
+
+            // Tạo PDF
+            $pdf = PDF::loadView('pdf.invoice', $pdfData);
+
+            // return $pdf->download('invoice_' . $order->id . '.pdf');
+            return $pdf->stream('hoadon' . $order->id . '.pdf', ['Attachment' => 0]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'error' => 'Lỗi khi tạo hóa đơn: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function orderFoodForUser(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'price' => 'required|numeric',
+                'order_id' => 'required|numeric',
+                'food_id' => 'required|numeric',
+                'combo_id' => 'nullable|numeric',
+                'quantity' => 'required|numeric',
+                'type' => 'required|string',
+                'order_toppings' => 'nullable|array',
+                'order_toppings.*.food_toppings_id' => 'required|numeric',
+                'order_toppings.*.price' => 'required|numeric',
+            ]);
+
+            $orderDetail = Order_detail::create([
+                'order_id' => $data['order_id'],
+                'food_id' => $data['food_id'],
+                'combo_id' => $data['combo_id'] ?? null,
+                'quantity' => $data['quantity'],
+                'price' => $data['price'],
+                'type' => $data['type'],
+            ]);
+
+            // Thêm topping nếu có
+            if (!empty($data['order_toppings'])) {
+                foreach ($data['order_toppings'] as $toppingId) {
+                    $foodTopping = Food_topping::find($toppingId);
+                    if ($foodTopping) {
+                        Order_topping::create([
+                            'food_toppings_id' => $toppingId['food_toppings_id'],
+                            'order_detail_id' => $orderDetail->id,
+                            'price' => $toppingId['price'], // hoặc $foodTopping->price nếu bạn luôn lấy từ DB
+                        ]);
+
+                    }
+                }
+            }
+
+            return response()->json(['status' => true, 'message' => 'Thêm món thành công!']);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
+        }
     }
 }

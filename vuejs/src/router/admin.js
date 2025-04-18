@@ -5,6 +5,7 @@ const admin = [
         name: "admin",
         component: () => import("../components/layouts/LayoutAdmin.vue"),
         redirect: "/admin/dashboard",
+
         children: [
             {
                 path: "dashboard",
