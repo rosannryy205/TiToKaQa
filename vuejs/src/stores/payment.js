@@ -50,6 +50,56 @@ export const Payment = {
       finalTotal
     } = Discounts.setup()
 
+
+    const selectedProvince = ref(null)
+    const selectedDistrict = ref(null)
+    const selectedWard = ref(null)
+
+    const provinces = ref([])
+    const districts = ref([])
+    const wards = ref([])
+
+
+
+    const getProvinces = async () => {
+      try {
+        const res = await axios.get(`https://provinces.open-api.vn/api/?depth=1`)
+        provinces.value = res.data
+      } catch (error) {
+        console.error('Lỗi lấy tỉnh thành: ', error)
+      }
+    }
+
+    const onProvinceChange = async () => {
+      selectedDistrict.value = null
+      selectedWard.value = null
+      districts.value = []
+      wards.value = []
+
+      if (selectedProvince.value) {
+        try {
+          const res = await axios.get(`https://provinces.open-api.vn/api/p/${selectedProvince.value.code}?depth=2`)
+          districts.value = res.data.districts
+        } catch (error) {
+          console.error('Lỗi khi lấy quận/huyện:', error)
+        }
+      }
+    }
+
+    const onDistrictChange = async () => {
+      selectedWard.value = null
+      wards.value = []
+
+      if (selectedDistrict.value) {
+        try {
+          const res = await axios.get(`https://provinces.open-api.vn/api/d/${selectedDistrict.value.code}?depth=2`)
+          wards.value = res.data.wards
+        } catch (error) {
+          console.error('Lỗi khi lấy xã/phường:', error)
+        }
+      }
+    }
+
     const paymentMethod = ref('')
 
     const check_out = async () => {
@@ -58,13 +108,13 @@ export const Payment = {
           alert('Vui lòng chọn phương thức thanh toán!')
           return
         }
-
+        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`;
         const orderData = {
           user_id: user1.value ? user1.value.id : null,
           guest_name: form.value.fullname,
           guest_email: form.value.email,
           guest_phone: form.value.phone,
-          guest_address: form.value.address,
+          guest_address: fullAddress,
           note: note.value || '',
           total_price: finalTotal.value,
           order_detail: cartItems.value.map(item => ({
@@ -72,7 +122,7 @@ export const Payment = {
             combo_id: null,
             quantity: item.quantity,
             price: item.price,
-            type: 'food',
+            type: item.type,
             toppings: item.toppings.map(t => ({
               food_toppings_id: t.food_toppings_id,
               price: t.price
@@ -156,6 +206,7 @@ export const Payment = {
     }
 
     onMounted(() => {
+      getProvinces(),
       loadCart()
       user1.value = JSON.parse(localStorage.getItem('user')) || null
 
@@ -185,7 +236,17 @@ export const Payment = {
       paymentMethod,
       form,
       finalTotal,
-      user
+      user,
+
+
+      provinces,
+      districts,
+      wards,
+      selectedProvince,
+      selectedDistrict,
+      selectedWard,
+      onDistrictChange,
+      onProvinceChange,
     }
   }
 }
