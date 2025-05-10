@@ -325,22 +325,24 @@ export default {
         });
 
       } catch (error) {
-        if (error.response?.status === 422) {
-          if (error.response?.status === 422) {
-            const allErrors = error.response.data.errors;
-            const firstKey = Object.keys(allErrors)[0];
+        console.log(error);
+        
+        // if (error.response?.status === 422) {
+        //   if (error.response?.status === 422) {
+        //     const allErrors = error.response.data.errors;
+        //     const firstKey = Object.keys(allErrors)[0];
 
-            // Xóa hết lỗi cũ
-            Object.keys(errors).forEach(k => delete errors[k]);
+        //     // Xóa hết lỗi cũ
+        //     Object.keys(errors).forEach(k => delete errors[k]);
 
-            // Chỉ giữ lỗi đầu tiên
-            errors[firstKey] = allErrors[firstKey];
-            firstErrorKey.value = firstKey;
-          }
-        } else {
-          console.error('Lỗi khi đặt bàn:', error);
-          alert('Có lỗi xảy ra, vui lòng thử lại sau.');
-        }
+        //     // Chỉ giữ lỗi đầu tiên
+        //     errors[firstKey] = allErrors[firstKey];
+        //     firstErrorKey.value = firstKey;
+        //   }
+        // } else {
+        //   console.error('Lỗi khi đặt bàn:', error);
+        //   alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+        // }
       } finally {
         isLoading.value = false
       }
