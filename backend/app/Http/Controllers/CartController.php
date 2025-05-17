@@ -21,7 +21,6 @@ class CartController extends Controller
                 'guest_email' => 'required|email',
                 'guest_address' => 'required|string|max:255',
                 'total_price' => 'required|numeric',
-                'discount_id' => 'nullable|numeric',
                 'order_detail' => 'nullable|array',
                 'note' => 'nullable|string',
             ],
@@ -39,7 +38,6 @@ class CartController extends Controller
 
                 'reservations_time.required' => 'Vui lòng nhập ngày nhận bàn.',
             ]);
-            
 
             try {
                 $order = Order::create([
@@ -49,10 +47,7 @@ class CartController extends Controller
                     'guest_email' => $data['guest_email'],
                     'guest_address' => $data['guest_address'],
                     'total_price' => $data['total_price'],
-                    'discount_id' => $data['discount_id'] ?? null,
                     'note' => $data['note'] ?? null,
-                    'order_time' => now(),
-                    'note' => $data['note'] ?? null
                 ]);
 
 
@@ -181,17 +176,6 @@ class CartController extends Controller
                     ];
                 });
 
-                // lấy thông tin các bàn của đơn hàng
-                $tables = $order->tables->map(function ($table) {
-                    return [
-                        'table_id' => $table->id,
-                        'table_number' => $table->table_number,
-                        'assigned_time' => $table->pivot->assigned_time,
-                        'reserved_from' => $table->pivot->reserved_from,
-                        'reserved_to' => $table->pivot->reserved_to,
-                    ];
-                });
-
                 return [
                     'id' => $order->id,
                     'user_id' => $order->user_id,
@@ -213,8 +197,7 @@ class CartController extends Controller
                     'reservations_time' => $order->reservations_time,
                     'expiration_time' => $order->expiration_time,
                     'reservation_status' => $order->reservation_status,
-                    'details' => $details,
-                    'tables' => $tables
+                    'details' => $details
                 ];
             });
 
@@ -230,6 +213,31 @@ class CartController extends Controller
             ]);
         }
     }
+
+    public function update_status(Request $request, $id){
+        $request->validate([
+            'order_status' => 'required|string|max:255'
+        ]);
+
+        $order = Order::find($id);
+
+        if (!$order) {
+            return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
+        }
+
+        $order->order_status = $request->order_status;
+
+        if ($order->save()) {
+            return response()->json([
+                'mess' => 'Cập nhật trạng thái thành công'
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Cập nhật thất bại'
+            ], 500);
+        }
+    }
+
 
 
 }

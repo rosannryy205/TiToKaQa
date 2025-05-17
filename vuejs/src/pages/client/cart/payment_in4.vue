@@ -21,6 +21,30 @@
             <div class="mb-3">
               <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại" />
             </div>
+
+            <div class="mb-3">
+              <select v-model="selectedProvince" @change="onProvinceChange" class="form-control-customer">
+                <option :value="null" disabled selected> Chọn tỉnh / thành phố</option>
+                <option v-for="province in provinces" :key="province.code" :value="province"> {{ province.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <select v-model="selectedDistrict" @change="onDistrictChange" class="form-control-customer">
+                <option :value="null" disabled selected>Chọn quận / huyện</option>
+                <option v-for="district in districts" :key="district.code" :value="district">{{ district.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <select v-model="selectedWard" class="form-control-customer">
+                <option :value="null" disabled selected>Chọn xã / phường</option>
+                <option v-for="ward in wards" :key="ward.code" :value="ward">{{ ward.name }}</option>
+              </select>
+            </div>
+
             <div class="mb-3">
               <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ" />
             </div>
@@ -51,6 +75,7 @@
               <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
+                <div>Loại: {{ item.type }}</div>
                 <div>{{ item.spicyLevel }}</div>
                 <div v-if="item.toppings.length" class="text-muted small">
                   <div v-for="(topping, i) in item.toppings" :key="i">
