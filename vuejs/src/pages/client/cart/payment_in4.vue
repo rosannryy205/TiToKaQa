@@ -13,13 +13,13 @@
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
             <div class="mb-3">
-              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn" />
+              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn">
             </div>
             <div class="mb-3">
-              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn" />
+              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn">
             </div>
             <div class="mb-3">
-              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại" />
+              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại">
             </div>
 
             <div class="mb-3">
@@ -46,7 +46,7 @@
             </div>
 
             <div class="mb-3">
-              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ" />
+              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ">
             </div>
             <div class="mb-3">
               <textarea v-model="note" class="form-control-customer" rows="3" placeholder="Ghi chú"></textarea>
@@ -55,9 +55,7 @@
               <router-link to="/cart" class="btn btn-outline-secondary">
                 <i class="bi bi-chevron-left"></i> Quay về giỏ hàng
               </router-link>
-              <button type="submit" class="btn btn-check-out" :title="!paymentMethod ? 'Vui lòng chọn phương thức thanh toán' : ''">
-                Đặt hàng
-              </button>
+              <button type="submit" class="btn btn-check-out">Đặt hàng</button>
             </div>
           </form>
         </div>
@@ -110,15 +108,17 @@
             </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input v-model="discountInput" type="text" id="discount" class="form-control" placeholder="Nhập mã giảm giá..." />
+              <input v-model="discountInput" type="text" id="discount" class="form-control"
+                placeholder="Nhập mã giảm giá..." />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
           </div>
 
-          <!-- Discount List -->
+          <!---->
           <div class="discount-scroll-wrapper">
             <div v-for="discount in discounts" :key="discount.id">
-              <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2" @click="applyDiscountCode(discount.code)">
+              <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
+                @click="applyDiscountCode(discount.code)">
                 <div class="voucher-left d-flex align-items-center">
                   <div class="voucher-logo d-flex flex-column align-items-center justify-content-center">
                     <div class="logo-text">TITOKAQA</div>
@@ -140,15 +140,31 @@
               </div>
             </div>
           </div>
-
           <!-- Payment Methods -->
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
-            <div class="form-check" v-for="(method, index) in paymentMethods" :key="index">
-              <input class="form-check-input" type="radio" :id="method.id" :value="method.label" v-model="paymentMethod" name="payment" />
-              <label class="form-check-label d-flex align-items-center" :for="method.id">
-                <span class="me-2">{{ method.label }}</span>
-                <img :src="method.img" :alt="method.label" height="20" width="60" />
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY"
+                v-model="paymentMethod">
+              <label class="form-check-label d-flex align-items-center" for="vnpay">
+                <span class="me-2">Thanh toán qua VNPAY</span>
+                <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO"
+                v-model="paymentMethod">
+              <label class="form-check-label d-flex align-items-center" for="momo">
+                <span class="me-2">Thanh toán qua Momo</span>
+                <img src="/img/momo.png" height="20" width="20" alt="" />
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="cod" value="Thanh toán COD"
+                v-model="paymentMethod">
+              <label class="form-check-label d-flex align-items-center" for="cod">
+                <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
+                <img src="/img/cod.png" height="30" width="30" alt="" />
               </label>
             </div>
           </div>
@@ -159,179 +175,157 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, watch } from 'vue'
-import axios from 'axios'
+import { FoodList } from '@/stores/food'
+import { Payment } from '@/stores/payment'
+import { Discounts } from '@/stores/discount'
+import { onMounted } from 'vue'
 import numeral from 'numeral'
 import { useRouter } from 'vue-router'
-import { FoodList } from '@/stores/food'
+import { ref } from 'vue'
+import axios from 'axios'
+
 
 export default {
+  methods: {
+    formatNumber(value) {
+      return numeral(value).format('0,0')
+    },
+    getImageUrl(image) {
+      return `/img/food/${image}`
+    },
+  },
   setup() {
+
+
     const router = useRouter()
+
+
+
+    const {
+      user,
+      form,
+      note,
+      handleSubmit,
+      paymentMethod,
+      check_out,
+      loadCart,
+      totalPriceItem,
+      totalQuantity,
+      submitOrder,
+      provinces,
+      districts,
+      wards,
+      selectedProvince,
+      selectedDistrict,
+      selectedWard,
+      onDistrictChange,
+      onProvinceChange,
+      getProvinces
+    } = Payment.setup()
+
+    const {
+      route,
+      cartItems,
+      totalPrice,
+      finalTotal,
+      discounts,
+      discountInput,
+      selectedDiscount,
+      showMoreDiscounts,
+      getAllDiscount,
+      handleDiscountInput,
+      applyDiscountCode,
+      discountAmount
+    } = Discounts.setup()
+
+
+
     const { isLoading } = FoodList.setup()
 
-    const user = ref(JSON.parse(localStorage.getItem('user')) || {})
-    const form = ref({ fullname: '', email: '', phone: '', address: '' })
-    const note = ref('')
-    const paymentMethod = ref('')
-    const cartItems = ref([])
 
-    const discountInput = ref('')
-    const selectedDiscount = ref('')
-    const discountId = ref(null)
-    const discounts = ref([])
 
-    const getAllDiscount = async () => {
-      const res = await axios.get('http://127.0.0.1:8000/api/discounts')
-      discounts.value = res.data
+
+
+    // const user = JSON.parse(localStorage.getItem('user')) || {}
+
+
+
+    const updateCartStorage = () => {
+      const cartKey = getCartKey()
+      localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
     }
 
-    const handleDiscountInput = () => {
-      const code = discountInput.value.trim().toUpperCase()
-      const discount = discounts.value.find(d => d.code === code)
-      if (discount) {
-        applyDiscountCode(code)
-        discountInput.value = ''
-      } else {
-        alert('Mã giảm giá không hợp lệ')
-      }
-    }
 
-    const applyDiscountCode = (code) => {
-      const found = discounts.value.find(d => d.code === code)
-      if (found) {
-        selectedDiscount.value = code
-        discountId.value = found.id
-      }
-    }
-
-    const discountAmount = computed(() => {
-      const discount = discounts.value.find(d => d.code === selectedDiscount.value)
-      if (!discount) return 0
-      return discount.discount_method === 'percent'
-        ? (totalPrice.value * discount.discount_value) / 100
-        : discount.discount_value
-    })
-
-    const totalPrice = computed(() =>
-      cartItems.value.reduce((sum, item) =>
-        sum + item.price * item.quantity +
-        item.toppings.reduce((tsum, t) => tsum + t.price * item.quantity, 0), 0)
-    )
-
-    const totalPriceItem = (item) =>
-      item.price * item.quantity +
-      item.toppings.reduce((sum, t) => sum + t.price * item.quantity, 0)
-
-    const finalTotal = computed(() =>
-      Math.max(totalPrice.value - discountAmount.value, 0)
-    )
-
-    const totalQuantity = computed(() =>
-      cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
-    )
-
-    const loadCart = () => {
-      const userId = user.value?.id || 'guest'
-      const cartKey = `cart_${userId}`
-      const stored = localStorage.getItem(cartKey)
-      cartItems.value = stored ? JSON.parse(stored) : []
-    }
-
-    const submitOrder = async () => {
-      if (!paymentMethod.value) {
-        alert('Vui lòng chọn phương thức thanh toán!')
-        return
-      }
-
-      const order = {
-        user_id: user.value.id || null,
-        guest_name: form.value.fullname,
-        guest_email: form.value.email,
-        guest_phone: form.value.phone,
-        guest_address: form.value.address,
-        note: note.value,
-        total_price: finalTotal.value,
-        discount_id: discountId.value,
-        payment_method: paymentMethod.value,
-        order_detail: cartItems.value.map(item => ({
-          food_id: item.id,
-          combo_id: null,
-          quantity: item.quantity,
-          price: item.price,
-          type: 'food',
-          toppings: item.toppings.map(t => ({
-            food_toppings_id: t.food_toppings_id,
-            price: t.price
-          }))
-        }))
-      }
-
-      try {
-        const res = await axios.post('http://127.0.0.1:8000/api/order', order)
-        if (res.data.status) {
-          alert('Đặt hàng thành công!')
-          localStorage.removeItem(`cart_${user.value.id || 'guest'}`)
-          router.push('/cart')
-        } else {
-          alert('Đặt hàng thất bại!')
-        }
-      } catch (err) {
-        console.error(err)
-        alert('Đã xảy ra lỗi khi đặt hàng!')
-      }
-    }
 
     onMounted(() => {
+      // getProvinces()
       loadCart()
-      getAllDiscount()
+      // if (user) {
+      //   form.value.fullname = user.fullname || ''
+      //   form.value.email = user.email || ''
+      //   form.value.phone = user.phone || ''
+      //   form.value.address = user.address || ''
+      // }
+
     })
 
     return {
       user,
+      totalPriceItem,
+      totalQuantity,
+      check_out,
       form,
-      note,
+      handleSubmit,
+      submitOrder,
+      isLoading,
       paymentMethod,
+      note,
+
+      updateCartStorage,
       cartItems,
+      totalPrice,
+      finalTotal,
       discounts,
       discountInput,
       selectedDiscount,
-      discountAmount,
-      discountId,
+      showMoreDiscounts,
       getAllDiscount,
       handleDiscountInput,
       applyDiscountCode,
-      submitOrder,
-      totalPrice,
-      totalPriceItem,
-      totalQuantity,
-      finalTotal,
-      isLoading,
-      formatNumber: (val) => numeral(val).format('0,0'),
-      getImageUrl: (img) => `/img/food/${img}`,
-      paymentMethods: [
-        { id: 'vnpay', label: 'Thanh toán VNPAY', img: '/img/Logo-VNPAY-QR-1 (1).png' },
-        { id: 'momo', label: 'Thanh toán MOMO', img: '/img/momo.png' },
-        { id: 'cod', label: 'Thanh toán COD', img: '/img/cod.png' }
-      ]
+      discountAmount,
+
+      provinces,
+      districts,
+      wards,
+      selectedProvince,
+      selectedDistrict,
+      selectedWard,
+      onDistrictChange,
+      onProvinceChange,
     }
   }
 }
 </script>
 
+
+
 <style>
 .isLoading-overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100vh;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
   background-color: rgba(148, 142, 142, 0.8);
   z-index: 9999;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .text-success {
   color: #28a745;
   font-weight: bold;
+  border: solid #28a745 !important;
 }
 </style>
