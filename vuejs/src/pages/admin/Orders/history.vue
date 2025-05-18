@@ -34,7 +34,7 @@
     <div class="row mt-3 g-2">
       <div class="col-12 col-sm-6 col-md-4">
         <label>Hiển thị:</label>
-        <select class="form-select">
+        <select class="form-select rounded">
           <option selected>5</option>
           <option>10</option>
           <option>15</option>

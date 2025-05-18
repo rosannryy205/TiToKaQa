@@ -172,6 +172,7 @@ import { ref, watch } from 'vue'
 import { Modal } from 'bootstrap'
 import { useRouter } from 'vue-router'
 import { reactive } from 'vue'
+import { toast } from 'vue3-toastify';
 export default {
   setup() {
     const date = ref('');
@@ -319,10 +320,15 @@ export default {
 
         localStorage.removeItem(`cart_${userId}`);
         const orderId = res.data.order_id;
-        router.push({
-          name: 'reservation-form',
-          params: { orderId },
-        });
+
+        toast.success('Đặt bàn thành công!');
+          setTimeout(() => {
+            router.push({
+              name: 'reservation-form',
+              params: { orderId },
+            });
+          }, 2000);
+
 
       } catch (error) {
         if (error.response?.status === 422) {
@@ -338,8 +344,10 @@ export default {
             firstErrorKey.value = firstKey;
           }
         } else {
-          console.error('Lỗi khi đặt bàn:', error);
-          alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+          toast.error('Có lỗi xảy ra, vui lòng thử lại sau.', {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+
         }
       } finally {
         isLoading.value = false

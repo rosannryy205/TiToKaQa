@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-content-between mb-3">
     <h2>Lịch đặt bàn</h2>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+    <button type="button" class="btn btn-danger1" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
       + Thêm đơn đặt bàn
     </button>
   </div>
