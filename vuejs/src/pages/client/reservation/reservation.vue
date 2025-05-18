@@ -331,6 +331,8 @@ export default {
 
 
       } catch (error) {
+        console.log(error);
+
         if (error.response?.status === 422) {
           if (error.response?.status === 422) {
             const allErrors = error.response.data.errors;

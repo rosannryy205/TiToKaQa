@@ -15,9 +15,17 @@
             </div>
 
             <div class="col-sm-4">
-              <label class="form-label fw-bold">Cấp độ:</label><br>
-              <select class="form-select-sm p-1">
-                <option v-for="spicy in product.spicyLevelNull" :key="spicy.id" :value="spicy.pivot.id">
+              <label class="form-label fw-bold">Cấp độ:</label><br />
+              <select
+                class="form-select-sm p-1"
+                v-model="product.selectedSpicyLevel"
+                id="spicyLevelNull"
+              >
+                <option
+                  v-for="spicy in product.spicyLevelNull"
+                  :key="spicy.id"
+                  :value="spicy.pivot.id"
+                >
                   {{ spicy.name }}
                 </option>
               </select>

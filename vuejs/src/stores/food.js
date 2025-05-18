@@ -138,9 +138,9 @@ export const FoodList = {
         foodOrderAdmin.value.forEach(food => {
           food.spicyLevelNull = [];
           food.spicyLevelNotNull = [];
+          food.selectedToppings = ref([])
 
           food.toppings.forEach(topping => {
-            // console.log(topping.price); // Log giá trị price của mỗi topping
             if (topping.price == null) {
               food.spicyLevelNull.push(topping);
             } else {

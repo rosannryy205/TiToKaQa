@@ -83,8 +83,8 @@
       </table>
       <div class="text-end">
         <p>Tạm tính: {{ formatNumber(info.total_price) }} VNĐ</p>
-        <p>Khuyến mãi: 0 đ</p>
-        <h5>Tổng cộng (VAT): {{ formatNumber(info.total_price) }} VNĐ</h5>
+        <p>Khuyến mãi: {{ formatNumber(info.dis_amount) }} VNĐ</p>
+        <h5>Tổng cộng (VAT): {{ formatNumber(info.final_price) }} VNĐ</h5>
       </div>
     </div>
     <button class="btn btn-secondary mt-2 p-2" @click="goBack">Quay lại</button>

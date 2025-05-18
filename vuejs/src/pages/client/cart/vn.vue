@@ -12,6 +12,7 @@
         <div class="p-4 border rounded shadow-sm bg-white">
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
+
             <div class="mb-3">
               <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn">
             </div>
@@ -21,30 +22,6 @@
             <div class="mb-3">
               <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại">
             </div>
-
-            <div class="mb-3">
-              <select v-model="selectedProvince" @change="onProvinceChange" class="form-control-customer">
-                <option :value="null" disabled selected> Chọn tỉnh / thành phố</option>
-                <option v-for="province in provinces" :key="province.code" :value="province"> {{ province.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <select v-model="selectedDistrict" @change="onDistrictChange" class="form-control-customer">
-                <option :value="null" disabled selected>Chọn quận / huyện</option>
-                <option v-for="district in districts" :key="district.code" :value="district">{{ district.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <select v-model="selectedWard" class="form-control-customer">
-                <option :value="null" disabled selected>Chọn xã / phường</option>
-                <option v-for="ward in wards" :key="ward.code" :value="ward">{{ ward.name }}</option>
-              </select>
-            </div>
-
             <div class="mb-3">
               <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ">
             </div>
@@ -55,7 +32,11 @@
               <router-link to="/cart" class="btn btn-outline-secondary">
                 <i class="bi bi-chevron-left"></i> Quay về giỏ hàng
               </router-link>
-              <button type="submit" class="btn btn-check-out">Đặt hàng</button>
+              <button type="submit" class="btn btn-check-out"
+                :title="!paymentMethod ? 'Vui lòng chọn phương thức thanh toán' : ''">
+                Đặt hàng
+              </button>
+
             </div>
           </form>
         </div>
@@ -73,7 +54,6 @@
               <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
-                <div>Loại: {{ item.type }}</div>
                 <div>{{ item.spicyLevel }}</div>
                 <div v-if="item.toppings.length" class="text-muted small">
                   <div v-for="(topping, i) in item.toppings" :key="i">
@@ -175,15 +155,13 @@
 </template>
 
 <script>
+// import { User } from '@/stores/user'
 import { FoodList } from '@/stores/food'
 import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
 import { onMounted } from 'vue'
 import numeral from 'numeral'
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
-import axios from 'axios'
-
 
 export default {
   methods: {
@@ -196,10 +174,7 @@ export default {
   },
   setup() {
 
-
-    const router = useRouter()
-
-
+    const { isLoading } = FoodList.setup()
 
     const {
       user,
@@ -211,17 +186,13 @@ export default {
       loadCart,
       totalPriceItem,
       totalQuantity,
-      submitOrder,
-      provinces,
-      districts,
-      wards,
-      selectedProvince,
-      selectedDistrict,
-      selectedWard,
-      onDistrictChange,
-      onProvinceChange,
-      getProvinces
+      submitOrder
     } = Payment.setup()
+
+    // const {
+    //   user,
+    //   form
+    // } = User.setup()
 
     const {
       route,
@@ -239,34 +210,19 @@ export default {
     } = Discounts.setup()
 
 
-
-    const { isLoading } = FoodList.setup()
-
-
-
-
-
-    // const user = JSON.parse(localStorage.getItem('user')) || {}
-
-
-
     const updateCartStorage = () => {
       const cartKey = getCartKey()
       localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
     }
 
-
-
     onMounted(() => {
-      // getProvinces()
       loadCart()
-      // if (user) {
-      //   form.value.fullname = user.fullname || ''
-      //   form.value.email = user.email || ''
-      //   form.value.phone = user.phone || ''
-      //   form.value.address = user.address || ''
+      // if (user.value && user.value.id) {
+      //   form.value.fullname = user.value.fullname || ''
+      //   form.value.email = user.value.email || ''
+      //   form.value.phone = user.value.phone || ''
+      //   form.value.address = user.value.address || ''
       // }
-
     })
 
     return {
@@ -292,21 +248,11 @@ export default {
       getAllDiscount,
       handleDiscountInput,
       applyDiscountCode,
-      discountAmount,
-
-      provinces,
-      districts,
-      wards,
-      selectedProvince,
-      selectedDistrict,
-      selectedWard,
-      onDistrictChange,
-      onProvinceChange,
+      discountAmount
     }
   }
 }
 </script>
-
 
 
 <style>

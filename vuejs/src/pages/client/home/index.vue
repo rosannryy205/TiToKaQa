@@ -257,6 +257,8 @@ import axios from 'axios'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
+import { toast } from 'vue3-toastify'
+
 
 export default {
   name: 'HomePage',
@@ -467,7 +469,8 @@ export default {
       }
 
       localStorage.setItem(cartKey, JSON.stringify(cart))
-      alert('Đã thêm vào giỏ hàng!')
+      toast.success('🛍️ Đã thêm vào giỏ hàng!')
+
     }
     const increaseQuantity = () => {
       quantity.value += 1
@@ -517,3 +520,9 @@ export default {
   },
 }
 </script>
+
+<style>
+.animation-duration {
+  animation-duration: 2500ms !important;
+}
+</style>

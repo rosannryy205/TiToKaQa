@@ -232,6 +232,7 @@ export default {
 
 
     return {
+      Modal,
       cartItems,
       totalPrice,
       increaseQuantity,
