@@ -11,6 +11,8 @@ import {
 import App from './App.vue'
 import vSelect from "vue-select"
 
+
+
 // CSS import
 import 'ant-design-vue/dist/reset.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
