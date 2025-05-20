@@ -182,9 +182,9 @@ export default {
       discountInputId,
       applyDiscountCode,
       handleDiscountInput,
-      cartItems,
+      cartItems
       
-    } = Discounts.setup()
+    } = Discounts()
     
 
     const discountAmount = computed(() => {

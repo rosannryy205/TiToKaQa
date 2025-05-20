@@ -42,6 +42,8 @@ class OrderController extends Controller
                 'deposit_amount' => 'nullable|numeric|min:0',
                 'expiration_time' => 'required|date',
                 'total_price' => 'required|numeric',
+                'money_reduce' => 'required|numeric',
+                'final_price' => 'required|numeric',
                 'order_details' => 'nullable|array',
                 'discount_id' => 'nullable|numeric',
             ], [
@@ -68,6 +70,8 @@ class OrderController extends Controller
                 'deposit_amount' => $data['deposit_amount'] ?? 0,
                 'expiration_time' => $data['expiration_time'],
                 'total_price' => $data['total_price'],
+                'money_reduce' => $data['money_reduce'],
+                'final_price' => $data['final_price'],
             ]);
 
             if (!empty($data['order_details'])) {

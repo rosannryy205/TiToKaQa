@@ -1,27 +1,31 @@
 import axios from 'axios'
 import { ref, onMounted, computed } from 'vue'
-import numeral from 'numeral'
-import { useRouter } from 'vue-router'
+// import numeral from 'numeral'
+// import { useRouter } from 'vue-router'
+import { watchEffect } from 'vue'
 
-export const Discounts = {
-  methods: {
-    formatNumber(value) {
-      return numeral(value).format('0,0')
-    },
-  },
-  setup() {
-    const router = useRouter()
+// export const discountId = ref(null)
+export function Discounts()  {
+  
+    // const router = useRouter()
     const cartItems = ref([])
     const user = JSON.parse(localStorage.getItem('user')) || {}
     const userId = user?.id || 'guest'
     const cartKey = `cart_${userId}`
     const discounts = ref([])
     const discountInput = ref('')
-    const moreDiscounts = ['HELLO50', 'NEWUSER', 'BUY2GET1', 'FLASH15', 'WELCOME30']
     const selectedDiscount = ref('')
-    const discountId = ref(null)
     const discountInputId = ref(null)
     const showMoreDiscounts = ref(false)
+    const discountId = ref(null)
+    watchEffect(() => {
+      const selected = discounts.value.find(d => d.code === selectedDiscount.value)
+      if (selected) {
+        discountId.value = selected.id
+        console.log('✅ Tiền giảm:', discountAmount.value)
+        console.log('✅ Tổng sau giảm:', finalTotal.value)
+      }
+    })
 
     const getAllDiscount = async () => {
       try {
@@ -38,12 +42,10 @@ export const Discounts = {
         alert('Mã giảm giá không hợp lệ')
         return
       }
-      if (selectedDiscount.value === code) return
       selectedDiscount.value = code
-      discountId.value = selected.id
       showMoreDiscounts.value = false
     }
-
+    
     const handleDiscountInput = () => {
       const code = discountInput.value.trim().toUpperCase()
       const discount = discounts.value.find((d) => d.code === code)
@@ -73,7 +75,7 @@ export const Discounts = {
 
     const discountAmount = computed(() => {
       const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
-      if (!discount) return 0
+      if (!discount) return 0;
 
       const value = parseFloat(discount.discount_value)  // 👈 Đảm bảo là số
 
@@ -90,6 +92,10 @@ export const Discounts = {
     const finalTotal = computed(() => {
       return Math.max(totalPrice.value - discountAmount.value, 0)
     })
+  
+
+
+
 
     const totalQuantity = computed(() => {
       return cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
@@ -114,7 +120,6 @@ export const Discounts = {
       cartItems,
       discounts,
       discountInput,
-      moreDiscounts,
       selectedDiscount,
       discountId,
       discountInputId,
@@ -122,10 +127,10 @@ export const Discounts = {
       applyDiscountCode,
       handleDiscountInput,
       finalTotal,
+      totalPrice,
       discountAmount,
       totalQuantity,
       totalPriceItem,
-      loadCart
+      loadCart,
     }
-  },
 }

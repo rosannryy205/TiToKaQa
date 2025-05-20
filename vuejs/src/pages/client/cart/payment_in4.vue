@@ -176,13 +176,13 @@
 
 <script>
 import { FoodList } from '@/stores/food'
-import { Payment } from '@/stores/payment'
+// import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
 import { onMounted } from 'vue'
 import numeral from 'numeral'
-import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 import axios from 'axios'
+import { User } from '@/stores/user'
 
 
 export default {
@@ -197,76 +197,198 @@ export default {
   setup() {
 
 
-    const router = useRouter()
+    const selectedProvince = ref(null)
+    const selectedDistrict = ref(null)
+    const selectedWard = ref(null)
+
+    const provinces = ref([])
+    const districts = ref([])
+    const wards = ref([])
 
 
-
+    const user1 = ref(null)
+ 
+    const note = ref('')
     const {
       user,
-      form,
-      note,
-      handleSubmit,
-      paymentMethod,
-      check_out,
-      loadCart,
-      totalPriceItem,
-      totalQuantity,
-      submitOrder,
-      provinces,
-      districts,
-      wards,
-      selectedProvince,
-      selectedDistrict,
-      selectedWard,
-      onDistrictChange,
-      onProvinceChange,
-      getProvinces
-    } = Payment.setup()
+      form
+    } = User.setup()
 
     const {
-      route,
+      cartKey,
       cartItems,
-      totalPrice,
-      finalTotal,
       discounts,
       discountInput,
       selectedDiscount,
-      showMoreDiscounts,
+      discountId,
+      totalPrice,
       getAllDiscount,
-      handleDiscountInput,
+      discountInputId,
+      showMoreDiscounts,
       applyDiscountCode,
-      discountAmount
-    } = Discounts.setup()
-
-
+      handleDiscountInput,
+      finalTotal,
+      discountAmount,
+      totalQuantity,
+      totalPriceItem,
+      loadCart,
+    } = Discounts()
 
     const { isLoading } = FoodList.setup()
 
+    // const updateCartStorage = () => {
+    //   const cartKey = getCartKey()
+    //   localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
+    // }
 
 
 
+    
 
-    // const user = JSON.parse(localStorage.getItem('user')) || {}
+    
 
 
 
-    const updateCartStorage = () => {
-      const cartKey = getCartKey()
-      localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
+    const getProvinces = async () => {
+      try {
+        const res = await axios.get(`https://provinces.open-api.vn/api/?depth=1`)
+        provinces.value = res.data
+      } catch (error) {
+        console.error('Lỗi lấy tỉnh thành: ', error)
+      }
     }
 
+    const onProvinceChange = async () => {
+      selectedDistrict.value = null
+      selectedWard.value = null
+      districts.value = []
+      wards.value = []
 
+      if (selectedProvince.value) {
+        try {
+          const res = await axios.get(`https://provinces.open-api.vn/api/p/${selectedProvince.value.code}?depth=2`)
+          districts.value = res.data.districts
+        } catch (error) {
+          console.error('Lỗi khi lấy quận/huyện:', error)
+        }
+      }
+    }
+    const onDistrictChange = async () => {
+      selectedWard.value = null
+      wards.value = []
+
+      if (selectedDistrict.value) {
+        try {
+          const res = await axios.get(`https://provinces.open-api.vn/api/d/${selectedDistrict.value.code}?depth=2`)
+          wards.value = res.data.wards
+        } catch (error) {
+          console.error('Lỗi khi lấy xã/phường:', error)
+        }
+      }
+    }
+    // const finalTotal = computed(() => {
+    //   return Math.max(totalPrice.value - discountAmount.value, 0)
+    // })
+
+    const paymentMethod = ref('')
+
+    const check_out = async () => {
+      try {
+        if (!paymentMethod.value) {
+          alert('Vui lòng chọn phương thức thanh toán!')
+          return
+        }
+        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`;
+        const orderData = {
+          user_id: user1.value ? user1.value.id : null,
+          guest_name: form.value.fullname,
+          guest_email: form.value.email,
+          guest_phone: form.value.phone,
+          guest_address: fullAddress,
+          note: note.value || '',
+          total_price: totalPrice.value,
+          money_reduce: discountAmount.value,
+          final_price: finalTotal.value,
+          discount_id: discountId.value || null,
+          order_detail: cartItems.value.map(item => ({
+            food_id: item.id,
+            combo_id: null,
+            quantity: item.quantity,
+            price: item.price,
+            type: item.type,
+            toppings: item.toppings.map(t => ({
+              food_toppings_id: t.food_toppings_id,
+              price: t.price
+            }))
+          }))
+        }
+
+        const response = await axios.post('http://127.0.0.1:8000/api/order', orderData)
+
+        if (response && response.data) {
+          const { status, order_id } = response.data;
+          if (!status || !order_id) {
+            alert('Đặt hàng thất bại!');
+            return;
+          }
+          localStorage.setItem('order_id', order_id);
+        } else {
+          alert('Không nhận được dữ liệu từ server.');
+          return;
+        }
+
+        if (paymentMethod.value === 'Thanh toán VNPAY' || paymentMethod.value === 'Thanh toán MOMO') {
+          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payment', {
+            order_id: localStorage.getItem('order_id'),
+            amount: finalTotal.value,
+          })
+          if (paymentRes.data.payment_url) {
+            localStorage.setItem('payment_method', paymentMethod.value)
+            localStorage.removeItem(cartKey)
+            window.location.href = paymentRes.data.payment_url
+          } else {
+            alert('Không tạo được link thanh toán.')
+          }
+          return
+        }
+        if (paymentMethod.value === 'Thanh toán COD') {
+          await new Promise(resolve => setTimeout(resolve, 300))
+          await axios.post('http://127.0.0.1:8000/api/vnpay-return', {
+            order_id: localStorage.getItem('order_id'),
+            amount_paid: finalTotal.value,
+            payment_method: 'Thanh toán COD',
+            payment_status: 'Chưa thanh toán',
+            payment_type: 'Thanh toán toàn bộ'
+          })
+          alert('Đặt hàng thành công!')
+          localStorage.setItem('payment_method', paymentMethod.value)
+          // localStorage.removeItem(cartKey)
+          // router.push('/payment-result')
+        }
+
+      } catch (error) {
+        console.error('Lỗi xảy ra:', error.message);
+        alert('Lỗi khi gửi đơn hàng. Vui lòng thử lại!');
+      }
+    }
+
+    const submitOrder = async () => {
+      isLoading.value = true
+      try {
+        console.log('✅ form gửi đi:', form.value)
+        await check_out()
+        console.log('✅ check_out đã được gọi xong')
+      } catch (error) {
+        console.error('❌ Lỗi khi gọi check_out:', error)
+      } finally {
+        isLoading.value = false
+      }
+    }
 
     onMounted(() => {
-      // getProvinces()
+      getProvinces()
       loadCart()
-      // if (user) {
-      //   form.value.fullname = user.fullname || ''
-      //   form.value.email = user.email || ''
-      //   form.value.phone = user.phone || ''
-      //   form.value.address = user.address || ''
-      // }
-
+      
     })
 
     return {
@@ -275,13 +397,12 @@ export default {
       totalQuantity,
       check_out,
       form,
-      handleSubmit,
+      // handleSubmit,
       submitOrder,
       isLoading,
       paymentMethod,
       note,
 
-      updateCartStorage,
       cartItems,
       totalPrice,
       finalTotal,
@@ -293,6 +414,7 @@ export default {
       handleDiscountInput,
       applyDiscountCode,
       discountAmount,
+      discountInputId,
 
       provinces,
       districts,
