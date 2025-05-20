@@ -48,10 +48,6 @@
                 </div>
               </form>
 
-
-
-
-
               <!-- Login/Logout -->
               <div class="d-none d-lg-block">
                 <div class="d-flex align-items-center me-3">

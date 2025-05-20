@@ -81,6 +81,21 @@ const admin = [
               path: "choose-list-food/:id",
               name: "list-food",
               component: () => import("../pages/admin/Tables/listsp.vue")
+            },
+            {
+              path: "insert-food",
+              name: "insert-food",
+              component: () => import("../pages/admin/Products/insert.vue")
+            },
+            {
+              path: "insert-category",
+              name: "insert-category",
+              component: () => import("../pages/admin/Categories/insert.vue")
+            },
+            {
+              path: "insert-combo",
+              name: "insert-combo",
+              component: () => import("../pages/admin/Combo/insert.vue")
             }
         ]
     }
