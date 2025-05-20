@@ -56,7 +56,7 @@
     <div class="row mt-3 g-2">
       <div class="col-12 col-sm-6 col-md-4">
         <label>Hiển thị:</label>
-        <select class="form-select">
+        <select class="form-select rounded">
           <option selected>5</option>
           <option>10</option>
           <option>15</option>
@@ -91,22 +91,35 @@
         <tbody>
           <tr v-for="(item, index) in filteredOrders" :key="item.id">
             <td>{{ item.id }}</td>
-            <td>{{ item.reservations_time ? item.reservations_time : 'Không có' }}</td>
+            <td>
+              <div v-if="item.reservations_time && item.tables.length ">
+                {{ item.tables.map(table => table.table_number).join(', ') }}
+              </div>
+              <div v-else>
+                Không có bàn hoặc chưa xếp bàn
+              </div>
+            </td>
             <td class="text-truncate" :title="item.guest_name + ' - ' + item.guest_phone">{{ item.guest_name }} - {{
               item.guest_phone }}</td>
             <td>{{ item.reservations_time ? 'Đặt bàn' : 'Mang về' }}</td>
             <td>{{ formatNumber(item.total_price) }} VNĐ</td>
             <td>
-              <select class="form-select" :value="item.selectedStatus" @change="handleSelectChange(item, $event)">
-                <option value="Chờ xác nhận">Chờ xác nhận</option>
-                <option value="Đã xác nhận">Đã xác nhận</option>
-                <option value="Đang xử lý">Đang xử lý</option>
-                <option value="Đang giao hàng">Đang giao hàng</option>
-                <option value="Giao thành công">Giao thành công</option>
-                <option value="Giao thất bại">Giao thất bại</option>
-                <option value="Đã hủy">Đã hủy</option>
-              </select>
-
+              <div v-if="item.reservations_time">
+                <select class="form-select">
+                  <option value="Chờ xác nhận"> {{ item.reservation_status }} </option>
+                </select>
+              </div>
+              <div v-else>
+                <select class="form-select" :value="item.selectedStatus" @change="handleSelectChange(item, $event)">
+                  <option value="Chờ xác nhận">Chờ xác nhận</option>
+                  <option value="Đã xác nhận">Đã xác nhận</option>
+                  <option value="Đang xử lý">Đang xử lý</option>
+                  <option value="Đang giao hàng">Đang giao hàng</option>
+                  <option value="Giao thành công">Giao thành công</option>
+                  <option value="Giao thất bại">Giao thất bại</option>
+                  <option value="Đã hủy">Đã hủy</option>
+                </select>
+              </div>
             </td>
             <td>
               <router-link :to="{ name: 'admin-orders-detail', params: { id: item.id } }"
@@ -126,12 +139,18 @@
         <div class="card-body" v-for="(item, index) in order" :key="item.id">
           <h5 class="card-title fw-bold">Đơn #1</h5>
           <p><strong>Nhân viên:</strong> Nguyễn Thị Thuỷ Tiên</p>
-          <p><strong>Khu vực/Bàn:</strong> {{ item.reservations_time ? item.reservations_time : 'Không có' }}</p>
+          <p><strong>Khu vực/Bàn:</strong> {{ item.reservations_time ? item.table_number : 'Không có' }}</p>
           <p :title="item.guest_name + ' - ' + item.guest_phone"><strong>Thông tin KH:</strong> {{ item.guest_name }} -
             {{ item.guest_phone }}</p>
           <p><strong>Loại đơn:</strong>{{ item.reservations_time ? 'Đặt bàn' : 'Mang về' }}</p>
           <p><strong>Tổng tiền:</strong> {{ formatNumber(item.total_price) }} đ</p>
           <p><strong>Trạng thái:</strong>
+          <div v-if="item.reservations_time">
+            <select class="form-select">
+              <option value="Chờ xác nhận"> {{item.reservation_status}}</option>
+            </select>
+          </div>
+          <div v-else>
             <select class="form-select" :value="item.selectedStatus" @change="handleSelectChange(item, $event)">
               <option value="Chờ xác nhận">Chờ xác nhận</option>
               <option value="Đã xác nhận">Đã xác nhận</option>
@@ -141,7 +160,7 @@
               <option value="Giao thất bại">Giao thất bại</option>
               <option value="Đã hủy">Đã hủy</option>
             </select>
-
+          </div>
           </p>
           <div class="d-flex gap-2">
             <router-link :to="{ name: 'admin-orders-detail', params: { id: item.id } }">

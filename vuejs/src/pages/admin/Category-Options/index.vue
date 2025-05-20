@@ -2,19 +2,11 @@
   <h2 class="mb-3">Quản lý danh mục toppings</h2>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+    <button type="button" class="btn btn-danger1" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
       +Thêm danh mục
     </button>
     <span class="vd">Tìm kiếm</span>
-    <input type="text" class="form-control" style="max-width: 200px" placeholder="Tìm kiếm" />
-
-
-    <span class="vd">Hiển thị</span>
-    <select class="form-select w-auto">
-      <option selected>5</option>
-      <option>10</option>
-      <option>15</option>
-    </select>
+    <input type="text" class="form-control rounded" style="max-width: 200px" placeholder="Tìm kiếm" />
   </div>
 
 
@@ -86,7 +78,6 @@
             <button class="btn btn-primary btn-sm">Sửa</button>
             <button class="btn btn-danger-delete btn-sm">Xoá</button>
             <button class="btn btn-warning">Thêm Topping</button>
-
           </div>
         </div>
       </div>
@@ -129,67 +120,11 @@
           <label for="toppingName" class="form-label">
             Tên danh mục <span class="text-danger">*</span>
           </label>
-          <input type="text" class="form-control mb-3" placeholder="Nhập tên" />
-
-          <label for="toppingName" class="form-label">
-            Danh mục <span class="text-danger">*</span>
-          </label>
-          <select class="form-select mb-3">
-            <option selected>Chọn danh mục cha (không bắt buộc)</option>
-            <option>Danh mục 1</option>
-            <option>Danh mục 2</option>
-          </select>
-
-          <label for="toppingName" class="form-label">
-            Làm danh mục cha <span class="text-danger">*</span>
-          </label>
-          <select class="form-select mb-3">
-            <option>Không</option>
-            <option>Có</option>
-          </select>
+          <input type="text" class="form-control mb-3 rounded" placeholder="Nhập tên" />
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
           <button type="button" class="btn btn-primary">Thêm</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal sửa Danh Mục -->
-  <div class="modal fade" id="editCategoryModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Thêm danh mục</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <label for="toppingName" class="form-label">
-            Tên danh mục <span class="text-danger">*</span>
-          </label>
-          <input type="text" class="form-control mb-3" placeholder="Nhập tên" />
-
-          <label for="toppingName" class="form-label">
-            Danh mục <span class="text-danger">*</span>
-          </label>
-          <select class="form-select mb-3">
-            <option selected>Chọn danh mục cha (không bắt buộc)</option>
-            <option>Danh mục 1</option>
-            <option>Danh mục 2</option>
-          </select>
-
-          <label for="toppingName" class="form-label">
-            Làm danh mục cha <span class="text-danger">*</span>
-          </label>
-          <select class="form-select mb-3">
-            <option>Không</option>
-            <option>Có</option>
-          </select>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-          <button type="button" class="btn btn-primary">Sửa</button>
         </div>
       </div>
     </div>

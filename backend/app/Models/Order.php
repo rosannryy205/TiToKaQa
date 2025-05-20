@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
-    protected $table= "orders";
+    protected $table = "orders";
     public $timestamps = false; // Bật timestamps
 
     protected $fillable = [
@@ -27,15 +27,14 @@ class Order extends Model
         'order_time',
 
     ];
-    public function details() {
+    public function details()
+    {
         return $this->hasMany(Order_detail::class);
     }
 
     public function tables()
     {
         return $this->belongsToMany(Table::class, 'reservation_tables')
-                    ->withPivot('assigned_time', 'reserved_from', 'reserved_to');
+            ->withPivot('id', 'order_id', 'table_id', 'assigned_time', 'reserved_from', 'reserved_to');
     }
-
-
 }
