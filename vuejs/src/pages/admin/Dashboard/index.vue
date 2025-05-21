@@ -141,6 +141,9 @@ export default {
       });
     });
 
+
+
+
     // Xóa user và token khỏi localStorage
     const router = useRouter();
     const user = ref(JSON.parse(localStorage.getItem("user")));
@@ -171,42 +174,6 @@ export default {
         alert('Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!');
       }
     };
-
-    onMounted(() => {
-      const barCtx = document.getElementById("barChart").getContext("2d");
-      new Chart(barCtx, {
-        type: "bar",
-        data: {
-          labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5"],
-          datasets: [{
-            label: "Sản phẩm bán ra",
-            data: [120, 190, 300, 250, 220],
-            backgroundColor: "#c53f51",
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-
-      const pieCtx = document.getElementById("pieChart").getContext("2d");
-      new Chart(pieCtx, {
-        type: "pie",
-        data: {
-          labels: ["Đã giao", "Đang xử lý", "Đã hủy"],
-          datasets: [{
-            data: [60, 25, 15],
-            backgroundColor: ["#28a745", "#ffc107", "#dc3545"]
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      });
-    });
 
     return {
       handleLogout,

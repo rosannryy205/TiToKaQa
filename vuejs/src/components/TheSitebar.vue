@@ -132,6 +132,7 @@ export default {
   },
   mounted() {
     window.addEventListener("resize", this.checkScreenSize);
+    
     const userRaw = localStorage.getItem("user");
     if (!userRaw) {
       this.$router.push('/home');
