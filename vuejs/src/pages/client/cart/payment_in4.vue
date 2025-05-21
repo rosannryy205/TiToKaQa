@@ -306,9 +306,8 @@ export default {
           guest_phone: form.value.phone,
           guest_address: fullAddress,
           note: note.value || '',
-          total_price: totalPrice.value,
+          total_price: finalTotal.value || 0,
           money_reduce: discountAmount.value,
-          final_price: finalTotal.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map(item => ({
             food_id: item.id,

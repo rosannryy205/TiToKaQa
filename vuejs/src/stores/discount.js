@@ -72,13 +72,11 @@ export function Discounts()  {
         return sum + basePrice + toppingPrice
       }, 0)
     })
-
     const discountAmount = computed(() => {
       const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
       if (!discount) return 0;
 
-      const value = parseFloat(discount.discount_value)  // 👈 Đảm bảo là số
-
+      const value = parseFloat(discount.discount_value) 
       if (discount.discount_method === 'percent') {
         return (totalPrice.value * value) / 100
       }

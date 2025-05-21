@@ -159,7 +159,6 @@
 import { onMounted, computed } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
 import { FoodList } from '@/stores/food'
-import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
 import axios from 'axios'
 import { ref } from 'vue'
@@ -167,13 +166,7 @@ import { ref } from 'vue'
 export default {
   setup() {
     const { info, getInfo, formatNumber, getImageUrl, orderId } = Info.setup()
-    const { isLoading } = FoodList.setup()
-    const {
-      paymentMethod,
-      loadCart,
-      submitOrder
-    } = Payment.setup()
-
+    const { isLoading } = FoodList.setup()    
     const {
       discounts,
       discountInput,
@@ -182,28 +175,34 @@ export default {
       discountInputId,
       applyDiscountCode,
       handleDiscountInput,
-      cartItems
+      cartItems,
+      loadCart,
+      submitOrder
       
     } = Discounts()
     
-
     const discountAmount = computed(() => {
-      const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
-      if (!discount) return 0
+  const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
+  const total = parseFloat(info.value.total_price || 0)
 
-      if (discount.discount_method === 'percent') {
-        return (info.value.total_price * discount.discount_value) / 100
-      }
-      if (discount.discount_method === 'fixed') {
-        return discount.discount_value
-      }
+  if (!discount) return 0
 
-      return 0
-    })
+  if (discount.discount_method === 'percent') {
+    return (total * discount.discount_value) / 100
+  }
 
-    const finalTotal = computed(() => {
-      return Math.max(info.value.total_price - discountAmount.value, 0)
-    })
+  if (discount.discount_method === 'fixed') {
+    return discount.discount_value
+  }
+
+  return 0
+})
+
+const finalTotal = computed(() => {
+  const total = parseFloat(info.value.total_price || 0)
+  return Math.max(total - discountAmount.value, 0)
+})
+
 
     const updateOrder = async (orderId) => {
       try {
@@ -219,6 +218,7 @@ export default {
       try {
         await axios.put(`http://127.0.0.1:8000/api/update/reservation-order/${orderId}`, {
           total_price: finalTotal.value,
+          money_reduce: discountAmount.value,
         })
       } catch (error) {
         console.error('Lỗi cập nhật Reservation:', error)
@@ -227,7 +227,7 @@ export default {
 
     const submitUpdate = async (code, orderId) => {
       try {
-        applyDiscountCode(code)
+       await applyDiscountCode(code)
         await updateOrder(orderId)
         await updateReservationOrder(orderId)
       } catch (error) {
@@ -237,17 +237,17 @@ export default {
 
     const submitPriceUpdate = async () => {
       try {
-        handleDiscountInput()
+        await handleDiscountInput()
         await updateOrder(orderId)
         await updateReservationOrder(orderId)
       } catch (error) {
         console.error(error)
       }
     }
-
     onMounted(async () => {
       loadCart()
       await getInfo('order', orderId)
+      // console.log('Thông tin đơn hàng:', info.value)
     })
 
     return {
@@ -256,6 +256,7 @@ export default {
       formatNumber,
       getImageUrl,
       orderId,
+      discountId,
       discounts,
       discountInput,
       selectedDiscount,
@@ -263,7 +264,6 @@ export default {
       finalTotal,
       submitUpdate,
       submitPriceUpdate,
-      paymentMethod,
       submitOrder,
       isLoading,
       cartItems

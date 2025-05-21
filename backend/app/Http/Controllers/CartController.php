@@ -22,7 +22,6 @@ class CartController extends Controller
                 'guest_address' => 'required|string|max:255',
                 'total_price' => 'required|numeric',
                 'money_reduce' => 'required|numeric',
-                'final_price' => 'required|numeric',
                 'order_detail' => 'nullable|array',
                 'discount_id' => 'nullable|numeric',
                 'note' => 'nullable|string',
@@ -51,7 +50,6 @@ class CartController extends Controller
                     'guest_address' => $data['guest_address'],
                     'total_price' => $data['total_price'],
                     'money_reduce' => $data['money_reduce'],
-                    'final_price' => $data['final_price'],
                     'discount_id' => $data['discount_id'],
                     'note' => $data['note'] ?? null,
                 ]);

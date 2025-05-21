@@ -173,6 +173,8 @@ import { Modal } from 'bootstrap'
 import { useRouter } from 'vue-router'
 import { reactive } from 'vue'
 import { toast } from 'vue3-toastify';
+import { Discounts } from '@/stores/discount'
+import { Info } from '@/stores/info-order-reservation'
 export default {
   setup() {
     const date = ref('');
@@ -192,8 +194,11 @@ export default {
     const errors = reactive({});
     const firstErrorKey = ref('');
     const deposit_amount = ref(null)
-
-
+    const {
+   totalPrice,
+   finalTotal,
+   discountAmount
+    } = Discounts()
     const {
       foods,
       categories,
@@ -214,12 +219,11 @@ export default {
     } = FoodList.setup()
 
     console.log(quantity.value);
-
+    const { info, getInfo, orderId } = Info.setup()
     const {
       form,
       user,
     } = User.setup()
-
     // for (let hour = 1; hour <= 20; hour++) {
     //   let hourStr = hour < 10 ? '0' + hour : '' + hour
     //   timeOptions.push(hourStr + ':00')
@@ -266,7 +270,7 @@ export default {
     }
 
 
-
+    
     const reservation = async () => {
       isLoading.value = true;
       Object.keys(errors).forEach(key => delete errors[key]);
@@ -298,7 +302,7 @@ export default {
             note: form.value.note,
             deposit_amount: deposit_amount.value,
             expiration_time,
-            total_price: getTotalPrice(cart) + deposit_amount.value,
+            total_price: getTotalPrice(cart) + (deposit_amount.value || 0),
             order_details: cart.map(item => ({
               food_id: item.id,
               combo_id: null,
@@ -380,7 +384,11 @@ export default {
       openModal, spicyLevel, toppingList, formatNumber, getImageUrl,
       quantities, foodDetail, form, user, showModal, quantity, increaseQuantity,
       decreaseQuantity, selectedDate,
-      isLoading, toppings, flatCategoryList, addToCart, errors
+      isLoading, toppings, flatCategoryList, addToCart, errors,
+      totalPrice,
+      finalTotal,
+      discountAmount,
+      info, getInfo, orderId
     }
   }
 }

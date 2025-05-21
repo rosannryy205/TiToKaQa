@@ -42,8 +42,6 @@ class OrderController extends Controller
                 'deposit_amount' => 'nullable|numeric|min:0',
                 'expiration_time' => 'required|date',
                 'total_price' => 'required|numeric',
-                'money_reduce' => 'required|numeric',
-                'final_price' => 'required|numeric',
                 'order_details' => 'nullable|array',
                 'discount_id' => 'nullable|numeric',
             ], [
@@ -70,8 +68,6 @@ class OrderController extends Controller
                 'deposit_amount' => $data['deposit_amount'] ?? 0,
                 'expiration_time' => $data['expiration_time'],
                 'total_price' => $data['total_price'],
-                'money_reduce' => $data['money_reduce'],
-                'final_price' => $data['final_price'],
             ]);
 
             if (!empty($data['order_details'])) {
@@ -163,11 +159,13 @@ class OrderController extends Controller
         try {
             $data = $request->validate([
                 'total_price' => 'required|numeric',
+                'money_reduce' => 'required|numeric',
             ]);
 
             $order = Order::find($request->id);
             $order->update([
                 'total_price' => $data['total_price'],
+                'money_reduce' => $data['money_reduce'],
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -309,6 +307,7 @@ class OrderController extends Controller
                 'order_time' => $reservation->order_time,
                 'order_status' => $reservation->order_status,
                 'total_price' => $reservation->total_price,
+                'ex_price' => $reservation->total_price + $reservation->money_reduce,
                 'comment' => $reservation->comment,
                 'review_time' => $reservation->review_time,
                 'rating' => $reservation->rating,
@@ -319,6 +318,7 @@ class OrderController extends Controller
                 'guest_count' => $reservation->guest_count,
                 'note' => $reservation->note,
                 'deposit_amount' => $reservation->deposit_amount,
+                'money_reduce' => $reservation->money_reduce,
                 'check_in_time' => $reservation->check_in_time,
                 'reservations_time' => $reservation->reservations_time,
                 'expiration_time' => $reservation->expiration_time,
