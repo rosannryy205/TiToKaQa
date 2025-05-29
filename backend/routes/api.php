@@ -112,6 +112,7 @@ Route::get('/discounts',[DiscountController::class,'getAllDiscounts']);
 Route::get('/auth/{provider}/redirect', ProviderRedirectController::class)->name('auth.redirect');
 Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name('auth.callback');
 
+
 //admin
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/foods', [AdminFoodController::class, 'index']);

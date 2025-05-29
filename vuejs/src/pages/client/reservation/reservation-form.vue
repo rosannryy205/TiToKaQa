@@ -89,7 +89,11 @@
             <span>Khuyến mãi</span>
             <span class="text-success">-{{ formatNumber(discountAmount) }} VNĐ</span>
           </div>
-
+                <!--thong bao chua login-->
+                <div v-if="!isLoggedIn" class="alert alert-warning">
+            🔒 Vui lòng <a href="/login" class="text-primary fw-bold">đăng nhập</a> để sử dụng và
+            xem các mã giảm giá!
+          </div>
           <div class="input-group mb-2">
             <input
               type="text"
@@ -103,26 +107,40 @@
             </button>
           </div>
 
-          <div v-if="discounts.length" class="mb-3">
-            <small class="text-muted">Chọn mã giảm giá:
-              <span
-                v-for="(code, index) in discounts"
-                :key="index"
-                class="badge"
-                :class="{
-                  'bg-success text-white': selectedDiscount === code.code,
-                  'bg-light text-dark': selectedDiscount !== code.code,
-                }"
-                style="cursor: pointer; margin-right: 6px"
-                @click="submitUpdate(code.code, orderId)"
-              >
-                {{ code.code }}
-              </span>
-              <span v-if="selectedDiscount" class="badge bg-danger text-white" style="cursor: pointer" @click="selectedDiscount = ''">
-                Bỏ chọn
-              </span>
-            </small>
+          <div class="discount-scroll-wrapper" v-if="isLoggedIn">
+  <div v-for="(discount, index) in discounts" :key="discount.id || index">
+    <div
+      class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
+      @click="submitUpdate(discount.code, orderId)"
+    >
+      <div class="voucher-left d-flex align-items-center">
+        <div
+          class="voucher-logo d-flex flex-column align-items-center justify-content-center"
+        >
+          <div class="logo-text">TITOKAQA</div>
+          <div class="logo-small">Mall</div>
+        </div>
+        <div class="voucher-info ps-3">
+          <div class="voucher-title">{{ discount.name }}</div>
+          <div class="voucher-title">Mã {{ discount.code }}</div>
+          <div class="voucher-time">
+            <i class="fa-regular fa-clock me-1"></i>Hiệu lực sau: 2 ngày
           </div>
+        </div>
+      </div>
+      <div class="voucher-right text-end">
+        <div
+          class="voucher-status"
+          :class="{ 'text-success': selectedDiscount === discount.code }"
+        >
+          <span v-if="selectedDiscount === discount.code">Đã dùng ✅</span>
+          <span v-else>Dùng ngay</span>
+        </div>
+        <div class="voucher-tag">Mới!</div>
+      </div>
+    </div>
+  </div>
+</div>
 
           <hr />
           <div class="d-flex justify-content-between mb-3">
@@ -180,7 +198,7 @@ export default {
       submitOrder
       
     } = Discounts()
-    
+    const isLoggedIn = computed(() => !!localStorage.getItem('token'))
     const discountAmount = computed(() => {
   const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
   const total = parseFloat(info.value.total_price || 0)
@@ -266,8 +284,15 @@ const finalTotal = computed(() => {
       submitPriceUpdate,
       submitOrder,
       isLoading,
-      cartItems
+      cartItems,
+      isLoggedIn
     }
   }
 }
 </script>
+<style>
+#app > div > div.container.py-4 > div > div.col-lg-4 > div.card-payment > div.discount-scroll-wrapper > div > div > div.voucher-right.text-end > div.voucher-status.text-success {
+  color: #28a745;
+  font-weight: bold;
+  border: solid #28a745 !important;
+}</style>c  

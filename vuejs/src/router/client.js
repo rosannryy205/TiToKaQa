@@ -30,11 +30,6 @@ const client = [
         component: () => import('../pages/client/reservation/reservation.vue'),
       },
       {
-        path: 'datban',
-        name: 'datban',
-        component: () => import('../pages/client/reservation/datban.vue'),
-      },
-      {
         path: 'datban2',
         name: 'datban2',
         component: () => import('../pages/client/reservation/datban2.vue'),
@@ -81,12 +76,24 @@ const client = [
       },
       // router/index.js hoặc router.ts
       {
-        path: '/google/callback',
+        path: '/login/google/callback',
         component: () => import('../pages/client/user/GoogleCallback.vue'),
       },
       {
-        path: '/test',
-        component: () => import('../pages/client/user/test.vue'),
+        path: '/detailfood',
+        component: () => import('../pages/client/food/detailfood.vue'),
+      },
+      {
+        path: '/login',
+        component: () => import('../pages/client/login/login.vue'),
+      },
+      {
+        path: '/register',
+        component: () => import('../pages/client/login/register.vue'),
+      },
+      {
+        path: '/verify',
+        component: () => import('../pages/client/login/verify.vue'),
       }
     ],
   },
