@@ -1,28 +1,27 @@
 <template>
   <h2 class="mb-3">Quản lý toppings</h2>
 
-  <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addToppingModal">
-      +Thêm toppings
-    </button>
-    <span class="vd">Tìm kiếm</span>
-    <input type="text" class="form-control" style="max-width: 200px" placeholder="Tìm kiếm" />
-    <span class="vd">Lọc</span>
-    <select class="form-select w-auto" style="max-width: 250px" v-model="selectedCategory">
-      <option value="">Lọc theo danh mục</option>
-      <option v-for="cate in cateTop" :key="cate.id" :value="cate.id">
-        {{ cate.name }}
-      </option>
-    </select>
+    <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
+        <button type="button" class="btn btn-danger1" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            +Thêm toppings
+        </button>
+        <span class="vd">Tìm kiếm</span>
+        <input type="text" class="form-control rounded" style="max-width: 200px" placeholder="Tìm kiếm" />
+        <span class="vd">Lọc</span>
+        <select class="form-select w-auto rounded" style="max-width: 250px">
+            <option selected>Lọc theo danh mục</option>
+            <option>Danh mục 1</option>
+            <option>Danh mục 2</option>
+        </select>
 
 
-    <span class="vd">Hiển thị</span>
-    <select class="form-select w-auto" v-model="limit">
-      <option :value="5">5</option>
-      <option :value="10">10</option>
-      <option :value="15">15</option>
-    </select>
-  </div>
+        <span class="vd">Hiển thị</span>
+        <select class="form-select w-auto rounded">
+            <option selected>5</option>
+            <option>10</option>
+            <option>15</option>
+        </select>
+    </div>
 
 
   <div class="table-responsive d-none d-lg-block">
@@ -89,8 +88,6 @@
           </div>
         </div>
       </div>
-
-
     </div>
 
     <div class="card mb-3">

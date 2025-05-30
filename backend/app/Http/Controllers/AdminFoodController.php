@@ -56,7 +56,8 @@ class AdminFoodController extends Controller
             'sale_price' => 'nullable|numeric',
             'stock' => 'required|integer',
             'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|string|max:1000',
+            'description' => 'required|string|max:1000',
+            'status' => 'required|in:active,inactive',
         ], [
             'name.required' => 'Tên món ăn là bắt buộc.',
             'price.required' => 'Giá món ăn là bắt buộc.',
@@ -69,6 +70,9 @@ class AdminFoodController extends Controller
             'category_id.required' => 'Danh mục món ăn là bắt buộc.',
             'category_id.exists' => 'Danh mục món ăn không tồn tại.',
             'description.max' => 'Mô tả không được dài hơn 1000 ký tự.',
+            'description.required' => 'Mô tả không được bỏ trống.',
+            'status.required' => 'Trạng thái món ăn là bắt buộc.',
+            'status.in' => 'Trạng thái phải là "active" hoặc "inactive".',
         ]);
 
         if ($request->hasFile('image')) {
@@ -103,6 +107,24 @@ class AdminFoodController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
+    public function getFoodById($id)
+    {
+        try {
+            $food = Food::find($id);
+            if (!$food) {
+                return response()->json(['message' => 'Không tìm thấy món ăn'], 404);
+            }
+
+            // Thêm đường dẫn ảnh đầy đủ nếu cần
+            $food->image_url = $food->image_path ? asset('storage/' . $food->image_path) : null;
+
+            return response()->json($food);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi khi lấy món ăn', 'error' => $e->getMessage()], 500);
+        }
+    }
+    
     public function update(Request $request, string $id)
     {
         // Tìm món ăn cần sửa
@@ -119,7 +141,8 @@ class AdminFoodController extends Controller
             'sale_price' => 'nullable|numeric',
             'stock' => 'required|integer',
             'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|string|max:1000',
+            'description' => 'required|string|max:1000',
+            'status' => 'required|in:active,inactive',
         ], [
             'name.required' => 'Tên món ăn là bắt buộc.',
             'price.required' => 'Giá món ăn là bắt buộc.',
@@ -131,6 +154,9 @@ class AdminFoodController extends Controller
             'category_id.required' => 'Danh mục món ăn là bắt buộc.',
             'category_id.exists' => 'Danh mục món ăn không tồn tại.',
             'description.max' => 'Mô tả không được dài hơn 1000 ký tự.',
+            'description.required' => 'Mô tả không được bỏ trống.',
+            'status.required' => 'Trạng thái món ăn là bắt buộc.',
+            'status.in' => 'Trạng thái phải là "active" hoặc "inactive".',
         ]);
 
         // Nếu có ảnh mới, lưu ảnh mới và xoá ảnh cũ
@@ -149,7 +175,7 @@ class AdminFoodController extends Controller
             // Cập nhật tên ảnh trong request validated
             $validated['image'] = $filename;
         }
-        
+
 
         // Cập nhật thông tin món ăn
         $food->update($validated);

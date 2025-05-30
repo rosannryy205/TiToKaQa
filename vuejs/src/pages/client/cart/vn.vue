@@ -12,6 +12,7 @@
         <div class="p-4 border rounded shadow-sm bg-white">
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
+
             <div class="mb-3">
               <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn">
             </div>
@@ -21,30 +22,6 @@
             <div class="mb-3">
               <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại">
             </div>
-
-            <div class="mb-3">
-              <select v-model="selectedProvince" @change="onProvinceChange" class="form-control-customer">
-                <option :value="null" disabled selected> Chọn tỉnh / thành phố</option>
-                <option v-for="province in provinces" :key="province.code" :value="province"> {{ province.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <select v-model="selectedDistrict" @change="onDistrictChange" class="form-control-customer">
-                <option :value="null" disabled selected>Chọn quận / huyện</option>
-                <option v-for="district in districts" :key="district.code" :value="district">{{ district.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <select v-model="selectedWard" class="form-control-customer">
-                <option :value="null" disabled selected>Chọn xã / phường</option>
-                <option v-for="ward in wards" :key="ward.code" :value="ward">{{ ward.name }}</option>
-              </select>
-            </div>
-
             <div class="mb-3">
               <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ">
             </div>
@@ -55,7 +32,11 @@
               <router-link to="/cart" class="btn btn-outline-secondary">
                 <i class="bi bi-chevron-left"></i> Quay về giỏ hàng
               </router-link>
-              <button type="submit" class="btn btn-check-out">Đặt hàng</button>
+              <button type="submit" class="btn btn-check-out"
+                :title="!paymentMethod ? 'Vui lòng chọn phương thức thanh toán' : ''">
+                Đặt hàng
+              </button>
+
             </div>
           </form>
         </div>
@@ -73,7 +54,6 @@
               <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
-                <div>Loại: {{ item.type }}</div>
                 <div>{{ item.spicyLevel }}</div>
                 <div v-if="item.toppings.length" class="text-muted small">
                   <div v-for="(topping, i) in item.toppings" :key="i">
@@ -175,15 +155,13 @@
 </template>
 
 <script>
+// import { User } from '@/stores/user'
 import { FoodList } from '@/stores/food'
-// import { Payment } from '@/stores/payment'
+import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
 import { onMounted } from 'vue'
 import numeral from 'numeral'
-import { ref } from 'vue'
-import axios from 'axios'
-import { User } from '@/stores/user'
-
+import { useRouter } from 'vue-router'
 
 export default {
   methods: {
@@ -196,199 +174,55 @@ export default {
   },
   setup() {
 
+    const { isLoading } = FoodList.setup()
 
-    const selectedProvince = ref(null)
-    const selectedDistrict = ref(null)
-    const selectedWard = ref(null)
-
-    const provinces = ref([])
-    const districts = ref([])
-    const wards = ref([])
-
-
-    const user1 = ref(null)
- 
-    const note = ref('')
     const {
       user,
-      form
-    } = User.setup()
+      form,
+      note,
+      handleSubmit,
+      paymentMethod,
+      check_out,
+      loadCart,
+      totalPriceItem,
+      totalQuantity,
+      submitOrder
+    } = Payment.setup()
+
+    // const {
+    //   user,
+    //   form
+    // } = User.setup()
 
     const {
-      cartKey,
+      route,
       cartItems,
+      totalPrice,
+      finalTotal,
       discounts,
       discountInput,
       selectedDiscount,
-      discountId,
-      totalPrice,
-      getAllDiscount,
-      discountInputId,
       showMoreDiscounts,
-      applyDiscountCode,
+      getAllDiscount,
       handleDiscountInput,
-      finalTotal,
-      discountAmount,
-      totalQuantity,
-      totalPriceItem,
-      loadCart,
-    } = Discounts()
-
-    const { isLoading } = FoodList.setup()
-
-    // const updateCartStorage = () => {
-    //   const cartKey = getCartKey()
-    //   localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
-    // }
+      applyDiscountCode,
+      discountAmount
+    } = Discounts.setup()
 
 
-
-    
-
-    
-
-
-
-    const getProvinces = async () => {
-      try {
-        const res = await axios.get(`https://provinces.open-api.vn/api/?depth=1`)
-        provinces.value = res.data
-      } catch (error) {
-        console.error('Lỗi lấy tỉnh thành: ', error)
-      }
-    }
-
-    const onProvinceChange = async () => {
-      selectedDistrict.value = null
-      selectedWard.value = null
-      districts.value = []
-      wards.value = []
-
-      if (selectedProvince.value) {
-        try {
-          const res = await axios.get(`https://provinces.open-api.vn/api/p/${selectedProvince.value.code}?depth=2`)
-          districts.value = res.data.districts
-        } catch (error) {
-          console.error('Lỗi khi lấy quận/huyện:', error)
-        }
-      }
-    }
-    const onDistrictChange = async () => {
-      selectedWard.value = null
-      wards.value = []
-
-      if (selectedDistrict.value) {
-        try {
-          const res = await axios.get(`https://provinces.open-api.vn/api/d/${selectedDistrict.value.code}?depth=2`)
-          wards.value = res.data.wards
-        } catch (error) {
-          console.error('Lỗi khi lấy xã/phường:', error)
-        }
-      }
-    }
-    // const finalTotal = computed(() => {
-    //   return Math.max(totalPrice.value - discountAmount.value, 0)
-    // })
-
-    const paymentMethod = ref('')
-
-    const check_out = async () => {
-      try {
-        if (!paymentMethod.value) {
-          alert('Vui lòng chọn phương thức thanh toán!')
-          return
-        }
-        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`;
-        const orderData = {
-          user_id: user1.value ? user1.value.id : null,
-          guest_name: form.value.fullname,
-          guest_email: form.value.email,
-          guest_phone: form.value.phone,
-          guest_address: fullAddress,
-          note: note.value || '',
-          total_price: totalPrice.value,
-          money_reduce: discountAmount.value,
-          final_price: finalTotal.value,
-          discount_id: discountId.value || null,
-          order_detail: cartItems.value.map(item => ({
-            food_id: item.id,
-            combo_id: null,
-            quantity: item.quantity,
-            price: item.price,
-            type: item.type,
-            toppings: item.toppings.map(t => ({
-              food_toppings_id: t.food_toppings_id,
-              price: t.price
-            }))
-          }))
-        }
-
-        const response = await axios.post('http://127.0.0.1:8000/api/order', orderData)
-
-        if (response && response.data) {
-          const { status, order_id } = response.data;
-          if (!status || !order_id) {
-            alert('Đặt hàng thất bại!');
-            return;
-          }
-          localStorage.setItem('order_id', order_id);
-        } else {
-          alert('Không nhận được dữ liệu từ server.');
-          return;
-        }
-
-        if (paymentMethod.value === 'Thanh toán VNPAY' || paymentMethod.value === 'Thanh toán MOMO') {
-          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payment', {
-            order_id: localStorage.getItem('order_id'),
-            amount: finalTotal.value,
-          })
-          if (paymentRes.data.payment_url) {
-            localStorage.setItem('payment_method', paymentMethod.value)
-            localStorage.removeItem(cartKey)
-            window.location.href = paymentRes.data.payment_url
-          } else {
-            alert('Không tạo được link thanh toán.')
-          }
-          return
-        }
-        if (paymentMethod.value === 'Thanh toán COD') {
-          await new Promise(resolve => setTimeout(resolve, 300))
-          await axios.post('http://127.0.0.1:8000/api/vnpay-return', {
-            order_id: localStorage.getItem('order_id'),
-            amount_paid: finalTotal.value,
-            payment_method: 'Thanh toán COD',
-            payment_status: 'Chưa thanh toán',
-            payment_type: 'Thanh toán toàn bộ'
-          })
-          alert('Đặt hàng thành công!')
-          localStorage.setItem('payment_method', paymentMethod.value)
-          // localStorage.removeItem(cartKey)
-          // router.push('/payment-result')
-        }
-
-      } catch (error) {
-        console.error('Lỗi xảy ra:', error.message);
-        alert('Lỗi khi gửi đơn hàng. Vui lòng thử lại!');
-      }
-    }
-
-    const submitOrder = async () => {
-      isLoading.value = true
-      try {
-        console.log('✅ form gửi đi:', form.value)
-        await check_out()
-        console.log('✅ check_out đã được gọi xong')
-      } catch (error) {
-        console.error('❌ Lỗi khi gọi check_out:', error)
-      } finally {
-        isLoading.value = false
-      }
+    const updateCartStorage = () => {
+      const cartKey = getCartKey()
+      localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
     }
 
     onMounted(() => {
-      getProvinces()
       loadCart()
-      
+      // if (user.value && user.value.id) {
+      //   form.value.fullname = user.value.fullname || ''
+      //   form.value.email = user.value.email || ''
+      //   form.value.phone = user.value.phone || ''
+      //   form.value.address = user.value.address || ''
+      // }
     })
 
     return {
@@ -397,12 +231,13 @@ export default {
       totalQuantity,
       check_out,
       form,
-      // handleSubmit,
+      handleSubmit,
       submitOrder,
       isLoading,
       paymentMethod,
       note,
 
+      updateCartStorage,
       cartItems,
       totalPrice,
       finalTotal,
@@ -413,22 +248,11 @@ export default {
       getAllDiscount,
       handleDiscountInput,
       applyDiscountCode,
-      discountAmount,
-      discountInputId,
-
-      provinces,
-      districts,
-      wards,
-      selectedProvince,
-      selectedDistrict,
-      selectedWard,
-      onDistrictChange,
-      onProvinceChange,
+      discountAmount
     }
   }
 }
 </script>
-
 
 
 <style>

@@ -38,7 +38,14 @@
                   <ul v-if="suggestions.length && showSuggestions" class="suggestion-dropdown"
                     @scroll.passive="handleScroll">
                     <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
-                      {{ item.name }}
+                      <img style="width: 50px;" :src="'http://127.0.0.1:8000/storage/img/food/' + item.image"
+                        :alt="item.name" class="me-2  img-search" />
+                      <div class="info-search">
+                        <div class="name-search">{{ item.name }}</div>
+                        <div class="price-search">{{ item.price.toLocaleString() }}₫</div>
+                      </div>
+
+
                     </li>
 
                     <li v-if="loading" class="loading"><span v-if="loading"
@@ -47,10 +54,6 @@
                   </ul>
                 </div>
               </form>
-
-
-
-
 
               <!-- Login/Logout -->
               <div class="d-none d-lg-block">
@@ -208,7 +211,7 @@
       </div>
     </div>
   </div>
-
+  <!-- Modal đăng ký  -->
   <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content custom-modal">
@@ -244,7 +247,7 @@
             </div>
 
             <!-- Phone  -->
-            <div v-if="registerErrors.phone" class="text-danger small text-center error-message">{{
+            <!-- <div v-if="registerErrors.phone" class="text-danger small text-center error-message">{{
               registerErrors.phone[0]
             }}
             </div>
@@ -253,7 +256,7 @@
               <i class="bi bi-telephone position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary"></i>
               <input type="text" class="form-control ps-5 register-input" id="phone" placeholder="Số điện thoại"
                 v-model="registerData.phone">
-            </div>
+            </div> -->
 
             <!-- Password -->
             <div v-if="registerErrors.password" class="text-danger small text-center error-message">{{
@@ -275,6 +278,12 @@
                 v-model="registerData.password_confirmation">
             </div>
 
+            <!-- Chuyển sang đăng nhập -->
+            <div class="mb-3 text-end">
+              <a href="#" data-bs-toggle="modal" @click="openLoginModal">Đã có tài
+                khoản</a>
+            </div>
+
             <!-- Đăng ký -->
             <div class="mb-3">
               <button type="submit" class="btn btn-login form-control fw-semibold" :disabled="loading">
@@ -283,11 +292,7 @@
               </button>
             </div>
 
-            <!-- Chuyển sang đăng nhập -->
-            <div class="mb-3 text-end">
-              <a href="#" data-bs-toggle="modal" @click="openLoginModal">Đã có tài
-                khoản</a>
-            </div>
+
 
             <div class="divider d-flex align-items-center mb-3">
               <hr class="flex-grow-1">
@@ -296,7 +301,8 @@
             </div>
 
             <div class="d-flex justify-content-center gap-3">
-              <button type="button" class="btn btn-social"><i class="bi bi-google"></i></button>
+              <button type="button" class="btn btn-social" @click="loginWithGoogle"><i
+                  class="bi bi-google"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-twitter-x"></i></button>
             </div>
@@ -342,38 +348,36 @@
   </div>
 
 
-  <!-- nhập code  -->
+  <!-- nhập code khôi phục -->
   <div class="modal fade" id="authenticationModal" tabindex="-1" aria-labelledby="authenticationModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content custom-modal">
-        <div class="modal-header border-0">
+      <div class="modal-content custom-modal p-4">
+        <div class="modal-header border-0 pb-0">
           <h5 class="modal-title" id="authenticationModalLabel">Nhập mã xác nhận</h5>
         </div>
-        <div class="modal-body">
+        <div class="modal-body pt-2">
           <form @submit.prevent="verifyResetCode">
             <div class="mb-3 d-flex justify-content-center gap-3 small">
-              <p v-if="!errorVerify" class="text-success text-center">
-                Mã xác nhận đã được gửi về email. Vui lòng kiểm tra email.
+              <p v-if="!errorVerify" class="text-success text-center m-0">
               </p>
 
-              <!-- Thông báo lỗi -->
-              <p v-if="errorVerify" class="text-danger text-center">
+              <p v-if="errorVerify" class="text-danger text-center m-0">
                 {{ errorVerify }}
               </p>
             </div>
 
-            <div class="d-flex justify-content-center gap-2 mb-3 position-relative">
+            <div class="d-flex justify-content-center gap-2 mb-3">
               <input v-for="(digit, index) in codeDigits" :key="index" v-model="codeDigits[index]" type="text"
-                maxlength="1" class="form-control text-center border-black fw-bold fs-4"
+                maxlength="1" class="form-control text-center border border-dark fw-bold fs-4"
                 style="width: 50px; height: 50px;" @input="moveToNext(index, $event)"
                 @keydown.backspace="handleBackspace($event, index)" @compositionstart="isComposing = true"
-                @compositionend="isComposing = false" ref="inputs" />
+                @compositionend="isComposing = false" ref="inputs" autocomplete="one-time-code" inputmode="numeric"
+                pattern="[0-9]*" />
             </div>
-            <div class=" d-flex justify-content-center gap-3 small">
-              <!-- <a href="#" class="text-decoration-none" > -->
-              <!-- :class="{ 'disabled': isCounting }" @click="startCountdown" -->
-              <p class="text-primary text-decoration-underline" style="cursor: pointer" @click="sendCode"
+
+            <div class="d-flex justify-content-center gap-3 small mb-3">
+              <p class="text-primary text-decoration-underline" style="cursor: pointer;" @click="sendCode"
                 v-if="!loadingSend && wait === 0">
                 Gửi lại mã
               </p>
@@ -385,28 +389,32 @@
               <p class="text-muted" v-else>
                 Đang gửi...
               </p>
-              <!-- </a> -->
             </div>
+
             <div class="mb-3 d-flex justify-content-center align-items-center gap-2 small">
               <i class="bi bi-clock text-danger"></i>
               <p class="mb-0 fw-bold text-danger">
                 {{ minutes.toString().padStart(2, '0') }}:{{ seconds.toString().padStart(2, '0') }}
               </p>
             </div>
+
             <div class="mb-3">
-              <button type="submit" class="btn btn-login form-control fw-semibold" :disabled="loading">
+              <button type="submit" class="btn btn-login form-control fw-semibold"
+                :disabled="loading || codeDigits.some(d => d === '')">
                 <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
                 Xác nhận
               </button>
-              <!-- ata-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#resetModal" -->
             </div>
-
           </form>
         </div>
       </div>
     </div>
   </div>
 
+
+
+
+  <!-- đặt lại mật khẩu  -->
   <div class="modal fade" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content shadow-lg rounded-4">
@@ -435,6 +443,73 @@
               </button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- food modal -->
+  <div class="modal fade" id="searchModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content custom-modal modal-ct">
+        <div class="modal-body position-relative">
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+          <div class="row">
+            <div class="col-md-6 border-end">
+              <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
+              <div class="text-center mb-3">
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
+              </div>
+              <p class="text-danger fw-bold fs-5 text-center">
+                {{ formatNumber(foodDetail.price) }} VNĐ
+              </p>
+              <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
+            </div>
+            <div class="col-md-6 d-flex flex-column">
+              <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
+                <div class="flex-grow-1">
+                  <div class="topping-container mb-3" v-if="toppingList.length">
+                    <div class="mb-3" v-if="spicyLevel.length">
+                      <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
+                      <select class="form-select" id="spicyLevel">
+                        <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                          {{ item.name }}
+                        </option>
+                      </select>
+                    </div>
+                    <label class="form-label fw-bold">🧀 Chọn Topping:</label>
+                    <div v-for="topping in toppingList" :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2">
+                      <label class="d-flex align-items-center">
+                        <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
+                        {{ topping.name }}
+                      </label>
+                      <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+                    </div>
+                  </div>
+                  <div v-else class="mt-5">
+                    <p class="text-center text-muted">Không có topping cho món này.</p>
+                  </div>
+                </div>
+                <!---->
+                <div class="mt-auto">
+
+                  <div class="text-center mb-2">
+                    <div class="qty-control px-2 py-1">
+                      <button @click="decreaseQuantity" type="button" class="btn-lg"
+                        style="background-color: #fff;">-</button>
+                      <span>{{ quantity }}</span>
+                      <button @click="increaseQuantity" type="button" class="btn-lg"
+                        style="background-color: #fff;">+</button>
+                    </div>
+
+                  </div> <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                </div>
+              </form>
+
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -540,10 +615,75 @@ const startCountdown = (expireTime) => {
 const registerData = reactive({
   username: '',
   email: '',
-  phone: '',
   password: '',
   password_confirmation: ''
 });
+
+// báo lỗi
+const registerErrors = reactive({});
+const firstErrorKey = ref('');
+const verifyCode = reactive({
+  email: '',
+  type: '' // 'register' | 'forgot'
+});
+
+const Handleregister = async () => {
+  Object.keys(registerErrors).forEach(key => delete registerErrors[key]);
+  loading.value = true;
+
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/register/send-code', registerData);
+
+    if (response.status === 200) {
+      alert(response.data.message);
+
+      // user.value = response.data.user;
+      // localStorage.setItem('user', JSON.stringify(response.data.user));
+      // localStorage.setItem('token', response.data.token);
+      // isLoggedIn.value = true;
+
+      // Ẩn modal đăng ký
+      const modalElement = document.getElementById('registerModal');
+      const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+      modalInstance.hide();
+
+      // Hiện modal xác minh mã
+      verifyCode.type = 'register';
+      const codeModal = new bootstrap.Modal(document.getElementById('authenticationModal'));
+      codeModal.show();
+
+      // Lưu email để dùng khi xác minh mã
+      verify.email = registerData.email;
+
+
+      // Reset code input
+      codeDigits.value = ['', '', '', '', '', ''];
+      errorVerify.value = '';
+
+      // Bắt đầu đếm ngược mã hết hạn
+      wait.value = 60;
+      const timer = setInterval(() => {
+        if (wait.value > 0) wait.value--;
+        else clearInterval(timer);
+      }, 1000);
+      const expireTime = new Date().getTime() + 5 * 60 * 1000;
+      startCountdown(expireTime);
+    }
+  } catch (error) {
+    if (error.response?.status === 422) {
+      const allErrors = error.response.data.errors;
+      const firstKey = Object.keys(allErrors)[0];
+      Object.keys(registerErrors).forEach(k => delete registerErrors[k]);
+      registerErrors[firstKey] = allErrors[firstKey];
+      firstErrorKey.value = firstKey;
+    } else {
+      alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+    }
+  } finally {
+    loading.value = false;
+  }
+};
+
 
 // tạo thông tin login
 
@@ -551,9 +691,7 @@ const loginData = reactive({
   login: '',
   password: ''
 });
-// tạo biến báo lỗi đăng ký
-const registerErrors = reactive({});
-const firstErrorKey = ref('');
+
 
 // tạo hiệu ứng load
 const loading = ref(false);
@@ -586,6 +724,7 @@ const verify = reactive({
 const errorSendCode = ref('');
 const errorVerify = ref('');
 const wait = ref(0);
+
 // tạo biến báo lỗi login
 const loginError = ref('');
 const loginErrors = reactive({});
@@ -598,55 +737,55 @@ const errorResetPass = ref('');
 
 
 //  Đăng ký
-const Handleregister = async () => {
-  Object.keys(registerErrors).forEach(key => delete registerErrors[key]);
-  loading.value = true;
+// const Handleregister = async () => {
+//   Object.keys(registerErrors).forEach(key => delete registerErrors[key]);
+//   loading.value = true;
 
-  try {
-    const response = await axios.post('http://127.0.0.1:8000/api/register', registerData);
+//   try {
+//     const response = await axios.post('http://127.0.0.1:8000/api/register', registerData);
 
-    if (response.status === 200) {
-      alert(response.data.message);
+//     if (response.status === 200) {
+//       alert(response.data.message);
 
-      // Lưu thông tin người dùng và token nếu backend trả về
-      user.value = response.data.user;
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      localStorage.setItem('token', response.data.token);
-      isLoggedIn.value = true;
+//       // Lưu thông tin người dùng và token nếu backend trả về
+//       user.value = response.data.user;
+//       localStorage.setItem('user', JSON.stringify(response.data.user));
+//       localStorage.setItem('token', response.data.token);
+//       isLoggedIn.value = true;
 
-      // Ẩn modal
-      const modalElement = document.getElementById('registerModal');
-      const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
-      modalInstance.hide();
+//       // Ẩn modal
+//       const modalElement = document.getElementById('registerModal');
+//       const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+//       modalInstance.hide();
 
-      // Xử lý backdrop thủ công nếu cần
-      document.body.classList.remove('modal-open');
-      document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+//       // Xử lý backdrop thủ công nếu cần
+//       document.body.classList.remove('modal-open');
+//       document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
 
-      // Reset form
-      Object.keys(registerData).forEach(key => registerData[key] = '');
-    }
-  } catch (error) {
-    if (error.response?.status === 422) {
-      if (error.response?.status === 422) {
-        const allErrors = error.response.data.errors;
-        const firstKey = Object.keys(allErrors)[0];
+//       // Reset form
+//       Object.keys(registerData).forEach(key => registerData[key] = '');
+//     }
+//   } catch (error) {
+//     if (error.response?.status === 422) {
+//       if (error.response?.status === 422) {
+//         const allErrors = error.response.data.errors;
+//         const firstKey = Object.keys(allErrors)[0];
 
-        // Xóa hết lỗi cũ
-        Object.keys(registerErrors).forEach(k => delete registerErrors[k]);
+//         // Xóa hết lỗi cũ
+//         Object.keys(registerErrors).forEach(k => delete registerErrors[k]);
 
-        // Chỉ giữ lỗi đầu tiên
-        registerErrors[firstKey] = allErrors[firstKey];
-        firstErrorKey.value = firstKey;
-      }
-    } else {
-      console.error('Lỗi khi đăng ký:', error);
-      alert('Có lỗi xảy ra, vui lòng thử lại sau.');
-    }
-  } finally {
-    loading.value = false;
-  }
-};
+//         // Chỉ giữ lỗi đầu tiên
+//         registerErrors[firstKey] = allErrors[firstKey];
+//         firstErrorKey.value = firstKey;
+//       }
+//     } else {
+//       console.error('Lỗi khi đăng ký:', error);
+//       alert('Có lỗi xảy ra, vui lòng thử lại sau.');
+//     }
+//   } finally {
+//     loading.value = false;
+//   }
+// };
 
 //  Đăng nhập
 const handleLogin = async () => {
@@ -747,25 +886,27 @@ const openLoginModal = () => {
   modalInstance.show();
 };
 
-// di chuyển ô input
+// Di chuyển focus giữa các ô input
 const moveToNext = (index, event) => {
-  const input = event.target
-  const value = input.value
+  if (isComposing.value) return;
+
+  const input = event.target;
+  const value = input.value;
 
   if (value.length === 1 && index < 5) {
-    const nextInput = input.nextElementSibling
-    if (nextInput) nextInput.focus()
+    const nextInput = input.nextElementSibling;
+    if (nextInput) nextInput.focus();
   } else if (value === '' && index > 0) {
-    const prevInput = input.previousElementSibling
-    if (prevInput) prevInput.focus()
+    const prevInput = input.previousElementSibling;
+    if (prevInput) prevInput.focus();
   }
 };
 
-// chỉ nhập số
+// Chỉ nhập số
 const onlyNumber = (event) => {
-  const key = event.key
+  const key = event.key;
   if (!/^\d$/.test(key)) {
-    event.preventDefault()
+    event.preventDefault();
   }
 };
 
@@ -786,6 +927,8 @@ const forgotPass = async () => {
       const modelElement = document.getElementById('forgotPasswordModal');
       const modalInstance = bootstrap.Modal.getInstance(modelElement) || new bootstrap.Modal(modelElement);
       modalInstance.hide();
+
+      verifyCode.type = 'forgot';
 
       const modelCode = document.getElementById('authenticationModal');
       const modalInstanceCode = bootstrap.Modal.getInstance(modelCode) || new bootstrap.Modal(modelCode);
@@ -812,7 +955,6 @@ const forgotPass = async () => {
     }
   } finally {
     loading.value = false;
-
   }
 };
 
@@ -820,34 +962,61 @@ const forgotPass = async () => {
 
 
 
-//hàm nhập code
-const verifyResetCode = async () => {
+
+// Xác minh mã code
+const verifyResetCode = async (Code) => {
   loading.value = true;
-
-  const code = codeDigits.value.join('')
+  errorVerify.value = '';
+  const code = codeDigits.value.join('');
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/code', {
-      'email': verify.email,
-      'code': code
-    })
-
-    if (response.status == 200) {
+    let response;
+    if (verifyCode.type === 'register') {
+      response = await axios.post('http://127.0.0.1:8000/api/register/verify-code', {
+        email: verify.email,
+        code,
+      });
+      if (response.status === 200) {
       alert(response.data.message);
+
+      // Ẩn modal code
       const modalCode = document.getElementById('authenticationModal');
       const modalCodeInstance = bootstrap.Modal.getInstance(modalCode) || new bootstrap.Modal(modalCode);
       modalCodeInstance.hide();
 
-      const modalResetPass = document.getElementById('resetModal');
-      const modalResetPassInstance = bootstrap.Modal.getInstance(modalResetPass) || new bootstrap.Modal(modalResetPass);
-      modalResetPassInstance.show();
+      // Lưu thông tin user và token
+      user.value = response.data.user;
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('token', response.data.token);
+
+      // Cập nhật trạng thái đăng nhập (tùy theo app)
+      isLoggedIn.value = true;
+
+      // Reset form code
+      codeDigits.value = ['', '', '', '', '', ''];
       errorVerify.value = '';
-
-
     }
+    } else {
+      response = await axios.post('http://127.0.0.1:8000/api/code', {
+        email: verify.email,
+        code,
+      });
+      if (response.status == 200) {
+        alert(response.data.message);
+        const modalCode = document.getElementById('authenticationModal');
+        const modalCodeInstance = bootstrap.Modal.getInstance(modalCode) || new bootstrap.Modal(modalCode);
+        modalCodeInstance.hide();
+
+        const modalResetPass = document.getElementById('resetModal');
+        const modalResetPassInstance = bootstrap.Modal.getInstance(modalResetPass) || new bootstrap.Modal(modalResetPass);
+        modalResetPassInstance.show();
+        errorVerify.value = '';
+      }
+    }
+
+
   } catch (error) {
     if (error.response) {
       const status = error.response.status;
-
       if (status === 404 || status === 410) {
         errorVerify.value = error.response.data.message;
       } else if (status === 422) {
@@ -859,55 +1028,77 @@ const verifyResetCode = async () => {
       errorVerify.value = 'Lỗi kết nối đến máy chủ';
     }
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 };
 
 
-const sendCode = async () => {
+
+// const sendCode = async () => {
+//   if (loadingSend.value || wait.value > 0) return;
+//   loadingSend.value = true;
+//   try {
+//     let response;
+
+//     if (verifyCode.type === 'register') {
+//       response = await axios.post('http://127.0.0.1:8000/api/register/verify-code', registerData);
+//     } else {
+//       response = await axios.post('http://127.0.0.1:8000/api/forgot', {
+//         email: verify.email
+//       });
+//     }
+
+//     if (response.status === 200) {
+//       wait.value = 60;
+//       const timer = setInterval(() => {
+//         if (wait.value > 0) wait.value--;
+//         else clearInterval(timer);
+//       }, 1000);
+
+//       const expireTime = new Date().getTime() + 5 * 60 * 1000;
+//       startCountdown(expireTime);
+//     }
+//   } catch (error) {
+//     errorVerify.value = 'Không thể gửi lại mã. Vui lòng thử lại.';
+//   } finally {
+//     loadingSend.value = false;
+//   }
+// };
+
+
+const sendCode = async (Data, Code) => {
   if (loadingSend.value || wait.value > 0) return;
   loadingSend.value = true;
+  errorVerify.value = '';
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/forgot', {
-      email: verify.email
-    });
+    let response;
+    if (verifyCode.type === 'register') {
+      response = await axios.post('http://127.0.0.1:8000/api/register/send-code', registerData);
+    } else {
+      // logic cho forgot password nếu có
+      response = await axios.post('http://127.0.0.1:8000/api/forgot', { email: verify.email });
+    }
 
     if (response.status === 200) {
-      // alert(response.data.message);
+      wait.value = 60;
+      const timer = setInterval(() => {
+        if (wait.value > 0) wait.value--;
+        else clearInterval(timer);
+      }, 1000);
 
+      // Thời gian expire 5 phút
+      const expireTime = new Date().getTime() + 5 * 60 * 1000;
+      startCountdown(expireTime);
     }
-
-    wait.value = 60;
-    const timer = setInterval(() => {
-      if (wait.value > 0) wait.value--;
-      else clearInterval(timer);
-    }, 1000);
-
-
-    const expireTime = new Date().getTime() + 5 * 60 * 1000;
-    startCountdown(expireTime);
-
   } catch (error) {
-    if (error.response) {
-      const status = error.response.status;
-
-      if (status === 404 || status === 410) {
-        errorVerify.value = error.response.data.errors?.email?.[0] || error.response.data.message;
-      } else if (status === 422) {
-        errorVerify.value = Object.values(error.response.data.errors)[0][0];
-      } else {
-        errorVerify.value = 'Đã xảy ra lỗi không xác định';
-      }
-    } else {
-      errorVerify.value = 'Lỗi kết nối đến server';
-    }
+    errorVerify.value = 'Không thể gửi lại mã. Vui lòng thử lại.';
   } finally {
     loadingSend.value = false;
   }
 };
 
 const ResetPass = async () => {
-  loading.value = true
+  loading.value = true;
   try {
     const response = await axios.post('http://127.0.0.1:8000/api/reset-password', {
       "email": verify.email,
@@ -944,36 +1135,6 @@ const ResetPass = async () => {
   }
 };
 
-// export {
-//   registerData,
-//   loginData,
-//   loginError,
-//   registerErrors,
-//   loading,
-//   user,
-//   isLoggedIn,
-//   errorSendCode,
-//   errorVerify,
-//   firstErrorKey,
-//   codeDigits,
-//   verify,
-//   isComposing,
-//   inputs,
-//   errorResetPass,
-//   Handleregister,
-//   handleLogin,
-//   handleLogout,
-//   openLoginModal,
-//   moveToNext,
-//   onlyNumber,
-//   forgotPass,
-//   sendCode,
-//   verifyResetCode,
-//   ResetPass,
-//   startCountdown,
-
-
-
 // }const searchQuery = ref('')
 const searchQuery = ref(''); // Từ khóa tìm kiếm
 const suggestions = ref([]); // Danh sách kết quả
@@ -982,7 +1143,14 @@ const limit = 5; // Số kết quả mỗi lần
 const hasMore = ref(true); // Kiểm tra có còn dữ liệu để tải thêm không
 const showSuggestions = ref(false); // Biến để điều khiển dropdown
 const wrapperRef = ref(null); // Ref để gắn vào input-wrapper
+const foodDetail = ref({});
+const toppings = ref([]);
+const spicyLevel = ref([]);
+const toppingList = ref([]);
+const quantity = ref(1);
 
+const formatNumber = (num) => new Intl.NumberFormat().format(num);
+const getImageUrl = (img) => `http://127.0.0.1:8000/storage/img/food/${img}`;
 // Hàm debounce để tránh gọi API quá nhanh
 function debounce(fn, delay = 300) {
   let timeout;
@@ -1054,16 +1222,52 @@ const handleScroll = (e) => {
 };
 
 
-
-
-
 // Hàm xử lý khi người dùng chọn một item trong danh sách gợi ý
 const selectItem = (item) => {
-  console.log("Selected item:", item);
   searchQuery.value = item.name;
+  showSuggestions.value = false;
   suggestions.value = [];
-  showSuggestions.value = false; // Ẩn dropdown khi chọn item
+
+  openModal(item);
 };
+
+const openModal = async (item) => {
+  foodDetail.value = {};
+  toppings.value = [];
+  spicyLevel.value = [];
+  toppingList.value = [];
+  quantity.value = 1;
+
+  try {
+    if (item.type === 'food') {
+      const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`);
+      foodDetail.value = { ...res.data, type: 'Food' };
+
+      const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`);
+      toppings.value = res1.data;
+
+      spicyLevel.value = toppings.value.filter((tp) => tp.category_id == 1);
+      toppingList.value = toppings.value.filter((tp) => tp.category_id == 2);
+
+      toppingList.value.forEach((tp) => {
+        tp.price = tp.price || 0;
+      });
+    } else if (item.type === 'combo') {
+      const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`);
+      foodDetail.value = { ...res.data, type: 'Combo' };
+    }
+
+    const modalElement = document.getElementById('searchModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement); // dùng bootstrap.Modal
+      modal.show();
+    }
+  } catch (error) {
+    console.error('Lỗi khi mở modal chi tiết:', error);
+  }
+};
+
+
 
 // Hàm tìm kiếm sản phẩm khi người dùng nhấn Enter hoặc submit
 const searchProduct = () => {
@@ -1082,6 +1286,68 @@ const handleClickOutside = (e) => {
     showSuggestions.value = false;
   }
 };
+
+const decreaseQuantity = () => {
+  if (quantity.value > 1) {
+    quantity.value -= 1
+  }
+}
+
+const increaseQuantity = () => {
+  quantity.value += 1
+}
+
+const addToCart = () => {
+  const user = JSON.parse(localStorage.getItem('user'))
+  const userId = user?.id || 'guest'
+  const cartKey = `cart_${userId}`
+
+  const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+  const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+  const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
+
+  const selectedToppingId = Array.from(
+    document.querySelectorAll('input[name="topping[]"]:checked')
+  ).map((el) => parseInt(el.value))
+
+  const selectedToppings = toppingList.value
+    .filter((topping) => selectedToppingId.includes(topping.id))
+    .map((topping) => ({
+      id: topping.id,
+      name: topping.name,
+      price: topping.price,
+      food_toppings_id: topping.pivot?.id || null
+    }))
+
+  const cartItem = {
+    id: foodDetail.value.id,
+    name: foodDetail.value.name,
+    image: foodDetail.value.image,
+    price: foodDetail.value.price,
+    spicyLevel: selectedSpicyName,
+    toppings: selectedToppings,
+    quantity: quantity.value,
+    type: foodDetail.value.type,
+  }
+
+  let cart = JSON.parse(localStorage.getItem(cartKey)) || []
+
+  const existingItem = cart.findIndex(
+    (item) =>
+      item.id === cartItem.id &&
+      item.spicyLevel === cartItem.spicyLevel &&
+      JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort())
+  )
+
+  if (existingItem !== -1) {
+    cart[existingItem].quantity += 1
+  } else {
+    cart.push(cartItem)
+  }
+
+  localStorage.setItem(cartKey, JSON.stringify(cart))
+  alert('Đã thêm vào giỏ hàng!')
+}
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
@@ -1112,7 +1378,7 @@ onBeforeUnmount(() => {
   top: 100%;
   left: 0;
   right: 0;
-  max-height: 270px;
+  max-height: 300px;
   /* 👈 Cố định chiều cao để buộc scroll */
   overflow-y: auto;
   background: #fff;
@@ -1120,19 +1386,45 @@ onBeforeUnmount(() => {
   z-index: 999;
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 5px 0;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .suggestion-dropdown li {
-  padding: 17px 16px;
-  font-size: 16px;
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 12px;
+  gap: 10px;
   cursor: pointer;
 }
 
 .suggestion-dropdown li:hover {
   background-color: #f6f6f6;
+}
+
+.img-search {
+  width: 50px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.info-search {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.name-search {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.price-search {
+  font-size: 14px;
+  color: red;
 }
 
 .loading,

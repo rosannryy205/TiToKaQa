@@ -121,7 +121,6 @@
             <strong>{{ formatNumber(totalPrice) }} VNĐ</strong>
           </div>
           <button @click="goToCheckout" class="btn btn-checkout w-100 mt-4" :disabled="loading">Thanh toán ngay</button>
-
           <div class="mt-4 d-flex align-items-center flex-wrap">
             <i class="bi bi-telephone-fill me-2 fs-4"></i>
             <div>
@@ -149,6 +148,7 @@ export default {
       return `/img/food/${image}`
     },
   },
+
   setup() {
     const cartItems = ref([])
     const router = useRouter();
@@ -232,6 +232,7 @@ export default {
 
 
     return {
+      Modal,
       cartItems,
       totalPrice,
       increaseQuantity,
@@ -250,5 +251,10 @@ export default {
   display: inline-block;
   width: 15px;
   text-align: center;
+}
+
+.btn-disabled {
+  background-color: #dcdcdc;
+  cursor: not-allowed;
 }
 </style>

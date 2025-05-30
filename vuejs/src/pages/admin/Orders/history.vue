@@ -12,19 +12,41 @@
         </router-link>
       </li>
       <li class="nav-item">
-        <a class="nav-link" :class="{ active: activeTab === 'Chưa xác nhận' }"
-          @click.prevent="setActive('Chưa xác nhận')">
-          Chưa xác nhận
+        <a class="nav-link" :class="{ active: activeTab === 'Chờ xác nhận' }"
+          @click.prevent="setActive('Chờ xác nhận')">
+          Chờ xác nhận
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" :class="{ active: activeTab === 'Đã thanh toán' }"
-          @click.prevent="setActive('Đã thanh toán')">
-          Đã thanh toán
+        <a class="nav-link" :class="{ active: activeTab === 'Đã xác nhận' }" @click.prevent="setActive('Đã xác nhận')">
+          Đã xác nhận
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link" :class="{ active: activeTab === 'Đã hủy' }" @click.prevent="setActive('Đã hủy')">
+        <a class="nav-link" :class="{ active: activeTab === 'Đang xử lý' }" @click.prevent="setActive('Đang xử lý')">
+          Đang xử lý
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: activeTab === 'Đang giao hàng' }"
+          @click.prevent="setActive('Đang giao hàng')">
+          Đang giao hàng
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: activeTab === 'Giao thành công' }"
+          @click.prevent="setActive('Giao thành công')">
+          Giao thành công
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: activeTab === 'Giao thất bại' }"
+          @click.prevent="setActive('Giao thất bại')">
+          Giao thất bại
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: activeTab === 'Đã hủy' }" @click.prevent="setActive('Đã hủy')">
           Đã hủy
         </a>
       </li>
@@ -34,7 +56,7 @@
     <div class="row mt-3 g-2">
       <div class="col-12 col-sm-6 col-md-4">
         <label>Hiển thị:</label>
-        <select class="form-select">
+        <select class="form-select rounded">
           <option selected>5</option>
           <option>10</option>
           <option>15</option>
@@ -67,30 +89,34 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in order" :key="item.id">
+          <tr v-for="(item, index) in filteredOrders" :key="item.id">
             <td>{{ item.id }}</td>
-            <!-- <td class="text-truncate" title="Nguyễn Thị Thuỷ Tiên">Nguyễn Thị Thuỷ Tiên</td> -->
-            <td>
-              {{item.tables && item.tables.length ? item.tables.map(t => t.table_number).join(', ') : 'Không có'}}
-            </td>
+            <td>{{ item.reservations_time ? item.reservations_time : 'Không có' }}</td>
             <td class="text-truncate" :title="item.guest_name + ' - ' + item.guest_phone">{{ item.guest_name }} - {{
               item.guest_phone }}</td>
             <td>{{ item.reservations_time ? 'Đặt bàn' : 'Mang về' }}</td>
             <td>{{ formatNumber(item.total_price) }} VNĐ</td>
             <td>
-              <select class="form-select">
-                <option selected>{{ item.order_status }}</option>
-                <option>Chưa xác nhận</option>
-                <option>Đã hủy</option>
+              <select class="form-select" :value="item.selectedStatus" @change="handleSelectChange(item, $event)">
+                <option value="Chờ xác nhận">Chờ xác nhận</option>
+                <option value="Đã xác nhận">Đã xác nhận</option>
+                <option value="Đang xử lý">Đang xử lý</option>
+                <option value="Đang giao hàng">Đang giao hàng</option>
+                <option value="Giao thành công">Giao thành công</option>
+                <option value="Giao thất bại">Giao thất bại</option>
+                <option value="Đã hủy">Đã hủy</option>
               </select>
+
             </td>
             <td>
               <router-link :to="{ name: 'admin-orders-detail', params: { id: item.id } }"
-                class="btn btn-primary btn-sm">Chi tiết</router-link>
+                class="btn btn-primary btn-sm">Chi tiết
+              </router-link>
               <button class="btn btn-secondary btn-sm">In</button>
             </td>
           </tr>
         </tbody>
+
       </table>
     </div>
 
@@ -100,21 +126,27 @@
         <div class="card-body" v-for="(item, index) in order" :key="item.id">
           <h5 class="card-title fw-bold">Đơn #1</h5>
           <p><strong>Nhân viên:</strong> Nguyễn Thị Thuỷ Tiên</p>
-          <p><strong>Khu vực/Bàn:</strong> {{item.tables && item.tables.length ? item.tables.map(t =>
-            t.table_number).join(', ') : 'Không có' }}</p>
+          <p><strong>Khu vực/Bàn:</strong> {{ item.reservations_time ? item.reservations_time : 'Không có' }}</p>
           <p :title="item.guest_name + ' - ' + item.guest_phone"><strong>Thông tin KH:</strong> {{ item.guest_name }} -
             {{ item.guest_phone }}</p>
           <p><strong>Loại đơn:</strong>{{ item.reservations_time ? 'Đặt bàn' : 'Mang về' }}</p>
           <p><strong>Tổng tiền:</strong> {{ formatNumber(item.total_price) }} đ</p>
           <p><strong>Trạng thái:</strong>
-            <select class="form-select">
-              <option selected>{{ item.order_status }}</option>
-              <option>Chưa xác nhận</option>
-              <option>Đã hủy</option>
+            <select class="form-select" :value="item.selectedStatus" @change="handleSelectChange(item, $event)">
+              <option value="Chờ xác nhận">Chờ xác nhận</option>
+              <option value="Đã xác nhận">Đã xác nhận</option>
+              <option value="Đang xử lý">Đang xử lý</option>
+              <option value="Đang giao hàng">Đang giao hàng</option>
+              <option value="Giao thành công">Giao thành công</option>
+              <option value="Giao thất bại">Giao thất bại</option>
+              <option value="Đã hủy">Đã hủy</option>
             </select>
+
           </p>
           <div class="d-flex gap-2">
-            <button class="btn btn-primary btn-sm flex-grow-1">Chi tiết</button>
+            <router-link :to="{ name: 'admin-orders-detail', params: { id: item.id } }">
+              <button class="btn btn-primary btn-sm flex-grow-1">Chi tiết</button>
+            </router-link>
             <button class="btn btn-secondary btn-sm flex-grow-1">In</button>
           </div>
         </div>
@@ -124,7 +156,7 @@
 </template>
 <script>
 import axios from 'axios'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 export default {
   data() {
@@ -133,11 +165,129 @@ export default {
     };
   },
 
+  computed: {
+    filteredOrders() {
+      if (this.activeTab === 'Tất cả') {
+        return this.order;
+      } else {
+        return this.order.filter(item => item.order_status === this.activeTab);
+      }
+    }
+  },
+
 
   methods: {
     setActive(tab) {
       this.activeTab = tab;
     },
+
+    getOrders() {
+      axios.get(`http://127.0.0.1:8000/api/get_all_orders`)
+        .then(response => {
+          this.order = (response.data.orders ?? []).sort((a, b) => a.id - b.id)
+          this.order.forEach(item => {
+            item.selectedStatus = item.order_status;  // Gán lại giá trị ban đầu cho selectedStatus
+          });
+          console.log('Danh sách order:', this.order)
+        })
+        .catch(error => {
+          console.error('Lỗi khi lấy đơn hàng:', error)
+        });
+    },
+
+
+    isValidUpdateStatus(currentStatus, newStatus) {
+      const orderFlow = [
+        'Chờ xác nhận',
+        'Đã xác nhận',
+        'Đang xử lý',
+        'Đang giao hàng',
+        'Giao thành công',
+        'Giao thất bại',
+        'Đã hủy'
+      ];
+
+      const currentIndex = orderFlow.indexOf(currentStatus);
+      const newIndex = orderFlow.indexOf(newStatus);
+
+      // Trường hợp muốn hủy đơn
+      if (newStatus === 'Đã hủy') {
+        return currentStatus === 'Chờ xác nhận'; // Chỉ được hủy khi đơn đang "Chờ xác nhận"
+      }
+
+      if (currentStatus === 'Đang giao hàng' && (newStatus === 'Giao thành công' || newStatus === 'Giao thất bại')) {
+        return true; // Cho phép nhảy trực tiếp từ "Đang giao hàng" đến "Giao thành công" hoặc "Giao thất bại"
+      }
+
+      // Không được cập nhật ngược (ngược dòng trạng thái)
+      if (newIndex < currentIndex) return false;
+
+      // Chỉ được cập nhật đúng 1 bước
+      return newIndex === currentIndex + 1;
+    },
+
+
+
+    updateStatus(id, newStatus) {
+      axios
+        .put(`http://127.0.0.1:8000/api/update/${id}/status`, {
+          order_status: newStatus
+        })
+        .then(response => {
+          console.log(response.data.mess);
+          this.getOrders(); // Cập nhật lại đơn hàng từ DB sau khi thay đổi trạng thái
+        })
+        .catch(error => {
+          console.error('Lỗi khi cập nhật', error);
+          alert('Cập nhật trạng thái thất bại!');
+        });
+    },
+
+
+
+    handleSelectChange(item, event) {
+      const newStatus = event.target.value; // Lấy giá trị từ dropdown
+      const currentStatus = item.order_status;
+
+      // Lưu lại giá trị gốc của selectedStatus
+      const originalSelectedStatus = item.selectedStatus;
+
+      // Kiểm tra xem trạng thái cập nhật có hợp lệ không
+      if (!this.isValidUpdateStatus(currentStatus, newStatus)) {
+        alert('Không thể cập nhật trạng thái. Vui lòng đảm bảo cập nhật đúng thứ tự và chỉ được hủy khi đơn đang ở trạng thái "Chờ xác nhận".');
+
+        // Nếu có lỗi, giữ lại giá trị ban đầu của selectedStatus
+        item.selectedStatus = originalSelectedStatus;
+
+        // Đảm bảo dropdown cũng phản hồi đúng trạng thái cũ
+        event.target.value = originalSelectedStatus;
+        return;
+      }
+
+      // Tiến hành cập nhật trạng thái nếu không có lỗi
+      this.updateStatus(item.id, newStatus);
+    },
+
+
+    // Hàm reload orders sau khi cập nhật
+    getOrders() {
+      axios.get(`http://127.0.0.1:8000/api/get_all_orders`)
+        .then(response => {
+          this.order = (response.data.orders ?? []).sort((a, b) => a.id - b.id)
+          this.order.forEach(item => {
+            item.selectedStatus = item.order_status;  // Gán lại giá trị ban đầu cho selectedStatus
+          });
+          console.log('Danh sách order:', this.order)
+        })
+        .catch(error => {
+          console.error('Lỗi khi lấy đơn hàng:', error)
+        });
+    },
+
+
+
+
+
     formatNumber(value) {
       return numeral(value).format('0,0')
     },
@@ -155,20 +305,20 @@ export default {
       axios.get(`http://127.0.0.1:8000/api/get_all_orders`)
         .then(response => {
           order.value = (response.data.orders ?? []).sort((a, b) => a.id - b.id)
-
+          order.value.forEach(item => {
+            item.selectedStatus = item.order_status; // gán trạng thái hiện tại cho dropdown
+          });
           console.log('Danh sách order:', order.value)
         })
         .catch(error => {
           console.error('Lỗi khi lấy đơn hàng:', error)
         })
-    }
+    };
 
 
-
-    onMounted(async () => {
-      await getOrders();
-    });
-
+    onMounted(() => {
+      getOrders()
+    })
 
     return {
       order,
