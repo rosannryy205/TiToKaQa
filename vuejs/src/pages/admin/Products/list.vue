@@ -2,11 +2,11 @@
   <h2 class="mb-3">Quản lý món ăn</h2>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+    <router-link :to="{ name: 'insert-food' }" class="btn btn-danger1">
       + Thêm món ăn
-    </button>
-    <span class="vd">Tìm kiếm</span>
-    <input type="text" class="form-control" style="max-width: 200px" placeholder="Tìm kiếm món ăn" />
+    </router-link>
+    <span class="vd ">Tìm kiếm</span>
+    <input type="text" class="form-control rounded" style="max-width: 200px" placeholder="Tìm kiếm món ăn" />
     <span class="vd">Lọc</span>
     <select class="form-select w-auto" v-model="selectedCategory">
       <option value="">Tất cả danh mục</option>
@@ -18,20 +18,44 @@
         </option>
       </template>
     </select>
-
-
-
-
-    <span class="vd">Hiển thị</span>
-    <select class="form-select w-auto" v-model="limit">
-      <option :value="5">5</option>
-      <option :value="10">10</option>
-      <option :value="15">15</option>
-    </select>
-
   </div>
 
   <!-- Table Responsive -->
+  <!-- <div class="table-responsive d-none d-lg-block">
+    <table class="table table-bordered rounded">
+      <thead class="table-light">
+        <tr>
+          <th><input type="checkbox" /></th>
+          <th>Món ăn</th>
+          <th>Danh mục</th>
+          <th>Giá thành</th>
+          <th>Tồn kho</th>
+          <th>Tuỳ chọn</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td>
+            <img src="/img/food/mykimchihaisan.webp" alt="Mỳ kim chi hải sản" class="me-2 img_thumbnail" />
+            Mỳ kim chi hải sản
+          </td>
+          <td>Mỳ cay</td>
+          <td>55,000 VNĐ</td>
+          <td>10</td>
+          <td class="d-flex gap-2">
+            <button type="button" class="btn btn-primary">Sửa</button>
+            <button class="btn btn-danger-delete">Xoá</button>
+            <button class="btn btn-warning">Ẩn</button>
+            <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#toppingModal">Toppings</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="btn btn-danger-delete delete_desktop">Xoá</button> -->
+
+
   <div class="table-responsive d-none d-lg-block">
     <table class="table table-bordered">
       <thead class="table-light">
@@ -56,7 +80,11 @@
           <td>{{ food.price.toLocaleString('vi-VN') }} VNĐ</td>
           <td>{{ food.stock }}</td>
           <td class="d-flex gap-2">
-            <button type="button" class="btn btn-primary" @click="openEditModal(food)">Sửa</button>
+            <router-link :to="{ name: 'update-food' , params: { id: food.id }}">
+              <button type="button" class="btn btn-primary">
+                Sửa
+              </button>
+            </router-link>
             <button class="btn btn-danger-delete" @click="deleteFood(food.id)">Xoá</button>
             <button class="btn btn-warning">Ẩn</button>
             <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#toppingModal">Toppings</button>
@@ -83,6 +111,7 @@
 
   <button class="btn btn-danger-delete delete_desktop">Xoá</button>
 
+
   <!-- Mobile View -->
   <div class="d-block d-lg-none">
     <div class="card mb-3">
@@ -96,8 +125,8 @@
             <h5 class="card-title">Mỳ kim chi hải sản</h5>
             <p class="card-text"><strong>Danh mục:</strong> Mỳ cay</p>
             <p class="card-text"><strong>Giá:</strong> 55,000 VNĐ</p>
-            <p class="card-text"><strong>Số lượng:</strong> 10</p>
-            <button class="btn btn-primary btn-sm" >Sửa</button>
+            <p class="card-text"><strong>Tồn kho:</strong> 10</p>
+            <button class="btn btn-primary btn-sm">Sửa</button>
             <button class="btn btn-danger-delete btn-sm">Xoá</button>
             <button class="btn btn-warning btn-sm">Ẩn</button><button class="btn btn-dark btn-sm" data-bs-toggle="modal"
               data-bs-target="#toppingModal">Toppings</button>
@@ -160,157 +189,6 @@
       </div>
     </div>
   </div>
-
-
-  <!-- Modal Thêm món ăn -->
-  <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5">Thêm món ăn</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-
-          <!-- Tên món ăn -->
-          <div class="mb-3">
-            <div v-if="errorAdd.name" class="text-danger errorAddFood mt-1">{{ errorAdd.name[0] }}</div>
-            <input type="text" v-model="newFood.name" class="form-control add_food__input" id="name" placeholder="Tên món ăn">
-
-          </div>
-
-          <!-- Giá -->
-          <div class="mb-3">
-            <div v-if="errorAdd.price" class="text-danger errorAddFood mt-1">{{ errorAdd.price[0] }}</div>
-            <input type="number" v-model="newFood.price" class="form-control add_food__input" id="price" placeholder="Giá">
-
-          </div>
-
-          <!-- Giá khuyến mãi -->
-          <div class="mb-3">
-            <div v-if="errorAdd.sale_price" class="text-danger errorAddFood mt-1">{{ errorAdd.sale_price[0] }}</div>
-            <input type="number" v-model="newFood.sale_price" class="form-control add_food__input" id="sale_price" placeholder="Giá khuyến mãi">
-
-          </div>
-
-          <!-- Hình ảnh -->
-          <div class="mb-3">
-            <div v-if="errorAdd.image" class="text-danger errorAddFood mt-1">{{ errorAdd.image[0] }}</div>
-            <input type="file" @change="handleImageChange" class="form-control add_food__input" id="image">
-          </div>
-
-          <!-- Số lượng -->
-          <div class="mb-3">
-            <div v-if="errorAdd.stock" class="text-danger errorAddFood mt-1">{{ errorAdd.stock[0] }}</div>
-            <input type="number" v-model="newFood.stock" class="form-control add_food__input" id="stock" placeholder="Số lượng">
-
-          </div>
-
-          <!-- Danh mục -->
-          <div class="mb-3">
-            <div v-if="errorAdd.category_id" class="text-danger errorAddFood mt-1">{{ errorAdd.category_id[0] }}</div>
-            <select v-model="newFood.category_id" class="form-select select_cateFood mb-2">
-              <option disabled value="">-- Chọn danh mục --</option>
-              <template v-for="category in categories" :key="category.id">
-                <option :value="category.id">{{ category.name }}</option>
-                <option v-for="child in category.children" :key="child.id" :value="child.id">
-                  &nbsp;&nbsp;↳ {{ child.name }}
-                </option>
-              </template>
-            </select>
-          </div>
-
-          <!-- Mô tả -->
-          <div class="mb-3">
-            <div v-if="errorAdd.description" class="text-danger errorAddFood mt-1">{{ errorAdd.description[0] }}</div>
-            <textarea v-model="newFood.description" class="form-control add_food__input add_description" id="description" placeholder="Mô tả"></textarea>
-
-          </div>
-
-
-
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-          <button class="btn btn-primary" @click="addFood">Thêm</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="modal fade" id="editFoodModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5">Sửa món ăn</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <!-- Các trường giống như trong modal thêm -->
-        <!-- Name -->
-        <div class="mb-3">
-          <div v-if="errorAdd.name" class="text-danger errorAddFood mt-1">{{ errorAdd.name[0] }}</div>
-          <input type="text" v-model="newFood.name" class="form-control" placeholder="Tên món ăn">
-        </div>
-
-        <!-- Price -->
-        <div class="mb-3">
-          <div v-if="errorAdd.price" class="text-danger errorAddFood mt-1">{{ errorAdd.price[0] }}</div>
-          <input type="number" v-model="newFood.price" class="form-control" placeholder="Giá">
-        </div>
-
-        <!-- Sale Price -->
-        <div class="mb-3">
-          <div v-if="errorAdd.sale_price" class="text-danger errorAddFood mt-1">{{ errorAdd.sale_price[0] }}</div>
-          <input type="number" v-model="newFood.sale_price" class="form-control" placeholder="Giá khuyến mãi">
-        </div>
-
-        <!-- Image -->
-        <div class="mb-3">
-          <div v-if="errorAdd.image" class="text-danger errorAddFood mt-1">{{ errorAdd.image[0] }}</div>
-          <input type="file" @change="handleImageChange" class="form-control">
-        </div>
-
-        <!-- Stock -->
-        <div class="mb-3">
-          <div v-if="errorAdd.stock" class="text-danger errorAddFood mt-1">{{ errorAdd.stock[0] }}</div>
-          <input type="number" v-model="newFood.stock" class="form-control" placeholder="Số lượng">
-        </div>
-
-        <!-- Category -->
-        <div class="mb-3">
-          <div v-if="errorAdd.category_id" class="text-danger errorAddFood mt-1">{{ errorAdd.category_id[0] }}</div>
-          <select v-model="newFood.category_id" class="form-select">
-            <option disabled value="">-- Chọn danh mục --</option>
-            <template v-for="category in categories" :key="category.id">
-              <option :value="category.id">{{ category.name }}</option>
-              <option v-for="child in category.children" :key="child.id" :value="child.id">
-                &nbsp;&nbsp;↳ {{ child.name }}
-              </option>
-            </template>
-          </select>
-        </div>
-
-        <!-- Description -->
-        <div class="mb-3">
-          <div v-if="errorAdd.description" class="text-danger errorAddFood mt-1">{{ errorAdd.description[0] }}</div>
-          <textarea v-model="newFood.description" class="form-control" placeholder="Mô tả"></textarea>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button class="btn btn-primary" @click="updateFood">Cập nhật</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
 
 </template>
 <script setup>
@@ -447,19 +325,19 @@ watch([limit, selectedCategory], () => {
 })
 
 
-const deleteFood = async (id)=>{
+const deleteFood = async (id) => {
   try {
-        const response = await axios.delete(`http://localhost:8000/api/admin/food/${id}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-        alert(response.data.message);
-        fetchFoods();
-    } catch (error) {
-        console.error(error);
-        alert(error.response?.data?.message || 'Lỗi khi xoá món ăn');
-    }
+    const response = await axios.delete(`http://localhost:8000/api/admin/food/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    alert(response.data.message);
+    fetchFoods();
+  } catch (error) {
+    console.error(error);
+    alert(error.response?.data?.message || 'Lỗi khi xoá món ăn');
+  }
 }
 
 
@@ -570,33 +448,6 @@ const updateFood = async () => {
 .btn-danger-delete:hover {
   background-color: #a51928;
   color: white;
-}
-
-.select_cateFood{
-  border-radius: 5px;
-}
-
-.add_food__input{
-  margin: 0 !important;
-  padding: 8px 10px ;
-  border-radius: 5px;
-  min-height: 38px;
-
-}
-
-.add_description{
-  padding-bottom: 50px;
-}
-
-.errorAddFood{
-  min-height: 20px; /* giữ không gian cho lỗi */
-  font-size: 14px;
-  text-align: center;
-  margin: 0 !important;
-}
-
-.label_addFood{
-  color :black;
 }
 
 @media (max-width: 768px) {

@@ -16,7 +16,8 @@ class Food extends Model
         'stock',         // Số lượng
         'category_id',   // ID danh mục
         'description',   // Mô tả
-        'image',         // Hình ảnh
+        'image',
+        'status',         // Hình ảnh
     ];
 
     public function category()

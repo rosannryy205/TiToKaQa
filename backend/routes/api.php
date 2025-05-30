@@ -23,6 +23,7 @@ use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Models\Discount;
 use Laravel\Socialite\Contracts\Provider;
+use App\Http\Controllers\PaymentController;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
@@ -55,6 +56,10 @@ Route::post('/reservation-update-status', [OrderController::class, 'updateStatus
 Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
 Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
 
+Route::post('/order-for-user', [OrderController::class, 'orderFoodForUser']);
+
+Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
+Route::post('/order-for-user', [OrderController::class, 'orderFoodForUser']);
 
 //history
 Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);
@@ -70,7 +75,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // đăng ký đăng nhập quên mật khẩu
-Route::post('/register', [UserController::class, 'register']);
+Route::post('/register/send-code', [UserController::class, 'sendRegisterCode']);
+Route::post('/register/verify-code', [UserController::class, 'verifyRegisterCode']);
+
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/forgot',[UserController::class,'forgotPass']);
 Route::post('/code',[UserController::class,'verifyResetCode']);
@@ -90,8 +97,15 @@ Route::get('/search', [HomeController::class, 'search']);
 
 //cart
 Route::post('/order',[CartController::class,'order']);
+
+Route::put('/update/order/{id}',[OrderController::class,'reservationUpdate']);
+Route::put('/update/reservation-order/{id}',[OrderController::class,'reservationUpdatePrice']);
+
+
+//admin_order
 Route::get('/order_detail/{id}',[CartController::class,'get_order_detail']);
 Route::get('/get_all_orders',[CartController::class,'get_all_orders']);
+Route::put('/update/{id}/status',[CartController::class,'update_status']);
 
 
 //discount
@@ -108,9 +122,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
     Route::post('/admin/foods', [AdminFoodController::class, 'store']);
     Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
+    Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
     Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
     Route::get('/admin/catetop',[AdminCategoryToppingController::class,'getAll']);
     Route::post('/admin/toppings',[AdminToppingController::class,'store']);
 });
+
+Route::resource('/payment', PaymentController::class);
+// routes/api.php
+Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 

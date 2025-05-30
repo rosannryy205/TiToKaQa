@@ -5,7 +5,7 @@ const admin = [
         name: "admin",
         component: () => import("../components/layouts/LayoutAdmin.vue"),
         redirect: "/admin/dashboard",
-        
+
         children: [
             {
                 path: "dashboard",
@@ -76,6 +76,31 @@ const admin = [
               path: "users/list-role",
               name: "users-list-role",
               component: () => import("../pages/admin/Users/role.vue")
+            },
+            {
+              path: "choose-list-food/:id",
+              name: "list-food",
+              component: () => import("../pages/admin/Tables/listsp.vue")
+            },
+            {
+              path: "insert-food",
+              name: "insert-food",
+              component: () => import("../pages/admin/Products/insert.vue")
+            },
+            {
+              path: "update-food/:id",
+              name: "update-food",
+              component: () => import("../pages/admin/Products/update.vue")
+            },
+            {
+              path: "insert-category",
+              name: "insert-category",
+              component: () => import("../pages/admin/Categories/insert.vue")
+            },
+            {
+              path: "insert-combo",
+              name: "insert-combo",
+              component: () => import("../pages/admin/Combo/insert.vue")
             }
         ]
     }

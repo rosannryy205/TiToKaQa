@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-content-between mb-3">
     <h2>Lịch đặt bàn</h2>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+    <button type="button" class="btn btn-danger1" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
       + Thêm đơn đặt bàn
     </button>
   </div>
@@ -53,7 +53,7 @@
                       @click="selectOrder(order.order_id)" v-if="order.reservation_status == 'Chờ Xác Nhận'">Xếp bàn</a>
                   </li>
                   <li>
-                    <router-link :to="{ name: 'list-food' }" class="dropdown-item1"
+                    <router-link :to="{ name: 'list-food', params: { id: order.order_id } }" class="dropdown-item1"
                       v-if="order.reservation_status !== 'Hoàn Thành' && order.reservation_status !== 'Đã hủy'">Chọn
                       món</router-link>
                   </li>
@@ -107,7 +107,6 @@ import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
 import { FoodList } from '@/stores/food'
-import OrdersDetail from '../Orders/orders-detail.vue'
 export default {
   setup() {
     const { info, getInfo, formatDate, formatTime, formatNumber } = Info.setup()

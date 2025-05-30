@@ -233,7 +233,8 @@ input.form-control-discount:focus {
   box-shadow: none !important;
   outline: none;
 }
-input.form-control-customer {
+input.form-control-customer,
+select.form-control-customer {
   width: 100%;
   height: 35px;
   border-radius: 5px;

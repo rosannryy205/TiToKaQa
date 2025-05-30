@@ -112,7 +112,7 @@ body > section > div.header > div > nav {
 .icon:focus ~ .input,
 .input:focus {
   box-shadow: none;
-  width: 250px;
+  width: 350px;
   border-radius: 0px;
   background-color: transparent;
   border-bottom: 3px solid #c92c3c;
@@ -873,9 +873,6 @@ color: #c92c3c;
   border-radius: 20px;
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
   padding: 30px;
-}
-#app > div > section.foods > section > div > div > div.product-list-wrapper.container-fluid > div > div > div{
-  border-right: dashed 1px rgb(211, 211, 211);
 }
 .product-card h3, p{
   color: #c92c3c;

@@ -1,101 +1,80 @@
 <template>
-  <div class="wrapper">
-    <!-- Nút mở menu trên màn hình nhỏ -->
-    <button class="menu-btn d-lg-none" @click="toggleSidebar">
-      <i class="fas fa-bars"></i>
-    </button>
+  <body>
+    <div class="wrapper">
+      <!-- Nút mở menu trên màn hình nhỏ -->
+      <button class="menu-btn d-lg-none" @click="toggleSidebar">
+        <i class="bi bi-list"></i>
+      </button>
+      <div :class="['sidebar z-3', { 'active': isSidebarOpen || isLargeScreen }]">
+        <div class="mb-4 d-flex align-items-center justify-content-between">
+          <div class="profile d-flex align-items-center gap-2 sticky-top">
+            <!-- <i class="bi bi-person-circle fs-4"></i> -->
+            <img src="/img/logonew.png" alt="" class="w-25" />
+            <div>
+              <div class="fw-bold text-danger" v-if="user">{{ user.username }}</div>
+              <small class="text-muted"> <i class="bi bi-box-arrow-right"></i> Logout </small>
+            </div>
+          </div>
+        </div>
+        <nav class="nav flex-column">
+          <router-link :to="{ name: 'admin' }" class="nav-link1" active-class="active" exact>
+            <i class="bi bi-speedometer2"></i> Tổng quan
+          </router-link>
 
-    <!-- Sidebar -->
-    <div :class="['sidebar z-3', { 'active': isSidebarOpen || isLargeScreen }]">
-      <h2 v-if="user">{{ user.username }}</h2>
-      <ul class="sidebar-menu">
-        <li><router-link :to="{ name: 'admin' }"><i class="fas fa-tachometer-alt"></i> Tổng quan</router-link>
-        </li>
-        <li>
-          <div class="d-flex justify-content-between align-items-center">
-            <router-link :to="{ name: 'admin-products' }"><i class="fas fa-box"></i> Món ăn</router-link>
-            <a href="#" @click="toggleProductMenu">
-              <i class="fas fa-chevron-down" :class="{ 'rotate': isProductMenuOpen }"></i>
-            </a>
+          <router-link :to="{ name: 'admin-products' }"
+            class="nav-link1 d-flex justify-content-between align-items-center" @click="toggleProductMenu">
+            <span><i class="fa-solid fa-utensils"></i> Món ăn</span>
+            <i class="bi bi-chevron-right toggle-icon"></i>
+          </router-link>
+          <div class="ps-4" v-show="isProductMenuOpen">
+            <router-link :to="{ name: 'admin-categories' }" class="nav-link1"><i class="bi bi-card-list"></i> Danh
+              mục</router-link>
+            <router-link :to="{ name: 'admin-products-combo' }" class="nav-link1"><i class="bi bi-boxes"></i>
+              Combo</router-link>
+          </div>
+          <router-link :to="{ name: 'admin-options' }"
+            class="nav-link1 d-flex justify-content-between align-items-center" @click="toggleProductMenu1">
+            <span><i class="bi bi-egg-fried"></i> Món ăn kèm</span>
+            <i class="bi bi-chevron-right toggle-icon"></i>
+          </router-link>
+          <div class="ps-4" v-show="isProductMenuOpen1">
+            <router-link :to="{ name: 'admin-category-options' }" class="nav-link1"><i class="bi bi-card-list"></i> Danh
+              mục</router-link>
+          </div>
+          <router-link :to="{ name: 'orders-history' }" class="nav-link1"><i class="bi bi-card-heading"></i> Đơn
+            hàng</router-link>
+          <router-link :to="{ name: 'admin-tables' }"
+            class="nav-link1 d-flex justify-content-between align-items-center" @click="toggleProductMenu2">
+            <span><i class="bi bi-aspect-ratio"></i> Sơ đồ bàn</span>
+            <i class="bi bi-chevron-right toggle-icon"></i>
+          </router-link>
+          <div class="ps-4" v-show="isProductMenuOpen2">
+            <router-link :to="{ name: 'admin-tables-current-order' }" class="nav-link1"><i class="bi bi-stopwatch"></i>
+              Đơn hiện thời</router-link>
+            <router-link :to="{ name: 'admin-tables-booking-schedule' }" class="nav-link1"><i
+                class="bi bi-card-list"></i> Lịch đặt bàn</router-link>
+          </div>
+          <router-link :to="{ name: 'users-list' }" class="nav-link1 d-flex justify-content-between align-items-center"
+            @click="toggleProductMenu3">
+            <span><i class="bi bi-person-vcard"></i> Người dùng</span>
+            <i class="bi bi-chevron-right toggle-icon"></i>
+          </router-link>
+          <div class="ps-4" v-show="isProductMenuOpen3">
+            <router-link :to="{ name: 'users-list-role' }" class="nav-link1"><i class="bi bi-person-rolodex"></i> Vai
+              trò</router-link>
           </div>
 
-          <ul v-show="isProductMenuOpen" class="list-unstyled ps-3">
-            <li><router-link :to="{ name: 'admin-categories' }"><i class="fas fa-list"></i> Danh
-                mục</router-link></li>
-          </ul>
-
-          <ul v-show="isProductMenuOpen" class="list-unstyled ps-3">
-            <li><router-link :to="{ name: 'admin-products-combo' }"><i class="fas fa-list"></i> Combo</router-link></li>
-          </ul>
-        </li>
-
-
-        <li>
-          <div class="d-flex justify-content-between align-items-center">
-        <li><router-link :to="{ name: 'admin-options' }"><i class="fas fa-palette"></i>
-            Toppings</router-link></li>
-        <a href="#" @click="toggleProductMenu1">
-          <i class="fas fa-chevron-down" :class="{ 'rotate': isProductMenuOpen1 }"></i>
-        </a>
+        </nav>
+      </div>
+      <div class="content">
+        <router-view></router-view>
+      </div>
     </div>
 
-    <ul v-show="isProductMenuOpen1" class="list-unstyled ps-3">
-      <li><router-link :to="{ name: 'admin-category-options' }"><i class="fas fa-palette"></i> Danh mục</router-link>
-      </li>
-    </ul>
-    </li>
+  </body>
 
-
-    <li>
-      <div class="d-flex justify-content-between align-items-center">
-        <router-link :to="{ name: 'admin-tables' }"><i class="fas fa-box"></i> Sơ đồ bàn</router-link>
-        <a href="#" @click="toggleProductMenu2">
-          <i class="fas fa-chevron-down" :class="{ 'rotate': isProductMenuOpen2 }"></i>
-        </a>
-      </div>
-
-      <ul v-show="isProductMenuOpen2" class="list-unstyled ps-3">
-        <li><router-link :to="{ name: 'admin-tables-booking-schedule' }"><i class="fas fa-list"></i> Lịch đặt
-            bàn</router-link></li>
-      </ul>
-
-      <ul v-show="isProductMenuOpen2" class="list-unstyled ps-3">
-        <li><router-link :to="{ name: 'admin-tables-current-order' }"><i class="fas fa-list"></i> Đơn hiện
-            tại</router-link></li>
-      </ul>
-
-      <ul v-show="isProductMenuOpen2" class="list-unstyled ps-3">
-        <li><router-link :to="{ name: 'demo' }"><i class="fas fa-list"></i> demo</router-link></li>
-      </ul>
-    </li>
-    <li><router-link :to="{ name: 'orders-history' }"><i class="fas fa-shopping-cart"></i> Đơn hàng</router-link></li>
-
-    <li>
-      <div class="d-flex justify-content-between align-items-center">
-        <router-link :to="{ name: 'users-list' }"><i class="fas fa-box"></i> Người dùng</router-link>
-        <a href="#" @click="toggleProductMenu3">
-          <i class="fas fa-chevron-down" :class="{ 'rotate': isProductMenuOpen3 }"></i>
-        </a>
-      </div>
-
-      <ul v-show="isProductMenuOpen3" class="list-unstyled ps-3">
-        <li><router-link :to="{ name: 'users-list-role' }"><i class="fas fa-list"></i> Vai trò</router-link></li>
-      </ul>
-
-    </li>
-    </ul>
-  </div>
-
-  <!-- Nội dung chính -->
-  <div class="content">
-    <router-view></router-view>
-  </div>
-  </div>
 </template>
-
 <script>
-
-import { onMounted, ref } from 'vue';
 export default {
   data() {
     return {
@@ -153,63 +132,74 @@ export default {
 
 };
 </script>
-
-<style scoped>
-.wrapper {
-  display: flex;
-}
-
-.rotate {
-  transform: rotate(180deg);
-  transition: transform 0.3s;
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: url('Background.png') no-repeat center center;
+  background-size: cover;
 }
 
 .sidebar {
-  width: 250px;
-  background: #F5F5F5;
-  padding: 20px;
   height: 100vh;
+  width: 260px;
   position: fixed;
   top: 0;
-  left: -250px;
-  transition: 0.3s;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Khi sidebar mở */
-.sidebar.active {
   left: 0;
+  background-color: #fff;
+  border-right: 1px solid #eee;
+  padding: 1rem;
+  overflow-y: auto;
 }
 
-.sidebar h2 {
-  font-size: 22px;
-  text-align: center;
-  font-weight: bold;
-  color: #C92C3C;
-}
-
-.sidebar-menu li {
-  list-style: none;
-  padding: 10px 0;
-}
-
-.sidebar-menu a {
-  text-decoration: none;
-  color: #000000;
+.sidebar .nav-link1 {
+  color: #333;
+  border-radius: 10px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
-  padding: 10px 10px 0 0;
-  border-radius: 5px;
-  transition: background 0.3s, color 0.3s;
+  text-decoration: none;
 }
 
-.sidebar-menu a i {
-  margin-right: 15px;
-  font-size: 20px;
+.sidebar .nav-link1:hover {
+  background-color: #f3f4f6;
 }
 
-.sidebar-menu a:hover {
-  color: #C92C3C;
+.sidebar .nav-link1.active {
+  background-color: #f0ebff;
+  color: #e04c4c;
+  font-weight: 700;
+}
+
+.sidebar .nav-link1 i {
+  margin-right: 10px;
+}
+
+.sidebar .section-title {
+  font-size: 0.75rem;
+  color: #999;
+  text-transform: uppercase;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.sidebar .quick-link span {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+  margin-left: auto;
+}
+
+.toggle-icon.rotate {
+  transform: rotate(90deg);
+}
+
+.wrapper {
+  display: flex;
 }
 
 .menu-btn {

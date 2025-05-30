@@ -2,13 +2,13 @@
   <h2 class="mb-3">Quản lý danh mục</h2>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-      +Thêm Danh mục
-    </button>
+    <router-link :to="{ name: 'insert-category' }" class="btn btn-danger1">
+      + Thêm danh mục
+    </router-link>
     <span class="vd">Tìm kiếm</span>
-    <input type="text" class="form-control" style="max-width: 200px" placeholder="Tìm kiếm" />
+    <input type="text" class="form-control rounded" style="max-width: 200px" placeholder="Tìm kiếm" />
     <span class="vd">Lọc</span>
-    <select class="form-select w-auto" style="max-width: 250px">
+    <select class="form-select w-auto rounded" style="max-width: 250px">
       <option selected>Lọc theo danh mục cha</option>
       <option>Danh mục 1</option>
       <option>Danh mục 2</option>
@@ -16,7 +16,7 @@
 
 
     <span class="vd">Hiển thị</span>
-    <select class="form-select w-auto">
+    <select class="form-select w-auto rounded">
       <option selected>5</option>
       <option>10</option>
       <option>15</option>
@@ -25,7 +25,7 @@
 
 
   <div class="table-responsive d-none d-lg-block">
-    <table class="table table-bordered">
+    <table class="table table-bordered rounded">
       <thead class="table-light">
         <tr>
           <th><input type="checkbox" /></th>
@@ -44,7 +44,7 @@
           <td class="d-flex justify-content-center gap-2">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
               data-bs-target="#editCategoryModal">Sửa</button>
-              <button class="btn btn-warning">Thêm sản phẩm</button>
+            <button class="btn btn-warning">Thêm sản phẩm</button>
 
           </td>
         </tr>
@@ -152,85 +152,6 @@
   <button class="btn btn-danger-delete delete_mobile">Xoá</button>
 
 
-  <!-- Modal Thêm Danh Mục -->
-  <div class="modal fade" id="addCategoryModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Thêm danh mục</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <label for="toppingName" class="form-label">
-            Tên danh mục <span class="text-danger">*</span>
-          </label>
-          <input type="text" class="form-control mb-3" placeholder="Nhập tên" />
-
-          <label for="toppingName" class="form-label">
-            Danh mục <span class="text-danger">*</span>
-          </label>
-          <select class="form-select mb-3">
-            <option selected>Chọn danh mục cha (không bắt buộc)</option>
-            <option>Danh mục 1</option>
-            <option>Danh mục 2</option>
-          </select>
-
-          <label for="toppingName" class="form-label">
-            Làm danh mục cha <span class="text-danger">*</span>
-          </label>
-          <select class="form-select mb-3">
-            <option>Không</option>
-            <option>Có</option>
-          </select>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-          <button type="button" class="btn btn-primary">Thêm</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal sửa Danh Mục -->
-  <div class="modal fade" id="editCategoryModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Thêm danh mục</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <label for="toppingName" class="form-label">
-            Tên danh mục <span class="text-danger">*</span>
-          </label>
-          <input type="text" class="form-control mb-3" placeholder="Nhập tên" />
-
-          <label for="toppingName" class="form-label">
-            Danh mục <span class="text-danger">*</span>
-          </label>
-          <select class="form-select mb-3">
-            <option selected>Chọn danh mục cha (không bắt buộc)</option>
-            <option>Danh mục 1</option>
-            <option>Danh mục 2</option>
-          </select>
-
-          <label for="toppingName" class="form-label">
-            Làm danh mục cha <span class="text-danger">*</span>
-          </label>
-          <select class="form-select mb-3">
-            <option>Không</option>
-            <option>Có</option>
-          </select>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-          <button type="button" class="btn btn-primary">Sửa</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
 
 </template>
 
@@ -244,17 +165,20 @@ export default {
 </script>
 
 <style scoped>
-.btn-danger-delete{
+.btn-danger-delete {
   background-color: #C92C3C;
   color: white;
 }
-.btn-danger-delete:hover{
+
+.btn-danger-delete:hover {
   background-color: #a51928;
   color: white;
 }
-.delete_mobile{
+
+.delete_mobile {
   display: none;
 }
+
 @media (max-width: 768px) {
   .table-responsive {
     display: none;
@@ -267,7 +191,8 @@ export default {
   .delete_desktop {
     display: none;
   }
-  .delete_mobile{
+
+  .delete_mobile {
     display: block;
   }
 }

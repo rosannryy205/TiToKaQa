@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use App\Mail\VerifyCodeMail;
 
 
 class UserController extends Controller
@@ -21,7 +23,7 @@ class UserController extends Controller
         //
     }
 
-    public function register(Request $request)
+    public function sendRegisterCode(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'username' => 'required|unique:users|min:6|max:20|alpha_num',
@@ -36,7 +38,6 @@ class UserController extends Controller
                     }
                 }
             ],
-            'phone' => ['required', 'regex:/^(0|\+84)(\d{9})$/', 'unique:users,phone'],
 
             'password' => 'required|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
 
@@ -52,9 +53,9 @@ class UserController extends Controller
             'email.email' => 'Email không đúng định dạng.',
             'email.unique' => 'Email đã được sử dụng.',
 
-            'phone.required' => 'Vui lòng nhập số điện thoại.',
-            'phone.regex' => 'Số điện thoại không đúng định dạng.',
-            'phone.unique' => 'Số điện thoại đã được sử dụng.',
+            // 'phone.required' => 'Vui lòng nhập số điện thoại.',
+            // 'phone.regex' => 'Số điện thoại không đúng định dạng.',
+            // 'phone.unique' => 'Số điện thoại đã được sử dụng.',
 
             'password.required' => 'Vui lòng nhập mật khẩu.',
             'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
@@ -66,32 +67,76 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $user = User::create([
+        // Sinh mã và lưu tạm thông tin user trong cache
+        $code = rand(100000, 999999);
+        $data = [
             'username' => $request->username,
             'email' => $request->email,
-            'phone' => $request->phone ?? '',
             'password' => bcrypt($request->password),
             'address' => $request->address ?? '',
             'fullname' => $request->fullname ?? '',
-            'role'=>'user'
+        ];
 
+        Cache::put('register_' . $request->email, [
+            'code' => $code,
+            'data' => $data,
+        ], now()->addMinutes(5));
+
+        try {
+            Mail::to($request->email)->send(new \App\Mail\ResetPasswordCode($code));
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi gửi email',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json(['message' => 'Mã xác minh đã được gửi đến email của bạn.']);
+    }
+
+    public function verifyRegisterCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|numeric',
         ]);
+
+        $cached = Cache::get('register_' . $request->email);
+
+        if (!$cached) {
+            return response()->json(['message' => 'Mã đã hết hạn hoặc không tồn tại'], 410);
+        }
+
+        if ($cached['code'] != $request->code) {
+            return response()->json(['message' => 'Mã xác minh không đúng'], 404);
+        }
+
+        // Tạo user và đăng nhập
+        $user = User::create(array_merge($cached['data'], ['role' => 'user']));
+
         Auth::login($user);
         $token = $user->createToken('auth')->plainTextToken;
 
         // Gửi mail chào mừng
         Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
 
+        Cache::forget('register_' . $request->email);
+
         return response()->json([
             'message' => 'Đăng ký thành công!',
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
-                'role' => $user->role
+                'email' => $user->email,
+                'role' => $user->role,
             ],
-            'token' => $token
+            'token' => $token,
         ]);
     }
+
+
+
+
 
 
     public function login(Request $request)
@@ -129,6 +174,8 @@ class UserController extends Controller
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
+                'email' => $user->email,
+                'phone' => $user->phone,
                 'role' => $user->role
             ],
             'token' => $token
@@ -200,7 +247,8 @@ class UserController extends Controller
         ]);
     }
 
-    public function sendCode(Request $request){
+    public function sendCode(Request $request)
+    {
         $validator = Validator::make(
             $request->all(),
             [
@@ -273,33 +321,34 @@ class UserController extends Controller
         }
 
         $user->verify_code = null;
-        $user->verify_expiry=null;
+        $user->verify_expiry = null;
         $user->save();
 
         return response()->json(['message' => 'Xác minh thành công']);
     }
 
 
-    public function ChangePassword(Request $request){
-        $validator=Validator::make($request->all(),[
-            'email'=>'required|email',
+    public function ChangePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
             'password' => 'required|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
-        ],[
+        ], [
             'password.required' => 'Vui lòng nhập mật khẩu.',
             'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
             'password.min' => 'Mật khẩu phải có ít nhất :min ký tự.',
             'password.regex' => 'Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.',
         ]);
 
-        if($validator->fails()){
-            return response()->json(['errors'=>$validator->errors()],422);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
         $user->password = bcrypt($request->password);
         $user->save();
-        return response()->json(['message'=>'Đặt lại mật khẩu thành công']);
+        return response()->json(['message' => 'Đặt lại mật khẩu thành công']);
     }
 
 

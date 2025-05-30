@@ -2,7 +2,7 @@
   <div class="container py-4">
     <h3 class="text-center text-danger fw-bold mb-4">Thanh toán cho đơn hàng của bạn</h3>
     <div class="row">
-      <!-- Thông tin đơn hàng và thực đơn -->
+      <!-- Thông tin đơn hàng -->
       <div class="col-lg-8">
         <div class="section-title">Thông tin đơn hàng của bạn</div>
         <div class="row mb-3">
@@ -43,12 +43,9 @@
             <tr v-for="(detail, index) in info.details" :key="index">
               <td>{{ ++index }}</td>
               <td>
-                <img
-                  :src="getImageUrl(detail.image)"
-                  style="width: 50px; height: auto; margin-right: 10px"
-                />
+                <img :src="getImageUrl(detail.image)" style="width: 50px; height: auto; margin-right: 10px" />
                 {{ detail.food_name }} <br />
-                <div class="text-start" v-for="(topping, index) in detail.toppings" :key="index">
+                <div class="text-start" v-for="(topping, i) in detail.toppings" :key="i">
                   <small class="text-muted">
                     {{ topping.topping_name }} -
                     {{ topping.price ? formatNumber(topping.price) + ' VND' : '' }}
@@ -60,8 +57,8 @@
               <td>
                 {{
                   formatNumber(
-                    detail.price * detail.quantity +
-                      detail.toppings.reduce((sum, topping) => sum + parseFloat(topping.price), 0),
+                    (detail.price + detail.toppings.reduce((sum, t) => sum + parseFloat(t.price), 0)) *
+                    detail.quantity
                   )
                 }}
                 VNĐ
@@ -83,32 +80,31 @@
       <div class="col-lg-4">
         <div class="section-title">Thanh toán</div>
         <div class="card-payment">
-          <!-- Tạm tính -->
           <div class="d-flex justify-content-between mb-2">
             <span>Tạm tính</span>
             <span>{{ formatNumber(info.total_price) }} VNĐ</span>
           </div>
 
-
           <div class="d-flex justify-content-between mb-2">
             <span>Khuyến mãi</span>
             <span class="text-success">-{{ formatNumber(discountAmount) }} VNĐ</span>
           </div>
+
           <div class="input-group mb-2">
             <input
               type="text"
               class="form-control"
               placeholder="Nhập mã giảm giá"
               v-model="discountInput"
-              @keyup.enter="handleDiscountInput"
+              @keyup.enter="submitPriceUpdate"
             />
-            <button class="btn btn-outline-secondary" type="button" @click="handleDiscountInput">
+            <button class="btn btn-outline-secondary" type="button" @click="submitPriceUpdate">
               Áp dụng
             </button>
           </div>
+
           <div v-if="discounts.length" class="mb-3">
-            <small class="text-muted"
-              >Chọn mã giảm giá:
+            <small class="text-muted">Chọn mã giảm giá:
               <span
                 v-for="(code, index) in discounts"
                 :key="index"
@@ -118,16 +114,11 @@
                   'bg-light text-dark': selectedDiscount !== code.code,
                 }"
                 style="cursor: pointer; margin-right: 6px"
-                @click="applyDiscountCode(code.code)"
+                @click="submitUpdate(code.code, orderId)"
               >
                 {{ code.code }}
               </span>
-              <span
-                v-if="selectedDiscount"
-                class="badge bg-danger text-white"
-                style="cursor: pointer"
-                @click="selectedDiscount = ''"
-              >
+              <span v-if="selectedDiscount" class="badge bg-danger text-white" style="cursor: pointer" @click="selectedDiscount = ''">
                 Bỏ chọn
               </span>
             </small>
@@ -138,23 +129,26 @@
             <strong>Tổng cộng (VAT)</strong>
             <strong class="text-danger">{{ formatNumber(finalTotal) }} VNĐ</strong>
           </div>
+
           <div class="mb-3">
             <label class="form-label fw-bold">Phương thức thanh toán</label>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="pay1" checked />
-              <label class="form-check-label" for="pay1">Thanh toán tại nhà hàng</label>
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY" v-model="paymentMethod">
+              <label class="form-check-label d-flex align-items-center" for="vnpay">
+                <span class="me-2">Thanh toán qua VNPAY</span>
+                <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
+              </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="pay2" />
-              <label class="form-check-label" for="pay2">Thanh toán bằng VNPAY</label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="pay3" />
-              <label class="form-check-label" for="pay3">Thanh toán bằng MoMo</label>
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO" v-model="paymentMethod">
+              <label class="form-check-label d-flex align-items-center" for="momo">
+                <span class="me-2">Thanh toán qua Momo</span>
+                <img src="/img/momo.png" height="20" width="20" alt="" />
+              </label>
             </div>
           </div>
 
-          <button class="btn btn-danger">Thanh toán</button>
+          <button class="btn btn-danger w-100" @click="submitOrder">Thanh toán</button>
         </div>
       </div>
     </div>
@@ -162,28 +156,36 @@
 </template>
 
 <script>
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
+import { FoodList } from '@/stores/food'
+import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
-import { computed } from 'vue'
+import axios from 'axios'
+import { ref } from 'vue'
 
 export default {
   setup() {
     const { info, getInfo, formatNumber, getImageUrl, orderId } = Info.setup()
+    const { isLoading } = FoodList.setup()
+    const {
+      paymentMethod,
+      loadCart,
+      submitOrder
+    } = Payment.setup()
 
     const {
-      cartItems,
-      totalPrice,
-      totalPriceItem,
-      totalQuantity,
       discounts,
-      applyDiscountCode,
-      moreDiscounts,
-      showMoreDiscounts,
-      selectedDiscount,
       discountInput,
+      selectedDiscount,
+      discountId,
+      discountInputId,
+      applyDiscountCode,
       handleDiscountInput,
-    } = Discounts.setup()
+      cartItems
+      
+    } = Discounts()
+    
 
     const discountAmount = computed(() => {
       const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
@@ -200,33 +202,72 @@ export default {
     })
 
     const finalTotal = computed(() => {
-      return Math.max(totalPrice.value - discountAmount.value, 0)
+      return Math.max(info.value.total_price - discountAmount.value, 0)
     })
-    onMounted(() => {
-      getInfo('order', orderId)
+
+    const updateOrder = async (orderId) => {
+      try {
+        await axios.put(`http://127.0.0.1:8000/api/update/order/${orderId}`, {
+          discount_id: discountId.value || discountInputId.value,
+        })
+      } catch (error) {
+        console.error('Lỗi cập nhật Order:', error)
+      }
+    }
+
+    const updateReservationOrder = async (orderId) => {
+      try {
+        await axios.put(`http://127.0.0.1:8000/api/update/reservation-order/${orderId}`, {
+          total_price: finalTotal.value,
+        })
+      } catch (error) {
+        console.error('Lỗi cập nhật Reservation:', error)
+      }
+    }
+
+    const submitUpdate = async (code, orderId) => {
+      try {
+        applyDiscountCode(code)
+        await updateOrder(orderId)
+        await updateReservationOrder(orderId)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    const submitPriceUpdate = async () => {
+      try {
+        handleDiscountInput()
+        await updateOrder(orderId)
+        await updateReservationOrder(orderId)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    onMounted(async () => {
+      loadCart()
+      await getInfo('order', orderId)
     })
 
     return {
+      ref,
       info,
-      getInfo,
       formatNumber,
       getImageUrl,
       orderId,
-
-      cartItems,
-      totalPrice,
-      totalPriceItem,
-      totalQuantity,
       discounts,
-      applyDiscountCode,
-      moreDiscounts,
-      showMoreDiscounts,
-      selectedDiscount,
-      finalTotal,
-      discountAmount,
       discountInput,
-      handleDiscountInput,
+      selectedDiscount,
+      discountAmount,
+      finalTotal,
+      submitUpdate,
+      submitPriceUpdate,
+      paymentMethod,
+      submitOrder,
+      isLoading,
+      cartItems
     }
-  },
+  }
 }
 </script>

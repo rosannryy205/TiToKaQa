@@ -19,6 +19,7 @@ return new class extends Migration
             $table->timestamp('payment_time')->nullable();
             $table->enum('payment_type', ['Thanh toán tiền cọc', 'Thanh toán toàn bộ']);
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

@@ -12,7 +12,7 @@ const client = [
       {
         path: '/search',
         name: 'client-search',
-        component: () => import('../components/ThePageFood.vue'),
+        component: () => import('../pages/client/search/index.vue'),
       },
       {
         path: 'cart',
@@ -64,10 +64,15 @@ const client = [
         name: 'history-order-detail',
         component: () => import('../pages/client/user/history-order-detail.vue'),
       },
+      {
+        path: 'payment-result',
+        name: 'payment-result',
+        component: () => import('@/pages/client/cart/payment-result.vue')
+      },
       // router/index.js hoặc router.ts
       {
         path: '/google/callback',
-        component: () => import('../pages/client/user/GoogleCallback.vue'), 
+        component: () => import('../pages/client/user/GoogleCallback.vue'),
       },
       {
         path: '/test',
