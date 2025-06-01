@@ -93,7 +93,11 @@
             <span>Khuyến mãi</span>
             <span class="text-success">-{{ formatNumber(discountAmount) }} VNĐ</span>
           </div>
-
+                <!--thong bao chua login-->
+                <div v-if="!isLoggedIn" class="alert alert-warning">
+            🔒 Vui lòng <a href="/login" class="text-primary fw-bold">đăng nhập</a> để sử dụng và
+            xem các mã giảm giá!
+          </div>
           <div class="input-group mb-2">
             <input
               type="text"
@@ -289,7 +293,14 @@ export default {
       submitOrder,
       isLoading,
       cartItems,
+      isLoggedIn,
     }
   },
 }
 </script>
+<style>
+#app > div > div.container.py-4 > div > div.col-lg-4 > div.card-payment > div.discount-scroll-wrapper > div > div > div.voucher-right.text-end > div.voucher-status.text-success {
+  color: #28a745;
+  font-weight: bold;
+  border: solid #28a745 !important;
+}</style>c

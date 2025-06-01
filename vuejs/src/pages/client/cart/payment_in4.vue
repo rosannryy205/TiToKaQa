@@ -13,27 +13,52 @@
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
             <div class="mb-3">
-              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn">
+              <input
+                v-model="form.fullname"
+                type="text"
+                class="form-control-customer"
+                placeholder="Tên của bạn"
+              />
             </div>
             <div class="mb-3">
-              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn">
+              <input
+                v-model="form.email"
+                type="email"
+                class="form-control-customer"
+                placeholder="Email của bạn"
+              />
             </div>
             <div class="mb-3">
-              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại">
+              <input
+                v-model="form.phone"
+                type="text"
+                class="form-control-customer"
+                placeholder="Số điện thoại"
+              />
             </div>
 
             <div class="mb-3">
-              <select v-model="selectedProvince" @change="onProvinceChange" class="form-control-customer">
-                <option :value="null" disabled selected> Chọn tỉnh / thành phố</option>
-                <option v-for="province in provinces" :key="province.code" :value="province"> {{ province.name }}
+              <select
+                v-model="selectedProvince"
+                @change="onProvinceChange"
+                class="form-control-customer"
+              >
+                <option :value="null" disabled selected>Chọn tỉnh / thành phố</option>
+                <option v-for="province in provinces" :key="province.code" :value="province">
+                  {{ province.name }}
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <select v-model="selectedDistrict" @change="onDistrictChange" class="form-control-customer">
+              <select
+                v-model="selectedDistrict"
+                @change="onDistrictChange"
+                class="form-control-customer"
+              >
                 <option :value="null" disabled selected>Chọn quận / huyện</option>
-                <option v-for="district in districts" :key="district.code" :value="district">{{ district.name }}
+                <option v-for="district in districts" :key="district.code" :value="district">
+                  {{ district.name }}
                 </option>
               </select>
             </div>
@@ -41,15 +66,27 @@
             <div class="mb-3">
               <select v-model="selectedWard" class="form-control-customer">
                 <option :value="null" disabled selected>Chọn xã / phường</option>
-                <option v-for="ward in wards" :key="ward.code" :value="ward">{{ ward.name }}</option>
+                <option v-for="ward in wards" :key="ward.code" :value="ward">
+                  {{ ward.name }}
+                </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ">
+              <input
+                v-model="form.address"
+                type="text"
+                class="form-control-customer"
+                placeholder="Địa chỉ"
+              />
             </div>
             <div class="mb-3">
-              <textarea v-model="note" class="form-control-customer" rows="3" placeholder="Ghi chú"></textarea>
+              <textarea
+                v-model="note"
+                class="form-control-customer"
+                rows="3"
+                placeholder="Ghi chú"
+              ></textarea>
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <router-link to="/cart" class="btn btn-outline-secondary">
@@ -70,7 +107,13 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
+              <img
+                :src="getImageUrl(item.image)"
+                alt=""
+                class="me-3 rounded"
+                width="80"
+                height="80"
+              />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>Loại: {{ item.type }}</div>
@@ -100,38 +143,57 @@
           <div style="color: #c92c3c" class="d-flex justify-content-between mb-2 fw-bold">
             <span>Tổng thanh toán:</span>{{ formatNumber(finalTotal) }} VNĐ
           </div>
+          <!--thong bao chua login-->
+          <div v-if="!isLoggedIn" class="alert alert-warning">
+            🔒 Vui lòng <a href="/login" class="text-primary fw-bold">đăng nhập</a> để sử dụng và
+            xem các mã giảm giá!
+          </div>
 
-          <!-- Discount Code Input -->
-          <div class="mb-3">
+          <!--nhap-->
+          <div class="mb-3" v-if="isLoggedIn">
             <div v-if="selectedDiscount" class="text-green-600 mb-2">
               Mã <strong style="color: #c92c3c">{{ selectedDiscount }}</strong> đã được áp dụng ✅.
             </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input v-model="discountInput" type="text" id="discount" class="form-control"
-                placeholder="Nhập mã giảm giá..." />
+              <input
+                v-model="discountInput"
+                type="text"
+                id="discount"
+                class="form-control"
+                placeholder="Nhập mã giảm giá..."
+              />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
           </div>
 
-          <!---->
-          <div class="discount-scroll-wrapper">
+          <!--chon-->
+          <div class="discount-scroll-wrapper" v-if="isLoggedIn">
             <div v-for="discount in discounts" :key="discount.id">
-              <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
-                @click="applyDiscountCode(discount.code)">
+              <div
+                class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
+                @click="applyDiscountCode(discount.code)"
+              >
                 <div class="voucher-left d-flex align-items-center">
-                  <div class="voucher-logo d-flex flex-column align-items-center justify-content-center">
+                  <div
+                    class="voucher-logo d-flex flex-column align-items-center justify-content-center"
+                  >
                     <div class="logo-text">TITOKAQA</div>
                     <div class="logo-small">Mall</div>
                   </div>
                   <div class="voucher-info ps-3">
                     <div class="voucher-title">{{ discount.name }}</div>
                     <div class="voucher-title">Mã {{ discount.code }}</div>
-                    <div class="voucher-time"><i class="fa-regular fa-clock me-1"></i>Hiệu lực sau: 2 ngày</div>
+                    <div class="voucher-time">
+                      <i class="fa-regular fa-clock me-1"></i>Hiệu lực sau: 2 ngày
+                    </div>
                   </div>
                 </div>
                 <div class="voucher-right text-end">
-                  <div class="voucher-status" :class="{ 'text-success': selectedDiscount === discount.code }">
+                  <div
+                    class="voucher-status"
+                    :class="{ 'text-success': selectedDiscount === discount.code }"
+                  >
                     <span v-if="selectedDiscount === discount.code">Đã dùng ✅</span>
                     <span v-else>Dùng ngay</span>
                   </div>
@@ -140,28 +202,47 @@
               </div>
             </div>
           </div>
+
           <!-- Payment Methods -->
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY"
-                v-model="paymentMethod">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="vnpay"
+                value="Thanh toán VNPAY"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
                 <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO"
-                v-model="paymentMethod">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="momo"
+                value="Thanh toán MOMO"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
                 <img src="/img/momo.png" height="20" width="20" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="cod" value="Thanh toán COD"
-                v-model="paymentMethod">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="cod"
+                value="Thanh toán COD"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="cod">
                 <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
                 <img src="/img/cod.png" height="30" width="30" alt="" />
@@ -178,12 +259,11 @@
 import { FoodList } from '@/stores/food'
 // import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
 import numeral from 'numeral'
 import { ref } from 'vue'
 import axios from 'axios'
 import { User } from '@/stores/user'
-
 
 export default {
   methods: {
@@ -195,8 +275,6 @@ export default {
     },
   },
   setup() {
-
-
     const selectedProvince = ref(null)
     const selectedDistrict = ref(null)
     const selectedWard = ref(null)
@@ -204,11 +282,11 @@ export default {
     const provinces = ref([])
     const districts = ref([])
     const wards = ref([])
+
+    const user1 = ref(null)
+
     const note = ref('')
-    const {
-      user,
-      form
-    } = User.setup()
+    const { user, form } = User.setup()
 
     const {
       cartKey,
@@ -237,13 +315,7 @@ export default {
     //   localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
     // }
 
-
-
-
-
-
-
-
+    const isLoggedIn = computed(() => !!localStorage.getItem('token'))
 
     const getProvinces = async () => {
       try {
@@ -262,7 +334,9 @@ export default {
 
       if (selectedProvince.value) {
         try {
-          const res = await axios.get(`https://provinces.open-api.vn/api/p/${selectedProvince.value.code}?depth=2`)
+          const res = await axios.get(
+            `https://provinces.open-api.vn/api/p/${selectedProvince.value.code}?depth=2`,
+          )
           districts.value = res.data.districts
         } catch (error) {
           console.error('Lỗi khi lấy quận/huyện:', error)
@@ -275,7 +349,9 @@ export default {
 
       if (selectedDistrict.value) {
         try {
-          const res = await axios.get(`https://provinces.open-api.vn/api/d/${selectedDistrict.value.code}?depth=2`)
+          const res = await axios.get(
+            `https://provinces.open-api.vn/api/d/${selectedDistrict.value.code}?depth=2`,
+          )
           wards.value = res.data.wards
         } catch (error) {
           console.error('Lỗi khi lấy xã/phường:', error)
@@ -294,7 +370,7 @@ export default {
           alert('Vui lòng chọn phương thức thanh toán!')
           return
         }
-        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`;
+        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`
         const orderData = {
           user_id: user.value ? user.value.id : null,
           guest_name: form.value.fullname,
@@ -305,34 +381,37 @@ export default {
           total_price: finalTotal.value || 0,
           money_reduce: discountAmount.value,
           discount_id: discountId.value || null,
-          order_detail: cartItems.value.map(item => ({
+          order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
             combo_id: null,
             quantity: item.quantity,
             price: item.price,
             type: item.type,
-            toppings: item.toppings.map(t => ({
+            toppings: item.toppings.map((t) => ({
               food_toppings_id: t.food_toppings_id,
-              price: t.price
-            }))
-          }))
+              price: t.price,
+            })),
+          })),
         }
 
         const response = await axios.post('http://127.0.0.1:8000/api/order', orderData)
 
         if (response && response.data) {
-          const { status, order_id } = response.data;
+          const { status, order_id } = response.data
           if (!status || !order_id) {
-            alert('Đặt hàng thất bại!');
-            return;
+            alert('Đặt hàng thất bại!')
+            return
           }
-          localStorage.setItem('order_id', order_id);
+          localStorage.setItem('order_id', order_id)
         } else {
-          alert('Không nhận được dữ liệu từ server.');
-          return;
+          alert('Không nhận được dữ liệu từ server.')
+          return
         }
 
-        if (paymentMethod.value === 'Thanh toán VNPAY' || paymentMethod.value === 'Thanh toán MOMO') {
+        if (
+          paymentMethod.value === 'Thanh toán VNPAY' ||
+          paymentMethod.value === 'Thanh toán MOMO'
+        ) {
           const paymentRes = await axios.post('http://127.0.0.1:8000/api/payment', {
             order_id: localStorage.getItem('order_id'),
             amount: finalTotal.value,
@@ -347,23 +426,22 @@ export default {
           return
         }
         if (paymentMethod.value === 'Thanh toán COD') {
-          await new Promise(resolve => setTimeout(resolve, 300))
+          await new Promise((resolve) => setTimeout(resolve, 300))
           await axios.post('http://127.0.0.1:8000/api/vnpay-return', {
             order_id: localStorage.getItem('order_id'),
             amount_paid: finalTotal.value,
             payment_method: 'Thanh toán COD',
             payment_status: 'Chưa thanh toán',
-            payment_type: 'Thanh toán toàn bộ'
+            payment_type: 'Thanh toán toàn bộ',
           })
           alert('Đặt hàng thành công!')
           localStorage.setItem('payment_method', paymentMethod.value)
           // localStorage.removeItem(cartKey)
           // router.push('/payment-result')
         }
-
       } catch (error) {
-        console.error('Lỗi xảy ra:', error.message);
-        alert('Lỗi khi gửi đơn hàng. Vui lòng thử lại!');
+        console.error('Lỗi xảy ra:', error.message)
+        alert('Lỗi khi gửi đơn hàng. Vui lòng thử lại!')
       }
     }
 
@@ -419,12 +497,11 @@ export default {
       selectedWard,
       onDistrictChange,
       onProvinceChange,
+      isLoggedIn,
     }
-  }
+  },
 }
 </script>
-
-
 
 <style>
 .isLoading-overlay {
