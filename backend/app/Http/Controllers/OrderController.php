@@ -87,10 +87,10 @@ class OrderController extends Controller
                 'reserved_to' => $reserved_to,
             ]);
 
-            // $table = Table::find($request->table_id);
-            // $table->update([
-            //     'status' => 'Đã đặt trước',
-            // ]);
+            $table = Table::find($request->table_id);
+            $table->update([
+                'status' => 'Đã đặt trước',
+            ]);
 
             return response()->json([
                 'status' => true,
@@ -237,148 +237,6 @@ class OrderController extends Controller
             ], 422);
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //đặt bàn
-    // public function reservation(Request $request)
-    // {
-    //     try {
-    //         $data = $request->validate([
-    //             'user_id' => 'nullable|numeric',
-    //             'guest_name' => 'required|max:255',
-    //             'guest_phone' => 'digits:10',
-    //             'guest_email' => 'required|email',
-    //             'guest_count' => 'required|integer|min:2',
-    //             'reservations_time' => 'required|date',
-    //             'note' => 'nullable|string',
-    //             'deposit_amount' => 'nullable|numeric|min:0',
-    //             'expiration_time' => 'required|date',
-    //             'total_price' => 'required|numeric',
-    //             'order_details' => 'nullable|array',
-    //             'discount_id' => 'nullable|numeric',
-    //         ], [
-    //             'guest_name.required' => 'Vui lòng nhập họ tên.',
-    //             'guest_count.required' => 'Vui lòng nhập số lượng khách nhận bàn.',
-    //             'guest_count.min' => 'Số lượng khách nhận bàn phải từ 2 trở lên.',
-    //             'guest_email.required' => 'Vui lòng nhập email.',
-    //             'guest_email.email' => 'Email không đúng định dạng.',
-    //             'guest_phone.required' => 'Vui lòng nhập số điện thoại.',
-    //             'guest_phone.regex' => 'Số điện thoại không đúng định dạng.',
-    //             'guest_phone.digits' => 'Số điện thoại không đúng định dạng.',
-    //             'reservations_time.required' => 'Vui lòng nhập ngày nhận bàn.',
-    //         ]);
-
-    //         $order = Order::create([
-    //             'user_id' => $data['user_id'] ?? null,
-    //             'discount_id' => $data['discount_id'] ?? null,
-    //             'guest_name' => $data['guest_name'],
-    //             'guest_phone' => $data['guest_phone'],
-    //             'guest_email' => $data['guest_email'],
-    //             'guest_count' => $data['guest_count'],
-    //             'reservations_time' => $data['reservations_time'],
-    //             'note' => $data['note'] ?? null,
-    //             'deposit_amount' => $data['deposit_amount'] ?? 0,
-    //             'expiration_time' => $data['expiration_time'],
-    //             'total_price' => $data['total_price'],
-    //         ]);
-
-    //         if (!empty($data['order_details'])) {
-    //             foreach ($data['order_details'] as $item) {
-    //                 $orderDetail = Order_detail::create([
-    //                     'order_id' => $order->id,
-    //                     'food_id' => $item['food_id'] ?? null,
-    //                     'combo_id' => $item['combo_id'] ?? null,
-    //                     'quantity' => $item['quantity'],
-    //                     'price' => $item['price'],
-    //                     'type' => $item['type'],
-    //                 ]);
-
-    //                 if (!empty($item['toppings'])) {
-    //                     foreach ($item['toppings'] as $topping) {
-    //                         Order_topping::create([
-    //                             'order_detail_id' => $orderDetail->id,
-    //                             'food_toppings_id' => $topping['food_toppings_id'],
-    //                             'price' => $topping['price']
-    //                         ]);
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         $orderDetailsWithNames = [];
-    //         if (!empty($data['order_details'])) {
-    //             foreach ($data['order_details'] as $item) {
-    //                 $name = null;
-
-    //                 if ($item['type'] === 'food' && !empty($item['food_id'])) {
-    //                     $food = Food::find($item['food_id']);
-    //                     $name = $food?->name ?? 'Món ăn không tồn tại';
-    //                 }
-
-    //                 // lấy topping nếu có
-    //                 $toppingsWithNames = [];
-    //                 if (!empty($item['toppings'])) {
-    //                     foreach ($item['toppings'] as $topping) {
-    //                         $foodToppingModel = Food_topping::find($topping['food_toppings_id']);
-    //                         $toppingModel = $foodToppingModel?->toppings; // lấy từ quan hệ
-
-    //                         $toppingsWithNames[] = [
-    //                             'name' => $toppingModel?->name ?? 'Topping không tồn tại',
-    //                             'price' => $topping['price']
-    //                         ];
-    //                     }
-    //                 }
-    //                 $orderDetailsWithNames[] = [
-    //                     'name' => $name,
-    //                     'quantity' => $item['quantity'],
-    //                     'price' => $item['price'],
-    //                     'type' => $item['type'],
-    //                     'toppings' => $toppingsWithNames,
-    //                 ];
-    //             }
-    //         }
-
-    //         $mailData = [
-    //             'order_id' => $order->id,
-    //             'guest_name' => $data['guest_name'],
-    //             'guest_email' => $data['guest_email'],
-    //             'guest_phone' => $data['guest_phone'],
-    //             'guest_count' => $data['guest_count'],
-    //             'reservations_time' => $data['reservations_time'],
-    //             'total_price' => $data['total_price'],
-    //             'note' => $data['note'] ?? null,
-    //             'order_details' => $orderDetailsWithNames,
-    //         ];
-
-    //         // Gửi email xác nhận đặt bàn
-    //         // $emailTo = $mailData['guest_email'];
-    //         // Mail::to($emailTo)->send(new ReservationMail($mailData));
-
-    //         return response()->json([
-    //             'status' => true,
-    //             'message' => 'Đặt bàn thành công',
-    //             'order_id' => $order->id
-    //         ], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'errors' => $e->getMessage()
-    //         ], 422);
-    //     }
-    // }
-
 
 
     public function orderFoodForUser(Request $request)

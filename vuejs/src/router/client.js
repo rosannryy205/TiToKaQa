@@ -30,16 +30,6 @@ const client = [
         component: () => import('../pages/client/reservation/reservation.vue'),
       },
       {
-        path: 'datban',
-        name: 'datban',
-        component: () => import('../pages/client/reservation/datban.vue'),
-      },
-      {
-        path: 'datban2',
-        name: 'datban2',
-        component: () => import('../pages/client/reservation/datban2.vue'),
-      },
-      {
         path: 'reservation-form/:orderId',
         name: 'reservation-form',
         component: () => import('../pages/client/reservation/reservation-form.vue'),
