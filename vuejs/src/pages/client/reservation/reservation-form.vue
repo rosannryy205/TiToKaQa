@@ -43,7 +43,10 @@
             <tr v-for="(detail, index) in info.details" :key="index">
               <td>{{ ++index }}</td>
               <td>
-                <img :src="getImageUrl(detail.image)" style="width: 50px; height: auto; margin-right: 10px" />
+                <img
+                  :src="getImageUrl(detail.image)"
+                  style="width: 50px; height: auto; margin-right: 10px"
+                />
                 {{ detail.food_name }} <br />
                 <div class="text-start" v-for="(topping, i) in detail.toppings" :key="i">
                   <small class="text-muted">
@@ -57,8 +60,9 @@
               <td>
                 {{
                   formatNumber(
-                    (detail.price + detail.toppings.reduce((sum, t) => sum + parseFloat(t.price), 0)) *
-                    detail.quantity
+                    (detail.price +
+                      detail.toppings.reduce((sum, t) => sum + parseFloat(t.price), 0)) *
+                      detail.quantity,
                   )
                 }}
                 VNĐ
@@ -104,7 +108,8 @@
           </div>
 
           <div v-if="discounts.length" class="mb-3">
-            <small class="text-muted">Chọn mã giảm giá:
+            <small class="text-muted"
+              >Chọn mã giảm giá:
               <span
                 v-for="(code, index) in discounts"
                 :key="index"
@@ -118,7 +123,12 @@
               >
                 {{ code.code }}
               </span>
-              <span v-if="selectedDiscount" class="badge bg-danger text-white" style="cursor: pointer" @click="selectedDiscount = ''">
+              <span
+                v-if="selectedDiscount"
+                class="badge bg-danger text-white"
+                style="cursor: pointer"
+                @click="selectedDiscount = ''"
+              >
                 Bỏ chọn
               </span>
             </small>
@@ -133,14 +143,28 @@
           <div class="mb-3">
             <label class="form-label fw-bold">Phương thức thanh toán</label>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY" v-model="paymentMethod">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="vnpay"
+                value="Thanh toán VNPAY"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
                 <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO" v-model="paymentMethod">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="momo"
+                value="Thanh toán MOMO"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
                 <img src="/img/momo.png" height="20" width="20" alt="" />
@@ -166,7 +190,7 @@ import { ref } from 'vue'
 export default {
   setup() {
     const { info, getInfo, formatNumber, getImageUrl, orderId } = Info.setup()
-    const { isLoading } = FoodList.setup()    
+    const { isLoading } = FoodList.setup()
     const {
       discounts,
       discountInput,
@@ -177,32 +201,30 @@ export default {
       handleDiscountInput,
       cartItems,
       loadCart,
-      submitOrder
-      
+      submitOrder,
     } = Discounts()
-    
+
     const discountAmount = computed(() => {
-  const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
-  const total = parseFloat(info.value.total_price || 0)
+      const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
+      const total = parseFloat(info.value.total_price || 0)
 
-  if (!discount) return 0
+      if (!discount) return 0
 
-  if (discount.discount_method === 'percent') {
-    return (total * discount.discount_value) / 100
-  }
+      if (discount.discount_method === 'percent') {
+        return (total * discount.discount_value) / 100
+      }
 
-  if (discount.discount_method === 'fixed') {
-    return discount.discount_value
-  }
+      if (discount.discount_method === 'fixed') {
+        return discount.discount_value
+      }
 
-  return 0
-})
+      return 0
+    })
 
-const finalTotal = computed(() => {
-  const total = parseFloat(info.value.total_price || 0)
-  return Math.max(total - discountAmount.value, 0)
-})
-
+    const finalTotal = computed(() => {
+      const total = parseFloat(info.value.total_price || 0)
+      return Math.max(total - discountAmount.value, 0)
+    })
 
     const updateOrder = async (orderId) => {
       try {
@@ -227,7 +249,7 @@ const finalTotal = computed(() => {
 
     const submitUpdate = async (code, orderId) => {
       try {
-       await applyDiscountCode(code)
+        await applyDiscountCode(code)
         await updateOrder(orderId)
         await updateReservationOrder(orderId)
       } catch (error) {
@@ -266,8 +288,8 @@ const finalTotal = computed(() => {
       submitPriceUpdate,
       submitOrder,
       isLoading,
-      cartItems
+      cartItems,
     }
-  }
+  },
 }
 </script>

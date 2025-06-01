@@ -30,14 +30,9 @@ const client = [
         component: () => import('../pages/client/reservation/reservation.vue'),
       },
       {
-        path: 'datban',
-        name: 'datban',
-        component: () => import('../pages/client/reservation/datban.vue'),
-      },
-      {
-        path: 'datban2',
-        name: 'datban2',
-        component: () => import('../pages/client/reservation/datban2.vue'),
+        path: 'dbdemo/:orderId',
+        name: 'dbdemo',
+        component: () => import('../pages/client/reservation/from-db.vue'),
       },
       {
         path: 'reservation-form/:orderId',
@@ -57,6 +52,11 @@ const client = [
       {
         path: 'food',
         name: 'client-food',
+        component: () => import('../pages/client/food/index.vue'),
+      },
+      {
+        path: 'food/:orderId',
+        name: 'client-food-reservation',
         component: () => import('../pages/client/food/index.vue'),
       },
       {
