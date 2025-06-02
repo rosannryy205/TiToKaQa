@@ -375,7 +375,7 @@ export default {
         }
         const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`
         const orderData = {
-          user_id: user1.value ? user1.value.id : null,
+          user_id: user.value ? user.value.id : null,
           guest_name: form.value.fullname,
           guest_email: form.value.email,
           guest_phone: form.value.phone,
@@ -472,6 +472,7 @@ export default {
     onMounted(() => {
       getProvinces()
       loadCart()
+
     })
 
     return {

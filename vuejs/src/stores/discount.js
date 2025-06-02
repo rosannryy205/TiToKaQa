@@ -1,17 +1,20 @@
 import axios from 'axios'
 import { ref, onMounted, computed } from 'vue'
 // import numeral from 'numeral'
-// import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { watchEffect } from 'vue'
 import { toast } from 'vue3-toastify'
 // export const discountId = ref(null)
 export function Discounts()  {
-  
+
     // const router = useRouter()
     const cartItems = ref([])
     const user = JSON.parse(localStorage.getItem('user')) || {}
     const userId = user?.id || 'guest'
-    const cartKey = `cart_${userId}`
+    const route = useRoute()
+    const orderId = route.params.orderId
+    // const cartKey = `cart_${userId}`
+    // const cartKey1 = `cart_${userId}_reservation_${orderId}`
     const discounts = ref([])
     const discountInput = ref('')
     const selectedDiscount = ref('')
@@ -45,7 +48,7 @@ export function Discounts()  {
       selectedDiscount.value = code
       showMoreDiscounts.value = false
     }
-    
+
     const handleDiscountInput = () => {
       const code = discountInput.value.trim().toUpperCase()
       const discount = discounts.value.find((d) => d.code === code)
@@ -66,9 +69,16 @@ export function Discounts()  {
       toast.success(`✅ Mã ${code} đã được áp dụng!`)
     }
     const loadCart = () => {
+      const cartKey = orderId
+        ? `cart_${userId}_reservation_${orderId}`
+        : `cart_${userId}`
+
       const storedCart = localStorage.getItem(cartKey)
       cartItems.value = storedCart ? JSON.parse(storedCart) : []
+      console.log('ggggg' + orderId);
+
     }
+
 
     const totalPrice = computed(() => {
       return cartItems.value.reduce((sum, item) => {
@@ -100,7 +110,7 @@ export function Discounts()  {
     const finalTotal = computed(() => {
       return Math.max(totalPrice.value - discountAmount.value, 0)
     })
-  
+
 
 
 
@@ -120,11 +130,12 @@ export function Discounts()  {
     // ⚠️ Load giỏ hàng trước khi lấy mã giảm giá để tránh lỗi tính toán
     onMounted(() => {
       loadCart()
+      console.log(cartItems.value);
+
       getAllDiscount()
     })
 
     return {
-      cartKey,
       cartItems,
       discounts,
       discountInput,

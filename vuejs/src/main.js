@@ -23,6 +23,7 @@ import "vue-select/dist/vue-select.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'vue3-toastify/dist/index.css';
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 import './assets/style.css'; // Import CSS toàn cục
 import './assets/cart.css'; // Import CSS toàn cục
