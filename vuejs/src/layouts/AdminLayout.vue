@@ -17,27 +17,27 @@
       </a-layout>
     </a-layout>
   </template>
-  
+
   <script setup>
   import { ref, watch, computed } from 'vue';
   import { useRoute } from 'vue-router';
   import AppSidebar from '../components/AppSidebar.vue';
   import AppHeader from '../components/AppHeader.vue';
   import AppFooter from '../components/AppFooter.vue';
-  
+
   const collapsed = ref(false);
-  
+
   const toggleCollapse = () => {
     collapsed.value = !collapsed.value;
   };
-  
+
   // Breadcrumb logic
   const route = useRoute();
   const breadcrumbItems = computed(() => {
     const matchedRoutes = route.matched;
     let path = '';
     const crumbs = [{ name: 'Admin', path: '/admin/dashboard' }]; // Trang chủ admin
-  
+
     matchedRoutes.forEach(r => {
       if (r.meta && r.meta.breadcrumb) {
         // Nếu route có meta.breadcrumb là một function, gọi nó
@@ -63,9 +63,9 @@
       ))
     );
   });
-  
+
   </script>
-  
+
   <style scoped>
   /* CSS riêng cho AdminLayout nếu cần */
   .ant-layout-content > div {

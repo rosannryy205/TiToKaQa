@@ -27,6 +27,7 @@ import 'sweetalert2/dist/sweetalert2.min.css'
 
 import './assets/style.css'; // Import CSS toàn cục
 import './assets/cart.css'; // Import CSS toàn cục
+import './assets/base.css'
 
 
 
