@@ -106,7 +106,7 @@ Route::put('/update/{id}/status',[CartController::class,'update_status']);
 
 //discount
 Route::get('/discounts',[DiscountController::class,'getAllDiscounts']);
-
+Route::post('/discounts/use', [DiscountController::class,'used']);
 
 //gg
 Route::get('/auth/{provider}/redirect', ProviderRedirectController::class)->name('auth.redirect');

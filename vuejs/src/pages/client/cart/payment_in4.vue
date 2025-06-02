@@ -169,10 +169,18 @@
 
           <!--chon-->
           <div class="discount-scroll-wrapper" v-if="isLoggedIn">
-            <div v-for="discount in discounts" :key="discount.id">
+            <div v-for="discount in discountsFiltered " :key="discount.id">
               <div
                 class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
-                @click="applyDiscountCode(discount.code)"
+                :class="{
+                  'disabled-voucher':
+                    totalPrice < discount.min_order_value || discount.used >= discount.usage_limit,
+                }"
+                @click="
+                  totalPrice >= discount.min_order_value &&
+                  discount.used < discount.usage_limit &&
+                  applyDiscountCode(discount.code)
+                "
               >
                 <div class="voucher-left d-flex align-items-center">
                   <div
@@ -185,7 +193,10 @@
                     <div class="voucher-title">{{ discount.name }}</div>
                     <div class="voucher-title">Mã {{ discount.code }}</div>
                     <div class="voucher-time">
-                      <i class="fa-regular fa-clock me-1"></i>Hiệu lực sau: 2 ngày
+                      <i class="fa-regular fa-clock me-1"></i>Ngày hết hạn: {{ discount.end_date }}
+                    </div>
+                    <div v-if="totalPrice < discount.min_order_value" class="text-danger small">
+                      Đơn tối thiểu: {{ discount.min_order_value.toLocaleString() }}đ
                     </div>
                   </div>
                 </div>
@@ -310,11 +321,6 @@ export default {
 
     const { isLoading } = FoodList.setup()
 
-    // const updateCartStorage = () => {
-    //   const cartKey = getCartKey()
-    //   localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
-    // }
-
     const isLoggedIn = computed(() => !!localStorage.getItem('token'))
 
     const getProvinces = async () => {
@@ -358,9 +364,6 @@ export default {
         }
       }
     }
-    // const finalTotal = computed(() => {
-    //   return Math.max(totalPrice.value - discountAmount.value, 0)
-    // })
 
     const paymentMethod = ref('')
 
@@ -395,7 +398,11 @@ export default {
         }
 
         const response = await axios.post('http://127.0.0.1:8000/api/order', orderData)
-
+        if (orderData.discount_id) {
+          await axios.post('http://localhost:8000/api/discounts/use', {
+            discount_id: orderData.discount_id,
+          })
+        }
         if (response && response.data) {
           const { status, order_id } = response.data
           if (!status || !order_id) {
@@ -458,6 +465,10 @@ export default {
       }
     }
 
+    const discountsFiltered = computed(() => {
+      return discounts.value.filter((discount) => discount.used < discount.usage_limit)
+    })
+    console.log(discountsFiltered.value)
     onMounted(() => {
       getProvinces()
       loadCart()
@@ -469,7 +480,6 @@ export default {
       totalQuantity,
       check_out,
       form,
-      // handleSubmit,
       submitOrder,
       isLoading,
       paymentMethod,
@@ -497,6 +507,7 @@ export default {
       onDistrictChange,
       onProvinceChange,
       isLoggedIn,
+      discountsFiltered
     }
   },
 }
@@ -520,5 +531,12 @@ export default {
   color: #28a745;
   font-weight: bold;
   border: solid #28a745 !important;
+}
+
+.disabled-voucher {
+  pointer-events: none;
+  background-color: #f0f0f0;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

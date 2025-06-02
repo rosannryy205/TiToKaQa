@@ -10,6 +10,8 @@ import {
 } from 'ant-design-vue'
 import App from './App.vue'
 import vSelect from "vue-select"
+import Antd from 'ant-design-vue';
+import 'ant-design-vue/dist/reset.css';
 
 // CSS import
 import 'ant-design-vue/dist/reset.css'
@@ -39,6 +41,7 @@ app.use(Button)
 app.use(Drawer)
 app.use(List)
 app.use(Menu)
+app.use(Antd);
 
 app.config.globalProperties.$message = message
 

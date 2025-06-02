@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 // import numeral from 'numeral'
 // import { useRouter } from 'vue-router'
 import { watchEffect } from 'vue'
-
+import { toast } from 'vue3-toastify'
 // export const discountId = ref(null)
 export function Discounts()  {
   
@@ -49,15 +49,22 @@ export function Discounts()  {
     const handleDiscountInput = () => {
       const code = discountInput.value.trim().toUpperCase()
       const discount = discounts.value.find((d) => d.code === code)
-      if (discount) {
-        discountInputId.value = discount.id
-        applyDiscountCode(code)
-        discountInput.value = ''
-      } else {
-        alert('Mã giảm giá không hợp lệ')
+      if (!discount) {    
+        toast.error('❌ Mã giảm giá không hợp lệ')
+        return
       }
+      if (totalPrice.value < discount.min_order_value) {
+        toast.warning(
+          `⚠️ Đơn hàng cần tối thiểu ${discount.min_order_value.toLocaleString()}đ để dùng mã ${code}`
+        )
+        return
+      }
+    
+      discountInputId.value = discount.id
+      applyDiscountCode(code)
+      discountInput.value = ''
+      toast.success(`✅ Mã ${code} đã được áp dụng!`)
     }
-
     const loadCart = () => {
       const storedCart = localStorage.getItem(cartKey)
       cartItems.value = storedCart ? JSON.parse(storedCart) : []
@@ -77,14 +84,17 @@ export function Discounts()  {
       if (!discount) return 0;
 
       const value = parseFloat(discount.discount_value) 
+      const max = parseFloat(discount.max_discount_amount || Infinity)
+      let amount = 0
+
       if (discount.discount_method === 'percent') {
-        return (totalPrice.value * value) / 100
+        amount = (totalPrice.value * value) / 100
       }
       if (discount.discount_method === 'fixed') {
-        return value
+        amount = value
       }
 
-      return 0
+      return Math.min(amount, max)
     })
 
     const finalTotal = computed(() => {

@@ -31,7 +31,7 @@
       <!--small-->
       <div class="col-12 d-lg-none position-relative">
         <div
-          class="menu-header d-flex justify-content-between align-items-center"
+          class="menu-header d-flex justify-content-between align-items-center mt-3"
           @click="toggleDropdown"
         >
           <h2 class="menu-title">Thực đơn</h2>
@@ -514,6 +514,7 @@ export default {
 }
 
 .menu-link {
+  color: #c92c3c;
   font-weight: bold;
   font-size: 20px;
   text-decoration: none;
@@ -523,10 +524,6 @@ export default {
     transform 0.3s ease;
 }
 
-.menu-link:hover {
-  color: #c92c3c;
-  transform: scale(1.05);
-}
 
 .submenu {
   position: absolute;
@@ -555,6 +552,7 @@ export default {
 }
 
 .submenu-link {
+  color: #c92c3c;
   display: block;
   padding: 0.5rem 1rem;
   text-decoration: none;
@@ -567,10 +565,7 @@ export default {
 }
 
 .submenu-link:hover {
-  background-color: #f8f9fa;
-  color: #c92c3c;
-  transform: scale(1.05);
-  font-weight: 500;
+  background-color: #d5d5d565;
 }
 
 
