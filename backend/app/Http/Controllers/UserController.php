@@ -80,7 +80,7 @@ class UserController extends Controller
         $token = $user->createToken('auth')->plainTextToken;
 
         // Gửi mail chào mừng
-        Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
+        // Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
 
         return response()->json([
             'message' => 'Đăng ký thành công!',

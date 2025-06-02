@@ -237,6 +237,7 @@ import axios from 'axios'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
+import { useRoute } from 'vue-router'
 
 export default {
   name: 'HomePage',
@@ -260,6 +261,10 @@ export default {
     const toppingList = ref({})
 
     const quantity = ref(1);
+
+    const route = useRoute()
+    const orderId = route.params.orderId
+
 
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
@@ -414,7 +419,10 @@ export default {
     const addToCart = () => {
       const user = JSON.parse(localStorage.getItem('user'))
       const userId = user?.id || 'guest'
-      const cartKey = `cart_${userId}`
+      const cartKey = orderId
+        ? `cart_${userId}_reservation_${orderId}`
+        : `cart_${userId}`
+
 
       const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
       const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
@@ -463,6 +471,8 @@ export default {
       alert('Đã thêm vào giỏ hàng!')
     }
 
+
+
     onMounted(async () => {
       await getCategory()
       await getFood()
@@ -495,7 +505,8 @@ export default {
       changeSlide,
       increaseQuantity,
       decreaseQuantity,
-      quantity
+      quantity,
+      orderId
     }
   },
 }

@@ -5,13 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Order_detail;
 use App\Models\Order_topping;
-use App\Models\User as ModelsUser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\Info_order;
-use App\Mail\ReservationMail;
 use App\Models\Food;
 use App\Models\Food_topping;
 use App\Models\Reservation_table;
@@ -23,55 +18,148 @@ Carbon::setLocale('vi');
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
-    //đặt bàn
+
+    //tìm bàn
+    public function getAvailableTables(Request $request)
+    {
+        $from = $request->input('reserved_from');
+        $to = $request->input('reserved_to');
+        $numberOfGuests = $request->input('number_of_guests');
+
+        $conflictingTableIds = Reservation_table::where(function ($query) use ($from, $to) {
+            $query->where(function ($q) use ($from, $to) {
+                $q->where('reserved_from', '<', $to)
+                    ->where('reserved_to', '>', $from)
+                    ->whereNotIn('reservation_status', ['Đã Hủy', 'Hoàn Thành']);
+            });
+        })->pluck('table_id')->toArray();
+
+        // lấy tất cả bàn phù hợp có capacity >= số khách và không bị trùng
+        $availableTables = Table::whereNotIn('id', $conflictingTableIds)
+            ->where('capacity', '>=', $numberOfGuests)
+            ->orderBy('capacity', 'asc')
+            ->get();
+
+        if ($availableTables->isEmpty()) {
+            return response()->json([
+                'status' => true,
+                'tables' => []
+            ]);
+        }
+
+        // lấy sức chứa nhỏ nhất phù hợp
+        $minCapacity = $availableTables->first()->capacity;
+
+        // chỉ lấy các bàn có cùng capacity nhỏ nhất
+        $priorityTables = $availableTables->filter(function ($table) use ($minCapacity) {
+            return $table->capacity == $minCapacity;
+        })->values();
+
+        return response()->json([
+            'status' => true,
+            'tables' => $priorityTables
+        ]);
+    }
+
+
+    public function chooseTable(Request $request)
+    {
+        try {
+            $orderTime = Carbon::now();
+
+            $order = Order::create([
+                'user_id' => $request->user_id ?? null,
+                'guest_count' => $request->guest_count,
+                'order_time' => $orderTime,
+                'expiration_time' => $orderTime->copy()->addMinutes(5),
+            ]);
+
+            $reserved_from = $request->reserved_from;
+            $reserved_to = date('Y-m-d H:i:s', strtotime($reserved_from . ' +2 hours'));
+
+            Reservation_table::create([
+                'order_id' => $order->id,
+                'table_id' => $request->table_id,
+                'reserved_from' => $reserved_from,
+                'reserved_to' => $reserved_to,
+            ]);
+
+            $table = Table::find($request->table_id);
+            $table->update([
+                'status' => 'Đã đặt trước',
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Đã giữ bàn thành công.',
+                'order_id' => $order->id
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->getMessage()
+            ], 422);
+        }
+    }
+
+
+
+
+    // đặt bàn
     public function reservation(Request $request)
     {
         try {
             $data = $request->validate([
                 'user_id' => 'nullable|numeric',
                 'guest_name' => 'required|max:255',
-                'guest_phone' => 'digits:10',
+                'guest_phone' => 'required|digits:10',
                 'guest_email' => 'required|email',
-                'guest_count' => 'required|integer|min:2',
-                'reservations_time' => 'required|date',
                 'note' => 'nullable|string',
                 'deposit_amount' => 'nullable|numeric|min:0',
-                'expiration_time' => 'required|date',
                 'total_price' => 'required|numeric',
-                'order_details' => 'nullable|array',
+                'order_detail' => 'nullable|array',
                 'discount_id' => 'nullable|numeric',
+                'money_reduce' => 'nullable|numeric|min:0',
             ], [
                 'guest_name.required' => 'Vui lòng nhập họ tên.',
-                'guest_count.required' => 'Vui lòng nhập số lượng khách nhận bàn.',
-                'guest_count.min' => 'Số lượng khách nhận bàn phải từ 2 trở lên.',
                 'guest_email.required' => 'Vui lòng nhập email.',
                 'guest_email.email' => 'Email không đúng định dạng.',
                 'guest_phone.required' => 'Vui lòng nhập số điện thoại.',
-                'guest_phone.regex' => 'Số điện thoại không đúng định dạng.',
                 'guest_phone.digits' => 'Số điện thoại không đúng định dạng.',
-                'reservations_time.required' => 'Vui lòng nhập ngày nhận bàn.',
             ]);
 
-            $order = Order::create([
-                'user_id' => $data['user_id'] ?? null,
+            $order = Order::find($request->id);
+
+            if (!$order) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Đơn hàng không tồn tại.'
+                ], 404);
+            }
+
+            if (now()->gt($order->expiration_time)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Đơn hàng đã hết thời gian giữ bàn. Vui lòng đặt lại.'
+                ], 410);
+            }
+
+            $order->update([
                 'discount_id' => $data['discount_id'] ?? null,
                 'guest_name' => $data['guest_name'],
                 'guest_phone' => $data['guest_phone'],
                 'guest_email' => $data['guest_email'],
-                'guest_count' => $data['guest_count'],
-                'reservations_time' => $data['reservations_time'],
                 'note' => $data['note'] ?? null,
-                'deposit_amount' => $data['deposit_amount'] ?? 0,
-                'expiration_time' => $data['expiration_time'],
+                'deposit_amount' => $data['deposit_amount'] ?? null,
                 'total_price' => $data['total_price'],
+                'money_reduce' => $data['money_reduce'] ?? null
             ]);
 
-            if (!empty($data['order_details'])) {
-                foreach ($data['order_details'] as $item) {
+            if (!empty($data['order_detail'])) {
+                foreach ($data['order_detail'] as $item) {
                     $orderDetail = Order_detail::create([
                         'order_id' => $order->id,
                         'food_id' => $item['food_id'] ?? null,
@@ -94,21 +182,19 @@ class OrderController extends Controller
             }
 
             $orderDetailsWithNames = [];
-            if (!empty($data['order_details'])) {
-                foreach ($data['order_details'] as $item) {
+            if (!empty($data['order_detail'])) {
+                foreach ($data['order_detail'] as $item) {
                     $name = null;
-
                     if ($item['type'] === 'food' && !empty($item['food_id'])) {
                         $food = Food::find($item['food_id']);
                         $name = $food?->name ?? 'Món ăn không tồn tại';
                     }
 
-                    // lấy topping nếu có
                     $toppingsWithNames = [];
                     if (!empty($item['toppings'])) {
                         foreach ($item['toppings'] as $topping) {
                             $foodToppingModel = Food_topping::find($topping['food_toppings_id']);
-                            $toppingModel = $foodToppingModel?->toppings; // lấy từ quan hệ
+                            $toppingModel = $foodToppingModel?->toppings;
 
                             $toppingsWithNames[] = [
                                 'name' => $toppingModel?->name ?? 'Topping không tồn tại',
@@ -116,6 +202,7 @@ class OrderController extends Controller
                             ];
                         }
                     }
+
                     $orderDetailsWithNames[] = [
                         'name' => $name,
                         'quantity' => $item['quantity'],
@@ -131,51 +218,27 @@ class OrderController extends Controller
                 'guest_name' => $data['guest_name'],
                 'guest_email' => $data['guest_email'],
                 'guest_phone' => $data['guest_phone'],
-                'guest_count' => $data['guest_count'],
-                'reservations_time' => $data['reservations_time'],
                 'total_price' => $data['total_price'],
                 'note' => $data['note'] ?? null,
-                'order_details' => $orderDetailsWithNames,
+                'order_detail' => $orderDetailsWithNames,
             ];
 
-            // Gửi email xác nhận đặt bàn
-            // $emailTo = $mailData['guest_email'];
-            // Mail::to($emailTo)->send(new ReservationMail($mailData));
+            // Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
 
             return response()->json([
                 'status' => true,
-                'message' => 'Đặt bàn thành công',
+                'message' => 'Đặt bàn thành công.',
                 'order_id' => $order->id
             ], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'status' => false,
                 'errors' => $e->getMessage()
             ], 422);
         }
     }
-    public function reservationUpdatePrice(Request $request)
-    {
-        try {
-            $data = $request->validate([
-                'total_price' => 'required|numeric',
-                'money_reduce' => 'required|numeric',
-            ]);
 
-            $order = Order::find($request->id);
-            $order->update([
-                'total_price' => $data['total_price'],
-                'money_reduce' => $data['money_reduce'],
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'status' => false,
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
-        }
-    }
+
     public function orderFoodForUser(Request $request)
     {
         try {
@@ -210,7 +273,6 @@ class OrderController extends Controller
                             'order_detail_id' => $orderDetail->id,
                             'price' => $toppingId['price'], // hoặc $foodTopping->price nếu bạn luôn lấy từ DB
                         ]);
-
                     }
                 }
             }
@@ -226,22 +288,7 @@ class OrderController extends Controller
         }
     }
 
-    public function reservationUpdate(Request $request)
-    {
-        try {
-            $order = Order::find($request->id);
-            $data = $request->validate([
-                'discount_id' => 'nullable|numeric',
-            ]);
 
-            $order->update([
-                'discount_id' => $data['discount_id'] ?? null,
-            ]);
-            return response()->json(['order' => $order]);
-        } catch (\Exception $e) {
-            return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
-        }
-    }
     public function getInfoReservation(Request $request)
     {
         $value = $request->query('value');
@@ -291,9 +338,9 @@ class OrderController extends Controller
             return [
                 'table_id' => $table->id,
                 'table_number' => $table->table_number,
-                'assigned_time' => $table->pivot->assigned_time,
                 'reserved_from' => $table->pivot->reserved_from,
                 'reserved_to' => $table->pivot->reserved_to,
+                'reservation_status' => $table->pivot->reservation_status,
             ];
         });
 
@@ -322,7 +369,6 @@ class OrderController extends Controller
                 'check_in_time' => $reservation->check_in_time,
                 'reservations_time' => $reservation->reservations_time,
                 'expiration_time' => $reservation->expiration_time,
-                'reservation_status' => $reservation->reservation_status,
                 'details' => $details,
                 'tables' => $tables,
             ]
@@ -347,16 +393,23 @@ class OrderController extends Controller
     public function cancelOrder(Request $request)
     {
         $order = Order::find($request->id);
+        $reserves = Reservation_table::where('order_id', $request->id)->get();
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
+
         $order->order_status = 'Đã hủy';
-        $order->reservation_status = 'Đã hủy';
         $order->save();
+
+        foreach ($reserves as $reserve) {
+            $reserve->reservation_status = 'Đã hủy';
+            $reserve->save();
+        }
 
         return response()->json(['message' => 'Đơn hàng đã được hủy thành công.']);
     }
+
 
     public function updateAddressForOrder(Request $request, $id)
     {
@@ -388,37 +441,10 @@ class OrderController extends Controller
         return $tables;
     }
 
-    public function getAvailableTables(Request $request)
-    {
-        $from = $request->input('reserved_from');
-        $to = $request->input('reserved_to');
-
-        $freeTables = Table::where('status', 'Bàn trống')->get();
-
-        $conflictingTableIds = Reservation_table::where(function ($query) use ($from, $to) {
-            $query->where(function ($q) use ($from, $to) {
-                $q->where('reserved_from', '<', $to)
-                    ->where('reserved_to', '>', $from);
-            });
-        })->pluck('table_id')->toArray();
-
-        $nonConflictingTables = Table::whereNotIn('id', $conflictingTableIds)
-            ->where('status', '!=', 'Bàn trống')
-            ->get();
-
-        $availableTables = $freeTables->merge($nonConflictingTables);
-
-        return response()->json([
-            'status' => true,
-            'tables' => $availableTables
-        ]);
-    }
-
-
-
     public function getOrderOfTable()
     {
-        $orders = Order::with('tables')->get();
+        $orders = Order::with(['tables'])->get();
+
 
         $orderWithTables = $orders->map(function ($order) {
             return [
@@ -432,9 +458,9 @@ class OrderController extends Controller
                 'guest_address' => $order->guest_address,
                 'guest_count' => $order->guest_count,
                 'comment' => $order->comment,
-                'reservation_status' => $order->reservation_status,
                 'reservations_time' => $order->reservations_time,
                 'check_in_time' => $order->check_in_time,
+                'reservation_status' => $order->tables->first()->pivot->reservation_status,
                 'table_numbers' => $order->tables->pluck('table_number')->toArray(),
             ];
         });
@@ -455,7 +481,6 @@ class OrderController extends Controller
                 'order_id' => 'required|numeric',
                 'table_ids' => 'required|array',
                 'table_ids.*' => 'numeric',
-                'assigned_time' => 'required|date',
                 'reserved_from' => 'required|date',
                 'reserved_to' => 'nullable|date',
             ], [
@@ -479,7 +504,6 @@ class OrderController extends Controller
                 $reservation = Reservation_table::create([
                     'order_id' => $data['order_id'],
                     'table_id' => $table_id,
-                    'assigned_time' => $data['assigned_time'] ?? null,
                     'reserved_from' => $data['reserved_from'],
                     'reserved_to' => $data['reserved_to'],
                 ]);
@@ -526,22 +550,23 @@ class OrderController extends Controller
     }
     public function updateStatus(Request $request)
     {
+        $reservation = Reservation_table::find($request->id);
         $order = Order::find($request->id);
 
-        if (!$order) {
-            return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
+        if (!$reservation) {
+            return response()->json(['message' => 'Không tìm thấy đơn đặt bàn.'], 404);
         }
-        $order->reservation_status = $request->reservation_status;
+        $reservation->reservation_status = $request->reservation_status;
         if ($request->reservation_status === 'Khách Đã Đến') {
             $order->check_in_time = Carbon::now();
         }
-        if (in_array($request->reservation_status, ['Đã hủy', 'Hoàn Thành'])) {
+        if (in_array($request->reservation_status, ['Đã Hủy', 'Hoàn Thành'])) {
             foreach ($order->tables as $table) {
                 $table->status = 'Bàn trống';
                 $table->save();
             }
         }
-        $order->save();
+        $reservation->save();
         return response()->json(['message' => 'Đơn hàng đã được cập nhật thành công.']);
     }
 
@@ -550,7 +575,6 @@ class OrderController extends Controller
     public function autoCancelOrders()
     {
         $now = now();
-
         $orders = Order::whereNull('check_in_time')
             ->where('expiration_time', '<', $now)
             ->where('reservation_status', '!=', 'Đã huỷ')
@@ -618,6 +642,23 @@ class OrderController extends Controller
                 'status' => false,
                 'error' => 'Lỗi khi tạo hóa đơn: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function reservationUpdate(Request $request)
+    {
+        try {
+            $order = Order::find($request->id);
+            $data = $request->validate([
+                'discount_id' => 'nullable|numeric',
+            ]);
+
+            $order->update([
+                'discount_id' => $data['discount_id'] ?? null,
+            ]);
+            return response()->json(['order' => $order]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
         }
     }
 

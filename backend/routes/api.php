@@ -44,6 +44,7 @@ Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']
 //reservation
 Route::post('/reservation', [OrderController::class, 'reservation']);
 Route::get('/order-reservation-info', [OrderController::class, 'getInfoReservation']);
+Route::post('/choose-table', [OrderController::class, 'chooseTable']);
 //reservation - tables - admin
 Route::get('/tables', [OrderController::class, 'getTables']);
 Route::get('/order-tables', [OrderController::class, 'getOrderOfTable']);
@@ -54,14 +55,13 @@ Route::post('/reservation-update-status', [OrderController::class, 'updateStatus
 Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
 Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
 
-Route::post('/order-for-user', [OrderController::class, 'orderFoodForUser']);
 
 Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
 Route::post('/order-for-user', [OrderController::class, 'orderFoodForUser']);
 
 //history
 Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);
-Route::put('/order-history-info/cancle/{id}', [OrderController::class, 'cancelOrder']);
+Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
 
 // Route::resource('user', UserController::class);

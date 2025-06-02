@@ -31,9 +31,8 @@ return new class extends Migration
             $table->string('note')->nullable();
             $table->decimal('deposit_amount', 10, 2)->nullable();
             $table->timestamp('check_in_time')->nullable();
-            $table->timestamp('reservations_time')->nullable();
             $table->timestamp('expiration_time')->nullable();
-            $table->enum('reservation_status', ['Chờ Xác Nhận', 'Đã xếp bàn', 'Khách Đã Đến', 'Hoàn Thành', 'Đã hủy'])->default('Chờ Xác Nhận');
+            // $table->enum('reservation_status', ['Chờ Xác Nhận', 'Đã xếp bàn', 'Khách Đã Đến', 'Hoàn Thành', 'Đã hủy'])->default('Chờ Xác Nhận');
         });
     }
 
