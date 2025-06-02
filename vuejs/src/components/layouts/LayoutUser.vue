@@ -5,8 +5,8 @@
     </div>
   </template>
   <script>
-import TheHeader from '@/components/TheHeader.vue';
-import TheFooter from '@/components/TheFooter.vue';
+import TheHeader from './Header.vue';
+import TheFooter from './Footer.vue';
   export default {
     components: {
         TheHeader,
@@ -14,5 +14,4 @@ import TheFooter from '@/components/TheFooter.vue';
     },
   }
   </script>
-  
-  
+
