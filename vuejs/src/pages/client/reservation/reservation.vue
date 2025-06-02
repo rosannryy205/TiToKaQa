@@ -179,7 +179,7 @@ export default {
 
         const orderId = res.data.order_id
         router.push({
-          name: 'reservation',
+          name: 'reservation-form',
           params: { orderId },
         })
       } catch (error) {
