@@ -79,10 +79,6 @@ const client = [
         path: '/login/google/callback',
         component: () => import('../pages/client/user/GoogleCallback.vue'),
       },
-      // {
-      //   path: '/detailfood',
-      //   component: () => import('../pages/client/food/detailfood.vue'),
-      // },
       {
         path: '/login',
         component: () => import('../pages/client/login/login.vue'),

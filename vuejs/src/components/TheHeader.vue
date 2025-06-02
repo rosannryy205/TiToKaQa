@@ -1,139 +1,123 @@
 <template>
   <!-- top header-->
   <div class="header position-sticky top-0 bg-white bg-opacity-90 shadow-sm z-3">
-    <div class="container">
-      <div class="navbar-top">
-        <nav class="navbar navbar-expand-lg navbar-bottom">
-          <div class="container d-flex justify-content-between align-items-center">
-            <!---->
-            <div class="d-flex align-items-center">
-              <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#offcanvasMenu">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="logo-container ">
-                <a href="/home"><img src="/img/logonew.png" alt="Logo" class="logo" width="80px"></a>
-
-              </div>
-            </div>
-
-            <div class="d-flex align-items-center">
-              <!-- Search -->
-              <!-- Hiển thị kết quả tìm kiếm -->
-              <form @submit.prevent="searchProduct">
-                <div class="input-wrapper me-3 d-none d-lg-block position-relative " ref="wrapperRef">
-                  <button class="icon" type="submit">
-                    <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-                        stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                      <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
-                        stroke-linejoin="round"></path>
-                    </svg>
-                  </button>
-                  <input v-model="searchQuery" type="text" class="input" placeholder="search..." @input="handleInput"
-                    @focus="() => { handleInput(); showSuggestions = true; }" @keydown.enter="searchProduct" />
-
-                  <!-- Dropdown gợi ý -->
-                  <ul v-if="suggestions.length && showSuggestions" class="suggestion-dropdown"
-                    @scroll.passive="handleScroll">
-                    <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
-                      {{ item.name }}
-                    </li>
-
-                    <li v-if="loading" class="loading"><span v-if="loading"
-                        class="spinner-border spinner-border-sm me-2"></span> Đang tải thêm...</li>
-                    <li v-if="!hasMore && !loading" class="no-more">Đã hết kết quả</li>
-                  </ul>
-                </div>
-              </form>
-
-              <!-- Login/Logout -->
-              <div class="d-none d-lg-block">
-                <div class="d-flex align-items-center me-3">
-                  <button v-if="!isLoggedIn" class="icon-btn me-2" data-bs-toggle="modal" @click="openLoginModal">
-                    <i class="bi bi-people"></i>
-                  </button>
-
-                  <template v-else>
-                    <button class="icon-btn me-2" @click="handleLogout">
-                      <i class="bi bi-person-x"></i>
-                    </button>
-                    <router-link to="/update-user" class="text-decoration-none text-primary-red">
-                      <p v-if="user.username" class="mb-0 me-2">{{ user.username }}</p>
-                    </router-link>
-                  </template>
-                </div>
-              </div>
-              <div class="d-none d-lg-block">
-                <router-link to="/cart" style="color: black;">
-                  <button class="icon-btn"><i class="bi bi-cart"></i></button>
-                </router-link>
-              </div>
-            </div>
-          </div>
-        </nav>
-      </div>
-
-      <!-- Menu bottom -->
-      <nav class="navbar navbar-expand-lg navbar-bottom">
-        <div class="collapse navbar-collapse text-start d-none d-lg-flex">
-          <ul class="navbar-nav fs-5">
-            <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
-            <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
-            <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
-          </ul>
+  <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <div class="container-fluid px-0">
+        <div class="d-flex align-items-center">
+          <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <a class="navbar-brand" href="/home">
+            <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
+          </a>
         </div>
-      </nav>
-    </div>
 
-    <!-- offcanvas menu small screen -->
-    <div class="offcanvas offcanvas-start" id="offcanvasMenu">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title">Menu</h5>
-    <button type="button" class="btn text-dark fs-4" data-bs-dismiss="offcanvas" aria-label="Close">
-  <i class="bi bi-x-lg"></i>
-</button>
+        <div class="d-none d-lg-flex align-items-center ms-auto">
+          <form @submit.prevent="searchProduct" class="me-3">
+            <div class="input-wrapper position-relative" ref="wrapperRef">
+              <button class="icon-search-submit" type="submit">
+                <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                  <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </button>
+              <input v-model="searchQuery" type="text" class="input-search" placeholder="search..." @input="handleInput" @focus="() => { handleInput(); showSuggestions = true; }" @keydown.enter="searchProduct" />
+              <ul v-if="suggestions.length && showSuggestions" class="suggestion-dropdown" @scroll.passive="handleScroll">
+                <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
+                  {{ item.name }}
+                </li>
+                <li v-if="loading" class="loading">
+                  <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span> Đang tải thêm...
+                </li>
+                <li v-if="!hasMore && !loading" class="no-more">Đã hết kết quả</li>
+              </ul>
+            </div>
+          </form>
 
-  </div>
-  <div class="offcanvas-body">
-    <ul class="navbar-nav">
-      <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
-      <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
-      <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
-    </ul>
+          <div class="me-3">
+            <button v-if="!isLoggedIn" class="icon-btn" data-bs-toggle="modal" @click="openLoginModal" title="Đăng nhập">
+              <i class="bi bi-people"></i>
+            </button>
+            <template v-else>
+              <div class="d-flex align-items-center">
+                <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
+                  <p v-if="user.username" class="mb-0 username-display">{{ user.username }}</p>
+                </router-link>
+                <button class="icon-btn" @click="handleLogout" title="Đăng xuất">
+                  <i class="bi bi-box-arrow-right"></i> </button>
+              </div>
+            </template>
+          </div>
 
-    <!-- Các icon hiển thị trên mobile -->
-    <div class="d-flex justify-content-around mt-4 d-lg-none">
-      <div class="input-wrapper">
-        <button class="icon">
-          <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none"
-               xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-                  stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M22 22L20 20"
-                  stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        </button>
-        <input type="text" name="text" class="input" placeholder="search.." />
+          <div>
+            <router-link to="/cart" class="icon-btn text-dark" title="Giỏ hàng">
+              <i class="bi bi-cart"></i>
+            </router-link>
+          </div>
+        </div>
       </div>
+    </nav>
 
-      <button class="icon-btn ms-3" data-bs-toggle="modal" @click="openLoginModal">
-        <i class="bi bi-people"></i>
-      </button>
+    <nav class="navbar navbar-expand-lg navbar-bottom d-none d-lg-block pt-0">
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav main-nav-links">
+          <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
+          <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
+          <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
 
-      <button class="icon-btn ms-3">
-        <i class="bi bi-telephone"></i>
-      </button>
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menu</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav offcanvas-nav-links mb-4">
+        <li class="nav-item"><a class="nav-link" href="/home">Trang chủ</a></li>
+        <li class="nav-item"><a class="nav-link" href="/food">Thực đơn</a></li>
+        <li class="nav-item"><a class="nav-link" href="/reservation">Đặt bàn</a></li>
+      </ul>
 
-      <router-link to="/cart" style="color: black;">
-        <button class="icon-btn ms-3"><i class="bi bi-cart"></i></button>
-      </router-link>
+      <div class="mobile-actions">
+        <div class="input-wrapper position-relative mb-3">
+            <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+          <input type="text" class="input-search" placeholder="search..." />
+        </div>
+
+        <div class="d-flex flex-column align-items-start">
+            <button v-if="!isLoggedIn" class="icon-btn text-dark mb-2" data-bs-toggle="modal" @click="openLoginModal">
+                <i class="bi bi-people me-2"></i> Đăng nhập
+            </button>
+            <template v-else>
+                <div class="mb-2">
+                    <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
+                        <p v-if="user.username" class="mb-0 username-display"><i class="bi bi-person me-2"></i>{{ user.username }}</p>
+                    </router-link>
+                </div>
+                <button class="icon-btn text-dark mb-2" @click="handleLogout">
+                    <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
+                </button>
+            </template>
+
+            <router-link to="/cart" class="icon-btn text-dark mb-2">
+                <i class="bi bi-cart me-2"></i> Giỏ hàng
+            </router-link>
+
+            <a href="tel:YOUR_PHONE_NUMBER" class="icon-btn text-dark"> <i class="bi bi-telephone me-2"></i> Liên hệ
+            </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
-
-  </div>
 
 
   <!-- Modal đăng nhập -->
