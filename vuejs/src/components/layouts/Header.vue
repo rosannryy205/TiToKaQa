@@ -1,18 +1,19 @@
 <template>
   <!-- top header-->
   <div class="header position-sticky top-0 bg-white bg-opacity-90 shadow-sm z-3">
-    <div class="container">
-      <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid px-0">
-          <div class="d-flex align-items-center">
-            <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu"
+      <div class="container">
+        <nav class="navbar navbar-expand-lg navbar-light">
+          <div class="container-fluid px-0">
+            <div class="d-flex align-items-center">
+              <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu"
+
               aria-controls="offcanvasMenu" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <a class="navbar-brand" href="/home">
-              <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
-            </a>
-          </div>
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <a class="navbar-brand" href="/home">
+                <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
+              </a>
+            </div>
 
           <div class="d-none d-lg-flex align-items-center ms-auto">
             <form @submit.prevent="searchProduct" class="me-3">
@@ -58,72 +59,8 @@
               </template>
             </div>
 
-
-
-            <div>
-              <router-link to="/cart" class="icon-btn text-dark" title="Giỏ hàng">
-                <i class="bi bi-cart"></i>
-              </router-link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <nav class="navbar navbar-expand-lg navbar-bottom d-none d-lg-block pt-0">
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav main-nav-links">
-            <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
-          </ul>
-        </div>
-      </nav>
-    </div>
-
-    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menu</h5>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav offcanvas-nav-links mb-4">
-          <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
-        </ul>
-
-        <div class="mobile-actions">
-          <div class="input-wrapper position-relative mb-3">
-            <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24"
-                fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-                  stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                </path>
-              </svg>
-            </button>
-            <input type="text" class="input-search" placeholder="search..." />
-          </div>
-
-          <div class="d-flex flex-column align-items-start">
-            <button v-if="!isLoggedIn" class="icon-btn text-dark mb-2" data-bs-toggle="modal" @click="openLoginModal">
-              <i class="bi bi-people me-2"></i> Đăng nhập
-            </button>
-            <template v-else>
-              <div class="mb-2">
-                <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
-                  <p v-if="user.username" class="mb-0 username-display"><i class="bi bi-person me-2"></i>{{
-                    user.username }}</p>
-                </router-link>
-              </div>
-              <button class="icon-btn text-dark mb-2" @click="handleLogout">
-                <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
-              </button>
-            </template>
-
             <div class="d-none d-lg-block">
-              <router-link to="/delivery" style="color: black;" class="dd">
+              <router-link to="/delivery" style="color: black;">
                 <div class="loader">
                   <div class="truckWrapper">
                     <div class="truckBody">
@@ -141,8 +78,7 @@
                           x="187">
                         </rect>
                         <rect stroke-width="2" stroke="#282828" fill="#282828" rx="1" height="11" width="4" y="81"
-                          x="193">
-                        </rect>
+                          x="193"></rect>
                         <rect stroke-width="3" stroke="#282828" fill="#DFDFDF" rx="2.5" height="90" width="121" y="1.5"
                           x="6.5">
                         </rect>
@@ -179,12 +115,117 @@
               </router-link>
             </div>
 
+            <div>
+              <router-link to="/cart" class="icon-btn text-dark" title="Giỏ hàng">
+                <i class="bi bi-cart"></i>
+              </router-link>
+            </div>
+          </div>
+
+        </div>
+      </nav>
+
+      <nav class="navbar navbar-expand-lg navbar-bottom d-none d-lg-block pt-0">
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav main-nav-links">
+            <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+      <nav class="navbar navbar-expand-lg navbar-bottom d-none d-lg-block pt-0">
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav main-nav-links">
+            <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menu</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav offcanvas-nav-links mb-4">
+          <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+        </ul>
+        </ul>
+
+        <div class="mobile-actions">
+          <div class="input-wrapper position-relative mb-3">
+            <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                  stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                </path>
+              </svg>
+            </button>
+            <input type="text" class="input-search" placeholder="search..." />
+          </div>
+        <div class="mobile-actions">
+          <div class="input-wrapper position-relative mb-3">
+            <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                  stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                </path>
+              </svg>
+            </button>
+            <input type="text" class="input-search" placeholder="search..." />
+          </div>
+
+          <div class="d-flex flex-column align-items-start">
+          <div class="d-flex flex-column align-items-start">
+            <button v-if="!isLoggedIn" class="icon-btn text-dark mb-2" data-bs-toggle="modal" @click="openLoginModal">
+              <i class="bi bi-people me-2"></i> Đăng nhập
+              <i class="bi bi-people me-2"></i> Đăng nhập
+            </button>
+            <template v-else>
+              <div class="mb-2">
+                <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
+                  <p v-if="user.username" class="mb-0 username-display"><i class="bi bi-person me-2"></i>{{
+                    user.username }}</p>
+                </router-link>
+              </div>
+              <button class="icon-btn text-dark mb-2" @click="handleLogout">
+                <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
+              </button>
+              <div class="mb-2">
+                <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
+                  <p v-if="user.username" class="mb-0 username-display"><i class="bi bi-person me-2"></i>{{
+                    user.username }}</p>
+                </router-link>
+              </div>
+              <button class="icon-btn text-dark mb-2" @click="handleLogout">
+                <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
+              </button>
+            </template>
+
+            <router-link to="/delivery" class="icon-btn text-dark mb-2">
+              <i class="bi bi-truck me-2"></i> Theo dõi đơn hàng
+            </router-link>
             <router-link to="/cart" class="icon-btn text-dark mb-2">
               <i class="bi bi-cart me-2"></i> Giỏ hàng
             </router-link>
-
             <a href="tel:YOUR_PHONE_NUMBER" class="icon-btn text-dark"> <i class="bi bi-telephone me-2"></i> Liên hệ
             </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
           </div>
         </div>
       </div>
@@ -353,6 +394,8 @@
             </div>
 
             <div class="d-flex justify-content-center gap-3">
+              <button type="button" class="btn btn-social" @click="loginWithGoogle"><i
+                  class="bi bi-google"></i></button>
               <button type="button" class="btn btn-social" @click="loginWithGoogle"><i
                   class="bi bi-google"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
