@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
-    protected $table= "orders";
+    protected $table = "orders";
     public $timestamps = false; // Bật timestamps
 
     protected $fillable = [
@@ -29,7 +29,8 @@ class Order extends Model
         'order_time',
 
     ];
-    public function details() {
+    public function details()
+    {
         return $this->hasMany(Order_detail::class);
     }
 

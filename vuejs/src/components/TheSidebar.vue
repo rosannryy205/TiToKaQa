@@ -128,7 +128,7 @@ import {
 // Import logo (ví dụ, bạn cần thay đổi đường dẫn này cho đúng)
 // import appLogo from '@/assets/images/your-logo.svg';
 // Hoặc nếu logo nằm trong public:
-const logoUrl = ref('/vite.svg') // Hoặc /ten-logo-cua-ban.svg
+const logoUrl = ref('/logonew.png') // Hoặc /ten-logo-cua-ban.svg
 
 const props = defineProps({
   collapsed: Boolean,

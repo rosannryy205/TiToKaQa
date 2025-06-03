@@ -18,6 +18,8 @@ Carbon::setLocale('vi');
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -661,3 +663,22 @@ class OrderController extends Controller
     }
     }
 
+
+    public function getOrderByUser($user_id, $id){
+        $order = DB::table('orders')
+        ->where('user_id', $user_id)
+        ->where('id',$id)
+        ->first();
+
+        if(!$order){
+            return response()->json([
+                'message' => 'Không tìm thấy đơn hàng'
+            ],404);
+        }
+
+        return response() -> json([
+            'message' => 'Đã tìm thấy đơn hàng',
+            'data' => $order
+        ]);
+    }
+}
