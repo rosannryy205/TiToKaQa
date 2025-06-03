@@ -11,10 +11,13 @@ import {
 } from 'ant-design-vue'
 import App from './App.vue'
 import vSelect from "vue-select"
+import 'leaflet/dist/leaflet.css';
+
+
+
 import Antd from 'ant-design-vue';
 
 // CSS import
-import 'ant-design-vue/dist/reset.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap/dist/css/bootstrap-grid.min.css'
 import 'bootstrap/dist/css/bootstrap-utilities.min.css'
