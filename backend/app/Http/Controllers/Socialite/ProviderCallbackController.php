@@ -17,7 +17,15 @@ class ProviderCallbackController extends Controller
 
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();
-
+            $existingUser = User::where('email', $socialUser->getEmail())->first();
+            if($existingUser){
+                if(!$existingUser->provider_id || !$existingUser->provider_name){
+                    return response()->json([
+                        'message' => "Email này đã đăng ký. Vui lòng đăng nhập bằng mật khẩu"
+                    ], 409
+                );
+                }
+            }
             $user = User::updateOrCreate([
                 'provider_id' => $socialUser->getId(),
                 'provider_name' => $provider,
@@ -31,11 +39,15 @@ class ProviderCallbackController extends Controller
 
             $token = $user->createToken('api_token')->plainTextToken;
 
-            return redirect()->away("http://localhost:5173/google/callback?token=$token&user=$user");
-
-            
+            return response()->json([
+                'token' => $token,
+                'user' => $user,
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Something went wrong', 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }

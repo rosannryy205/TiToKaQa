@@ -80,7 +80,7 @@ Route::post('/register/verify-code', [UserController::class, 'verifyRegisterCode
 
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/forgot',[UserController::class,'forgotPass']);
-Route::post('/code',[UserController::class,'verifyResetCode']);
+Route::post('/verify-code',[UserController::class,'verifyResetCode']);
 Route::post('/reset-password',[UserController::class,'ChangePassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
@@ -115,6 +115,7 @@ Route::get('/discounts',[DiscountController::class,'getAllDiscounts']);
 //gg
 Route::get('/auth/{provider}/redirect', ProviderRedirectController::class)->name('auth.redirect');
 Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name('auth.callback');
+
 
 //admin
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {

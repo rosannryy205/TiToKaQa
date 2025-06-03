@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import numeral from 'numeral'
 
@@ -47,6 +47,11 @@ export const Info = {
       });
     };
 
+    onMounted(async () => {
+      
+      await getInfo('order', orderId)
+      console.log('Thông tin đơn hàng:', info.value)
+    })
 
 
     return {
