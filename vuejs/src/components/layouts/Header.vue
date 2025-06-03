@@ -1,123 +1,195 @@
 <template>
   <!-- top header-->
   <div class="header position-sticky top-0 bg-white bg-opacity-90 shadow-sm z-3">
-  <div class="container">
-    <nav class="navbar navbar-expand-lg navbar-light">
-      <div class="container-fluid px-0">
-        <div class="d-flex align-items-center">
-          <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <a class="navbar-brand" href="/home">
-            <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
-          </a>
-        </div>
-
-        <div class="d-none d-lg-flex align-items-center ms-auto">
-          <form @submit.prevent="searchProduct" class="me-3">
-            <div class="input-wrapper position-relative" ref="wrapperRef">
-              <button class="icon-search-submit" type="submit">
-                <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                  <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-              </button>
-              <input v-model="searchQuery" type="text" class="input-search" placeholder="search..." @input="handleInput" @focus="() => { handleInput(); showSuggestions = true; }" @keydown.enter="searchProduct" />
-              <ul v-if="suggestions.length && showSuggestions" class="suggestion-dropdown" @scroll.passive="handleScroll">
-                <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
-                  {{ item.name }}
-                </li>
-                <li v-if="loading" class="loading">
-                  <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span> Đang tải thêm...
-                </li>
-                <li v-if="!hasMore && !loading" class="no-more">Đã hết kết quả</li>
-              </ul>
-            </div>
-          </form>
-
-          <div class="me-3">
-            <button v-if="!isLoggedIn" class="icon-btn" data-bs-toggle="modal" @click="openLoginModal" title="Đăng nhập">
-              <i class="bi bi-people"></i>
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid px-0">
+          <div class="d-flex align-items-center">
+            <button class="navbar-toggler me-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu"
+              aria-controls="offcanvasMenu" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
             </button>
-            <template v-else>
-              <div class="d-flex align-items-center">
-                <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
-                  <p v-if="user.username" class="mb-0 username-display">{{ user.username }}</p>
-                </router-link>
-                <button class="icon-btn" @click="handleLogout" title="Đăng xuất">
-                  <i class="bi bi-box-arrow-right"></i> </button>
-              </div>
-            </template>
+            <a class="navbar-brand" href="/home">
+              <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
+            </a>
           </div>
 
-          <div>
-            <router-link to="/cart" class="icon-btn text-dark" title="Giỏ hàng">
-              <i class="bi bi-cart"></i>
-            </router-link>
+          <div class="d-none d-lg-flex align-items-center ms-auto">
+            <form @submit.prevent="searchProduct" class="me-3">
+              <div class="input-wrapper position-relative" ref="wrapperRef">
+                <button class="icon-search-submit" type="submit">
+                  <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                      stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round"
+                      stroke-linejoin="round"></path>
+                  </svg>
+                </button>
+                <input v-model="searchQuery" type="text" class="input-search" placeholder="search..."
+                  @input="handleInput" @focus="() => { handleInput(); showSuggestions = true; }"
+                  @keydown.enter="searchProduct" />
+                <ul v-if="suggestions.length && showSuggestions" class="suggestion-dropdown"
+                  @scroll.passive="handleScroll">
+                  <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
+                    {{ item.name }}
+                  </li>
+                  <li v-if="loading" class="loading">
+                    <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span> Đang tải thêm...
+                  </li>
+                  <li v-if="!hasMore && !loading" class="no-more">Đã hết kết quả</li>
+                </ul>
+              </div>
+            </form>
+
+            <div class="me-3">
+              <button v-if="!isLoggedIn" class="icon-btn" data-bs-toggle="modal" @click="openLoginModal"
+                title="Đăng nhập">
+                <i class="bi bi-people"></i>
+              </button>
+              <template v-else>
+                <div class="d-flex align-items-center">
+                  <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
+                    <p v-if="user.username" class="mb-0 username-display">{{ user.username }}</p>
+                  </router-link>
+                  <button class="icon-btn" @click="handleLogout" title="Đăng xuất">
+                    <i class="bi bi-box-arrow-right"></i> </button>
+                </div>
+              </template>
+            </div>
+
+
+
+            <div>
+              <router-link to="/cart" class="icon-btn text-dark" title="Giỏ hàng">
+                <i class="bi bi-cart"></i>
+              </router-link>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
 
-    <nav class="navbar navbar-expand-lg navbar-bottom d-none d-lg-block pt-0">
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav main-nav-links">
+      <nav class="navbar navbar-expand-lg navbar-bottom d-none d-lg-block pt-0">
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav main-nav-links">
+            <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menu</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav offcanvas-nav-links mb-4">
           <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
         </ul>
-      </div>
-    </nav>
-  </div>
 
-  <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menu</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <ul class="navbar-nav offcanvas-nav-links mb-4">
-        <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
-      </ul>
+        <div class="mobile-actions">
+          <div class="input-wrapper position-relative mb-3">
+            <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24"
+                fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+                  stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                </path>
+              </svg>
+            </button>
+            <input type="text" class="input-search" placeholder="search..." />
+          </div>
 
-      <div class="mobile-actions">
-        <div class="input-wrapper position-relative mb-3">
-            <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-              <path d="M22 22L20 20" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
-          </button>
-          <input type="text" class="input-search" placeholder="search..." />
-        </div>
-
-        <div class="d-flex flex-column align-items-start">
+          <div class="d-flex flex-column align-items-start">
             <button v-if="!isLoggedIn" class="icon-btn text-dark mb-2" data-bs-toggle="modal" @click="openLoginModal">
-                <i class="bi bi-people me-2"></i> Đăng nhập
+              <i class="bi bi-people me-2"></i> Đăng nhập
             </button>
             <template v-else>
-                <div class="mb-2">
-                    <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
-                        <p v-if="user.username" class="mb-0 username-display"><i class="bi bi-person me-2"></i>{{ user.username }}</p>
-                    </router-link>
-                </div>
-                <button class="icon-btn text-dark mb-2" @click="handleLogout">
-                    <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
-                </button>
+              <div class="mb-2">
+                <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
+                  <p v-if="user.username" class="mb-0 username-display"><i class="bi bi-person me-2"></i>{{
+                    user.username }}</p>
+                </router-link>
+              </div>
+              <button class="icon-btn text-dark mb-2" @click="handleLogout">
+                <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
+              </button>
             </template>
 
+            <div class="d-none d-lg-block">
+              <router-link to="/delivery" style="color: black;" class="dd">
+                <div class="loader">
+                  <div class="truckWrapper">
+                    <div class="truckBody">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 198 93" class="trucksvg">
+                        <path stroke-width="3" stroke="#282828" fill="#F83D3D"
+                          d="M135 22.5H177.264C178.295 22.5 179.22 23.133 179.594 24.0939L192.33 56.8443C192.442 57.1332 192.5 57.4404 192.5 57.7504V89C192.5 90.3807 191.381 91.5 190 91.5H135C133.619 91.5 132.5 90.3807 132.5 89V25C132.5 23.6193 133.619 22.5 135 22.5Z">
+                        </path>
+                        <path stroke-width="3" stroke="#282828" fill="#7D7C7C"
+                          d="M146 33.5H181.741C182.779 33.5 183.709 34.1415 184.078 35.112L190.538 52.112C191.16 53.748 189.951 55.5 188.201 55.5H146C144.619 55.5 143.5 54.3807 143.5 53V36C143.5 34.6193 144.619 33.5 146 33.5Z">
+                        </path>
+                        <path stroke-width="2" stroke="#282828" fill="#282828"
+                          d="M150 65C150 65.39 149.763 65.8656 149.127 66.2893C148.499 66.7083 147.573 67 146.5 67C145.427 67 144.501 66.7083 143.873 66.2893C143.237 65.8656 143 65.39 143 65C143 64.61 143.237 64.1344 143.873 63.7107C144.501 63.2917 145.427 63 146.5 63C147.573 63 148.499 63.2917 149.127 63.7107C149.763 64.1344 150 64.61 150 65Z">
+                        </path>
+                        <rect stroke-width="2" stroke="#282828" fill="#FFFCAB" rx="1" height="7" width="5" y="63"
+                          x="187">
+                        </rect>
+                        <rect stroke-width="2" stroke="#282828" fill="#282828" rx="1" height="11" width="4" y="81"
+                          x="193">
+                        </rect>
+                        <rect stroke-width="3" stroke="#282828" fill="#DFDFDF" rx="2.5" height="90" width="121" y="1.5"
+                          x="6.5">
+                        </rect>
+                        <rect stroke-width="2" stroke="#282828" fill="#DFDFDF" rx="2" height="4" width="6" y="84" x="1">
+                        </rect>
+                      </svg>
+                    </div>
+                    <div class="truckTires">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 30 30" class="tiresvg">
+                        <circle stroke-width="3" stroke="#282828" fill="#282828" r="13.5" cy="15" cx="15"></circle>
+                        <circle fill="#DFDFDF" r="7" cy="15" cx="15"></circle>
+                      </svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 30 30" class="tiresvg">
+                        <circle stroke-width="3" stroke="#282828" fill="#282828" r="13.5" cy="15" cx="15"></circle>
+                        <circle fill="#DFDFDF" r="7" cy="15" cx="15"></circle>
+                      </svg>
+                    </div>
+                    <div class="road"></div>
+
+                    <svg xml:space="preserve" viewBox="0 0 453.459 453.459" xmlns:xlink="http://www.w3.org/1999/xlink"
+                      xmlns="http://www.w3.org/2000/svg" id="Capa_1" version="1.1" fill="#000000" class="lampPost">
+                      <path d="M252.882,0c-37.781,0-68.686,29.953-70.245,67.358h-6.917v8.954c-26.109,2.163-45.463,10.011-45.463,19.366h9.993
+  c-1.65,5.146-2.507,10.54-2.507,16.017c0,28.956,23.558,52.514,52.514,52.514c28.956,0,52.514-23.558,52.514-52.514
+  c0-5.478-0.856-10.872-2.506-16.017h9.992c0-9.354-19.352-17.204-45.463-19.366v-8.954h-6.149C200.189,38.779,223.924,16,252.882,16
+  c29.952,0,54.32,24.368,54.32,54.32c0,28.774-11.078,37.009-25.105,47.437c-17.444,12.968-37.216,27.667-37.216,78.884v113.914
+  h-0.797c-5.068,0-9.174,4.108-9.174,9.177c0,2.844,1.293,5.383,3.321,7.066c-3.432,27.933-26.851,95.744-8.226,115.459v11.202h45.75
+  v-11.202c18.625-19.715-4.794-87.527-8.227-115.459c2.029-1.683,3.322-4.223,3.322-7.066c0-5.068-4.107-9.177-9.176-9.177h-0.795
+  V196.641c0-43.174,14.942-54.283,30.762-66.043c14.793-10.997,31.559-23.461,31.559-60.277C323.202,31.545,291.656,0,252.882,0z
+  M232.77,111.694c0,23.442-19.071,42.514-42.514,42.514c-23.442,0-42.514-19.072-42.514-42.514c0-5.531,1.078-10.957,3.141-16.017
+  h78.747C231.693,100.736,232.77,106.162,232.77,111.694z"></path>
+                    </svg>
+                  </div>
+                </div>
+              </router-link>
+            </div>
+
             <router-link to="/cart" class="icon-btn text-dark mb-2">
-                <i class="bi bi-cart me-2"></i> Giỏ hàng
+              <i class="bi bi-cart me-2"></i> Giỏ hàng
             </router-link>
 
             <a href="tel:YOUR_PHONE_NUMBER" class="icon-btn text-dark"> <i class="bi bi-telephone me-2"></i> Liên hệ
             </a>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
 
   <!-- Modal đăng nhập -->
@@ -217,7 +289,7 @@
             <!-- Email -->
             <div v-if="registerErrors.email" class="text-danger small text-center error-message">{{
               registerErrors.email[0]
-            }}
+              }}
             </div>
             <div v-else style="height:3px"></div>
             <div class="mb-3 position-relative">
@@ -231,7 +303,7 @@
             <!-- Phone  -->
             <div v-if="registerErrors.phone" class="text-danger small text-center error-message">{{
               registerErrors.phone[0]
-            }}
+              }}
             </div>
             <div v-else style="height:3px"></div>
             <div class="mb-3 position-relative">
@@ -281,7 +353,8 @@
             </div>
 
             <div class="d-flex justify-content-center gap-3">
-              <button type="button" class="btn btn-social" @click="loginWithGoogle"><i class="bi bi-google"></i></button>
+              <button type="button" class="btn btn-social" @click="loginWithGoogle"><i
+                  class="bi bi-google"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-facebook"></i></button>
               <button type="button" class="btn btn-social"><i class="bi bi-twitter-x"></i></button>
             </div>
@@ -1093,5 +1166,118 @@ onBeforeUnmount(() => {
   padding: 10px;
   text-align: center;
   color: #888;
+}
+
+.loader {
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.truckWrapper {
+  margin-right: 16px;
+  width: 38px;
+  height: 22px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: center;
+  justify-content: flex-end;
+  overflow-x: hidden;
+}
+
+/* Truck body */
+.truckBody {
+  width: 26px;
+  height: fit-content;
+  margin-bottom: 1px;
+  animation: motion 1s linear infinite;
+}
+
+/* Suspension animation */
+@keyframes motion {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(0.5px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Tires */
+.truckTires {
+  width: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 2px 0px 3px;
+  position: absolute;
+  bottom: 0;
+}
+
+.truckTires svg {
+  width: 5px;
+  height: 5px;
+}
+
+/* Road */
+.road {
+  width: 100%;
+  height: 1px;
+  background-color: #282828;
+  position: relative;
+  bottom: 0;
+  align-self: flex-end;
+  border-radius: 1px;
+}
+
+.road::before {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 100%;
+  background-color: #282828;
+  right: -50%;
+  border-radius: 1px;
+  animation: roadAnimation 1.4s linear infinite;
+  border-left: 1px solid white;
+}
+
+.road::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background-color: #282828;
+  right: -65%;
+  border-radius: 1px;
+  animation: roadAnimation 1.4s linear infinite;
+  border-left: 0.5px solid white;
+}
+
+/* Lamp post */
+.lampPost {
+  position: absolute;
+  bottom: 0;
+  right: -90%;
+  height: 18px;
+  animation: roadAnimation 1.4s linear infinite;
+}
+
+@keyframes roadAnimation {
+  0% {
+    transform: translateX(0px);
+  }
+
+  100% {
+    transform: translateX(-90px);
+  }
 }
 </style>

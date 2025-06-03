@@ -437,7 +437,7 @@ class OrderController extends Controller
 
     public function getTables()
     {
-        $tables = Table::all();
+        $tables = Table::orderBy('capacity', 'asc')->get();
         return $tables;
     }
 
@@ -470,8 +470,6 @@ class OrderController extends Controller
             'data' => $orderWithTables,
         ]);
     }
-
-
 
 
     public function setUpTable(Request $request)
@@ -660,5 +658,6 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
         }
+    }
     }
 
