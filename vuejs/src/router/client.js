@@ -50,6 +50,16 @@ const client = [
         component: () => import('../pages/client/food/index.vue'),
       },
       {
+        path: 'food/:orderId',
+        name: 'client-food-reservation',
+        component: () => import('../pages/client/food/index.vue'),
+      },
+      {
+        path: 'food/:orderId',
+        name: 'client-food-reservation',
+        component: () => import('../pages/client/food/index.vue'),
+      },
+      {
         path: 'update-user1',
         name: 'update-user',
         component: () => import('../pages/client/user/update-user1.vue'),
@@ -71,16 +81,20 @@ const client = [
       },
       // router/index.js hoặc router.ts
       {
-        path: '/google/callback',
+        path: '/login/google/callback',
         component: () => import('../pages/client/user/GoogleCallback.vue'),
       },
       {
-        path: '/update-user',
-        component: () => import('../pages/client/user/update-user.vue'),
+        path: '/login',
+        component: () => import('../pages/client/login/login.vue'),
       },
       {
-        path: '/infor-user',
-        component: () => import('../pages/client/user/infor-user.vue'),
+        path: '/register',
+        component: () => import('../pages/client/login/register.vue'),
+      },
+      {
+        path: '/verify',
+        component: () => import('../pages/client/login/verify.vue'),
       }
     ],
   },
