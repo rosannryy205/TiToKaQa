@@ -14,7 +14,6 @@ import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/reset.css';
 
 // CSS import
-import 'ant-design-vue/dist/reset.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap/dist/css/bootstrap-grid.min.css'
 import 'bootstrap/dist/css/bootstrap-utilities.min.css'
