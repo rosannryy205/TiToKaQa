@@ -60,9 +60,14 @@ const client = [
         component: () => import('../pages/client/food/index.vue'),
       },
       {
-        path: 'update-user1',
+        path: 'update-user',
         name: 'update-user',
-        component: () => import('../pages/client/user/update-user1.vue'),
+        component: () => import('../pages/client/user/update-user.vue'),
+      },
+      {
+        path: 'infor-user',
+        name: 'infor-user',
+        component: () => import('../pages/client/user/infor-user.vue'),
       },
       {
         path: 'history-order',

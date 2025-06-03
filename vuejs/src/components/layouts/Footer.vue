@@ -3,7 +3,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-4 mb-4 text-start">
-                        <img src="../../public/img/logonew.png" alt="logo-footer" width="150px">
+                        <img src="/img/logonew.png" alt="logo-footer" width="150px">
                         <p class="text-start">
                             Mỳ Cay TITOKAQA chuyên phục vụ các món mì cay chuẩn vị Hàn Quốc, kết hợp nguyên liệu tươi
                             ngon và công thức đặc biệt.
@@ -49,9 +49,9 @@
                         <p class="mb-0">&copy; 2024 Mỳ Cay TITOKAQA. All Rights Reserved.</p>
                     </div>
                     <div class="col-lg-6 text-center text-lg-end">
-                        <img src="../../public/img/visa.png" alt="Visa" class="me-2" style="height: 30px;">
-                        <img src="../../public/img/mastercard.png" alt="MasterCard" class="me-2" style="height: 30px;">
-                        <img src="../../public/img/momo.png" alt="Momo" style="height: 30px;">
+                        <img src="/img/visa.png" alt="Visa" class="me-2" style="height: 30px;">
+                        <img src="/img/mastercard.png" alt="MasterCard" class="me-2" style="height: 30px;">
+                        <img src="/img/momo.png" alt="Momo" style="height: 30px;">
                     </div>
                 </div>
             </div>
