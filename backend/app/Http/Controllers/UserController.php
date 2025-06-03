@@ -26,7 +26,7 @@ class UserController extends Controller
     public function sendRegisterCode(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|unique:users|min:6|max:20|alpha_num',
+            'username' => 'required|max:20|alpha_num',
 
             'email' => [
                 'required',
@@ -44,8 +44,6 @@ class UserController extends Controller
         ], [
             // Thông báo tiếng Việt cho từng rule
             'username.required' => 'Vui lòng nhập tên đăng nhập.',
-            'username.unique' => 'Tên đăng nhập đã tồn tại.',
-            'username.min' => 'Tên đăng nhập phải có ít nhất 6 ký tự.',
             'username.max' => 'Tên đăng nhập không được vượt quá 20 ký tự.',
             'username.alpha_num' => 'Tên đăng nhập chỉ có thể chứa chữ cái và số.',
 

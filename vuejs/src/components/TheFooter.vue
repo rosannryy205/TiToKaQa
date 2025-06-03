@@ -26,8 +26,8 @@
                         </ul>
                     </div>
                     <div class="col-lg-3 mb-4">
-                        <h5 class="fw-bold" style="color: #c92c3c;">Theo Dõi Chúng Tôi</h5>
-                        <div class="d-flex gap-3">
+                        <h5 class="fw-bold text-center" style="color: #c92c3c;">Theo Dõi Chúng Tôi</h5>
+                        <div class="d-flex justify-content-center gap-3">
                             <a href="#" class="text-dark"><i class="bi bi-facebook"></i></a>
                             <a href="#" class="text-dark"><i class="bi bi-instagram"></i></a>
                             <a href="#" class="text-dark"><i class="bi bi-tiktok"></i></a>

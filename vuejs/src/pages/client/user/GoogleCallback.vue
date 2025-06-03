@@ -1,27 +1,45 @@
 <template>
-    <div>Đang xử lý đăng nhập Google...</div>
-  </template>
+  <div class="text-center">Đang xử lý đăng nhập Google...</div>
+</template>
 
-  <script setup>
-  import { onMounted } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
+<script setup>
+import { onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 
-  const route = useRoute()
-  const router = useRouter()
+const route = useRoute()
+const router = useRouter()
 
-  onMounted(() => {
-    const token = route.query.token
-    const user = route.query.user ? JSON.parse(route.query.user) : null
+onMounted(async () => {
+  const code = route.query.code
+  const provider = 'google'
 
-    if (token && user) {
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(user))
+  try {
+    const response = await axios.get(`http://localhost:8000/api/auth/${provider}/callback`, {
+  params: { code },
+})
 
-      router.push('/').then(() => {
-        window.location.reload()
-      })
-    } else {
-      console.error("Không tìm thấy token hoặc user trong URL")
+
+    const token = response.data.token
+    const user = response.data.user
+
+    localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(user))
+
+    toast.success("Đăng nhập thành công!")
+    setTimeout(() => {
+      router.push('/').then(() => window.location.reload())
+      }, 1500)
+  } catch (error) {
+    const message = error.response?.data?.message || "Đăng nhập thất bại!"
+    toast.error(message)
+    if (error.response?.status === 409) {
+      setTimeout(() => {
+        router.push('/')
+      }, 1500)
     }
-  })
-  </script>
+  }
+})
+</script>

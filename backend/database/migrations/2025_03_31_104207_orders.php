@@ -20,7 +20,6 @@ return new class extends Migration
             $table->enum('order_status', ['Chờ xác nhận', 'Đã xác nhận', 'Đang xử lý', 'Đang giao hàng', 'Giao thành công', 'Giao thất bại', 'Đã hủy'])->default('Chờ xác nhận');
             $table->decimal('total_price', 10, 2)->nullable();
             $table->decimal('money_reduce', 10, 2)->nullable();
-            $table->decimal('final_price', 10, 2)->nullable();
             $table->string('comment')->nullable();
             $table->timestamp('review_time')->nullable();
             $table->integer('rating')->nullable();
