@@ -91,6 +91,11 @@ const client = [
         path: '/test',
         component: () => import('../pages/client/user/test.vue'),
         meta: { title: 'Trang test' }
+      },
+      {
+        path: '/delivery',
+        component: () => import('../pages/client/user/delivery.vue'),
+        meta: { title: 'Theo dõi đơn hàng' }
       }
     ],
   },

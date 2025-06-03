@@ -21,6 +21,8 @@ class Order extends Model
         'deposit_amount',
         'expiration_time',
         'total_price',
+        'money_reduce',
+        'final_price',
         'user_id',
         'discount_id',
         'guest_address',

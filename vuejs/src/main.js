@@ -10,6 +10,8 @@ import {
 } from 'ant-design-vue'
 import App from './App.vue'
 import vSelect from "vue-select"
+import 'leaflet/dist/leaflet.css';
+
 
 
 

@@ -88,6 +88,10 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/search', [HomeController::class, 'search']);
 
 
+//delivery
+Route::get('/delivery/{user_id}/{id}', [OrderController::class, 'getOrderByUser']);
+
+
 
 
 

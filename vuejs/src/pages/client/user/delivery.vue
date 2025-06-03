@@ -1,0 +1,216 @@
+<template>
+  <div class="container-sm fade-in container-delivery pt-20">
+    <div class="p-4">
+      <h2 class="text-2xl font-bold mb-4 text-gray-800">🛵 Theo dõi đơn hàng</h2>
+      <div id="deliveryMap" class="relative rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+        <div id="distanceBox"
+          class="absolute top-4 left-4 w-[100px] h-[100px] bg-white rounded-lg shadow-md flex items-center justify-center text-gray-800 text-base font-semibold z-[500] hidden">
+          0 km
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script setup>
+import axios from 'axios'
+import { onMounted, ref } from 'vue'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+
+const user = JSON.parse(localStorage.getItem('user'))
+const user_id = user?.id
+console.log('User ID:', user_id)
+
+const order_id = parseInt(localStorage.getItem('order_id'))
+console.log('Order ID:', order_id)
+
+const restaurant = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
+const customer = ref({})
+const shipper = ref({})
+
+async function getRoutePolyline(start, end) {
+  const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': '5b3ce3597851110001cf624831426f803ba340cf9fa916ad9de4c9d8'
+    },
+    body: JSON.stringify({
+      coordinates: [
+        [start.lng, start.lat],
+        [end.lng, end.lat]
+      ]
+    })
+  })
+
+  const data = await response.json()
+
+  if (!data.features || data.features.length === 0) return { coords: [], distance: 0 }
+
+
+  const coords = data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]])
+
+  const distance = data.features[0].properties.summary.distance
+
+  return { coords, distance }
+}
+
+const getCoordinatesFromAddress = async (address) => {
+  const apiKey = 'a642902bd23e49d3847cbfed7d30d5ed'
+  const res = await axios.get(`https://api.opencagedata.com/geocode/v1/json`, {
+    params: {
+      key: apiKey,
+      q: address,
+      pretty: 1,
+      limit: 1
+    }
+  })
+  if (res.data.results.length) {
+    const { lat, lng } = res.data.results[0].geometry
+    return { lat, lng }
+  }
+  return null
+}
+
+onMounted(async () => {
+  try {
+    //Gọi API lấy thông tin đơn hàng
+    const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${user_id}/${order_id}`)
+    const order = res.data
+
+    console.log(order)
+
+    //Lấy địa chỉ khách hàng từ đơn hàng
+    const address = order.data.guest_address
+    console.log('Địa chỉ khách hàng:', address)
+
+    const coords = await getCoordinatesFromAddress(address)
+    if (coords) {
+      customer.value = coords
+      console.log('Tọa độ khách hàng:', coords)
+    } else {
+      console.warn('Không tìm thấy tọa độ từ địa chỉ.')
+    }
+
+
+    //logic vẽ map
+    const map = L.map('deliveryMap', {
+      zoomControl: false
+    }).setView([restaurant.value.lat, restaurant.value.lng], 13)
+
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> contributors'
+    }).addTo(map)
+
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map)
+
+
+    L.marker([restaurant.value.lat, restaurant.value.lng])
+      .addTo(map)
+      .bindPopup('<b>🏠 Nhà hàng</b>')
+
+
+    L.marker([customer.value.lat, customer.value.lng])
+      .addTo(map)
+      .bindPopup('<b>👤 Khách hàng</b>')
+
+
+    const { coords: polylineCoords, distance } = await getRoutePolyline(restaurant.value, customer.value)
+
+    if (polylineCoords.length) {
+      const routeLine = L.polyline(polylineCoords, {
+        color: '#3b82f6',
+        weight: 6,
+        opacity: 0.85,
+        smoothFactor: 1
+      }).addTo(map)
+
+      map.fitBounds(routeLine.getBounds(), { padding: [20, 20] })
+
+      // Hiển thị độ dài tuyến đường (km) trên bản đồ
+      const midIndex = Math.floor(polylineCoords.length / 2)
+      const midPoint = polylineCoords[midIndex]
+      const distanceInKm = (distance / 1000).toFixed(2)
+
+      const distanceBox = document.getElementById('distanceBox')
+      if (distanceBox) {
+        distanceBox.textContent = `${distanceInKm} km`
+        distanceBox.classList.remove('hidden')
+      }
+    }
+
+
+
+    if (shipper.value) {
+      const shipperIcon = L.icon({
+        iconUrl: '/shipper.png',
+        iconSize: [50, 50],
+        iconAnchor: [25, 25],
+        popupAnchor: [0, -20]
+      })
+
+      L.marker([shipper.value.lat, shipper.value.lng], { icon: shipperIcon })
+        .addTo(map)
+        .bindPopup('<b>🛵 Shipper</b>')
+    }
+
+    // Khắc phục hiển thị sai nếu map chưa render kịp
+    setTimeout(() => {
+      map.invalidateSize()
+    }, 300)
+  } catch (error) {
+    console.log('Lỗi rồi kìa mày')
+  }
+
+
+
+
+
+
+})
+</script>
+
+<style scoped>
+#deliveryMap {
+  height: 450px;
+  width: 100%;
+  background-color: #f3f4f6;
+  transition: all 0.3s ease-in-out;
+  border-radius: 16px;
+}
+
+#deliveryMap,
+.leaflet-container,
+.leaflet-pane,
+.leaflet-map-pane {
+  z-index: 0 !important;
+}
+
+.distance-label {
+
+  font-weight: bold;
+  pointer-events: none;
+}
+
+#distanceBox {
+  width: 80px;
+  height: 50px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: #1f2937;
+  /* text-gray-800 */
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 500;
+  pointer-events: none;
+}
+</style>

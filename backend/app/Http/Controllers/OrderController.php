@@ -23,6 +23,7 @@ Carbon::setLocale('vi');
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
@@ -42,6 +43,8 @@ class OrderController extends Controller
                 'deposit_amount' => 'nullable|numeric|min:0',
                 'expiration_time' => 'required|date',
                 'total_price' => 'required|numeric',
+                'money_reduce' => 'required|numeric',
+                'final_price' => 'required|numeric',
                 'order_details' => 'nullable|array',
                 'discount_id' => 'nullable|numeric',
             ], [
@@ -68,6 +71,8 @@ class OrderController extends Controller
                 'deposit_amount' => $data['deposit_amount'] ?? 0,
                 'expiration_time' => $data['expiration_time'],
                 'total_price' => $data['total_price'],
+                'money_reduce' => $data['money_reduce'],
+                'final_price' => $data['final_price'],
             ]);
 
             if (!empty($data['order_details'])) {
@@ -665,4 +670,23 @@ class OrderController extends Controller
     //         return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
     //     }
     // }
+
+
+    public function getOrderByUser($user_id, $id){
+        $order = DB::table('orders')
+        ->where('user_id', $user_id)
+        ->where('id',$id)
+        ->first();
+
+        if(!$order){
+            return response()->json([
+                'message' => 'Không tìm thấy đơn hàng'
+            ],404);
+        }
+
+        return response() -> json([
+            'message' => 'Đã tìm thấy đơn hàng',
+            'data' => $order
+        ]);
+    }
 }
