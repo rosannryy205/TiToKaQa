@@ -5,392 +5,226 @@
     </div>
   </div>
   <div class="row d-flex text-center">
-    <div class="title-foods fw-medium fs-5 mt-5">
-      <span>Lẩu và Mỳ cay 7 cấp độ</span>
-    </div>
-    <div class="title-shops d-sm-block fw-bold">
+    <div class="title-shops d-sm-block fw-bold mt-5">
       <span>ĐẶT BÀN CÙNG CHÚNG TÔI!</span>
     </div>
   </div>
+
   <div class="container custom-container">
-    <div class="booking-form row w-75" style="border-radius: 0px">
-      <div class="col-md-6 booking-image booking-ipad">
-        <img class="img-reservation" src="/img/reservation/Rectangle 48.png" alt="Khuyến mãi Tết" />
+    <div class="row">
+      <div class="col-md-4 booking-image-">
+        <img
+          class="img-fluid img-reservation"
+          src="/img/mo-hinh-lau-nuong-truyen-thong.png"
+          alt="Bản đồ bàn"
+          style="height: 500px; object-fit: cover"
+        />
       </div>
-      <div class="col-md-6 form-section mt-2">
-        <form @submit.prevent="reservation">
-          <small class="text-danger ms-1" v-if="errors.guest_name">{{ errors.guest_name[0] }}</small>
-          <input type="text" v-model="form.fullname" class="form-control mb-2" placeholder="Tên của bạn" />
 
-          <small class="text-danger ms-1" v-if="errors.guest_phone">{{ errors.guest_phone[0] }}</small>
-          <input type="text" v-model="form.phone" class="form-control mb-2" placeholder="Số điện thoại" />
-
-          <small class="text-danger ms-1" v-if="errors.guest_email">{{ errors.guest_email[0] }}</small>
-          <input type="email" v-model="form.email" class="form-control mb-2" placeholder="Email" />
-
-          <input type="number" v-model="guest_count" class="form-control mb-2" placeholder="Số lượng người" />
-          <div class="row g-2">
-            <div class="col">
-              <input type="date" v-model="selectedDate" @change="() => console.log('changed', selectedDate)"
-                :min="today" class="form-control" />
+      <div class="col-md-8 col-12 form-section mt-2">
+        <form @submit.prevent="findTable">
+          <div class="row g-2 mb-3">
+            <div class="col-md-3">
+              <input type="date" class="form-control rounded" v-model="date" :min="today" />
             </div>
-            <select v-model="time" class="col mb-2 form-control custom-select">
-              <option value="">Chọn giờ</option>
-              <option v-for="t in timeOptions" :key="t" :value="t">
-                {{ t }}
-              </option>
-            </select>
-
-          </div>
-
-          <textarea cols="5" rows="3" v-model="note" class="form-control mb-2 custom-select"
-            placeholder="Ghi chú"></textarea>
-          <button @click="showModal" type="button" class="btn btn-custom mb-2">
-            Đặt món <span>✚</span>
-          </button>
-          <button type="submit" class="btn btn-danger1 w-100">Xác nhận</button>
-        </form>
-      </div>
-    </div>
-  </div>
-  <!-- Bootstrap Modal -->
-  <div class="modal fade rounded-0" id="orderModal">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="orderModalLabel">Đặt món</h5>
-        </div>
-        <div class="modal-body">
-          <!-- Bộ lọc -->
-          <div class="row mb-3">
-            <div class="col">
-              <select class="form-select rounded-0" @change="getFoodByCategory($event.target.value)">
-                <option value="">THỰC ĐƠN</option>
-                <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
-                  {{ item.indent }}{{ item.name }}
+            <div class="col-md-3">
+              <select class="form-control custom-select rounded" v-model="time">
+                <option value="">Chọn giờ</option>
+                <option v-for="time in filteredTimeOptions" :key="time" :value="time">
+                  {{ time }}
                 </option>
               </select>
             </div>
+            <div class="col-md-3">
+              <input
+                type="number"
+                class="form-control rounded"
+                placeholder="Số lượng người"
+                v-model="guest_count"
+              />
+            </div>
+            <div class="col-md-3">
+              <button type="submit" class="btn btn-danger1 w-100">Tìm bàn</button>
+            </div>
           </div>
+        </form>
 
-          <!-- Danh sách món ăn -->
-          <div class="list-group">
-            <div class="product-list-wrapper container-fluid">
-              <div class="row">
-                <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3">
-                  <div class="product-card">
-                    <img :src="getImageUrl(item.image)" alt="" class="product-img mx-auto d-block" width="180px" />
-                    <h3 class="product-dish-title text-center fw-bold fs-5">{{ item.name }}</h3>
-                    <p class="product-dish-price fw-bold text-center">{{ formatNumber(item.price) }} VNĐ</p>
-                  </div>
-                </div>
-              </div>
+        <hr />
+        <div class="fs-6 fw-bold mb-3">Kết quả tìm kiếm</div>
+
+        <div class="table-container">
+          <div
+            class="table-block"
+            v-for="ban in availableTables"
+            :key="ban.id"
+            @click="chooseTable(ban.id)"
+          >
+            <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+              <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
+            </div>
+            <div
+              class="table-rect"
+              :class="{
+                medium: getChairCount(ban.capacity) === 2,
+                large: getChairCount(ban.capacity) === 3,
+              }"
+            >
+              Bàn {{ ban.name || ban.id }}
+            </div>
+            <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+              <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- modal food -->
-  <div class="modal fade" id="productModal">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content custom-modal modal-ct">
-        <div class="modal-body position-relative">
-          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
-            aria-label="Close"></button>
-          <div class="row">
-            <div class="col-md-6 border-end">
-              <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
-              <div class="text-center mb-3">
-                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
-              </div>
-              <p class="text-danger fw-bold fs-5 text-center">
-                {{ formatNumber(foodDetail.price) }} VNĐ
-              </p>
-              <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
-            </div>
-            <div class="col-md-6 d-flex flex-column">
-              <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
-                <div class="flex-grow-1">
-                  <div class="topping-container mb-3" v-if="toppingList.length">
-                    <div class="mb-3" v-if="spicyLevel.length">
-                      <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
-                      <select class="form-select" id="spicyLevel">
-                        <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
-                          {{ item.name }}
-                        </option>
-                      </select>
-                    </div>
-                    <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-                    <div v-for="topping in toppingList" :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2">
-                      <label class="d-flex align-items-center">
-                        <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
-                        {{ topping.name }}
-                      </label>
-                      <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
-                    </div>
-                  </div>
-                  <div v-else class="mt-5">
-                    <p class="text-center text-muted">Không có topping cho món này.</p>
-                  </div>
-                </div>
-
-                <!---->
-                <div class="mt-auto">
-                  <div class="text-center mb-2">
-                    <div class="qty-control px-2 py-1">
-                      <button type="button" @click="decreaseQuantity" class="btn-lg"
-                        style="background-color: #fff;">-</button>
-                      <span>{{ quantity }}</span>
-                      <button type="button" @click="increaseQuantity" class="btn-lg"
-                        style="background-color: #fff;">+</button>
-                    </div>
-                  </div>
-                  <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
-                </div>
-              </form>
-
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
 </template>
 
 <script>
-
-import { FoodList } from '@/stores/food'
 import { User } from '@/stores/user'
 import axios from 'axios'
-import { ref, watch } from 'vue'
-import { Modal } from 'bootstrap'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { reactive } from 'vue'
-import { toast } from 'vue3-toastify';
+import { toast } from 'vue3-toastify'
+import { Info } from '@/stores/info-order-reservation'
+import { onMounted } from 'vue'
 export default {
   setup() {
-    const date = ref('');
-    const selectedDate = date; // alias để dùng chung
-
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const today = tomorrow.toISOString().split('T')[0]
-    // const timeOptions = []
-    const fullname = ref('')
-    const phone = ref('')
-    const email = ref('')
-    const note = ref('')
-    const guest_count = ref(2)
-    const router = useRouter()
-    const quantities = ref({})
-    const errors = reactive({});
-    const firstErrorKey = ref('');
-    const deposit_amount = ref(null)
-
-
-    const {
-      foods,
-      categories,
-      toppings,
-      getFoodByCategory,
-      openModal,
-      spicyLevel,
-      toppingList,
-      formatNumber,
-      getImageUrl,
-      flatCategoryList,
-      foodDetail,
-      addToCart,
-      isLoading,
-      quantity,
-      decreaseQuantity,
-      increaseQuantity
-    } = FoodList.setup()
-
-    console.log(quantity.value);
-
-    const {
-      form,
-      user,
-    } = User.setup()
-
-    // for (let hour = 1; hour <= 20; hour++) {
-    //   let hourStr = hour < 10 ? '0' + hour : '' + hour
-    //   timeOptions.push(hourStr + ':00')
-    //   if (hour !== 19) {
-    //     timeOptions.push(hourStr + ':30')
-    //   }
-    // }
-
-
-
-
+    const isLoading = ref(false)
+    const today = new Date().toISOString().split('T')[0]
+    const date = ref()
     const timeOptions = ref([])
-    const unavailableTimes = ref([])
     const time = ref('')
+    const note = ref('')
+    const guest_count = ref(null)
+    const router = useRouter()
+    const errors = reactive({})
+    const availableTables = ref([])
+    const table_id = ref(null)
 
-    watch(selectedDate, async (newDate) => {
-      if (!newDate) return
-      generateTimeOptions(newDate)
+    const { info, getInfo, orderId, formatDateTime } = Info.setup()
+    const { form, user } = User.setup()
 
-    })
-
-    function generateTimeOptions(date) {
-      timeOptions.value = []
-      const now = new Date()
-      const isToday = new Date(date).toDateString() === now.toDateString()
-
-      for (let hour = 8; hour <= 21; hour++) {
-        const hourStr = hour.toString().padStart(2, '0')
-
-        const slots = [`${hourStr}:00`, `${hourStr}:30`]
-        if (hour === 21) slots.pop() // loại bỏ 21:30 vì hết giờ
-
-        for (let slot of slots) {
-          if (unavailableTimes.value.includes(slot)) continue
-
-          if (isToday) {
-            const [h, m] = slot.split(':').map(Number)
-            if (h < now.getHours() || (h === now.getHours() && m <= now.getMinutes())) continue
-          }
-
-          timeOptions.value.push(slot)
-        }
+    const findTable = async () => {
+      if (!date.value || !time.value) {
+        toast.error('Vui lòng điền đầy đủ thông tin!')
+        return
       }
-    }
-
-
-
-    const reservation = async () => {
-      isLoading.value = true;
-      Object.keys(errors).forEach(key => delete errors[key]);
-      const reservations_time = `${date.value} ${time.value}`;
-      const expiration_time = new Date(new Date(reservations_time).getTime() + 15 * 60000)
-        .toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' })
-        .replace(' ', 'T')
-        .slice(0, 16);
-
+      const selectedDateTime = new Date(`${date.value}T${time.value}:00`)
       try {
-        const token = localStorage.getItem('token');
-        const userId = user.value?.id || 'guest';
-        const cart = JSON.parse(localStorage.getItem(`cart_${userId}`)) || [];
-        if (cart.length > 0) {
-          deposit_amount.value = null;
-        } else {
-          deposit_amount.value = 50000;
-        }
+        isLoading.value = true
 
-        const res = await axios.post(
-          'http://127.0.0.1:8000/api/reservation',
-          {
-            user_id: user.value?.id,
-            guest_name: form.value.fullname || form.value.username,
-            guest_phone: form.value.phone,
-            guest_email: form.value.email,
-            guest_count: guest_count.value,
-            reservations_time,
-            note: form.value.note,
-            deposit_amount: deposit_amount.value,
-            expiration_time,
-            total_price: getTotalPrice(cart) + deposit_amount.value,
-            order_details: cart.map(item => ({
-              food_id: item.id,
-              combo_id: null,
-              quantity: item.quantity,
-              price: item.price,
-              type: 'food',
-              toppings: item.toppings.map(t => ({
-                food_toppings_id: t.food_toppings_id,
-                price: t.price
-              }))
-            }))
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const reservedFrom = selectedDateTime
+        const reservedTo = new Date(reservedFrom.getTime() + 2 * 60 * 60 * 1000)
 
-        localStorage.removeItem(`cart_${userId}`);
-        const orderId = res.data.order_id;
+        const reserved_from = formatDateTime(reservedFrom)
+        const reserved_to = formatDateTime(reservedTo)
 
-        toast.success('Đặt bàn thành công!');
-          setTimeout(() => {
-            router.push({
-              name: 'reservation-form',
-              params: { orderId },
-            });
-          }, 2000);
+        const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
+          reserved_from,
+          reserved_to,
+          number_of_guests: guest_count.value,
+        })
 
+        availableTables.value = res.data.tables || []
 
+        toast.success('Tìm bàn thành công!')
       } catch (error) {
-        console.log(error);
-
-        if (error.response?.status === 422) {
-          if (error.response?.status === 422) {
-            const allErrors = error.response.data.errors;
-            const firstKey = Object.keys(allErrors)[0];
-
-            // Xóa hết lỗi cũ
-            Object.keys(errors).forEach(k => delete errors[k]);
-
-            // Chỉ giữ lỗi đầu tiên
-            errors[firstKey] = allErrors[firstKey];
-            firstErrorKey.value = firstKey;
-          }
-        } else {
-          toast.error('Có lỗi xảy ra, vui lòng thử lại sau.', {
-        position: toast.POSITION.TOP_RIGHT,
-      });
-
-        }
+        toast.error('Lỗi khi lấy danh sách bàn có thể đặt')
+        console.error('Lỗi:', error)
       } finally {
         isLoading.value = false
       }
-    };
+    }
 
-    const getTotalPrice = (cart) => {
-      return cart.reduce((total, item) => {
-        const basePrice = parseFloat(item.price) || 0
-        const toppingsTotal =
-          item.toppings_price?.reduce((sum, price) => sum + parseFloat(price), 0) || 0
-        const itemTotal = (basePrice + toppingsTotal) * item.quantity
-        return total + itemTotal
-      }, 0)
+    const getChairCount = (seats) => {
+      if (seats <= 2) return 1
+      if (seats <= 4) return 2
+      return 3
+    }
+
+    const filteredTimeOptions = computed(() => {
+      if (!date.value) {
+        return timeOptions.value
+      }
+
+      const selectedDate = new Date(date.value)
+      const now = new Date()
+
+      if (selectedDate.toDateString() === now.toDateString()) {
+        return timeOptions.value.filter((timeStr) => {
+          const [hours, minutes] = timeStr.split(':').map(Number)
+          const timeDate = new Date(selectedDate)
+          timeDate.setHours(hours, minutes, 0)
+
+          return timeDate > now
+        })
+      }
+
+      return timeOptions.value
+    })
+
+    const chooseTable = async (table_id) => {
+      try {
+        const reservations_time = `${date.value} ${time.value}`
+
+        const res = await axios.post('http://127.0.0.1:8000/api/choose-table', {
+          user_id: user.value?.id,
+          table_id: table_id,
+          reserved_from: reservations_time,
+          guest_count: guest_count.value,
+        })
+
+        const orderId = res.data.order_id
+        router.push({
+          name: 'reservation-form',
+          params: { orderId },
+        })
+      } catch (error) {
+        toast.error('Có lỗi xảy ra, vui lòng thử lại sau.')
+        console.log(error)
+      }
     }
 
 
-    const showModal = () => {
-      const modal = new Modal(document.getElementById('orderModal'));
-      modal.show();
-    };
-
-
+    onMounted(() => {
+      for (let hour = 1; hour <= 21; hour++) {
+        let hourStr = hour < 10 ? '0' + hour : '' + hour
+        timeOptions.value.push(hourStr + ':00')
+        if (hour !== 20) {
+          timeOptions.value.push(hourStr + ':30')
+        }
+      }
+    })
 
     return {
-      time, date, today, timeOptions, fullname, phone, email, note,
-      guest_count, reservation, foods, categories, getFoodByCategory,
-      openModal, spicyLevel, toppingList, formatNumber, getImageUrl,
-      quantities, foodDetail, form, user, showModal, quantity, increaseQuantity,
-      decreaseQuantity, selectedDate,
-      isLoading, toppings, flatCategoryList, addToCart, errors
+      time,
+      today,
+      timeOptions,
+      note,
+      guest_count,
+      table_id,
+      form,
+      user,
+      date,
+      isLoading,
+      errors,
+      info,
+      getInfo,
+      orderId,
+      formatDateTime,
+      findTable,
+      availableTables,
+      filteredTimeOptions,
+      getChairCount,
+      chooseTable,
     }
-  }
+  },
 }
 </script>
 <style scoped>
-.custom-modal .modal-content {
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
-}
-
 .isLoading-overlay {
   position: fixed;
   top: 0;
@@ -404,7 +238,72 @@ export default {
   align-items: center;
 }
 
-#productModal.modal.fade.show {
-  background-color: rgb(85 85 85 / 80%);
+.table-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.table-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.table-block:hover{
+  cursor: pointer;
+}
+.chairs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 5px 0;
+}
+
+.chair {
+  width: 40px;
+  height: 6px;
+  background-color: #ddd;
+  border-radius: 3px;
+}
+
+.table-rect {
+  background-color: #c0392b;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+  border: 5px solid #ddd;
+  min-width: 80px;
+}
+
+.table-rect.medium {
+  min-width: 120px;
+}
+
+.table-rect.large {
+  min-width: 160px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .table-container {
+    gap: 10px;
+  }
+
+  .table-block {
+    flex: 1 1 100px;
+  }
+
+  .chair {
+    width: 30px;
+  }
+
+  .table-rect {
+    font-size: 0.85rem;
+  }
 }
 </style>

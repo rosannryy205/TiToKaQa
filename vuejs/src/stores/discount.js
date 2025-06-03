@@ -1,17 +1,20 @@
 import axios from 'axios'
 import { ref, onMounted, computed } from 'vue'
 // import numeral from 'numeral'
-// import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { watchEffect } from 'vue'
-
+import { toast } from 'vue3-toastify'
 // export const discountId = ref(null)
 export function Discounts()  {
-  
+
     // const router = useRouter()
     const cartItems = ref([])
     const user = JSON.parse(localStorage.getItem('user')) || {}
     const userId = user?.id || 'guest'
-    const cartKey = `cart_${userId}`
+    const route = useRoute()
+    const orderId = route.params.orderId
+    // const cartKey = `cart_${userId}`
+    // const cartKey1 = `cart_${userId}_reservation_${orderId}`
     const discounts = ref([])
     const discountInput = ref('')
     const selectedDiscount = ref('')
@@ -45,23 +48,37 @@ export function Discounts()  {
       selectedDiscount.value = code
       showMoreDiscounts.value = false
     }
-    
+
     const handleDiscountInput = () => {
       const code = discountInput.value.trim().toUpperCase()
       const discount = discounts.value.find((d) => d.code === code)
-      if (discount) {
-        discountInputId.value = discount.id
-        applyDiscountCode(code)
-        discountInput.value = ''
-      } else {
-        alert('Mã giảm giá không hợp lệ')
+      if (!discount) {    
+        toast.error('❌ Mã giảm giá không hợp lệ')
+        return
       }
+      if (totalPrice.value < discount.min_order_value) {
+        toast.warning(
+          `⚠️ Đơn hàng cần tối thiểu ${discount.min_order_value.toLocaleString()}đ để dùng mã ${code}`
+        )
+        return
+      }
+    
+      discountInputId.value = discount.id
+      applyDiscountCode(code)
+      discountInput.value = ''
+      toast.success(`✅ Mã ${code} đã được áp dụng!`)
     }
-
     const loadCart = () => {
+      const cartKey = orderId
+        ? `cart_${userId}_reservation_${orderId}`
+        : `cart_${userId}`
+
       const storedCart = localStorage.getItem(cartKey)
       cartItems.value = storedCart ? JSON.parse(storedCart) : []
+      console.log('ggggg' + orderId);
+
     }
+
 
     const totalPrice = computed(() => {
       return cartItems.value.reduce((sum, item) => {
@@ -72,27 +89,28 @@ export function Discounts()  {
         return sum + basePrice + toppingPrice
       }, 0)
     })
-
     const discountAmount = computed(() => {
       const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
       if (!discount) return 0;
 
-      const value = parseFloat(discount.discount_value)  // 👈 Đảm bảo là số
+      const value = parseFloat(discount.discount_value) 
+      const max = parseFloat(discount.max_discount_amount || Infinity)
+      let amount = 0
 
       if (discount.discount_method === 'percent') {
-        return (totalPrice.value * value) / 100
+        amount = (totalPrice.value * value) / 100
       }
       if (discount.discount_method === 'fixed') {
-        return value
+        amount = value
       }
 
-      return 0
+      return Math.min(amount, max)
     })
 
     const finalTotal = computed(() => {
       return Math.max(totalPrice.value - discountAmount.value, 0)
     })
-  
+
 
 
 
@@ -112,11 +130,12 @@ export function Discounts()  {
     // ⚠️ Load giỏ hàng trước khi lấy mã giảm giá để tránh lỗi tính toán
     onMounted(() => {
       loadCart()
+      console.log(cartItems.value);
+
       getAllDiscount()
     })
 
     return {
-      cartKey,
       cartItems,
       discounts,
       discountInput,

@@ -19,7 +19,6 @@ export const Info = {
           }
         })
         info.value = res.data.info
-        console.log(info.value);
 
       } catch (error) {
         console.log(error);
@@ -47,6 +46,19 @@ export const Info = {
       });
     };
 
+    const formatDateTime = (dateStr) => {
+      if (!dateStr) return '';
+
+      const d = new Date(dateStr);
+
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0'); // tháng bắt đầu từ 0
+      const day = String(d.getDate()).padStart(2, '0');
+      const hours = String(d.getHours()).padStart(2, '0'); // 24h format
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    };
 
 
     return {
@@ -57,7 +69,8 @@ export const Info = {
       orderId,
       formatDate,
       formatTime,
-      orders
+      orders,
+      formatDateTime
     }
   }
 }

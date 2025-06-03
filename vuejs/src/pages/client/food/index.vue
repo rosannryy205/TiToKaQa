@@ -31,7 +31,7 @@
       <!--small-->
       <div class="col-12 d-lg-none position-relative">
         <div
-          class="menu-header d-flex justify-content-between align-items-center"
+          class="menu-header d-flex justify-content-between align-items-center mt-3"
           @click="toggleDropdown"
         >
           <h2 class="menu-title">Thực đơn</h2>
@@ -237,6 +237,7 @@ import axios from 'axios'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
+import { useRoute } from 'vue-router'
 
 export default {
   name: 'HomePage',
@@ -260,6 +261,10 @@ export default {
     const toppingList = ref({})
 
     const quantity = ref(1);
+
+    const route = useRoute()
+    const orderId = route.params.orderId
+
 
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
@@ -414,7 +419,10 @@ export default {
     const addToCart = () => {
       const user = JSON.parse(localStorage.getItem('user'))
       const userId = user?.id || 'guest'
-      const cartKey = `cart_${userId}`
+      const cartKey = orderId
+        ? `cart_${userId}_reservation_${orderId}`
+        : `cart_${userId}`
+
 
       const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
       const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
@@ -463,6 +471,8 @@ export default {
       alert('Đã thêm vào giỏ hàng!')
     }
 
+
+
     onMounted(async () => {
       await getCategory()
       await getFood()
@@ -495,7 +505,8 @@ export default {
       changeSlide,
       increaseQuantity,
       decreaseQuantity,
-      quantity
+      quantity,
+      orderId
     }
   },
 }
@@ -514,6 +525,7 @@ export default {
 }
 
 .menu-link {
+  color: #c92c3c;
   font-weight: bold;
   font-size: 20px;
   text-decoration: none;
@@ -523,10 +535,6 @@ export default {
     transform 0.3s ease;
 }
 
-.menu-link:hover {
-  color: #c92c3c;
-  transform: scale(1.05);
-}
 
 .submenu {
   position: absolute;
@@ -555,6 +563,7 @@ export default {
 }
 
 .submenu-link {
+  color: #c92c3c;
   display: block;
   padding: 0.5rem 1rem;
   text-decoration: none;
@@ -567,10 +576,7 @@ export default {
 }
 
 .submenu-link:hover {
-  background-color: #f8f9fa;
-  color: #c92c3c;
-  transform: scale(1.05);
-  font-weight: 500;
+  background-color: #d5d5d565;
 }
 
 
