@@ -10,11 +10,14 @@ import {
 } from 'ant-design-vue'
 import App from './App.vue'
 import vSelect from "vue-select"
+import 'leaflet/dist/leaflet.css';
+
+
+
 import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/reset.css';
 
 // CSS import
-import 'ant-design-vue/dist/reset.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap/dist/css/bootstrap-grid.min.css'
 import 'bootstrap/dist/css/bootstrap-utilities.min.css'
@@ -27,6 +30,7 @@ import 'sweetalert2/dist/sweetalert2.min.css'
 
 import './assets/style.css'; // Import CSS toàn cục
 import './assets/cart.css'; // Import CSS toàn cục
+import './assets/base.css'
 
 
 

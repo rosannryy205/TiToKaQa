@@ -275,6 +275,8 @@ import numeral from 'numeral'
 import { ref } from 'vue'
 import axios from 'axios'
 import { User } from '@/stores/user'
+import dayjs from 'dayjs'
+import { RouterLink, useRouter } from 'vue-router'
 
 export default {
   methods: {
@@ -286,6 +288,13 @@ export default {
     },
   },
   setup() {
+
+    const restaurantLocation = {
+      lat: 10.854113664188024,
+      lng: 106.6262030926953
+    }
+
+    const router = useRouter()
     const selectedProvince = ref(null)
     const selectedDistrict = ref(null)
     const selectedWard = ref(null)
@@ -320,6 +329,66 @@ export default {
     } = Discounts()
 
     const { isLoading } = FoodList.setup()
+
+    // const updateCartStorage = () => {
+    //   const cartKey = getCartKey()
+    //   localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
+    // }
+
+    const getCoordinatesFromAddress = async (address) => {
+      const apiKey = 'a642902bd23e49d3847cbfed7d30d5ed'
+      const res = await axios.get(`https://api.opencagedata.com/geocode/v1/json`, {
+        params: {
+          key: apiKey,
+          q: address,
+          pretty: 1,
+          limit: 1
+        }
+      })
+      if (res.data.results.length) {
+        const { lat, lng } = res.data.results[0].geometry
+        return { lat, lng }
+      }
+      return null
+    }
+
+
+
+    const calculateRouteDistanceKm = async (startCoords, endCoords) => {
+      const apiKey = '5b3ce3597851110001cf624816b34e7b81c74399985b6d444d7fca5c'
+      try {
+        const response = await axios.post(
+          'https://api.openrouteservice.org/v2/directions/driving-car/geojson',
+          {
+            coordinates: [
+              [startCoords.lng, startCoords.lat],
+              [endCoords.lng, endCoords.lat]
+            ]
+          },
+          {
+            headers: {
+              Authorization: apiKey,
+              'Content-Type': 'application/json'
+            }
+          }
+        )
+
+        const distanceMeters = response.data.features[0].properties.summary.distance
+        return distanceMeters / 1000
+      } catch (error) {
+        console.error('Lỗi khi gọi OpenRouteService:', error)
+        return null
+      }
+    }
+
+
+
+
+
+
+
+
+
 
     const isLoggedIn = computed(() => !!localStorage.getItem('token'))
 
@@ -373,7 +442,20 @@ export default {
           alert('Vui lòng chọn phương thức thanh toán!')
           return
         }
-        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`
+        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`;
+        const userLocation = await getCoordinatesFromAddress(fullAddress)
+        if (!userLocation) {
+          alert('Không lấy được vị trí của địa chỉ bạn đã nhập.')
+          isLoading.value = false
+          return
+        }
+
+        const distance = await calculateRouteDistanceKm(restaurantLocation, userLocation)
+        if (distance > 25) {
+          alert(`Rất tiếc! Địa chỉ của bạn nằm ngoài bán kính giao hàng 25km (${distance.toFixed(2)}km).`)
+          isLoading.value = false
+          return
+        }
         const orderData = {
           user_id: user.value ? user.value.id : null,
           guest_name: form.value.fullname,
@@ -443,8 +525,8 @@ export default {
           })
           alert('Đặt hàng thành công!')
           localStorage.setItem('payment_method', paymentMethod.value)
-          // localStorage.removeItem(cartKey)
-          // router.push('/payment-result')
+          localStorage.removeItem(cartKey)
+          router.push('/payment-result')
         }
       } catch (error) {
         console.error('Lỗi xảy ra:', error.message)
@@ -464,10 +546,14 @@ export default {
         isLoading.value = false
       }
     }
-
+    const today = dayjs().format('YYYY-MM-DD')
     const discountsFiltered = computed(() => {
-      return discounts.value.filter((discount) => discount.used < discount.usage_limit)
-    })
+  return discounts.value.filter(discount => {
+    const endDate = dayjs(discount.end_date).format('YYYY-MM-DD')
+    return discount.used < discount.usage_limit && endDate >= today
+  })
+})
+
     console.log(discountsFiltered.value)
     onMounted(() => {
       getProvinces()
@@ -508,7 +594,8 @@ export default {
       onDistrictChange,
       onProvinceChange,
       isLoggedIn,
-      discountsFiltered
+      discountsFiltered,
+      today
     }
   },
 }

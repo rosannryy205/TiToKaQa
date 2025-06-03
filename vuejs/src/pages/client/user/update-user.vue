@@ -30,6 +30,35 @@
           </div>
 
           <h6 class="mt-2 mb-3">{{ form.username || 'Chưa có tên' }}</h6>
+          
+<!-- Điểm & Hạng cùng hàng -->
+<div class="d-flex justify-content-center align-items-center gap-4 mb-2">
+  <!-- Điểm -->
+  <div class="d-flex align-items-center gap-2 text-muted">
+    <i class="bi bi-star-fill text-warning"></i>
+    <span>{{ form.point ?? 0 }} điểm</span>
+  </div>
+
+  <!-- Hạng -->
+  <div class="d-flex align-items-center gap-2">
+    <i class="bi bi-award-fill"
+       :class="{
+         'text-secondary': form.rank === 'Thường',
+         'text-primary': form.rank === 'Bạc',
+         'text-warning': form.rank === 'Vàng'
+       }"
+    ></i>
+    <span class="fw-bold"
+      :class="{
+        'text-secondary': form.rank === 'Thường',
+        'text-primary': form.rank === 'Bạc',
+        'text-warning': form.rank === 'Vàng'
+      }"
+    >
+      {{ form.rank || 'Thường' }}
+    </span>
+  </div>
+</div>
 
           <div class="list-group text-start">
             <router-link to="/update-user" class="text-decoration-none list-group-item list-group-item-action">
@@ -133,6 +162,8 @@ export default {
           address: res.data.address || '',
           avatar: res.data.avatar || '',
           username: res.data.username || '',
+          point: res.data.point,
+          rank: res.data.rank,
 
         }
       } catch (error) {

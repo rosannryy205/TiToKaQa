@@ -18,6 +18,8 @@ Carbon::setLocale('vi');
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -437,7 +439,7 @@ class OrderController extends Controller
 
     public function getTables()
     {
-        $tables = Table::all();
+        $tables = Table::orderBy('capacity', 'asc')->get();
         return $tables;
     }
 
@@ -470,8 +472,6 @@ class OrderController extends Controller
             'data' => $orderWithTables,
         ]);
     }
-
-
 
 
     public function setUpTable(Request $request)
@@ -661,53 +661,24 @@ class OrderController extends Controller
             return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
         }
     }
+    }
 
-    // public function orderFoodForUser(Request $request)
-    // {
-    //     try {
-    //         $data = $request->validate([
-    //             'price' => 'required|numeric',
-    //             'order_id' => 'required|numeric',
-    //             'food_id' => 'required|numeric',
-    //             'combo_id' => 'nullable|numeric',
-    //             'quantity' => 'required|numeric',
-    //             'type' => 'required|string',
-    //             'order_toppings' => 'nullable|array',
-    //             'order_toppings.*.food_toppings_id' => 'required|numeric',
-    //             'order_toppings.*.price' => 'required|numeric',
-    //         ]);
 
-    //         $orderDetail = Order_detail::create([
-    //             'order_id' => $data['order_id'],
-    //             'food_id' => $data['food_id'],
-    //             'combo_id' => $data['combo_id'] ?? null,
-    //             'quantity' => $data['quantity'],
-    //             'price' => $data['price'],
-    //             'type' => $data['type'],
-    //         ]);
+    public function getOrderByUser($user_id, $id){
+        $order = DB::table('orders')
+        ->where('user_id', $user_id)
+        ->where('id',$id)
+        ->first();
 
-    //         if (!empty($data['order_toppings'])) {
-    //             foreach ($data['order_toppings'] as $toppingId) {
-    //                 $foodTopping = Food_topping::find($toppingId);
-    //                 if ($foodTopping) {
-    //                     Order_topping::create([
-    //                         'food_toppings_id' => $toppingId['food_toppings_id'],
-    //                         'order_detail_id' => $orderDetail->id,
-    //                         'price' => $toppingId['price'], // hoặc $foodTopping->price nếu bạn luôn lấy từ DB
-    //                     ]);
+        if(!$order){
+            return response()->json([
+                'message' => 'Không tìm thấy đơn hàng'
+            ],404);
+        }
 
-    //                 }
-    //             }
-    //         }
-
-    //         return response()->json(['status' => true, 'message' => 'Thêm món thành công!']);
-    //     } catch (ValidationException $e) {
-    //         return response()->json([
-    //             'status' => false,
-    //             'errors' => $e->errors()
-    //         ], 422);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
-    //     }
-    // }
+        return response() -> json([
+            'message' => 'Đã tìm thấy đơn hàng',
+            'data' => $order
+        ]);
+    }
 }
