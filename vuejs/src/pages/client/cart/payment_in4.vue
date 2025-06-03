@@ -178,6 +178,7 @@
 import { FoodList } from '@/stores/food'
 // import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
+import { useRouter} from 'vue-router'
 import { onMounted } from 'vue'
 import numeral from 'numeral'
 import { ref } from 'vue'
@@ -195,7 +196,7 @@ export default {
     },
   },
   setup() {
-
+    const router = useRouter()
 
     const selectedProvince = ref(null)
     const selectedDistrict = ref(null)
@@ -206,8 +207,8 @@ export default {
     const wards = ref([])
 
 
-    const user1 = ref(null)
- 
+    // const user1 = ref(null)
+
     const note = ref('')
     const {
       user,
@@ -243,9 +244,9 @@ export default {
 
 
 
-    
 
-    
+
+
 
 
 
@@ -300,7 +301,7 @@ export default {
         }
         const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`;
         const orderData = {
-          user_id: user1.value ? user1.value.id : null,
+          user_id: user.value ? user.value.id : null,
           guest_name: form.value.fullname,
           guest_email: form.value.email,
           guest_phone: form.value.phone,
@@ -362,8 +363,8 @@ export default {
           })
           alert('Đặt hàng thành công!')
           localStorage.setItem('payment_method', paymentMethod.value)
-          // localStorage.removeItem(cartKey)
-          // router.push('/payment-result')
+          localStorage.removeItem(cartKey)
+          router.push('/payment-result')
         }
 
       } catch (error) {
@@ -388,7 +389,7 @@ export default {
     onMounted(() => {
       getProvinces()
       loadCart()
-      
+
     })
 
     return {

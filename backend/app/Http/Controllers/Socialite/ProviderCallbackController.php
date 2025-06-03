@@ -33,7 +33,7 @@ class ProviderCallbackController extends Controller
 
             return redirect()->away("http://localhost:5173/google/callback?token=$token&user=$user");
 
-            
+
         } catch (\Exception $e) {
             return response()->json(['message' => 'Something went wrong', 'error' => $e->getMessage()], 500);
         }

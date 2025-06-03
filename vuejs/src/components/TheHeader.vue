@@ -59,7 +59,7 @@
                     <button class="icon-btn me-2" @click="handleLogout">
                       <i class="bi bi-person-x"></i>
                     </button>
-                    <router-link to="/update-user" class="text-decoration-none text-primary-red">
+                    <router-link to="/infor-user" class="text-decoration-none text-primary-red">
                       <p v-if="user.username" class="mb-0 me-2">{{ user.username }}</p>
                     </router-link>
                   </template>

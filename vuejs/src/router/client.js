@@ -50,9 +50,9 @@ const client = [
         component: () => import('../pages/client/food/index.vue'),
       },
       {
-        path: 'update-user',
+        path: 'update-user1',
         name: 'update-user',
-        component: () => import('../pages/client/user/update-user.vue'),
+        component: () => import('../pages/client/user/update-user1.vue'),
       },
       {
         path: 'history-order',
@@ -75,8 +75,12 @@ const client = [
         component: () => import('../pages/client/user/GoogleCallback.vue'),
       },
       {
-        path: '/test',
-        component: () => import('../pages/client/user/test.vue'),
+        path: '/update-user',
+        component: () => import('../pages/client/user/update-user.vue'),
+      },
+      {
+        path: '/infor-user',
+        component: () => import('../pages/client/user/infor-user.vue'),
       }
     ],
   },

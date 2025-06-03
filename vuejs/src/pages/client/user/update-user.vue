@@ -1,18 +1,18 @@
 <template>
-  <!-- Loading Spinner -->
   <div v-if="loading" class="d-flex justify-content-center align-items-center" style="min-height: 50vh;">
     <div class="spinner-border text-danger" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
-  <div v-else-if="user" class="container mt-5 fade-in">
+  <div v-else class="container mt-5 fade-in">
     <div class="row g-4">
-      <!-- Avatar + Sidebar -->
-      <div class="col-12 col-md-3">
+      <!-- Sidebar -->
+      <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0" style="max-height: 300px;">
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
-          <div class="avatar-wrapper mx-auto mb-3 d-flex justify-content-center align-items-center">
+          <div class="d-flex  align-items-center mb-3 mx-3">
             <template v-if="form && form.avatar">
-              <img :src="form.avatar" alt="Avatar" class="rounded-circle avatar-img" />
+              <img :src="form.avatar" alt="Avatar"
+                class="rounded-circle avatar-img shadow p-3 mb-5 bg-body-tertiary rounded" />
             </template>
             <template v-else>
               <div class="avatar-placeholder d-flex justify-content-center align-items-center">
@@ -20,79 +20,153 @@
               </div>
             </template>
 
-            <!-- Hover overlay -->
-            <div class="avatar-overlay d-flex justify-content-center align-items-center">
-              <label class="btn btn-light btn-sm m-0 cursor-pointer">
-                Đổi ảnh
-                <input type="file" @change="handleImageUpload" hidden />
-              </label>
+            <div class="ms-4 text-center text-md-start">
+              <h6 class="mt-2 mb-3 fw-bold">{{ form.username || 'Chưa có tên' }}</h6>
+              <a href="#" @click="handleLogout"
+                class="list-group-item-action link-danger small d-flex align-items-center gap-1 mt-2">
+                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+              </a>
             </div>
+
           </div>
 
-          <h6 class="mt-2 mb-3">{{ form.username || 'Chưa có tên' }}</h6>
 
-          <div class="list-group text-start">
-            <router-link to="/update-user" class="text-decoration-none list-group-item list-group-item-action">
-              <p class="mb-0 me-3">Thông tin tài khoản</p>
+          <!-- <div class="bg-light rounded-3 p-3 text-center mb-3">
+            <div class="fw-bold">POP MART MEMBER</div>
+            <div class="d-flex justify-content-around mt-2">
+              <div>
+                <div class="fw-bold fs-5">50</div>
+                <div class="text-muted small">Điểm</div>
+              </div>
+              <div>
+                <div class="fw-bold fs-5">0</div>
+                <div class="text-muted small">Coupons</div>
+              </div>
+            </div>
+            <button class="btn btn-outline-dark btn-sm mt-3 rounded-pill px-4">Rewards</button>
+          </div> -->
+
+          <ul class="list-group list-group-flush">
+            <router-link to="/update-user" class="text-decoration-none text-dark">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-bold text-danger">Thông tin tài khoản</div>
+                  <div class="small text-muted">Cập nhật thông tin</div>
+                </div>
+                <i class="bi bi-chevron-right text-secondary"></i>
+              </li>
             </router-link>
-            <router-link to="/history-order" class="text-decoration-none list-group-item list-group-item-action">
-              <p class="mb-0 me-3">Lịch sử đơn hàng</p>
+
+            <router-link to="/infor-user" class="text-decoration-none text-dark">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-bold">Quản lý đơn hàng</div>
+                  <div class="small text-muted">Đơn hàng của tôi</div>
+                </div>
+                <i class="bi bi-chevron-right text-secondary"></i>
+              </li>
             </router-link>
-            <a href="#" class="list-group-item list-group-item-action text-danger" @click="handleLogout">Đăng xuất</a>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="col-12 col-md-8 col-lg-9">
+        <h4 class="fw-bold mb-4">Quản lý tài khoản</h4>
+
+        <div class="card shadow-lg p-4 mx-auto">
+          <div class="row">
+            <!-- Cột trái -->
+            <div class="col-md-7 mb-5 mb-md-0">
+              <form @submit.prevent="handleSubmit">
+                <div class="mb-3">
+                  <label class="form-label">Tên người dùng</label>
+                  <input type="text" v-model="form.fullname" class="form-control form-control-lg rounded"
+                    placeholder="Nhập nickname của bạn" id="fullname">
+                </div>
+
+                <div class="mb-3 text-center">
+                  <label class="form-label d-block">Ảnh đại diện</label>
+                  <label for="upload-profile" class="border border-2 rounded-3 d-inline-block p-5 text-muted"
+                    style="cursor: pointer;">
+                    <div class="fs-1 mb-2">+</div>
+                    <div class="fw-medium">Tải lên</div>
+                  </label>
+                  <input type="file" id="upload-profile" class="d-none" @change="handleImageUpload" />
+                </div>
+
+
+                <div class="mb-3">
+                  <label for="phone" class="form-label">Số điện thoại</label>
+                  <div class="input-group">
+                    <span class="input-group-text">+84</span>
+                    <input type="text" v-model="form.phone" class="form-control form-control-lg rounded" id="phone"
+                      placeholder="Nhập số điện thoại của bạn">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="address" class="form-label">Địa chỉ</label>
+                  <input type="text" v-model="form.address" class="form-control form-control-lg rounded" id="address"
+                    placeholder="Nhập địa chỉ của bạn">
+                </div>
+
+                <div v-if="successMessage" class="alert alert-success mt-3">
+                  {{ successMessage }}
+                </div>
+                <div class="text-center">
+                  <button type="submit" style="background-color: #ca111f;" class="btn text-white w-100">Lưu tài
+                    khoản</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Cột phải -->
+            <div class="col-md-5 border-start ps-md-4">
+              <ul class="p-0 m-0 list-unstyled">
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-envelope fa-lg"></i>
+                    <div>
+                      <div class="fw-bold">Địa chỉ email</div>
+                      <div class="small text-muted">Thay đổi địa chỉ email</div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px;">
+                    <strong>Cập nhật</strong>
+                  </button>
+                </li>
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-lock fa-lg"></i>
+                    <div>
+                      <div class="fw-bold">Đổi mật khẩu</div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px;">
+                    <strong>Cập nhật</strong>
+                  </button>
+                </li>
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-trash fa-lg"></i>
+                    <div>
+                      <div class="fw-bold">Xóa tài khoản</div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px;">
+                    <strong>Xóa</strong>
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
 
-
-      <!-- Container 2: Form -->
-      <div class="col-12 col-md-9">
-        <div class="card shadow border-0 p-4">
-          <h4 class="mb-4 text-center" :style="{ color: primaryColor }">Thông tin tài khoản</h4>
-          <div v-if="successMessage" class="alert alert-success mt-3">
-            {{ successMessage }}
-          </div>
-          <form @submit.prevent="handleSubmit">
-            <div class="mb-3">
-              <label for="fullname" class="form-label">Họ và tên</label>
-              <input type="text" v-model="form.fullname" class="form-control border-custom" id="fullname">
-            </div>
-
-            <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <input type="email" v-model="form.email" class="form-control border-custom" id="email" required>
-            </div>
-
-            <div class="mb-3">
-              <label for="phone" class="form-label">Số điện thoại</label>
-              <input type="text" v-model="form.phone" class="form-control border-custom" id="phone">
-            </div>
-
-            <div class="mb-3">
-              <label for="address" class="form-label">Địa chỉ</label>
-              <input type="text" v-model="form.address" class="form-control border-custom" id="address">
-            </div>
-
-            <!-- <div class="mb-3">
-              <label for="status" class="form-label">Trạng thái</label>
-              <select id="status" v-model="form.status" class="form-select border-custom">
-                <option value="active">Đang hoạt động</option>
-                <option value="blocked">Bị khoá</option>
-              </select>
-            </div> -->
-
-            <button type="submit" class="btn text-white w-100" :style="{ backgroundColor: primaryColor }">
-              Lưu thay đổi
-            </button>
-          </form>
-
-        </div>
-      </div>
     </div>
   </div>
-  <!-- Nếu chưa đăng nhập -->
-  <div v-else class="container d-flex align-items-center justify-content-center" style="min-height: 50vh;">
-    <h5 class="mb-3">Vui lòng đăng nhập để xem thông tin tài khoản.</h5>
-  </div>
+
 
 </template>
 <script>
@@ -113,7 +187,7 @@ export default {
       avatar: '',
       username: ''
     })
-    const user1 = JSON.parse(localStorage.getItem('user')) || null
+    let user1 = JSON.parse(localStorage.getItem('user')) || null
     // const token = localStorage.getItem('token')
 
     const personally = async (userId) => {
@@ -162,7 +236,7 @@ export default {
 
         localStorage.removeItem('user');
         localStorage.removeItem('token');
-        user1.value = null;
+        user1 = null;
         isLoggedIn.value = false;
 
         alert('Đăng xuất thành công!');
@@ -249,15 +323,6 @@ export default {
   margin-right: auto;
 }
 
-
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 3px solid #ca111f;
-}
-
 .avatar-overlay {
   position: absolute;
   top: 0;
@@ -276,29 +341,39 @@ export default {
 }
 
 .avatar-placeholder {
-  width: 150px;
-  height: 150px;
+  width: clamp(80px, 25vw, 150px);
+  height: clamp(80px, 25vw, 150px);
   border-radius: 50%;
   background-color: #e0e0e0;
   color: #ca111f;
   font-size: 36px;
   font-weight: bold;
-  border: 3px solid #ca111f;
+  border: 1px solid #ca111f;
 }
 
 .avatar-img,
 .avatar-placeholder {
-  width: 100%;
-  height: 100%;
+  width: clamp(70px, 20vw, 100px);
+  height: clamp(70px, 20vw, 100px);
   object-fit: cover;
   border-radius: 50%;
-  border: 3px solid #ca111f;
+  /* border: 1px solid #ca111f; */
   display: block;
 }
 
 .fade-in {
   animation: fadeIn 0.4s ease-in-out;
 }
+
+.list-group-item:hover {
+  background-color: #cdcdcd;
+  border-radius: 20px;
+  cursor: pointer;
+}
+li.list-group-item {
+  border: none !important;
+}
+
 
 @keyframes fadeIn {
   from {
