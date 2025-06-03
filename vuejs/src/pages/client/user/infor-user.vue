@@ -12,10 +12,10 @@
           <div class="d-flex  align-items-center mb-3 mx-3">
             <template v-if="form && form.avatar">
               <img :src="form.avatar" alt="Avatar"
-                class="rounded-circle avatar-img shadow p-3 mb-5 bg-body-tertiary rounded" />
+                class="avatar-circle border-custom d-flex justify-content-center align-items-center" />
             </template>
             <template v-else>
-              <div class="avatar-placeholder d-flex justify-content-center align-items-center">
+              <div class="avatar-circle border-custom d-flex justify-content-center align-items-center">
                 {{ getInitial(form?.fullname) || getInitial(form?.username) }}
               </div>
             </template>
@@ -76,17 +76,14 @@
       <div class="col-12 col-md-8 col-lg-9">
         <h4 class="fw-bold mb-4">Đơn hàng của tôi</h4>
         <!-- Có đơn hàng -->
-        <div v-if="orders?.length > 0" class="card shadow border-0 p-4">
-          <!-- Tabs -->
-          <div class="order-tabs d-flex overflow-auto gap-3 mb-4">
-            <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]"
-              @click="setActive(tab)">
-              {{ tab }}
-            </div>
+        <!-- Tabs -->
+        <div class="order-tabs d-flex overflow-auto gap-3 mb-4">
+          <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]"
+            @click="setActive(tab)">
+            {{ tab }}
           </div>
-
-
-
+        </div>
+        <div v-if="orders?.length > 0" class="card shadow border-0 p-4">
 
           <div class="table-responsive">
             <!--Desktop -->
@@ -276,10 +273,13 @@ export default {
 <style scoped>
 .order-tabs {
   display: flex;
-  justify-content: center; /* căn giữa các tab */
+  justify-content: center;
+  /* căn giữa các tab */
   align-items: center;
-  gap: 1rem; /* khoảng cách giữa các tab */
-  flex-wrap: wrap; /* nếu thiếu chỗ thì tự xuống dòng */
+  gap: 1rem;
+  /* khoảng cách giữa các tab */
+  flex-wrap: wrap;
+  /* nếu thiếu chỗ thì tự xuống dòng */
   margin-bottom: 1.5rem;
 }
 
@@ -313,51 +313,23 @@ export default {
   border: 1px solid #ca111f;
 }
 
-.avatar-wrapper {
-  width: 100%;
-  max-width: 120px;
-  /* nhỏ hơn 150px để vừa iPad */
+.avatar-circle {
+  width: clamp(80px, 25vw, 100px);
+  height: clamp(80px, 25vw, 100px);
+  border-radius: 50%;
   aspect-ratio: 1/1;
+  overflow: hidden;
+  /* QUAN TRỌNG: ẩn phần thừa */
   position: relative;
-  margin-left: auto;
-  margin-right: auto;
+  margin: auto;
 }
 
-.avatar-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
+.avatar-circle img {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  cursor: pointer;
-}
-
-.avatar-wrapper:hover .avatar-overlay {
-  opacity: 1;
-}
-
-.avatar-placeholder {
-  width: clamp(80px, 25vw, 150px);
-  height: clamp(80px, 25vw, 150px);
-  border-radius: 50%;
-  background-color: #e0e0e0;
-  color: #ca111f;
-  font-size: 36px;
-  font-weight: bold;
-  border: 1px solid #ca111f;
-}
-
-.avatar-img,
-.avatar-placeholder {
-  width: clamp(70px, 20vw, 100px);
-  height: clamp(70px, 20vw, 100px);
   object-fit: cover;
-  border-radius: 50%;
-  /* border: 1px solid #ca111f; */
+  /* QUAN TRỌNG: giữ tỷ lệ, cắt vừa khung */
+  object-position: center;
   display: block;
 }
 
@@ -388,11 +360,8 @@ li.list-group-item {
 }
 
 @media (max-width: 768px) {
-  .avatar-wrapper {
+  .avatar-circle {
     max-width: 100px;
-  }
-
-  .avatar-placeholder {
     font-size: 28px;
   }
 }

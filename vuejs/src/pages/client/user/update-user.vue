@@ -12,16 +12,16 @@
           <div class="d-flex  align-items-center mb-3 mx-3">
             <template v-if="form && form.avatar">
               <img :src="form.avatar" alt="Avatar"
-                class="rounded-circle avatar-img shadow p-3 mb-5 bg-body-tertiary rounded" />
+                class="avatar-circle d-flex justify-content-center align-items-center" />
             </template>
             <template v-else>
-              <div class="avatar-placeholder d-flex justify-content-center align-items-center">
-                {{ getInitial(form?.username) }}
+              <div class="avatar-circle d-flex justify-content-center align-items-center">
+                {{ getInitial(form?.fullname) || getInitial(form?.username) }}
               </div>
             </template>
 
             <div class="ms-4 text-center text-md-start">
-              <h6 class="mt-2 mb-3 fw-bold">{{ form.username || 'Chưa có tên' }}</h6>
+              <h6 class="mt-2 mb-3 fw-bold">{{ form.fullname || form.username }}</h6>
               <a href="#" @click="handleLogout"
                 class="list-group-item-action link-danger small d-flex align-items-center gap-1 mt-2">
                 <i class="bi bi-box-arrow-right"></i> Đăng xuất
@@ -87,12 +87,13 @@
 
                 <div class="mb-3 text-center">
                   <label class="form-label d-block">Ảnh đại diện</label>
-                  <label for="upload-profile" class="border border-2 rounded-3 d-inline-block p-5 text-muted"
+                  <label for="upload-profile" class="border border-2 rounded-3 d-inline-block p-4 text-muted"
                     style="cursor: pointer;">
-                    <div class="fs-1 mb-2">+</div>
-                    <div class="fw-medium">Tải lên</div>
+                      <div class="fs-1 mb-2">+</div>
+                      <div class="fw-medium">Tải lên</div>
                   </label>
-                  <input type="file" id="upload-profile" class="d-none" @change="handleImageUpload" />
+                  <input type="file" id="upload-profile" class="d-none"
+                    @change="handleImageUpload" />
                 </div>
 
 
@@ -110,10 +111,6 @@
                   <input type="text" v-model="form.address" class="form-control form-control-lg rounded" id="address"
                     placeholder="Nhập địa chỉ của bạn">
                 </div>
-
-                <div v-if="successMessage" class="alert alert-success mt-3">
-                  {{ successMessage }}
-                </div>
                 <div class="text-center">
                   <button type="submit" style="background-color: #ca111f;" class="btn text-white w-100">Lưu tài
                     khoản</button>
@@ -126,7 +123,7 @@
               <ul class="p-0 m-0 list-unstyled">
                 <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
-                    <i class="fa-solid fa-envelope fa-lg"></i>
+                    <i class="bi bi-envelope"></i>
                     <div>
                       <div class="fw-bold">Địa chỉ email</div>
                       <div class="small text-muted">Thay đổi địa chỉ email</div>
@@ -138,7 +135,11 @@
                 </li>
                 <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
-                    <i class="fa-solid fa-lock fa-lg"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                      class="bi bi-lock" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd"
+                        d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3" />
+                    </svg>
                     <div>
                       <div class="fw-bold">Đổi mật khẩu</div>
                     </div>
@@ -149,7 +150,7 @@
                 </li>
                 <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
-                    <i class="fa-solid fa-trash fa-lg"></i>
+                    <i class="bi bi-trash"></i>
                     <div>
                       <div class="fw-bold">Xóa tài khoản</div>
                     </div>
@@ -172,11 +173,11 @@
 <script>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-
+import { toast } from 'vue3-toastify'
+import { Image } from "ant-design-vue"
 
 export default {
   setup() {
-    const successMessage = ref('')
     const primaryColor = '#ca111f';
     const user = ref(null)
     const form = ref({
@@ -255,19 +256,20 @@ export default {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           }
         })
-        successMessage.value = 'Cập nhật thành công!'
 
         //Cập nhật localstorage
-        const updatedUser = {
-          ...user1,
-          fullname: form.value.fullname || '',
-          email: form.value.email || '',
-          phone: form.value.phone || '',
-          address: form.value.address || ''
-        }
-        localStorage.setItem('user', JSON.stringify(updatedUser))
+        // const updatedUser = {
+        //   ...user1,
+        //   fullname: form.value.fullname || '',
+        //   email: form.value.email || '',
+        //   phone: form.value.phone || '',
+        //   address: form.value.address || ''
+        // }
+        // localStorage.setItem('user', JSON.stringify(updatedUser))
+        toast.success('Đã cập nhật thông tin thành công.')
 
       } catch (error) {
+        toast.error('Có lỗi xảy ra, vui lòng thử lại sau.')
         console.error(error)
         alert('Cập nhật thất bại.')
       }
@@ -297,7 +299,6 @@ export default {
     return {
       form,
       user,
-      successMessage,
       handleSubmit,
       handleImageUpload,
       handleLogout,
@@ -313,53 +314,28 @@ export default {
   border: 1px solid #ca111f;
 }
 
-.avatar-wrapper {
-  width: 100%;
-  max-width: 120px;
-  /* nhỏ hơn 150px để vừa iPad */
+
+.avatar-circle {
+  width: clamp(80px, 25vw, 100px);
+  height: clamp(80px, 25vw, 100px);
+  border-radius: 50%;
   aspect-ratio: 1/1;
+  overflow: hidden;
+  /* QUAN TRỌNG: ẩn phần thừa */
   position: relative;
-  margin-left: auto;
-  margin-right: auto;
+  margin: auto;
 }
 
-.avatar-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
+.avatar-circle img {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  cursor: pointer;
-}
-
-.avatar-wrapper:hover .avatar-overlay {
-  opacity: 1;
-}
-
-.avatar-placeholder {
-  width: clamp(80px, 25vw, 150px);
-  height: clamp(80px, 25vw, 150px);
-  border-radius: 50%;
-  background-color: #e0e0e0;
-  color: #ca111f;
-  font-size: 36px;
-  font-weight: bold;
-  border: 1px solid #ca111f;
-}
-
-.avatar-img,
-.avatar-placeholder {
-  width: clamp(70px, 20vw, 100px);
-  height: clamp(70px, 20vw, 100px);
   object-fit: cover;
-  border-radius: 50%;
-  /* border: 1px solid #ca111f; */
+  /* QUAN TRỌNG: giữ tỷ lệ, cắt vừa khung */
+  object-position: center;
   display: block;
 }
+
+
 
 .fade-in {
   animation: fadeIn 0.4s ease-in-out;
@@ -370,6 +346,7 @@ export default {
   border-radius: 20px;
   cursor: pointer;
 }
+
 li.list-group-item {
   border: none !important;
 }
@@ -388,11 +365,8 @@ li.list-group-item {
 }
 
 @media (max-width: 768px) {
-  .avatar-wrapper {
+  .avatar-circle {
     max-width: 100px;
-  }
-
-  .avatar-placeholder {
     font-size: 28px;
   }
 }

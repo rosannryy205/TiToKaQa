@@ -73,7 +73,7 @@ class UserController extends Controller
             'password' => bcrypt($request->password),
             'address' => $request->address ?? '',
             'fullname' => $request->fullname ?? '',
-            'role'=>'user'
+            'role' => 'user'
 
         ]);
         Auth::login($user);
@@ -204,7 +204,8 @@ class UserController extends Controller
         ]);
     }
 
-    public function sendCode(Request $request){
+    public function sendCode(Request $request)
+    {
         $validator = Validator::make(
             $request->all(),
             [
@@ -277,33 +278,34 @@ class UserController extends Controller
         }
 
         $user->verify_code = null;
-        $user->verify_expiry=null;
+        $user->verify_expiry = null;
         $user->save();
 
         return response()->json(['message' => 'Xác minh thành công']);
     }
 
 
-    public function ChangePassword(Request $request){
-        $validator=Validator::make($request->all(),[
-            'email'=>'required|email',
+    public function ChangePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
             'password' => 'required|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
-        ],[
+        ], [
             'password.required' => 'Vui lòng nhập mật khẩu.',
             'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
             'password.min' => 'Mật khẩu phải có ít nhất :min ký tự.',
             'password.regex' => 'Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.',
         ]);
 
-        if($validator->fails()){
-            return response()->json(['errors'=>$validator->errors()],422);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
         $user->password = bcrypt($request->password);
         $user->save();
-        return response()->json(['message'=>'Đặt lại mật khẩu thành công']);
+        return response()->json(['message' => 'Đặt lại mật khẩu thành công']);
     }
 
 
@@ -355,16 +357,20 @@ class UserController extends Controller
     {
 
         $user = User::findOrFail($id);
-        $user->fullname = $request->fullname;
-        $user->email = $request->email;
-        $user->phone = $request->phone;
-        $user->address = $request->address;
-        $user->update([
+
+        $data = [
             'fullname' => $request->fullname,
-            'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
-        ]);
+        ];
+
+        // Nếu avatar có dữ liệu thì thêm vào mảng update
+        if ($request->has('avatar') && $request->avatar) {
+            $data['avatar'] = $request->avatar;
+        }
+
+        $user->update($data);
+
         return response()->json([
             'message' => 'Đã cập nhật user thành công!',
             'user' => $user
