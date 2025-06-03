@@ -18,6 +18,8 @@ return new class extends Migration
             $table->integer('discount_value'); 
             $table->enum('discount_method', ['percent', 'fixed'])->default('fixed'); 
             $table->enum('discount_type', ['freeship', 'salefood'])->default('freeship'); 
+            $table->integer('max_discount_amount')->nullable()->comment('Giá trị giảm tối đa, áp dụng cho discount_method là percent');
+            $table->integer('min_order_value')->nullable()->default(0)->comment('Giá trị đơn hàng tối thiểu để được áp dụng mã giảm giá');
             $table->timestamp('start_date')->nullable(); 
             $table->timestamp('end_date')->nullable();   
             $table->enum('status', ['active', 'inactive'])->default('active'); 
