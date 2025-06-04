@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Order_detail;
 use App\Models\Order_topping;
+use App\Models\Reservation_table;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -203,19 +204,17 @@ class CartController extends Controller
                     'note' => $order->note,
                     'deposit_amount' => $order->deposit_amount,
                     'check_in_time' => $order->check_in_time,
-                    'reservations_time' => $order->reservations_time,
                     'expiration_time' => $order->expiration_time,
-                    'reservation_status' => $order->reservation_status,
+                    'money_reduce' => $order->money_reduce,
                     'details' => $details,
                     'tables' => $order->tables->map(function ($table) {
                         return [
                             'table_number' => $table->table_number,
                             'capacity' => $table->capacity,
                             'status' => $table->status,
-                            'reservation_id' => $table->pivot->id,
                             'order_id' => $table->pivot->order_id,
                             'table_id' => $table->pivot->table_id,
-                            'assigned_time' => $table->pivot->assigned_time,
+                            'reservation_status' => $table->pivot->reservation_status,
                             'reserved_from' => $table->pivot->reserved_from,
                             'reserved_to' => $table->pivot->reserved_to,
                         ];
