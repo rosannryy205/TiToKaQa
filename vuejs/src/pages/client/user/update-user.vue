@@ -11,7 +11,7 @@
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
           <div class="d-flex  align-items-center mb-3 mx-3">
             <template v-if="form && form.avatar">
-              <img :src="form.avatar" alt="Avatar"
+              <img :src="form.avatarPreview || form.avatar" alt="Avatar"
                 class="avatar-circle d-flex justify-content-center align-items-center" />
             </template>
             <template v-else>
@@ -87,13 +87,12 @@
 
                 <div class="mb-3 text-center">
                   <label class="form-label d-block">Ảnh đại diện</label>
-                  <label for="upload-profile" class="border border-2 rounded-3 d-inline-block p-4 text-muted"
+                  <label for="avatar" class="border border-2 rounded-3 d-inline-block p-4 text-muted"
                     style="cursor: pointer;">
-                      <div class="fs-1 mb-2">+</div>
-                      <div class="fw-medium">Tải lên</div>
+                    <div class="fs-1 mb-2">+</div>
+                    <div class="fw-medium">Tải lên</div>
                   </label>
-                  <input type="file" id="upload-profile" class="d-none"
-                    @change="handleImageUpload" />
+                  <input type="file" id="avatar" class="d-none" @change="handleImageUpload" />
                 </div>
 
 
@@ -171,7 +170,7 @@
 
 </template>
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import axios from 'axios'
 import { toast } from 'vue3-toastify'
 import { Image } from "ant-design-vue"
@@ -186,10 +185,12 @@ export default {
       phone: '',
       address: '',
       avatar: '',
-      username: ''
+      username: '',
+      avatarFile: null,
+      avatarPreview: null,
     })
-    let user1 = JSON.parse(localStorage.getItem('user')) || null
-    // const token = localStorage.getItem('token')
+
+    const isLoggedIn = computed(() => !!user.value)
 
     const personally = async (userId) => {
       try {
@@ -201,73 +202,74 @@ export default {
         user.value = res.data
         // console.log(res.data.username);
 
-        form.value = {
+        Object.assign(form.value, {
           fullname: res.data.fullname,
           email: res.data.email,
           phone: res.data.phone || '',
           address: res.data.address || '',
           avatar: res.data.avatar || '',
           username: res.data.username || '',
-
-        }
+          avatarFile: null,
+          avatarPreview: null
+        })
       } catch (error) {
         console.error('Không lấy được thông tin người dùng', error)
       }
     }
 
-
-    const handleImageUpload = (event) => {
-      const file = event.target.files[0]
-      if (file) {
-        form.value.avatar = URL.createObjectURL(file)
-      }
-    }
-
-    const isLoggedIn = ref(!!user.value);
-
     //  Đăng xuất
     const handleLogout = async () => {
       try {
         await axios.post('http://127.0.0.1:8000/api/logout', null, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-
-
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        user1 = null;
-        isLoggedIn.value = false;
-
-        alert('Đăng xuất thành công!');
-        window.location.href = '/';
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        })
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
+        user.value = null
+        alert('Đăng xuất thành công!')
+        window.location.href = '/'
       } catch (error) {
-        console.error('Lỗi đăng xuất:', error);
-        alert('Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!');
+        alert('Lỗi khi đăng xuất. Vui lòng thử lại!')
+        console.error(error)
       }
-    };
+    }
 
+    const handleImageUpload = (event) => {
+      const file = event.target.files[0]
+      if (file) {
+        if (form.value.avatarPreview) {
+          URL.revokeObjectURL(form.value.avatarPreview)
+        }
+        form.value.avatarFile = file
+        form.value.avatarPreview = URL.createObjectURL(file)
+      }
+    }
+    onUnmounted(() => {
+      if (form.value.avatarPreview) URL.revokeObjectURL(form.value.avatarPreview)
+    })
 
     const handleSubmit = async () => {
       try {
-        await axios.patch(`http://127.0.0.1:8000/api/user/${user.value.id}`, form.value, {
+        const formData = new FormData()
+
+        // Đẩy các trường text vào formData
+        formData.append('fullname', form.value.fullname || '')
+        formData.append('phone', form.value.phone || '')
+        formData.append('address', form.value.address || '')
+        // Các trường khác nếu cần...
+
+        // Đẩy file avatar nếu có
+        if (form.value.avatarFile) {
+          formData.append('avatar', form.value.avatarFile)
+        }
+        await axios.patch(`http://127.0.0.1:8000/api/user/${user.value.id}`, formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data'
           }
         })
 
-        //Cập nhật localstorage
-        // const updatedUser = {
-        //   ...user1,
-        //   fullname: form.value.fullname || '',
-        //   email: form.value.email || '',
-        //   phone: form.value.phone || '',
-        //   address: form.value.address || ''
-        // }
-        // localStorage.setItem('user', JSON.stringify(updatedUser))
         toast.success('Đã cập nhật thông tin thành công.')
-
       } catch (error) {
         toast.error('Có lỗi xảy ra, vui lòng thử lại sau.')
         console.error(error)
@@ -283,19 +285,16 @@ export default {
     const loading = ref(true);
 
     onMounted(() => {
-      if (user1 && user1.id) {
-        personally(user1.id).then(() => {
-          isLoggedIn.value = !!user.value;
+      const storedUser = JSON.parse(localStorage.getItem('user'))
+      if (storedUser && storedUser.id) {
+        personally(storedUser.id).finally(() => {
+          loading.value = false
         })
-          .finally(() => {
-            loading.value = false
-          })
       } else {
-        console.warn('Không tìm thấy user trong localStorage');
-        isLoggedIn.value = false;
-        loading.value = false;
+        loading.value = false
       }
     })
+
     return {
       form,
       user,

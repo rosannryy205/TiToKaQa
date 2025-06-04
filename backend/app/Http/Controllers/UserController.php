@@ -358,18 +358,23 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
-        $data = [
-            'fullname' => $request->fullname,
-            'phone' => $request->phone,
-            'address' => $request->address,
-        ];
+        $request->validate([
+            'fullname' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
 
-        // Nếu avatar có dữ liệu thì thêm vào mảng update
-        if ($request->has('avatar') && $request->avatar) {
-            $data['avatar'] = $request->avatar;
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = $avatarPath;
         }
 
-        $user->update($data);
+        $user->fullname = $request->input('fullname', $user->fullname);
+        $user->phone = $request->input('phone', $user->phone);
+        $user->address = $request->input('address', $user->address);
+
+        $user->save();
 
         return response()->json([
             'message' => 'Đã cập nhật user thành công!',
