@@ -661,22 +661,23 @@ class OrderController extends Controller
             return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
         }
     }
-    }
 
 
-    public function getOrderByUser($user_id, $id){
+
+    public function getOrderByUser($user_id, $id)
+    {
         $order = DB::table('orders')
-        ->where('user_id', $user_id)
-        ->where('id',$id)
-        ->first();
+            ->where('user_id', $user_id)
+            ->where('id', $id)
+            ->first();
 
-        if(!$order){
+        if (!$order) {
             return response()->json([
                 'message' => 'Không tìm thấy đơn hàng'
-            ],404);
+            ], 404);
         }
 
-        return response() -> json([
+        return response()->json([
             'message' => 'Đã tìm thấy đơn hàng',
             'data' => $order
         ]);
