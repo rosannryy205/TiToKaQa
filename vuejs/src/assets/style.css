@@ -946,10 +946,10 @@ body > section > footer > div > div:nth-child(1) > div.col-md-2.mb-4{
 /*section dish-by-category*/
 /**/
 #app > div > section.foods > div.main-page-foods.container > div.col-12.d-lg-none.position-relative > div.show.menu-dropdown > ul > li > a{
-color: #c92c3c;
+color: #000000;
 }
 #app > div > section.foods > div.main-page-foods.container > div.col-12.d-lg-none.position-relative > div.show.menu-dropdown > ul > li > ul > li > a{
-  color: #c92c3c;
+  color: #000000;
 }
 #app > div > section.foods > div.main-page-foods.container > div.row.d-flex.align-items-center.justify-content-between > div.col-md-6.d-none.d-lg-flex.justify-content-center.align-items-center > span{
   font-size: 70px;
@@ -1015,7 +1015,7 @@ color: #c92c3c;
     margin: 0;
   }
   #app > div > section.foods > section > div > div > div.product-list-wrapper.container-fluid > div > div > div > img{
-    width: 65%;
+    width: 45%;
   }
 }
 

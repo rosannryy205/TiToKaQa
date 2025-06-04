@@ -667,11 +667,12 @@ table td {
 
 
 
-/*discount*/
+/* ===== Scroll container ===== */
 .discount-scroll-wrapper {
   max-height: 250px;
   overflow-y: auto;
   padding-right: 6px;
+}
 
 .discount-scroll-wrapper::-webkit-scrollbar {
   width: 6px;
@@ -682,8 +683,9 @@ table td {
   border-radius: 4px;
 }
 
+/* ===== Voucher card ===== */
 .shopee-voucher {
-  margin-top:10px ;
+  margin-top: 10px;
   background-color: #fff5f5;
   border: 1px solid #ff424f;
   border-radius: 8px;
@@ -697,6 +699,7 @@ table td {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
+/* ===== Logo ===== */
 .voucher-logo {
   width: 50px;
   height: 50px;
@@ -705,20 +708,20 @@ table td {
   border-radius: 6px;
   font-weight: bold;
   font-size: 20px;
+  display: flex;
+  flex-direction: column;
   text-align: center;
   justify-content: center;
+  align-items: center;
 }
 
-.logo-text {
-  font-size: 10px;
-  line-height: 1;
-}
-
+.logo-text,
 .logo-small {
   font-size: 10px;
   line-height: 1;
 }
 
+/* ===== Info ===== */
 .voucher-info {
   font-size: 13px;
 }
@@ -728,12 +731,13 @@ table td {
   color: #d70018;
 }
 
-.voucher-condition,
-.voucher-time {
+.voucher-time,
+.voucher-condition {
   font-size: 12px;
   color: #777;
 }
 
+/* ===== Status & Tag ===== */
 .voucher-status {
   background-color: #fff;
   border: 1px solid #ff424f;
@@ -756,4 +760,84 @@ table td {
   border-radius: 4px;
   transform: rotate(15deg);
 }
+
+/* ===== Disabled voucher ===== */
+.disabled-voucher {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* =============================
+   Responsive Styling (Mobile)
+   ============================= */
+@media (max-width: 768px) {
+  .voucher-logo {
+    width: 45px;
+    height: 45px;
+    font-size: 16px;
+  }
+
+  .logo-text,
+  .logo-small {
+    font-size: 9px;
+  }
+
+  .voucher-info {
+    font-size: 12px;
+  }
+
+  .voucher-title {
+    font-size: 13px;
+  }
+
+  .voucher-time,
+  .voucher-condition {
+    font-size: 11px;
+  }
+
+  .voucher-status {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+
+  .voucher-tag {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+}
+
+@media (max-width: 576px) {
+  .voucher-logo {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .logo-text,
+  .logo-small {
+    font-size: 8px;
+  }
+
+  .voucher-info {
+    font-size: 11px;
+  }
+
+  .voucher-title {
+    font-size: 12px;
+  }
+
+  .voucher-time,
+  .voucher-condition {
+    font-size: 10px;
+  }
+
+  .voucher-status {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+
+  .voucher-tag {
+    font-size: 8px;
+    padding: 1px 3px;
+  }
 }
