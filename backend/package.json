@@ -12,6 +12,9 @@
     },
     "dependencies": {
         "@ant-design/icons-vue": "^7.0.1",
-        "antd": "^5.25.4"
+        "antd": "^5.25.4",
+        "haversine-distance": "^1.2.3",
+        "leaflet": "^1.9.4",
+        "vue-leaflet": "^0.1.0"
     }
 }
