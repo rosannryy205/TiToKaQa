@@ -259,6 +259,7 @@ body {
 .title-shops1 > span {
   font-size: 40px;
   color: #c92c3c;
+  font-weight: bold;
 }
 .title-shops1{
   margin-bottom: 35px;
@@ -301,6 +302,9 @@ body {
   .title-shops > span {
     font-size: 25px;
     margin-left: 0px;
+  }
+  .title-shops1 > span {
+    font-size: 25px;
   }
 }
 .images-foods-banner img {
