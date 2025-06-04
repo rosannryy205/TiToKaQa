@@ -661,7 +661,7 @@ class OrderController extends Controller
             return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
         }
     }
-    }
+    
 
 
     public function getOrderByUser($user_id, $id){
@@ -682,3 +682,4 @@ class OrderController extends Controller
         ]);
     }
 }
+
