@@ -35,7 +35,8 @@
           <td>Danh mục mặc định</td>
           <td class="d-flex justify-content-center gap-2 flex-wrap">
             <button class="btn btn-outline">Sửa</button>
-            <button class="btn btn-warning">Thêm sản phẩm</button>
+            <button class="btn btn-danger-delete">Xoá</button>
+            <button class="btn btn-outline">Thêm sản phẩm</button>
           </td>
         </tr>
         <tr>
@@ -46,7 +47,7 @@
           <td class="d-flex justify-content-center gap-2 flex-wrap">
             <button class="btn btn-outline">Sửa</button>
             <button class="btn btn-danger-delete">Xoá</button>
-            <button class="btn btn-warning">Thêm sản phẩm</button>
+            <button class="btn btn-outline">Thêm sản phẩm</button>
           </td>
         </tr>
         <tr>
@@ -57,7 +58,7 @@
           <td class="d-flex justify-content-center gap-2 flex-wrap">
             <button class="btn btn-outline">Sửa</button>
             <button class="btn btn-danger-delete">Xoá</button>
-            <button class="btn btn-warning">Thêm sản phẩm</button>
+            <button class="btn btn-outline">Thêm sản phẩm</button>
           </td>
         </tr>
       </tbody>
@@ -79,7 +80,7 @@
             <p class="card-text"><span class="label">Danh mục cha:</span> </p>
             <button class="btn btn-outline btn-sm">Sửa</button>
             <button class="btn btn-danger-delete btn-sm">Xoá</button>
-            <button class="btn btn-warning btn-sm">Thêm sản phẩm</button>
+            <button class="btn btn-outline btn-sm">Thêm sản phẩm</button>
           </div>
         </div>
       </div>

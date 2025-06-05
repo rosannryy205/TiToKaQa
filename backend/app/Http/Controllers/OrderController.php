@@ -19,7 +19,6 @@ date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -31,15 +30,14 @@ class OrderController extends Controller
         $to = $request->input('reserved_to');
         $numberOfGuests = $request->input('number_of_guests');
 
-        $conflictingTableIds = Reservation_table::where(function ($query) use ($from, $to) {
-            $query->where(function ($q) use ($from, $to) {
-                $q->where('reserved_from', '<', $to)
-                    ->where('reserved_to', '>', $from)
-                    ->whereNotIn('reservation_status', ['Đã Hủy', 'Hoàn Thành']);
-            });
-        })->pluck('table_id')->toArray();
+        $conflictingTableIds = DB::table('reservation_tables')
+            ->join('orders', 'reservation_tables.order_id', '=', 'orders.id')
+            ->whereNotIn('orders.order_status', ['Đã hủy', 'Hoàn Thành'])
+            ->where('reserved_from', '<', $to)
+            ->where('reserved_to', '>', $from)
+            ->pluck('reservation_tables.table_id')
+            ->toArray();
 
-        // lấy tất cả bàn phù hợp có capacity >= số khách và không bị trùng
         $availableTables = Table::whereNotIn('id', $conflictingTableIds)
             ->where('capacity', '>=', $numberOfGuests)
             ->orderBy('capacity', 'asc')
@@ -52,10 +50,8 @@ class OrderController extends Controller
             ]);
         }
 
-        // lấy sức chứa nhỏ nhất phù hợp
         $minCapacity = $availableTables->first()->capacity;
 
-        // chỉ lấy các bàn có cùng capacity nhỏ nhất
         $priorityTables = $availableTables->filter(function ($table) use ($minCapacity) {
             return $table->capacity == $minCapacity;
         })->values();
@@ -65,6 +61,7 @@ class OrderController extends Controller
             'tables' => $priorityTables
         ]);
     }
+
 
 
     public function chooseTable(Request $request)
@@ -106,8 +103,6 @@ class OrderController extends Controller
             ], 422);
         }
     }
-
-
 
 
     // đặt bàn
@@ -240,7 +235,7 @@ class OrderController extends Controller
         }
     }
 
-
+    //thêm món
     public function orderFoodForUser(Request $request)
     {
         try {
@@ -265,18 +260,30 @@ class OrderController extends Controller
                 'type' => $data['type'],
             ]);
 
-            // Thêm topping nếu có
+            $toppingTotal = 0;
+            //thêm topping nếu có
             if (!empty($data['order_toppings'])) {
-                foreach ($data['order_toppings'] as $toppingId) {
-                    $foodTopping = Food_topping::find($toppingId);
+                foreach ($data['order_toppings'] as $toppingData) {
+                    $foodTopping = Food_topping::find($toppingData['food_toppings_id']);
                     if ($foodTopping) {
                         Order_topping::create([
-                            'food_toppings_id' => $toppingId['food_toppings_id'],
+                            'food_toppings_id' => $toppingData['food_toppings_id'],
                             'order_detail_id' => $orderDetail->id,
-                            'price' => $toppingId['price'], // hoặc $foodTopping->price nếu bạn luôn lấy từ DB
+                            'price' => $foodTopping->price,
                         ]);
+                        $toppingTotal += $toppingData['price'];
                     }
                 }
+            }
+
+            $foodTotal = $data['price'] * $data['quantity'];
+            $toppingTotal *= $data['quantity'];
+            $newTotal = $foodTotal + $toppingTotal;
+
+            $order = Order::find($data['order_id']);
+            if ($order) {
+                $order->total_price += $newTotal;
+                $order->save();
             }
 
             return response()->json(['status' => true, 'message' => 'Thêm món thành công!']);
@@ -289,6 +296,31 @@ class OrderController extends Controller
             return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
         }
     }
+
+    //chuyển bàn
+    public function changeTable(Request $request){
+        try {
+            $updated = Reservation_table::where('order_id', $request->id)
+                ->update(['table_id' => $request->table_id]);
+
+            if ($updated) {
+                return response()->json('Chuyển bàn thành công');
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'errors' => 'Không tìm thấy đặt bàn phù hợp'
+                ], 404);
+            }
+        } catch (Exception $th) {
+            return response()->json([
+                'status' => false,
+                'errors' => $th->getMessage()
+            ], 422);
+        }
+    }
+
+
+
 
 
     public function getInfoReservation(Request $request)
@@ -445,33 +477,84 @@ class OrderController extends Controller
 
     public function getOrderOfTable()
     {
-        $orders = Order::with(['tables'])->get();
+        $reservations = Reservation_table::with([
+            'order.details.foods',
+            'order.details.toppings.food_toppings.toppings',
+            'order.tables'
+        ])->get();
 
+        if ($reservations->isNotEmpty()) {
+            $data = $reservations->map(function ($reservation) {
+                $order = $reservation->order;
 
-        $orderWithTables = $orders->map(function ($order) {
-            return [
-                'order_id' => $order->id,
-                'user_id' => $order->user_id,
-                'order_status' => $order->order_status,
-                'total_price' => $order->total_price,
-                'guest_name' => $order->guest_name,
-                'guest_phone' => $order->guest_phone,
-                'guest_email' => $order->guest_email,
-                'guest_address' => $order->guest_address,
-                'guest_count' => $order->guest_count,
-                'comment' => $order->comment,
-                'reservations_time' => $order->reservations_time,
-                'check_in_time' => $order->check_in_time,
-                'reservation_status' => $order->tables->first()->pivot->reservation_status,
-                'table_numbers' => $order->tables->pluck('table_number')->toArray(),
-            ];
-        });
+                $details = $order->details->map(function ($detail) {
+                    return [
+                        'id' => $detail->id,
+                        'food_id' => $detail->food_id,
+                        'food_name' => $detail->food_name ?? null,
+                        'quantity' => $detail->quantity,
+                        'price' => $detail->price,
+                        'image' => $detail->foods->image ?? null,
+                        'type' => $detail->type,
+                        'toppings' => $detail->toppings->map(function ($topping) {
+                            return [
+                                'food_toppings_id' => $topping->food_toppings_id,
+                                'topping_name' => $topping->food_toppings->topping->name ?? null,
+                                'price' => $topping->price,
+                            ];
+                        }),
+                    ];
+                });
 
-        return response()->json([
-            'status' => true,
-            'data' => $orderWithTables,
-        ]);
+                return [
+                    'reserved_from' => $reservation->reserved_from,
+                    'reserved_to' => $reservation->reserved_to,
+
+                    // các thông tin order
+                    'id' => $order->id,
+                    'user_id' => $order->user_id,
+                    'discount_id' => $order->discount_id,
+                    'order_time' => $order->order_time,
+                    'order_status' => $order->order_status,
+                    'total_price' => $order->total_price,
+                    'comment' => $order->comment,
+                    'review_time' => $order->review_time,
+                    'rating' => $order->rating,
+                    'guest_name' => $order->guest_name,
+                    'guest_phone' => $order->guest_phone,
+                    'guest_email' => $order->guest_email,
+                    'guest_address' => $order->guest_address,
+                    'guest_count' => $order->guest_count,
+                    'note' => $order->note,
+                    'deposit_amount' => $order->deposit_amount,
+                    'check_in_time' => $order->check_in_time,
+                    'expiration_time' => $order->expiration_time,
+                    'money_reduce' => $order->money_reduce,
+                    'details' => $details,
+                    'tables' => $order->tables->map(function ($table) {
+                        return [
+                            'table_number' => $table->table_number,
+                            'capacity' => $table->capacity,
+                            'status' => $table->status
+                        ];
+                    }),
+                ];
+            });
+
+            return response()->json([
+                'status' => true,
+                'mess' => 'Lấy danh sách đơn hàng thành công',
+                'orders' => $data
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'mess' => 'Không có đơn hàng nào'
+            ]);
+        }
     }
+
+
 
 
     public function setUpTable(Request $request)
@@ -550,24 +633,23 @@ class OrderController extends Controller
     }
     public function updateStatus(Request $request)
     {
-        $reservation = Reservation_table::find($request->id);
         $order = Order::find($request->id);
 
-        if (!$reservation) {
-            return response()->json(['message' => 'Không tìm thấy đơn đặt bàn.'], 404);
-        }
-        $reservation->reservation_status = $request->reservation_status;
-        if ($request->reservation_status === 'Khách Đã Đến') {
+        $order->order_status = $request->order_status;
+        if ($request->order_status === 'Khách đã đến') {
             $order->check_in_time = Carbon::now();
         }
-        if (in_array($request->reservation_status, ['Đã Hủy', 'Hoàn Thành'])) {
+        if (in_array($request->order_status, ['Đã hủy', 'Hoàn thành'])) {
             foreach ($order->tables as $table) {
                 $table->status = 'Bàn trống';
                 $table->save();
             }
         }
-        $reservation->save();
-        return response()->json(['message' => 'Đơn hàng đã được cập nhật thành công.']);
+        $order->save();
+        return response()->json([
+            'status' => $request->order_status,
+            'message' => 'Đơn hàng đã được cập nhật thành công.'
+        ]);
     }
 
 
@@ -663,7 +745,6 @@ class OrderController extends Controller
     }
 
 
-
     public function getOrderByUser($user_id, $id)
     {
         $order = DB::table('orders')
@@ -683,3 +764,4 @@ class OrderController extends Controller
         ]);
     }
 }
+
