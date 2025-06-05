@@ -129,7 +129,7 @@ const fetchOrders = async () => {
           phone: order.guest_phone,
         },
         orderDate: order.order_time,
-        areaTable: order.tables?.map(t => `${t.area_name} - ${t.table_name}`).join(', ') || 'Mang về',
+        areaTable: order.tables?.map(t => `Bàn ${t.table_number}`).join(', ') || 'Mang về',
         orderType: order.tables?.length > 0 ? 'Đặt bàn' : 'Mang về',
         totalAmount: parseFloat(order.total_price),
         status: order.order_status,
