@@ -231,6 +231,9 @@
       </div>
     </div>
   </div>
+<router-link :to="`/reservation-form/${orderId}`" v-if="orderId">
+  <button class="btn btn-danger1" style="position: fixed; bottom: 0%; right: 0%; width: 90px;">Quay lại</button>
+</router-link>
 </template>
 <script>
 import axios from 'axios'

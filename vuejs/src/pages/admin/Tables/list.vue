@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Lịch sử đơn hàng</h2>
+    <h2>Sơ đồ bàn</h2>
     <div style="display: flex; align-items: center; gap: 18px; padding-top: 10px">
       <!-- Tabs -->
       <div class="">
@@ -45,23 +45,34 @@
             <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
           </div>
           <div
-            :class="{
-              'table-rect': true,
-              medium: getChairCount(ban.capacity) === 2,
-              large: getChairCount(ban.capacity) === 3,
-              billed: ban.status === 'Đã đặt trước',
-              'billed-text': ban.status === 'Đã đặt trước',
-              reservation: ban.status === 'Có khách',
-              'reservation-text': ban.status === 'Có khách',
-            }"
+            @click="selectedTableId = ban.id"
+            :class="[
+              selectedTableId == ban.id ? 'table-rect1' : 'table-rect',
+              {
+                medium: getChairCount(ban.capacity) === 2,
+                large: getChairCount(ban.capacity) === 3,
+                billed: ban.status === 'Đã đặt trước',
+                'billed-text': ban.status === 'Đã đặt trước',
+                reservation: ban.status === 'Có khách',
+                'reservation-text': ban.status === 'Có khách',
+              },
+            ]"
           >
-            Bàn {{ ban.table_number }}
+            {{ ban.table_number }}
           </div>
           <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
             <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n"></div>
           </div>
         </div>
       </div>
+      <button
+        v-if="orderId"
+        class="btn btn-danger1"
+        style="width: 200px"
+        @click="changeTable(selectedTableId)"
+      >
+        Xác nhận chuyển bàn
+      </button>
     </div>
   </div>
 </template>
@@ -69,10 +80,16 @@
 <script>
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { toast } from 'vue3-toastify'
+
 export default {
   setup() {
     const tables = ref([])
-
+    const route = useRoute()
+    const orderId = route.params.orderId
+    const check = ref(true)
+    const selectedTableId = ref(null)
     const getTable = async () => {
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/tables')
@@ -89,6 +106,22 @@ export default {
       return 3
     }
 
+    const changeTable = async (table_id) => {
+      try {
+        selectedTableId.value = table_id
+        console.log(selectedTableId.value)
+
+        axios.put('http://127.0.0.1:8000/api/change-table', {
+          id: orderId,
+          table_id: table_id,
+        })
+        toast.success('Thay đổi thành công')
+      } catch (error) {
+        console.log(error)
+        toast.error('Có lỗi xảy ra')
+      }
+    }
+
     onMounted(() => {
       getTable()
       getChairCount()
@@ -98,6 +131,10 @@ export default {
       tables,
       getChairCount,
       getTable,
+      changeTable,
+      check,
+      selectedTableId,
+      orderId,
     }
   },
 }
@@ -142,13 +179,37 @@ export default {
   text-align: center;
   border: 5px solid #ddd;
   min-width: 80px;
+  font-weight: bold;
+  font-size: 16px;
 }
+.table-rect1 {
+  background-color: rgb(226, 225, 225);
+  color: rgb(81, 73, 73);
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-align: center;
+  border: 5px solid #ddd;
+  min-width: 80px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* .chair:hover{
+  background-color: rgb(66, 64, 64);
+} */
 
 .table-rect.medium {
   min-width: 120px;
 }
 
 .table-rect.large {
+  min-width: 160px;
+}
+.table-rect1.medium {
+  min-width: 120px;
+}
+
+.table-rect1.large {
   min-width: 160px;
 }
 .table-status-box {

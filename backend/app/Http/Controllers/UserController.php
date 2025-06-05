@@ -73,7 +73,9 @@ class UserController extends Controller
             'password' => bcrypt($request->password),
             'address' => $request->address ?? '',
             'fullname' => $request->fullname ?? '',
+            'role' => 'user'
         ];
+
 
         Cache::put('register_' . $request->email, [
             'code' => $code,
@@ -398,16 +400,19 @@ class UserController extends Controller
     {
 
         $user = User::findOrFail($id);
-        $user->fullname = $request->fullname;
-        $user->email = $request->email;
-        $user->phone = $request->phone;
-        $user->address = $request->address;
-        $user->update([
-            'fullname' => $request->fullname,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-        ]);
+
+        $user->fullname = $request->input('fullname');
+        $user->phone = $request->input('phone');
+        $user->address = $request->input('address');
+
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/avatar'), $filename);
+            $user->avatar = $filename;
+        }
+        $user->save();
+
         return response()->json([
             'message' => 'Đã cập nhật user thành công!',
             'user' => $user

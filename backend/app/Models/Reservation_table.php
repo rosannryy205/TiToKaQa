@@ -15,11 +15,11 @@ class Reservation_table extends Model
         'order_id',
         'table_id',
         'reserved_from',
-        'reserved_to',
-        'reservation_status'
-
+        'reserved_to'
     ];
 
-    
+     public function order() {
+        return $this->belongsTo(Order::class, 'order_id');
+    }
 
 }
