@@ -16,9 +16,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             $table->foreignId('table_id')->constrained('tables')->onDelete('cascade');
-            $table->timestamp('assigned_time')->default(DB::raw('CURRENT_TIMESTAMP'));
+            // $table->timestamp('assigned_time')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('reserved_from')->nullable();
             $table->timestamp('reserved_to')->nullable();
+            $table->enum('reservation_status', ['Chờ Xác Nhận', 'Đã xác nhận', 'Khách Đã Đến', 'Hoàn Thành', 'Đã Hủy'])->default('Chờ Xác Nhận');
+
         });
     }
 
