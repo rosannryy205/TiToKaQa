@@ -16,12 +16,7 @@
           <div class="d-flex align-items-center mb-3 mx-3">
             <template v-if="form.avatar_preview || form.avatar">
               <img
-                :src="
-                  form.avatar_preview ||
-                  (form.avatar?.startsWith('http')
-                    ? form.avatar
-                    : `http://localhost:8000/assets/avatar/${form.avatar}`)
-                "
+                :src="avatarUrl"
                 alt="Avatar"
                 class="avatar-circle d-flex justify-content-center align-items-center"
               />
@@ -239,7 +234,7 @@
   </div>
 </template>
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { toast } from "vue3-toastify";
 import { Image } from "ant-design-vue";
@@ -345,6 +340,14 @@ export default {
       }
     };
 
+    const avatarUrl = computed(() => {
+      if (form.value.avatar_preview) return form.value.avatar_preview;
+      if (form.value.avatar?.startsWith("http")) return form.value.avatar;
+      if (form.value.avatar)
+        return `http://localhost:8000/assets/avatar/${form.value.avatar}`;
+      return null;
+    });
+
     const getInitial = (username) => {
       if (username?.trim()) return username.trim().charAt(0).toUpperCase();
       return "?";
@@ -365,6 +368,7 @@ export default {
       getInitial,
       loading,
       primaryColor,
+      avatarUrl,
     };
   },
 };
