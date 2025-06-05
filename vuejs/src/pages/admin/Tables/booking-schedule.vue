@@ -1,9 +1,9 @@
 <template>
   <div class="d-flex justify-content-between mb-3">
     <h2>Lịch đặt bàn</h2>
-    <button type="button" class="btn btn-danger1" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+       <router-link :to="{ name: 'insert-reservation' }" class="btn btn-danger1">
       + Thêm đơn đặt bàn
-    </button>
+    </router-link>
   </div>
   <div class="container">
     <div class="row g-3">
@@ -14,51 +14,99 @@
               {{ order.guest_name }} - {{ order.guest_phone }}
             </h6>
             <p class="card-text small text-muted mb-1">
-              <i class="fa fa-calendar"></i>{{ formatDate(order.reservations_time) }} |
-              <i class="bi bi-clock"></i>{{ formatTime(order.reservations_time) }} |
+              <i class="fa fa-calendar"></i>
+              {{ formatDate(order.reserved_from) }} |
+              <i class="bi bi-clock"></i
+              >{{ formatTime(order.reserved_from) }} |
               <i class="bi bi-people"></i> {{ order.guest_count }}
             </p>
-            <p class="card-text small text-muted mb-1">Bàn số: {{ order.table_numbers }}</p>
+            <p class="card-text small text-muted mb-1">
+              Bàn số: {{ order.tables?.map((t) => `${t.table_number}`).join(', ') }}
+            </p>
             <p class="fw-bold text-danger mb-2">{{ formatNumber(order.total_price) }}VND</p>
             <div class="d-flex justify-content-between align-items-center rounded-0">
               <div class="form-group rounded-0">
-                <select v-model="order.reservation_status" class="form-control rounded-0"
-                  @change="updateStatus(order.order_id, order.reservation_status)">
-                  <option value="Chờ Xác Nhận" :disabled="!canSelectStatus(order.reservation_status, 'Chờ Xác Nhận')">
-                    Chờ Xác Nhận
+                <select
+                  v-model="order.order_status"
+                  class="form-control rounded-0"
+                  @change="updateStatus(order.id, order.order_status)"
+                >
+                  <option
+                    value="Chờ xác nhận"
+                    :disabled="!canSelectStatus(order.order_status, 'Chờ xác nhận')"
+                  >
+                    Chờ xác nhận
                   </option>
-                  <option value="Đã xếp bàn" :disabled="!canSelectStatus(order.reservation_status, 'Đã xếp bàn')">
-                    Đã xếp bàn
+                  <option
+                    value="Đã xác nhận"
+                    :disabled="!canSelectStatus(order.order_status, 'Đã xác nhận')"
+                  >
+                    Đã xác nhận
                   </option>
-                  <option value="Khách Đã Đến" :disabled="!canSelectStatus(order.reservation_status, 'Khách Đã Đến')">
-                    Khách Đã Đến
+                  <option
+                    value="Đang xử lý"
+                    :disabled="!canSelectStatus(order.order_status, 'Đang xử lý')"
+                  >
+                    Đang xử lý
                   </option>
-                  <option value="Hoàn Thành" :disabled="!canSelectStatus(order.reservation_status, 'Hoàn Thành')">
-                    Hoàn Thành
+                  <option
+                    value="Khách đã đến"
+                    :disabled="!canSelectStatus(order.order_status, 'Khách đã đến')"
+                  >
+                    Khách đã đến
                   </option>
-                  <option value="Đã hủy" :disabled="!canSelectStatus(order.reservation_status, 'Đã Hủy')">
-                    Đã Hủy
+                  <option
+                    value="Hoàn thành"
+                    :disabled="!canSelectStatus(order.order_status, 'Hoàn thành')"
+                  >
+                    Hoàn thành
+                  </option>
+                  <option
+                    value="Đã hủy"
+                    :disabled="!canSelectStatus(order.order_status, 'Đã hủy')"
+                  >
+                    Đã hủy
                   </option>
                 </select>
               </div>
               <div class="dropdown">
-                <button class="btn btn-light btn-sm border dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                  aria-expanded="false" @click="toggleDropdown(order.order_id)">
+                <button
+                  class="btn btn-light btn-sm border dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  @click="toggleDropdown(order.id)"
+                >
                   <i class="bi bi-three-dots"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end" :class="{ 'd-block': activeDropdownId === order.order_id }">
+                <ul
+                  class="dropdown-menu dropdown-menu-end"
+                  :class="{ 'd-block': activeDropdownId === order.id }"
+                >
                   <li>
-                    <a class="dropdown-item1" data-bs-toggle="modal" data-bs-target="#tableModal" href="#"
-                      @click="selectOrder(order.order_id)" v-if="order.reservation_status == 'Chờ Xác Nhận'">Xếp bàn</a>
+                    <router-link
+                      :to="{name: 'admin-tables-list', params: { orderId: order.id }}"
+                      class="dropdown-item1"
+                      >Chuyển bàn</router-link
+                    >
                   </li>
                   <li>
-                    <router-link :to="{ name: 'list-food', params: { id: order.order_id } }" class="dropdown-item1"
-                      v-if="order.reservation_status !== 'Hoàn Thành' && order.reservation_status !== 'Đã Hủy'">Chọn
-                      món</router-link>
+                    <router-link
+                      :to="{ name: 'list-food', params: { id: order.id } }"
+                      class="dropdown-item1"
+                      v-if="
+                        order.reservation_status !== 'Hoàn thành' &&
+                        order.reservation_status !== 'Đã hủy'
+                      "
+                      >Chọn món</router-link
+                    >
                   </li>
                   <li>
-                    <router-link :to="{ name: 'admin-orders-detail', params: { id: order.order_id } }"
-                      class="dropdown-item1">Chi tiết</router-link>
+                    <router-link
+                      :to="{ name: 'admin-orders-detail', params: { id: order.id } }"
+                      class="dropdown-item1"
+                      >Chi tiết</router-link
+                    >
                   </li>
                 </ul>
               </div>
@@ -68,7 +116,7 @@
       </div>
     </div>
 
-    <!-- Modal xếp bàn -->
+    <!-- Modal xếp bàn
     <div class="modal fade" id="tableModal" tabindex="-1" aria-labelledby="tableModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
@@ -77,7 +125,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <!-- Danh sách bàn -->
             <div class="row row-cols-2 row-cols-md-4 g-4">
               <div class="col" v-for="table in availableTables" :key="table.id">
                 <div class="table-card p-3 text-center" :id="table.id"
@@ -97,7 +144,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -105,117 +152,115 @@
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
-import { FoodList } from '@/stores/food'
+import { toast } from 'vue3-toastify'
+import { useRoute } from 'vue-router'
+
 export default {
   setup() {
-    const { info, getInfo, formatDate, formatTime, formatNumber } = Info.setup()
-
-    const { foods } = FoodList.setup()
+    const { formatDate, formatTime, formatNumber } = Info.setup()
 
     const orderOfTable = ref([])
     const selectedOrderId = ref(null)
     const selectedTableIds = ref([])
-    const reservation_status = ref('')
+    const route = useRoute()
+    const orderId = route.params.orderId
+
+
+
     const getOrderOfTable = async () => {
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/order-tables')
-        orderOfTable.value = res.data.data
-        reservation_status.value = orderOfTable.value.reservation_status
-        console.log(orderOfTable.value);
+        orderOfTable.value = res.data.orders
       } catch (error) {
         console.log(error)
       }
     }
 
-    const availableTables = ref([])
+    // const availableTables = ref([])
 
     const selectOrder = (id) => {
       selectedOrderId.value = id
-      fetchAvailableTables()
       selectedTableIds.value = []
     }
 
+    // const fetchAvailableTables = async () => {
+    //   try {
+    //     await getInfo('order', selectedOrderId.value)
 
-    const fetchAvailableTables = async () => {
-      try {
-        await getInfo('order', selectedOrderId.value)
+    //     const reservedTo = new Date(info.value.reservations_time.replace(' ', 'T'))
+    //     reservedTo.setHours(reservedTo.getHours() + 2)
+    //     const reserved_to = formatDateTime(reservedTo)
 
-        const reservedTo = new Date(info.value.reservations_time.replace(' ', 'T'))
-        reservedTo.setHours(reservedTo.getHours() + 2)
-        const reserved_to = formatDateTime(reservedTo)
+    //     const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
+    //       order_id: selectedOrderId.value,
+    //       reserved_from: info.value.reservations_time,
+    //       reserved_to: reserved_to,
+    //     })
 
-        const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
-          order_id: selectedOrderId.value,
-          reserved_from: info.value.reservations_time,
-          reserved_to: reserved_to,
-        })
+    //     availableTables.value = res.data.tables;
+    //     console.log(reserved_to);
 
-        availableTables.value = res.data.tables;
-        console.log(reserved_to);
+    //   } catch (error) {
+    //     alert('Lỗi khi lấy danh sách bàn có thể đặt')
+    //     console.error('Lỗi:', error)
+    //   }
+    // }
 
-      } catch (error) {
-        alert('Lỗi khi lấy danh sách bàn có thể đặt')
-        console.error('Lỗi:', error)
-      }
-    }
+    // const toggleTable = (id) => {
+    //   if (selectedTableIds.value.includes(id)) {
+    //     selectedTableIds.value = selectedTableIds.value.filter((tid) => tid !== id)
+    //   } else {
+    //     selectedTableIds.value.push(id)
+    //   }
+    // }
+    // const formatDateTime = (date) => {
+    //   const pad = (n) => n.toString().padStart(2, '0')
+    //   return (
+    //     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
+    //     `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+    //   )
+    // }
 
+    // const areTablesConsecutive = () => {
+    //   const numbers = availableTables.value
+    //     .filter(table => selectedTableIds.value.includes(table.id))
+    //     .map(table => table.table_number)
+    //     .sort((a, b) => a - b)
 
-    const toggleTable = (id) => {
-      if (selectedTableIds.value.includes(id)) {
-        selectedTableIds.value = selectedTableIds.value.filter((tid) => tid !== id)
-      } else {
-        selectedTableIds.value.push(id)
-      }
-    }
-    const formatDateTime = (date) => {
-      const pad = (n) => n.toString().padStart(2, '0')
-      return (
-        `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
-        `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
-      )
-    }
+    //   if (numbers.length <= 1) return true
 
-    const areTablesConsecutive = () => {
-      const numbers = availableTables.value
-        .filter(table => selectedTableIds.value.includes(table.id))
-        .map(table => table.table_number)
-        .sort((a, b) => a - b)
+    //   for (let i = 1; i < numbers.length; i++) {
+    //     if (numbers[i] !== numbers[i - 1] + 1) {
+    //       return false
+    //     }
+    //   }
+    //   return true
+    // }
 
-      if (numbers.length <= 1) return true
+    // const saveTableAssignment = async () => {
+    //   if (!areTablesConsecutive()) {
+    //     alert('Vui lòng chọn các bàn có số liền kề nhau!')
+    //     return
+    //   }
 
-      for (let i = 1; i < numbers.length; i++) {
-        if (numbers[i] !== numbers[i - 1] + 1) {
-          return false
-        }
-      }
-      return true
-    }
+    //   await getInfo('order', selectedOrderId.value)
 
-    const saveTableAssignment = async () => {
-      if (!areTablesConsecutive()) {
-        alert('Vui lòng chọn các bàn có số liền kề nhau!')
-        return
-      }
+    //   const reservedTo = new Date(info.value.reservations_time.replace(' ', 'T'))
+    //   reservedTo.setHours(reservedTo.getHours() + 2)
+    //   const reserved_to = formatDateTime(reservedTo)
 
-      await getInfo('order', selectedOrderId.value)
-
-      const reservedTo = new Date(info.value.reservations_time.replace(' ', 'T'))
-      reservedTo.setHours(reservedTo.getHours() + 2)
-      const reserved_to = formatDateTime(reservedTo)
-
-      try {
-        await axios.post('http://127.0.0.1:8000/api/set-up/order-tables', {
-          order_id: selectedOrderId.value,
-          table_ids: selectedTableIds.value,
-          reserved_from: info.value.reservations_time,
-          reserved_to,
-        })
-        alert('Bàn đã được xếp thành công')
-      } catch (error) {
-        alert('Lỗi khi xếp bàn: ' + error.response.data.message)
-      }
-    }
-
+    //   try {
+    //     await axios.post('http://127.0.0.1:8000/api/set-up/order-tables', {
+    //       order_id: selectedOrderId.value,
+    //       table_ids: selectedTableIds.value,
+    //       reserved_from: info.value.reservations_time,
+    //       reserved_to,
+    //     })
+    //     alert('Bàn đã được xếp thành công')
+    //   } catch (error) {
+    //     alert('Lỗi khi xếp bàn: ' + error.response.data.message)
+    //   }
+    // }
 
     const activeDropdownId = ref(null)
 
@@ -228,42 +273,46 @@ export default {
         if (confirm(`Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}`)) {
           await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
             id: id,
-            reservation_status: status,
+            order_status: status,
           })
-          alert('Cập nhật thành công')
+          toast.success('Cập nhật thành công')
           await getOrderOfTable()
         }
       } catch (error) {
-        alert('có lỗi xảy ra')
+        toast.error('Có lỗi xảy ra')
         console.log(error)
       }
     }
 
     const canSelectStatus = (currentStatus, optionStatus) => {
-      const statusOrder = ['Chờ Xác Nhận', 'Đã xếp bàn', 'Khách Đã Đến', 'Hoàn Thành', 'Đã hủy']
-      if (currentStatus === optionStatus) {
-        return true
-      }
-      const currentIndex = statusOrder.indexOf(currentStatus)
-      const optionIndex = statusOrder.indexOf(optionStatus)
+      const statusOrder = [
+        'Chờ xác nhận',
+        'Đã xác nhận',
+        'Đang xử lý',
+        'Khách đã đến',
+        'Hoàn thành',
+        'Đã hủy'
+      ];
 
-      if (currentStatus === 'Hoàn Thành' || currentStatus === 'Đã Hủy') {
-        return false
-      }
-      if (optionIndex < currentIndex) {
-        return false
-      }
-      if (optionIndex === currentIndex + 1) {
-        return true
-      }
-      if (optionStatus === 'Đã Hủy' || currentStatus === 'Chờ Xác Nhận') {
-        return true
-      }
-      return false
+      const currentIndex = statusOrder.indexOf(currentStatus);
+      const optionIndex = statusOrder.indexOf(optionStatus);
+
+      if (currentIndex === -1 || optionIndex === -1) return false;
+
+      if (optionStatus === currentStatus) return true;
+
+      if (currentStatus === 'Hoàn thành' || currentStatus === 'Đã hủy') return false;
+
+      if (optionIndex === currentIndex + 1) return true;
+
+      if (optionStatus === 'Đã hủy' && currentStatus !== 'Đã hủy') return true;
+
+      return false;
     }
 
+
     onMounted(() => {
-     getOrderOfTable()
+      getOrderOfTable()
       // setInterval(() => {
       //   axios.get('http://127.0.0.1:8000/api/auto-cancel-orders')
       // }, 6000)
@@ -277,14 +326,14 @@ export default {
       selectedOrderId,
       selectedTableIds,
       selectOrder,
-      toggleTable,
-      saveTableAssignment,
-      availableTables,
-      foods,
+      // toggleTable,
+      // saveTableAssignment,
+      // availableTables,
       toggleDropdown,
       activeDropdownId,
       updateStatus,
       canSelectStatus,
+      orderId
     }
   },
 }

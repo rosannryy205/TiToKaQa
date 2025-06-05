@@ -5,7 +5,7 @@
     </div>
   </div>
   <div class="row d-flex text-center">
-    <div class="title-shops d-sm-block fw-bold mt-5">
+    <div class="title-shops1 d-sm-block fw-bold mt-5">
       <span>ĐẶT BÀN CÙNG CHÚNG TÔI!</span>
     </div>
   </div>
@@ -305,5 +305,9 @@ export default {
   .table-rect {
     font-size: 0.85rem;
   }
+    .title-shops1 > span {
+    font-size: 25px;
+  }
+
 }
 </style>

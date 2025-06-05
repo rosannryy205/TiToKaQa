@@ -33,7 +33,7 @@
           <td>Danh mục {{ index + 1 }}</td>
           <td class="d-flex justify-content-center gap-2">
             <button class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#editCategoryModal">Sửa</button>
-            <button class="btn btn-danger-outline btn-sm">Xoá</button>
+            <button class="btn btn-danger-delete btn-sm">Xoá</button>
             <button class="btn btn-outline">Thêm Topping</button>
           </td>
         </tr>
@@ -54,9 +54,9 @@
         <div class="col-9">
           <div class="card-body">
             <h5 class="card-title">Danh mục {{ index + 1 }}</h5>
-            <button class="btn btn-primary btn-sm">Sửa</button>
-            <button class="btn btn-danger-filled btn-sm">Xoá</button>
-            <button class="btn btn-warning btn-sm">Thêm Topping</button>
+            <button class="btn btn-outline btn-sm">Sửa</button>
+            <button class="btn btn-danger-delete btn-sm">Xoá</button>
+            <button class="btn btn-outline btn-sm">Thêm Topping</button>
           </div>
         </div>
       </div>
@@ -170,8 +170,7 @@ export default {
   color: #fff;
 }
 
-/* Delete buttons */
-.btn-danger-outline {
+.btn-danger-delete {
   background: none;
   color: #c92c3c;
   border: 1px solid #c92c3c;
@@ -179,11 +178,12 @@ export default {
   border-radius: 4px;
   font-weight: normal;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
-.btn-danger-outline:hover {
+
+.btn-danger-delete:hover {
   background-color: #c92c3c;
-  color: white;
+  color: #fff;
 }
 
 .btn-danger-filled {

@@ -16,17 +16,16 @@ class Order extends Model
         'guest_phone',
         'guest_email',
         'guest_count',
-        'reservations_time',
         'note',
         'deposit_amount',
         'expiration_time',
         'total_price',
         'money_reduce',
-        'final_price',
         'user_id',
         'discount_id',
         'guest_address',
         'order_time',
+        'order_status',
 
     ];
     public function details()
@@ -37,7 +36,7 @@ class Order extends Model
     public function tables()
     {
         return $this->belongsToMany(Table::class, 'reservation_tables')
-                    ->withPivot('reservation_status', 'reserved_from', 'reserved_to');
+                    ->withPivot('reserved_from', 'reserved_to');
     }
     public function user()
     {

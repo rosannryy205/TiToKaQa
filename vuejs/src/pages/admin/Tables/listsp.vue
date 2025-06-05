@@ -21,6 +21,7 @@
                 v-model="product.selectedSpicyLevel"
                 id="spicyLevelNull"
               >
+              <option value="" disabled>Chọn cấp độ</option>
                 <option
                   v-for="spicy in product.spicyLevelNull"
                   :key="spicy.id"
@@ -109,7 +110,7 @@
           </table>
 
           <div class="text-end mt-3">
-            <button @click="submitCart(orderId)" class="btn btn-sm btn-danger">
+            <button @click="submitCart(orderId)" class="btn btn-danger">
               Thêm món cho khách
             </button>
           </div>
@@ -126,15 +127,12 @@
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { FoodList } from '@/stores/food'
-import router from '@/router'
-import { param } from 'jquery'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 export default {
   setup() {
     const { foodOrderAdmin, formatNumber, spicyLevelNull, spicyLevelNotNull } = FoodList.setup()
     const route = useRoute()
-    const router = useRouter()
     const orderId = route.params.id
     const cartList = ref([])
 
@@ -166,7 +164,6 @@ export default {
         quantity: 1,
       })
 
-      // Reset sau khi thêm
       product.selectedToppings = []
       product.selectedSpicyLevel = null
     }

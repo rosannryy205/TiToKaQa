@@ -50,6 +50,7 @@ Route::post('/choose-table', [OrderController::class, 'chooseTable']);
 //reservation - tables - admin
 Route::get('/tables', [OrderController::class, 'getTables']);
 Route::get('/order-tables', [OrderController::class, 'getOrderOfTable']);
+Route::put('/change-table', [OrderController::class, 'changeTable']);
 Route::post('/set-up/order-tables', [OrderController::class, 'setUpTable']);
 Route::post('/available-tables', [OrderController::class, 'getAvailableTables']);
 Route::get('/foods', [OrderController::class, 'getAllFoodsWithToppings']);
@@ -133,6 +134,11 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/catetop',[AdminCategoryToppingController::class,'getAll']);
     Route::post('/admin/toppings',[AdminToppingController::class,'store']);
 });
+
+//admin combo
+Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
+
+
 
 Route::resource('/payment', PaymentController::class);
 // routes/api.php

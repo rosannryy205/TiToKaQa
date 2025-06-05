@@ -7,16 +7,16 @@
 
     <div class="row mt-3 g-3">
       <!-- Đơn hàng -->
-      <div class="col-12 col-sm-6 col-md-4 col-lg-4" v-for="order in orderOfTable" :key="order.order_id"
+      <div class="col-12 col-sm-6 col-md-4 col-lg-4" v-for="order in orderOfTable" :key="order.id"
         v-show="order.reservation_status == 'Khách Đã Đến'">
         <div class="order-card">
           <div class="d-flex justify-content-between align-items-center">
-            <span class="badge bg-secondary">#{{ order.order_id }}</span>
+            <span class="badge bg-secondary">#{{ order.id }}</span>
             <p>👥 {{ order.guest_count }} người</p>
           </div>
           <div class="d-flex justify-content-between align-items-center">
-            <p class="text-muted">🕒 {{ timers[order.order_id] || '00:00:00' }}</p>
-            <p class="fw-bold fs-4">{{ order.table_numbers.join(', ') }}</p>
+            <p class="text-muted">🕒 {{ timers[order.id] || '00:00:00' }}</p>
+            <p class="fw-bold fs-4">{{ order.tables?.map((t) => `${t.table_number}`).join(', ') }}</p>
             <p class="fw-bold text-danger">{{ formatNumber(order.total_price) }}VND</p>
           </div>
           <div class="d-flex justify-content-between align-items-center mt-3">
@@ -73,13 +73,14 @@ export default {
     const getOrderOfTable = async () => {
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/order-tables')
-        orderOfTable.value = res.data.data
-        res.data.data.forEach(order => {
+        orderOfTable.value = res.data.orders
+        // console.log(orderOfTable.value);
+
+        orderOfTable.value.forEach(order => {
           if (order.reservation_status === 'Khách Đã Đến') {
-            startTimes.value[order.order_id] = new Date(order.check_in_time)
+            startTimes.value[order.id] = new Date(order.check_in_time)
           }
         })
-
         updateTimers()
       } catch (error) {
         console.log(error)

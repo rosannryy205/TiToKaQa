@@ -69,7 +69,7 @@
         <p><strong>Ngày đặt:</strong> {{ selectedOrder.orderDate }}</p>
         <p><strong>Khách hàng:</strong> {{ selectedOrder.customerInfo.name }} - {{ selectedOrder.customerInfo.phone }}
         </p>
-        <p><strong>Khu vực - Bàn:</strong> {{ selectedOrder.areaTable }}</p>
+        <p><strong>Bàn:</strong> {{ selectedOrder.areaTable }}</p>
         <p><strong>Loại đơn:</strong> {{ selectedOrder.orderType }}</p>
         <p><strong>Trạng thái:</strong>
           <a-select :value="selectedOrder.status" style="width: 160px"
@@ -119,6 +119,7 @@ const fetchOrders = async () => {
     const response = await axios.get(`http://127.0.0.1:8000/api/get_all_orders`);
     const apiOrders = response.data.orders;
 
+    console.log('ssss'+apiOrders);
 
 
     orders.value = apiOrders.map(order => {
@@ -129,7 +130,7 @@ const fetchOrders = async () => {
           phone: order.guest_phone,
         },
         orderDate: order.order_time,
-        areaTable: order.tables?.map(t => `${t.area_name} - ${t.table_name}`).join(', ') || 'Mang về',
+        areaTable: order.tables?.map(t => `Bàn ${t.table_number}`).join(', ') || 'Mang về',
         orderType: order.tables?.length > 0 ? 'Đặt bàn' : 'Mang về',
         totalAmount: parseFloat(order.total_price),
         status: order.order_status,
@@ -257,9 +258,9 @@ const isDetailModalVisible = ref(false);
 const selectedOrder = ref(null);
 
 const columns = [
-  { title: 'STT', key: 'stt', width: 60, fixed: 'left' },
-  { title: 'Mã ĐH', dataIndex: 'id', key: 'orderId', width: 100, fixed: 'left', sorter: (a, b) => a.id.localeCompare(b.id) },
-  { title: 'Khu vực-Bàn', dataIndex: 'areaTable', key: 'areaTable', width: 150 },
+  { title: 'STT', key: 'stt', width: 50, fixed: 'center' },
+  { title: 'Mã ĐH', dataIndex: 'id', key: 'orderId', width: 70, fixed: 'center', sorter: (a, b) => a.id.localeCompare(b.id) },
+  { title: 'Bàn số', dataIndex: 'areaTable', key: 'areaTable', width: 80 },
   { title: 'Thông tin KH', key: 'customerInfo', width: 150 },
   {
     title: 'Loại đơn', dataIndex: 'orderType', key: 'orderType', width: 80,

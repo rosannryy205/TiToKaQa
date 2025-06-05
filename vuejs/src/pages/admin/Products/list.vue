@@ -2,6 +2,7 @@
   <h3 class="title">Quản lý món ăn</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
+    
     <router-link :to="{ name: 'insert-food' }" class="btn btn-add">
       + Thêm món ăn
     </router-link>
@@ -127,27 +128,32 @@
   <button class="btn btn-danger-delete delete_desktop">Xoá</button>
 
 
-  <!-- Mobile View -->
-  <div class="d-block d-lg-none">
-    <div class="card mb-3" v-for="(item, index) in [1,2,3]" :key="index">
-      <div class="row g-0 align-items-center">
-        <div class="col-3 fs-4 fw-bold ps-4">
-          <input type="checkbox" />
-          {{ index + 1 }}
+    <!-- Mobile View -->
+    <div class="d-block d-lg-none">
+        <div class="card mb-3">
+            <div class="row g-0 align-items-center">
+                <div class="col-3 d-flex p-1">
+                    <input type="checkbox" name="" id="">
+                    <img src="/img/food/mykimchihaisan.webp" alt="Mỳ kim chi hải sản" class="img-fluid rounded" />
+                </div>
+                <div class="col-9">
+                    <div class="card-body">
+                        <h5 class="card-title">Mỳ kim chi hải sản</h5>
+                        <p class="card-text"><strong>Danh mục:</strong> Mỳ cay</p>
+                        <p class="card-text"><strong>Giá:</strong> 55,000 VNĐ</p>
+                        <p class="card-text"><strong>Số lượng:</strong> 10</p>
+                        <button class="btn-outline btn-primary btn-sm">Sửa</button>
+                        <button class="btn-outline btn-danger-delete btn-sm">Xoá</button>
+                        <button class="btn-outline btn-warning btn-sm">Ẩn</button><button class="btn btn-dark btn-sm"
+                            data-bs-toggle="modal" data-bs-target="#toppingModal">Toppings</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-9">
-          <div class="card-body">
-            <h5 class="card-title">Chưa phân loại</h5>
-            <p class="card-text"><span class="label">Danh mục cha:</span> </p>
-            <button class="btn btn-outline btn-sm">Sửa</button>
-            <button class="btn btn-danger-delete btn-sm">Xoá</button>
-            <button class="btn btn-warning btn-sm">Thêm sản phẩm</button>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
-  <button class="btn btn-danger-delete delete_mobile">Xoá</button>
+    <button class="btn-outline btn-danger-delete delete_mobile">Xoá</button>
+
+
 </template>
 <script setup>
 import { ref, onMounted, watch } from 'vue';
@@ -506,4 +512,26 @@ export default {
     height: 32px;
   }
 }
+.img_thumbnail {
+    width: 50px;
+}
+
+@media (max-width: 768px) {
+  .table-responsive {
+    display: none;
+  }
+
+  .vd {
+    display: none;
+  }
+
+  .delete_desktop {
+    display: none;
+  }
+  .delete_mobile{
+    display: block;
+  }
+
+}
+
 </style>

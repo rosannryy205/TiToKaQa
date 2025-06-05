@@ -4,17 +4,17 @@
       <h2 class="mb-4">ĐĂNG NHẬP</h2>
       <form method="POST" @submit.prevent="handleLogin">
         <div v-if="loginError" class="alert alert-danger">
-           {{ loginError }}
+          {{ loginError }}
         </div>
         <div class="mb-3">
           <label for="email" class="form-label visually-hidden">ĐỊA CHỈ EMAIL</label>
-          <input v-model="loginData.login" type="email" id="email" name="email" class="form-control" placeholder="Nhập email của bạn"
-            required />
+          <input v-model="loginData.login" type="email" id="email" name="email" class="form-control"
+            placeholder="Nhập email của bạn" required />
         </div>
         <div class="mb-3">
           <label for="password" class="form-label visually-hidden">MẬT KHẨU</label>
-          <input v-model="loginData.password" type="password" id="password" name="password" class="form-control" placeholder="Nhập mật khẩu"
-            required />
+          <input v-model="loginData.password" type="password" id="password" name="password" class="form-control"
+            placeholder="Nhập mật khẩu" required />
         </div>
 
         <button type="submit" class="btn btn-black w-100" :disabled="loading">
@@ -94,7 +94,7 @@ export default {
         } else if (error.response?.status === 401) {
           this.loginError = 'Sai email hoặc mật khẩu!';
         } else if (error.response?.status === 500) {
-          this.loginError = 'Lỗi máy chủ. Vui lòng thử lại sau.';
+          this.loginError = error.response.data.message || 'Lỗi máy chủ. Vui lòng thử lại sau.';
         } else if (error.request) {
           this.loginError = 'Không thể kết nối đến máy chủ. Kiểm tra internet.';
         } else {
@@ -119,7 +119,7 @@ export default {
 }
 
 .btn-black {
-  background-color:#d41d1d;
+  background-color: #d41d1d;
   border-color: #000;
   color: #fff;
 }

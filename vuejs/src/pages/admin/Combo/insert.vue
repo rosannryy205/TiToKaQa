@@ -109,7 +109,7 @@
       </div>
     </div>
   </form>
-  <button type="button" class="btn btn-danger1 themsp">
+  <button type="button" class="btn btn-danger-delete">
     + Thêm Combo
   </button>
 
@@ -201,12 +201,22 @@
 }
 
 .btn-danger-delete {
-  background-color: #C92C3C;
-  color: white;
+  background: none;
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .btn-danger-delete:hover {
-  background-color: #a51928;
-  color: white;
+  background-color: #c92c3c;
+  color: #fff;
+}
+.form-select:focus{
+  border-color: #c92c3c;
+box-shadow: none;
 }
 </style>

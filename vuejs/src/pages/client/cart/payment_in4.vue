@@ -13,36 +13,17 @@
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
             <div class="mb-3">
-              <input
-                v-model="form.fullname"
-                type="text"
-                class="form-control-customer"
-                placeholder="Tên của bạn"
-              />
+              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn" />
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.email"
-                type="email"
-                class="form-control-customer"
-                placeholder="Email của bạn"
-              />
+              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn" />
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.phone"
-                type="text"
-                class="form-control-customer"
-                placeholder="Số điện thoại"
-              />
+              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại" />
             </div>
 
             <div class="mb-3">
-              <select
-                v-model="selectedProvince"
-                @change="onProvinceChange"
-                class="form-control-customer"
-              >
+              <select v-model="selectedProvince" @change="onProvinceChange" class="form-control-customer">
                 <option :value="null" disabled selected>Chọn tỉnh / thành phố</option>
                 <option v-for="province in provinces" :key="province.code" :value="province">
                   {{ province.name }}
@@ -51,11 +32,7 @@
             </div>
 
             <div class="mb-3">
-              <select
-                v-model="selectedDistrict"
-                @change="onDistrictChange"
-                class="form-control-customer"
-              >
+              <select v-model="selectedDistrict" @change="onDistrictChange" class="form-control-customer">
                 <option :value="null" disabled selected>Chọn quận / huyện</option>
                 <option v-for="district in districts" :key="district.code" :value="district">
                   {{ district.name }}
@@ -73,20 +50,10 @@
             </div>
 
             <div class="mb-3">
-              <input
-                v-model="form.address"
-                type="text"
-                class="form-control-customer"
-                placeholder="Địa chỉ"
-              />
+              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ" />
             </div>
             <div class="mb-3">
-              <textarea
-                v-model="note"
-                class="form-control-customer"
-                rows="3"
-                placeholder="Ghi chú"
-              ></textarea>
+              <textarea v-model="note" class="form-control-customer" rows="3" placeholder="Ghi chú"></textarea>
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <router-link to="/cart" class="btn btn-outline-secondary">
@@ -107,13 +74,7 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img
-                :src="getImageUrl(item.image)"
-                alt=""
-                class="me-3 rounded"
-                width="80"
-                height="80"
-              />
+              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>Loại: {{ item.type }}</div>
@@ -137,6 +98,9 @@
           <div class="d-flex justify-content-between mb-2">
             <span>Tạm tính</span>{{ formatNumber(totalPrice) }} VNĐ
           </div>
+          <div v-if="shippingFee > 0" class="d-flex justify-content-between mb-2">
+            <span>Phí giao hàng </span> - {{ formatNumber(shippingFee) }} VNĐ
+          </div>
           <div v-if="discountAmount > 0" class="d-flex justify-content-between mb-2">
             <span>Giảm Giá</span> - {{ formatNumber(discountAmount) }} VNĐ
           </div>
@@ -156,36 +120,25 @@
             </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input
-                v-model="discountInput"
-                type="text"
-                id="discount"
-                class="form-control"
-                placeholder="Nhập mã giảm giá..."
-              />
+              <input v-model="discountInput" type="text" id="discount" class="form-control"
+                placeholder="Nhập mã giảm giá..." />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
           </div>
 
           <!--chon-->
           <div class="discount-scroll-wrapper" v-if="isLoggedIn">
-            <div v-for="discount in discountsFiltered " :key="discount.id">
-              <div
-                class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
-                :class="{
-                  'disabled-voucher':
-                    totalPrice < discount.min_order_value || discount.used >= discount.usage_limit,
-                }"
-                @click="
-                  totalPrice >= discount.min_order_value &&
-                  discount.used < discount.usage_limit &&
-                  applyDiscountCode(discount.code)
-                "
-              >
+            <div v-for="discount in discountsFiltered" :key="discount.id">
+              <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2" :class="{
+                'disabled-voucher':
+                  totalPrice < discount.min_order_value || discount.used >= discount.usage_limit,
+              }" @click="
+                totalPrice >= discount.min_order_value &&
+                discount.used < discount.usage_limit &&
+                applyDiscountCode(discount.code)
+                ">
                 <div class="voucher-left d-flex align-items-center">
-                  <div
-                    class="voucher-logo d-flex flex-column align-items-center justify-content-center"
-                  >
+                  <div class="voucher-logo d-flex flex-column align-items-center justify-content-center">
                     <div class="logo-text">TITOKAQA</div>
                     <div class="logo-small">Mall</div>
                   </div>
@@ -201,10 +154,7 @@
                   </div>
                 </div>
                 <div class="voucher-right text-end">
-                  <div
-                    class="voucher-status"
-                    :class="{ 'text-success': selectedDiscount === discount.code }"
-                  >
+                  <div class="voucher-status" :class="{ 'text-success': selectedDiscount === discount.code }">
                     <span v-if="selectedDiscount === discount.code">Đã dùng ✅</span>
                     <span v-else>Dùng ngay</span>
                   </div>
@@ -218,42 +168,24 @@
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="vnpay"
-                value="Thanh toán VNPAY"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
                 <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="momo"
-                value="Thanh toán MOMO"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
                 <img src="/img/momo.png" height="20" width="20" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="cod"
-                value="Thanh toán COD"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="cod" value="Thanh toán COD"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="cod">
                 <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
                 <img src="/img/cod.png" height="30" width="30" alt="" />
@@ -272,7 +204,7 @@ import { FoodList } from '@/stores/food'
 import { Discounts } from '@/stores/discount'
 import { onMounted, computed } from 'vue'
 import numeral from 'numeral'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import axios from 'axios'
 import { User } from '@/stores/user'
 import dayjs from 'dayjs'
@@ -294,10 +226,13 @@ export default {
       lng: 106.6262030926953
     }
 
+
+
     const router = useRouter()
     const selectedProvince = ref(null)
     const selectedDistrict = ref(null)
     const selectedWard = ref(null)
+    const shippingFee = ref(0)
 
     const provinces = ref([])
     const districts = ref([])
@@ -381,6 +316,62 @@ export default {
       }
     }
 
+    const updateShippingFee = async () => {
+      if (
+        form.value.address &&
+        selectedProvince.value &&
+        selectedDistrict.value &&
+        selectedWard.value
+      ) {
+        const fullAddress = `${form.value.address}, ${selectedWard.value.name}, ${selectedDistrict.value.name}, ${selectedProvince.value.name}`
+        const userLocation = await getCoordinatesFromAddress(fullAddress)
+        if (!userLocation) {
+          shippingFee.value = 0
+          return
+        }
+
+        const distance = await calculateRouteDistanceKm(restaurantLocation, userLocation)
+        console.log(distance)
+        if (distance === null) {
+          shippingFee.value = 0
+          return
+        }
+
+        // Nếu vượt quá 25km thì không hiển thị phí ship
+        if (distance > 25) {
+          shippingFee.value = 0
+          return
+        }
+
+        // Trong giới hạn thì tính phí ship
+        shippingFee.value = distance * 1500
+      } else {
+        shippingFee.value = 0
+      }
+    }
+
+    let feeTimeout = null
+    watch(
+      [() => form.value.address, selectedProvince, selectedDistrict, selectedWard],
+      () => {
+        clearTimeout(feeTimeout)
+        feeTimeout = setTimeout(() => {
+          const isFilled =
+            form.value.address &&
+            selectedProvince.value &&
+            selectedDistrict.value &&
+            selectedWard.value
+
+          if (isFilled) {
+            updateShippingFee()
+          } else {
+            shippingFee.value = 0
+          }
+        },1000)
+      }
+    )
+
+
 
 
 
@@ -456,6 +447,7 @@ export default {
           isLoading.value = false
           return
         }
+
         const orderData = {
           user_id: user.value ? user.value.id : null,
           guest_name: form.value.fullname,
@@ -595,6 +587,7 @@ export default {
       onProvinceChange,
       isLoggedIn,
       discountsFiltered,
+      shippingFee,
       today
     }
   },
@@ -627,4 +620,5 @@ export default {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
 </style>

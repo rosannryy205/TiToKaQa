@@ -67,34 +67,51 @@
             </div>
 
             <!-- small -->
-   <!-- Small screen menu (dropdown) -->
-<div class="col-12 d-lg-none position-relative">
-  <div class="menu-header d-flex justify-content-between align-items-center px-3 py-2" @click="toggleDropdown">
-    <h2 class="menu-title m-0 fs-5 fw-bold">Thực đơn</h2>
-    <div class="menu-icon d-flex align-items-center">
-      <i class="fas fa-list-alt me-2"></i>
-      <span>Danh mục</span>
-    </div>
-  </div>
+            <div class="col-12 d-lg-none position-relative">
+        <div
+          class="menu-header d-flex justify-content-between align-items-center mt-3"
+          @click="toggleDropdown"
+        >
+          <h2 class="menu-title">Thực đơn</h2>
+          <div class="menu-icon d-flex align-items-center">
+            <i class="fas fa-list-alt"></i>
+            <span>Danh mục</span>
+          </div>
+        </div>
 
-  <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
-    <ul class="list-group">
-      <li v-for="parent in categories" :key="parent.id" class="list-group-item parent-category">
-        <a @click.prevent="getFoodByCategory(parent.id)" href="#" class="category-link fw-bold">
-          {{ parent.name }}
-        </a>
-
-        <ul v-if="parent.children && parent.children.length" class="list-group ms-3 mt-2">
-          <li v-for="child in parent.children" :key="child.id" class="list-group-item child-category">
-            <a @click.prevent="getFoodByCategory(child.id)" href="#" class="category-link">
-              <i class="bi bi-chevron-right me-1 text-danger"></i>{{ child.name }}
-            </a>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-</div>
+        <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
+          <ul class="list-group">
+            <li
+              v-for="parent in categories"
+              :key="parent.id"
+              class="list-group-item parent-category d-flex"
+            >
+              <a
+                @click.prevent="getFoodByCategory(parent.id)"
+                href="#"
+                class="text-decoration-none text-start"
+              >
+                {{ parent.name }}
+              </a>
+              <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
+                <li
+                  v-for="child in parent.children"
+                  :key="child.id"
+                  class="list-group-item child-category d-flex"
+                >
+                  <a
+                    @click.prevent="getFoodByCategory(child.id)"
+                    href="#"
+                    class="text-decoration-none text-start"
+                  >
+                    🔻{{ child.name }}
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
 
 
             <div class="col-lg-9 align-items-center text-center">
