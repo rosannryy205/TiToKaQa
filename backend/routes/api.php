@@ -125,6 +125,10 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('/admin/foods', [AdminFoodController::class, 'store']);
 });
 
+
+//adminfood
+Route::get('/admin/foods', [AdminFoodController::class, 'getAllFood']);
+
 //admin combo
 Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 

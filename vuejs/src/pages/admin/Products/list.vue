@@ -2,8 +2,8 @@
   <h3 class="title">Quản lý danh mục</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <router-link :to="{ name: 'insert-category' }" class="btn btn-add">
-      + Thêm danh mục
+    <router-link :to="{ name: 'insert-food' }" class="btn btn-add">
+      + Thêm sản phẩm
     </router-link>
     <span class="vd">Tìm kiếm</span>
     <input type="text" class="custom-input" placeholder="Tìm kiếm danh mục" />
@@ -22,8 +22,11 @@
         <tr>
           <th><input type="checkbox" /></th>
           <th>STT</th>
-          <th class="d-none d-md-table-cell">Tên</th>
+          <th class="d-none d-md-table-cell">Ảnh sản phẩm</th>
+          <th>Tên sản phẩm</th>
           <th>Danh mục cha</th>
+          <th>Giá sản phẩm</th>
+          <th>Trạng thái sản phẩm</th>
           <th>Tuỳ chọn</th>
         </tr>
       </thead>
@@ -31,30 +34,11 @@
         <tr>
           <td><input type="checkbox" /></td>
           <td>1</td>
+          <td>1</td>
+          <td>Chưa phân loại</td>
+          <td>Chưa phân loại</td>
           <td>Chưa phân loại</td>
           <td>Danh mục mặc định</td>
-          <td class="d-flex justify-content-center gap-2 flex-wrap">
-            <button class="btn btn-outline">Sửa</button>
-            <button class="btn btn-danger-delete">Xoá</button>
-            <button class="btn btn-outline">Thêm sản phẩm</button>
-          </td>
-        </tr>
-        <tr>
-          <td><input type="checkbox" /></td>
-          <td>2</td>
-          <td>Mỳ</td>
-          <td></td>
-          <td class="d-flex justify-content-center gap-2 flex-wrap">
-            <button class="btn btn-outline">Sửa</button>
-            <button class="btn btn-danger-delete">Xoá</button>
-            <button class="btn btn-outline">Thêm sản phẩm</button>
-          </td>
-        </tr>
-        <tr>
-          <td><input type="checkbox" /></td>
-          <td>3</td>
-          <td>Mỳ trộn</td>
-          <td>Mỳ</td>
           <td class="d-flex justify-content-center gap-2 flex-wrap">
             <button class="btn btn-outline">Sửa</button>
             <button class="btn btn-danger-delete">Xoá</button>
