@@ -115,4 +115,16 @@ class AdminFoodController extends Controller
     {
         //
     }
+
+    public function getAllFood(){
+        try {
+            $allFood = Food::with('category')->get();
+            return response()->json($allFood);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error',
+                'error' => $e->getMessage()
+            ],500);
+        }
+    }
 }

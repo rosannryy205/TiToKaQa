@@ -18,16 +18,18 @@
               <img
                 :src="
                   form.avatar_preview ||
-                  (form.avatar
-                    ? `http://localhost:8000/assets/avatar/${form.avatar}`
-                    : '')
+                  (form.avatar?.startsWith('http')
+                    ? form.avatar
+                    : `http://localhost:8000/assets/avatar/${form.avatar}`)
                 "
                 alt="Avatar"
                 class="avatar-circle d-flex justify-content-center align-items-center"
               />
             </template>
             <template v-else>
-              <div class="avatar-circle border-custom  d-flex justify-content-center align-items-center">
+              <div
+                class="avatar-circle border-custom d-flex justify-content-center align-items-center"
+              >
                 {{ getInitial(form?.fullname) || getInitial(form?.username) }}
               </div>
             </template>
@@ -269,13 +271,12 @@ export default {
 
         form.value = {
           fullname: res.data.fullname || "",
-          email: res.data.email,
+          email: res.data.email || "",
           phone: res.data.phone || "",
           address: res.data.address || "",
           avatar: (res.data.avatar || "").trim(),
           username: res.data.username || "",
         };
-        console.log("Avatar from API:", res.data.avatar);
       } catch (error) {
         console.error("Không lấy được thông tin người dùng", error);
       } finally {
@@ -335,6 +336,7 @@ export default {
         });
 
         toast.success("Đã cập nhật thông tin thành công.");
+        console.log("Gửi form:", form.value);
         await personally();
       } catch (error) {
         toast.error("Có lỗi xảy ra, vui lòng thử lại sau.");
