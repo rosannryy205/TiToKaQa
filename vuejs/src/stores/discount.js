@@ -13,7 +13,7 @@ export function Discounts()  {
     const userId = user?.id || 'guest'
     const route = useRoute()
     const orderId = route.params.orderId
-    // const cartKey = `cart_${userId}`
+    const cartKey = `cart_${userId}`
     // const cartKey1 = `cart_${userId}_reservation_${orderId}`
     const discounts = ref([])
     const discountInput = ref('')
@@ -52,7 +52,7 @@ export function Discounts()  {
     const handleDiscountInput = () => {
       const code = discountInput.value.trim().toUpperCase()
       const discount = discounts.value.find((d) => d.code === code)
-      if (!discount) {    
+      if (!discount) {
         toast.error('❌ Mã giảm giá không hợp lệ')
         return
       }
@@ -62,7 +62,7 @@ export function Discounts()  {
         )
         return
       }
-    
+
       discountInputId.value = discount.id
       applyDiscountCode(code)
       discountInput.value = ''
@@ -93,7 +93,7 @@ export function Discounts()  {
       const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
       if (!discount) return 0;
 
-      const value = parseFloat(discount.discount_value) 
+      const value = parseFloat(discount.discount_value)
       const max = parseFloat(discount.max_discount_amount || Infinity)
       let amount = 0
 
@@ -151,5 +151,6 @@ export function Discounts()  {
       totalQuantity,
       totalPriceItem,
       loadCart,
+      cartKey
     }
 }
