@@ -20,4 +20,6 @@ class Reservation_table extends Model
 
     ];
 
+    
+
 }
