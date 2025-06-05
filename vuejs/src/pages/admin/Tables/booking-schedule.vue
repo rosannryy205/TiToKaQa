@@ -7,8 +7,7 @@
   </div>
   <div class="container">
     <div class="row g-3">
-      <div class="col-12 col-sm-6 col-md-4" v-for="order in orderOfTable" :key="order.order_id"
-        v-show="order.reservations_time != null">
+      <div class="col-12 col-sm-6 col-md-4" v-for="order in orderOfTable" :key="order.order_id">
         <div class="card custom-card shadow-sm">
           <div class="card-body p-3">
             <h6 class="card-title mb-2 text-truncate">
@@ -37,8 +36,8 @@
                   <option value="Hoàn Thành" :disabled="!canSelectStatus(order.reservation_status, 'Hoàn Thành')">
                     Hoàn Thành
                   </option>
-                  <option value="Đã hủy" :disabled="!canSelectStatus(order.reservation_status, 'Đã hủy')">
-                    Đã hủy
+                  <option value="Đã hủy" :disabled="!canSelectStatus(order.reservation_status, 'Đã Hủy')">
+                    Đã Hủy
                   </option>
                 </select>
               </div>
@@ -54,7 +53,7 @@
                   </li>
                   <li>
                     <router-link :to="{ name: 'list-food', params: { id: order.order_id } }" class="dropdown-item1"
-                      v-if="order.reservation_status !== 'Hoàn Thành' && order.reservation_status !== 'Đã hủy'">Chọn
+                      v-if="order.reservation_status !== 'Hoàn Thành' && order.reservation_status !== 'Đã Hủy'">Chọn
                       món</router-link>
                   </li>
                   <li>
@@ -152,6 +151,8 @@ export default {
         })
 
         availableTables.value = res.data.tables;
+        console.log(reserved_to);
+
       } catch (error) {
         alert('Lỗi khi lấy danh sách bàn có thể đặt')
         console.error('Lỗi:', error)
@@ -196,7 +197,6 @@ export default {
         return
       }
 
-      const assigned_time = formatDateTime(new Date())
       await getInfo('order', selectedOrderId.value)
 
       const reservedTo = new Date(info.value.reservations_time.replace(' ', 'T'))
@@ -207,7 +207,6 @@ export default {
         await axios.post('http://127.0.0.1:8000/api/set-up/order-tables', {
           order_id: selectedOrderId.value,
           table_ids: selectedTableIds.value,
-          assigned_time,
           reserved_from: info.value.reservations_time,
           reserved_to,
         })
@@ -248,7 +247,7 @@ export default {
       const currentIndex = statusOrder.indexOf(currentStatus)
       const optionIndex = statusOrder.indexOf(optionStatus)
 
-      if (currentStatus === 'Hoàn Thành' || currentStatus === 'Đã hủy') {
+      if (currentStatus === 'Hoàn Thành' || currentStatus === 'Đã Hủy') {
         return false
       }
       if (optionIndex < currentIndex) {
@@ -257,14 +256,14 @@ export default {
       if (optionIndex === currentIndex + 1) {
         return true
       }
-      if (optionStatus === 'Đã hủy' || currentStatus === 'Chờ Xác Nhận') {
+      if (optionStatus === 'Đã Hủy' || currentStatus === 'Chờ Xác Nhận') {
         return true
       }
       return false
     }
 
     onMounted(() => {
-      getOrderOfTable()
+     getOrderOfTable()
       // setInterval(() => {
       //   axios.get('http://127.0.0.1:8000/api/auto-cancel-orders')
       // }, 6000)

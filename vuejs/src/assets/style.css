@@ -5,112 +5,136 @@
   text-decoration: none;
   list-style: none;
 }
+/*header da refactor*/
+/* General Reset (giữ nguyên nếu bạn muốn) */
+* {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  list-style: none;
+}
+
 body {
   background: url('../img/Background.png') no-repeat center center;
   background-size: cover;
   font-family: 'Barlow', sans-serif;
 }
-/*margin*/
-.custom-margin {
-  margin-top: 100px;
+
+/* Header Styles */
+.header {
+  /* position-sticky, top-0, bg-white, bg-opacity-90, shadow-sm, z-3 đã được xử lý bằng class Bootstrap */
 }
 
-/*Header*/
-#app > div > div.header > div.container > div > nav > div > button{
-  padding: 5px;
+.header .navbar {
+  padding-top: 0.5rem; /* Điều chỉnh padding nếu cần */
+  padding-bottom: 0.5rem;
 }
-#app > div > div.header > div.container > div > nav > div > button > span{
-  font-size: 1rem;
+
+.header .navbar-brand img.logo {
+  display: block; /* Mặc định img là inline */
 }
-body > section > div.header > div > nav {
-  border: none;
-  padding: 0px;
-  margin: 0px;
+
+.header .navbar-toggler {
+  padding: 0.25rem 0.5rem; /* Tùy chỉnh padding cho toggler */
+  font-size: 1rem; /* Kích thước icon toggler */
+  border: 1px solid transparent; /* Bỏ border mặc định nếu muốn */
 }
+.header .navbar-toggler:focus {
+  box-shadow: none;
+}
+
+/* Nav links Desktop (Menu Bottom) */
+.header .navbar-bottom {
+  border-top: 1px solid #e0e0e0; /* Màu border nhẹ nhàng hơn */
+}
+
+.header .main-nav-links .nav-link {
+  font-size: 1rem; /* Hoặc 18px */
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: color 0.3s ease, transform 0.3s ease;
+  padding: 0.5rem 1rem; /* Padding cho nav-link */
+}
+
+.header .main-nav-links .nav-link:hover {
+  color: #c92c3c;
+  transform: scale(1.05); /* Hiệu ứng scale nhẹ hơn */
+}
+
+/* Icon Buttons (chung cho desktop và mobile nếu có thể) */
 .icon-btn {
   border: none;
   background: none;
-  font-size: 1.8rem;
-  transition: 0.5s;
+  font-size: 1.5rem; /* Kích thước icon (22-24px) */
+  color: #333; /* Màu icon mặc định */
+  transition: color 0.3s ease, transform 0.3s ease;
+  padding: 0.25rem 0.5rem; /* Thêm padding để dễ click */
+  cursor: pointer;
 }
-.logo-container {
-  text-align: center;
-  flex-grow: 1;
-}
-#app > div > div.header > div.container > div > nav > div > div > div > img{
-  display: block;
-}
-#app > div > div.header > div.container > nav{
-    border-top: 1px solid rgb(194, 190, 190);
 
-}
-.nav-link {
-  font-size: 18px;
-  font-weight: bold;
-  text-transform: uppercase;
-  transition: 0.5s;
-}
-.nav-link:hover {
-  color: #c92c3c;
-  scale: 1.1;
-}
-.icon-btn{
-  font-size: 22px;
-}
 .icon-btn:hover {
   color: #c92c3c;
-  scale: 1.1;
+  transform: scale(1.1);
 }
-.offcanvas {
-  width: 250px;
+.username-display {
+    font-weight: 500;
 }
-/*icon search*/
+.text-primary-red {
+    color: #c92c3c !important; /* Màu cho username hoặc các link đặc biệt */
+}
+.text-primary-red:hover {
+    color: #a32330 !important;
+}
+
+
+/* Search Input Styles */
 .input-wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 15px;
-  position: relative;
+  /* gap: 15px;  Nếu cần khoảng cách giữa button và input */
+  /* position: relative; đã có class bootstrap */
 }
 
-.input {
+.input-search {
   border-style: none;
-  height: 50px;
-  width: 50px;
-  padding: 10px;
+  height: 40px; /* Giảm chiều cao 1 chút */
+  width: 40px;  /* Bằng với icon button ban đầu */
+  padding: 0.5rem;
   outline: none;
   border-radius: 50%;
-  transition: 0.5s ease-in-out;
-  background-color: transparent;
-  padding-right: 40px;
+  transition: width 0.5s ease-in-out, border-radius 0.5s ease-in-out, background-color 0.5s ease-in-out, border-bottom 0.5s ease-in-out;
+  background-color: transparent; /* Hoặc màu nền nhẹ */
+  padding-right: 35px; /* Để icon không bị che */
+  font-size: 0.9rem;
 }
 
-.input::placeholder,
-.input {
-  font-size: 15px;
-}
-
-.input::placeholder {
+.input-search::placeholder {
   color: #8f8f8f;
+  font-size: 0.9rem;
 }
-.icon {
+
+.icon-search-submit {
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
   right: 0px;
+  top: 50%;
+  transform: translateY(-50%);
   cursor: pointer;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   outline: none;
   border-style: none;
   border-radius: 50%;
-  pointer-events: painted;
   background-color: transparent;
   transition: 0.2s linear;
+  padding: 0; /* Reset padding cho button chứa SVG */
 }
-.icon:focus ~ .input,
-.input:focus {
+
+/* Animation khi focus search */
+.input-wrapper .icon-search-submit:focus-within ~ .input-search, /* Hỗ trợ click icon để expand */
+.input-wrapper .input-search:focus {
   box-shadow: none;
   width: 350px;
   border-radius: 0px;
@@ -118,67 +142,127 @@ body > section > div.header > div > nav {
   border-bottom: 3px solid #c92c3c;
   transition: all 500ms cubic-bezier(0, 0.11, 0.35, 2);
 }
-#offcanvasMenu > div.offcanvas-header{
-  justify-content: space-between;
+
+/* Suggestion Dropdown */
+.suggestion-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 350px; /* Bằng width của input khi expand */
+  background-color: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000; /* Đảm bảo dropdown nổi trên các element khác */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.suggestion-dropdown li {
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.suggestion-dropdown li:hover {
+  background-color: #f5f5f5;
+}
+.suggestion-dropdown .loading,
+.suggestion-dropdown .no-more {
+  padding: 10px 15px;
+  font-style: italic;
+  color: #777;
+}
+
+
+/* Offcanvas Styles */
+.offcanvas {
+  width: 280px; /* Tăng nhẹ độ rộng cho offcanvas */
+}
+.offcanvas-header {
+  border-bottom: 1px solid #e0e0e0;
+}
+.offcanvas-title {
+  font-weight: bold;
+}
+.offcanvas-nav-links .nav-link {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0; /* Đường kẻ mờ giữa các link */
+}
+.offcanvas-nav-links .nav-link:hover {
+  background-color: #f8f9fa;
+  color: #c92c3c;
+}
+
+.offcanvas-body .mobile-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+.offcanvas-body .mobile-actions .input-wrapper { /* Style cho search trong offcanvas */
+    width: 100%;
+}
+.offcanvas-body .mobile-actions .input-search { /* Input search trong offcanvas mở rộng sẵn */
+    width: 100%;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    border-bottom: 2px solid transparent;
+}
+.offcanvas-body .mobile-actions .input-search:focus {
+    background-color: #fff;
+    border-bottom: 2px solid #c92c3c;
+}
+
+.offcanvas-body .mobile-actions .icon-btn {
+  font-size: 1rem; /* Font size cho text trong offcanvas action */
+  display: flex; /* Để icon và text thẳng hàng */
+  align-items: center;
+}
+.offcanvas-body .mobile-actions .icon-btn i {
+  font-size: 1.25rem; /* Kích thước riêng cho icon nếu cần */
+}
+/* Responsive Adjustments (Sử dụng breakpoints của Bootstrap nếu có thể) */
+/* Bootstrap lg breakpoint là 992px */
+@media (max-width: 991.98px) {
+  /* Các style riêng cho mobile/tablet nếu cần mà Bootstrap class chưa xử lý */
+  .header .navbar-brand {
+    margin-left: auto; /* Đẩy logo ra giữa khi toggler xuất hiện bên trái */
+    margin-right: auto;
+    /* Hoặc dùng flex trên parent của toggler và brand để căn chỉnh */
+  }
+}
+
+/* Ví dụ cho các màn hình nhỏ hơn nữa nếu cần */
+@media (max-width: 575.98px) {
+  .header .navbar-brand img.logo {
+    width: 60px; /* Giảm kích thước logo trên màn hình rất nhỏ */
+  }
+  .offcanvas {
+    width: 250px; /* Giảm độ rộng offcanvas trên mobile nhỏ */
+  }
 }
 /**/
-@media (max-width: 800px) {
-  .logo-container {
-    flex-grow: 1;
-    text-align: center;
-  }
-  #app > div > div.header > div.container > div > nav > div > div{
-    gap: 110px;
-  }
-  .logo {
-    display: block;
-  }
-#offcanvasMenu > .offcanvas-body > div {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 10px;
-  justify-items: center;
-}
 
-#offcanvasMenu .icon-btn {
-  font-size: 24px;
-}
-
-@media (max-width: 991px) {
-  #offcanvasMenu > .offcanvas-body > div {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    gap: 10px;
-}
-
-}
-}
-.menu-btn {
-  border: #555555;
-  background: none;
-  font-size: 1.8rem;
-  transition: 0.5s;
-  cursor: pointer;
-  padding: 4px 12px;
-}
-
-.menu-btn:hover {
-  color: #c92c3c;
-  scale: 1.1;
-}
-/*icon menu small*/
-#offcanvasMenu > div.offcanvas-body > ul > div {
-  /* display: grid; */
-  gap: 10px;
-  justify-content: space-between;
-  padding: 20px;
-}
 
 /*main*/
 .title-shops > span {
-  font-size: 60px;
+  font-size: 40px;
   color: #c92c3c;
+}
+.title-shops{
+  margin-bottom: 35px;
+}
+.title-shops1 > span {
+  font-size: 40px;
+  color: #c92c3c;
+}
+.title-shops1{
+  margin-bottom: 35px;
 }
 
 .deals-hot-box {
@@ -216,7 +300,8 @@ body > section > div.header > div > nav {
 
 @media (max-width: 768px) {
   .title-shops > span {
-    font-size: 40px;
+    font-size: 25px;
+    margin-left: 0px;
   }
 }
 .images-foods-banner img {
@@ -235,6 +320,9 @@ body > section > div.header > div > nav {
   right: 120px;
   color: rgb(0, 0, 0);
   font-size: 22px;
+}
+.title-shops{
+  margin-left: none;
 }
 
 /*main > section*/
@@ -343,13 +431,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   font-size: 15px;
   color: #ccc;
 }
-.menu-list input[type='radio']:checked + label {
-  font-weight: bold;
-  color: #c00;
-}
-.menu-list input[type='radio']:checked + label i {
-  color: #c00;
-}
+
 
 @media (max-width: 768px) {
   .menu-list {
@@ -363,43 +445,70 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   body > section > section > div > section > div > div > div.col-md-3.d-none.d-lg-block > span {
     font-size: 30px !important;
   }
+  .title-shops{
+  margin-bottom: 10px;
+}
 }
 
 /*menu dropdown small screnn*/
+/* Dropdown container */
 .menu-dropdown {
   position: absolute;
-  width: 270px;
+  top: 100%;
   right: 0;
-  background: white;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
+  width: 270px;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
   z-index: 9999;
-  padding: 10px 0;
+  padding: 8px 0;
   transition: all 0.3s ease;
   max-height: 300px;
   overflow-y: auto;
 }
 
+/* List items */
 .menu-dropdown .list-group-item {
-  font-weight: bold;
+  background: transparent;
   border: none;
-  padding: 12px 20px;
+  padding: 10px 16px;
+  transition: background-color 0.2s ease;
 }
 
-#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-12.d-lg-none.position-relative > div.show.menu-dropdown > ul > li > ul > li > a{
+.menu-dropdown .list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Category link */
+.category-link {
+  text-decoration: none;
+  display: block;
+  color: #333;
+  transition: color 0.2s ease;
+}
+
+.category-link:hover {
   color: #c92c3c;
 }
 
+/* Parent category spacing */
+.parent-category > .category-link {
+  font-weight: 600;
+}
 
+/* Child category icon */
+.child-category .category-link i {
+  font-size: 0.85rem;
+}
+
+/* Menu icon section */
 .menu-icon {
-  display: flex;
-  align-items: center;
   cursor: pointer;
+  font-weight: 500;
 }
 
 .menu-icon i {
-  font-size: 1.5rem;
-  margin-right: 8px;
+  font-size: 1.2rem;
 }
 
 
@@ -1024,7 +1133,7 @@ color: #c92c3c;
   font-weight: bold;
   box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
   transition: background-color 0.2s ease, box-shadow 0.2s ease;
-  background-color: #dc3546;
+  background-color: #d32f2f;
   color: #fff;
 }
 .btn-danger:hover {
@@ -1124,14 +1233,7 @@ color: #c92c3c;
   transition: background-color 0.2s, color 0.2s;
 }
 /*form dat ban*/
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #dc3545;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #f5c6cb;
-  padding-bottom: 0.5rem;
-}
+
 .table {
   border-radius: 0.75rem;
   overflow: hidden;
@@ -1200,6 +1302,10 @@ color: #c92c3c;
   .card-payment {
     margin-top: 2rem;
   }
+  .ffff{
+    margin-top: 20px;
+  }
+
 }
 /**/
 #productModal > div > div > div > div > div.col-md-6.d-flex.flex-column > form > div.flex-grow-1 > div{
@@ -1276,15 +1382,10 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
 
 
 
-/* toan css  */
 /* reservation  */
 .custom-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
   /* background-color: white; */
-  min-height: 600px;
-  margin-top:5%;
   padding-bottom: 40px;
 }
 /* .error-message{
@@ -1308,23 +1409,18 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
 .booking-form {
   padding: 30px;
   border-radius: 10px;
-  display: flex;
-  align-items: center;
+
   box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.3);
 }
 .booking-form input{
   border-radius: 0px;
 }
 .booking-image img {
-  width: 100%;
   max-width: 400px;
   height: auto;
-  border-radius: 10px;
+  border-radius: 5px;
 }
-.form-section {
-  flex: 1;
-  padding-left: 20px;
-}
+
 .btn-custom {
   display: flex;
   align-items: center;
@@ -1457,11 +1553,6 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
 .description2{
   display: none;
 }
-  .booking-form{
-    width: 100% !important;
-  }
-
-
 
   .booking-image{
     display: none;

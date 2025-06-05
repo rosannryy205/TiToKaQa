@@ -14,10 +14,12 @@ class Reservation_table extends Model
     protected $fillable = [
         'order_id',
         'table_id',
-        'assigned_time',
         'reserved_from',
-        'reserved_to'
+        'reserved_to',
+        'reservation_status'
 
     ];
+
+    
 
 }
