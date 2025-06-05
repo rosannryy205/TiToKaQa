@@ -268,7 +268,7 @@ export default {
         // console.log(res.data.username);
 
         form.value = {
-          fullname: res.data.fullname,
+          fullname: res.data.fullname || "",
           email: res.data.email,
           phone: res.data.phone || "",
           address: res.data.address || "",
