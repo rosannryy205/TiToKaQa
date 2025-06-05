@@ -448,8 +448,6 @@ export default {
           return
         }
 
-        shippingFee.value = distance * 8000;
-
         const orderData = {
           user_id: user.value ? user.value.id : null,
           guest_name: form.value.fullname,
