@@ -1,111 +1,270 @@
 <template>
-    <div class="container">
-        <h2 class="mb-4 fw-bold">Sơ Đồ Bàn</h2>
+  <div>
+    <h2>Sơ đồ bàn</h2>
+    <div style="display: flex; align-items: center; gap: 18px; padding-top: 10px">
+      <!-- Tabs -->
+      <div class="">
+        <input type="date" class="form-control rounded" />
+      </div>
+      <div class="" style="width: 120px">
+        <select class="form-control rounded">
+          <option value="">Chọn giờ</option>
+          <option></option>
+        </select>
+      </div>
+      <div style="width: 180px">
+        <select class="form-control rounded">
+          <option value="">Lọc theo trạng thái</option>
+          <option>Đã đặt trước</option>
+          <option>Đã đặt trước</option>
+          <option>Đã đặt trước</option>
+        </select>
+      </div>
+      <div>
+        <button
+          type="submit"
+          class="btn btn-danger1 w-100 form-control rounded"
+          style="font-size: 14px; font-weight: 400"
+        >
+          Tìm bàn
+        </button>
+      </div>
 
-        <!-- Tabs bộ lọc trạng thái -->
-        <ul class="nav nav-tabs mb-3">
-            <li class="nav-item">
-                <a class="nav-link active">Tất cả</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link">Bàn trống</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link">Có khách</a>
-            </li>
-        </ul>
-
-        <!-- Bộ lọc khu vực
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <label class="me-2">Khu vực:</label>
-                <select class="form-select w-auto d-inline-block">
-                    <option>Tất cả</option>
-                    <option>Ngoài trời</option>
-                    <option>Trong phòng</option>
-                </select>
-            </div>
-        </div> -->
-
-        <!-- Danh sách bàn -->
-        <div class="row row-cols-2 row-cols-md-4 g-4">
-          <div class="col" v-for="table in tables" :key="table.id">
-            <div class="table-card p-3 text-center" :class="table.status">
-              <div class="icon-wrap mb-2">
-                <i class="bi bi-person-fill"></i>
-              </div>
-              <h5 class="table-number">Bàn {{ table.table_number }}</h5>
-              <p class="status-text">{{ (table.status) }} - {{ table.capacity }} người</p>
-            </div>
-          </div>
-
-        </div>
+      <!-- Table Status -->
+      <div class="table-status-box">
+        <strong>Trạng thái:</strong>
+        <div class="status-item"><span class="status-dot billed"></span>Đã đăt trước</div>
+        <div class="status-item"><span class="status-dot reservation"></span>Đang sử dụng</div>
+      </div>
     </div>
+    <hr />
+    <div class="col-md-12 form-section mt-2">
+      <div class="table-container">
+        <div class="table-block" v-for="ban in tables" :key="ban.id">
+          <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+            <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
+          </div>
+          <div
+            @click="selectedTableId = ban.id"
+            :class="[
+              selectedTableId == ban.id ? 'table-rect1' : 'table-rect',
+              {
+                medium: getChairCount(ban.capacity) === 2,
+                large: getChairCount(ban.capacity) === 3,
+                billed: ban.status === 'Đã đặt trước',
+                'billed-text': ban.status === 'Đã đặt trước',
+                reservation: ban.status === 'Có khách',
+                'reservation-text': ban.status === 'Có khách',
+              },
+            ]"
+          >
+            {{ ban.table_number }}
+          </div>
+          <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+            <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n"></div>
+          </div>
+        </div>
+      </div>
+      <button
+        v-if="orderId"
+        class="btn btn-danger1"
+        style="width: 200px"
+        @click="changeTable(selectedTableId)"
+      >
+        Xác nhận chuyển bàn
+      </button>
+    </div>
+  </div>
 </template>
-<script>
-import axios from 'axios';
-import { ref, onMounted } from 'vue';
-export default{
-  setup(){
-    const tables = ref([])
 
+<script>
+import axios from 'axios'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { toast } from 'vue3-toastify'
+
+export default {
+  setup() {
+    const tables = ref([])
+    const route = useRoute()
+    const orderId = route.params.orderId
+    const check = ref(true)
+    const selectedTableId = ref(null)
     const getTable = async () => {
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/tables')
         tables.value = res.data
-        console.log(tables.value);
-
+        console.log(tables.value)
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     }
 
+    const getChairCount = (seats) => {
+      if (seats <= 2) return 1
+      if (seats <= 4) return 2
+      return 3
+    }
+
+    const changeTable = async (table_id) => {
+      try {
+        selectedTableId.value = table_id
+        console.log(selectedTableId.value)
+
+        axios.put('http://127.0.0.1:8000/api/change-table', {
+          id: orderId,
+          table_id: table_id,
+        })
+        toast.success('Thay đổi thành công')
+      } catch (error) {
+        console.log(error)
+        toast.error('Có lỗi xảy ra')
+      }
+    }
 
     onMounted(() => {
-      getTable();
-
+      getTable()
+      getChairCount()
     })
 
-    return{
+    return {
       tables,
+      getChairCount,
+      getTable,
+      changeTable,
+      check,
+      selectedTableId,
+      orderId,
     }
-  }
+  },
 }
 </script>
 
-
 <style scoped>
-.bi-person-fill{
-  color: #c62c37;
-  font-size: 30px;
+.table-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
 }
-.table-card {
-    background: #f8f9fa;
-    border-radius: 10px;
-    border: 1px solid #dee2e6;
-    padding: 20px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
+
+.table-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
 }
-.table-card:hover {
-    transform: scale(1.05);
+.table-block:hover {
+  cursor: pointer;
 }
-.table-number {
-    color: black;
-    font-weight: bold;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
+.chairs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 5px 0;
 }
-.status-text {
-    margin-top: 10px;
+
+.chair {
+  width: 40px;
+  height: 6px;
+  background-color: #ddd;
+  border-radius: 3px;
 }
-.area{
-    color: #6c757d;
+
+.table-rect {
+  /* background-color: #f4f4f4; */
+  color: rgb(81, 73, 73);
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-align: center;
+  border: 5px solid #ddd;
+  min-width: 80px;
+  font-weight: bold;
+  font-size: 16px;
 }
-.nav-tabs .nav-link {
-    cursor: pointer;
+.table-rect1 {
+  background-color: rgb(226, 225, 225);
+  color: rgb(81, 73, 73);
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-align: center;
+  border: 5px solid #ddd;
+  min-width: 80px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* .chair:hover{
+  background-color: rgb(66, 64, 64);
+} */
+
+.table-rect.medium {
+  min-width: 120px;
+}
+
+.table-rect.large {
+  min-width: 160px;
+}
+.table-rect1.medium {
+  min-width: 120px;
+}
+
+.table-rect1.large {
+  min-width: 160px;
+}
+.table-status-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.occupied {
+  background-color: #f4f4f4; /* blue */
+}
+
+.billed {
+  background-color: #f1be26; /* yellow */
+}
+.billed-text,
+.reservation-text {
+  color: white;
+}
+
+.reservation {
+  background-color: #c0392b; /* red */
+}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .table-container {
+    gap: 10px;
+  }
+
+  .table-block {
+    flex: 1 1 100px;
+  }
+
+  .chair {
+    width: 30px;
+  }
+
+  .table-rect {
+    font-size: 0.85rem;
+  }
 }
 </style>

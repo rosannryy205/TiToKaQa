@@ -75,7 +75,7 @@ export function Discounts()  {
 
       const storedCart = localStorage.getItem(cartKey)
       cartItems.value = storedCart ? JSON.parse(storedCart) : []
-      console.log('ggggg' + orderId);
+      console.log('order ID:' + orderId);
 
     }
 

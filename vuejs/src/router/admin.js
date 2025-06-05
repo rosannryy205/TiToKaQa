@@ -42,6 +42,11 @@ const admin = [
         component: () => import('../pages/admin/Tables/list.vue'),
       },
       {
+        path: 'tables/:orderId',
+        name: 'admin-tables-list',
+        component: () => import('../pages/admin/Tables/list.vue'),
+      },
+      {
         path: 'tables/booking-schedule',
         name: 'admin-tables-booking-schedule',
         component: () => import('../pages/admin/Tables/booking-schedule.vue'),
@@ -95,6 +100,11 @@ const admin = [
         path: 'insert-combo',
         name: 'insert-combo',
         component: () => import('../pages/admin/Combo/insert.vue'),
+      },
+      {
+        path: 'insert-reservation',
+        name: 'insert-reservation',
+        component: () => import('../pages/admin/Tables/insert.vue'),
       },
     ],
   },
