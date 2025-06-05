@@ -1,5 +1,9 @@
 <template>
-  <div v-if="loading" class="d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+  <div
+    v-if="loading"
+    class="d-flex justify-content-center align-items-center"
+    style="min-height: 50vh"
+  >
     <div class="spinner-border text-danger" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
@@ -7,29 +11,38 @@
   <div v-else class="container mt-5 fade-in">
     <div class="row g-4">
       <!-- Sidebar -->
-      <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0" style="max-height: 300px;">
+      <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0" style="max-height: 300px">
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
-          <div class="d-flex  align-items-center mb-3 mx-3">
-            <template v-if="form && form.avatar">
-              <img :src="form.avatarPreview || form.avatar" alt="Avatar"
-                class="avatar-circle d-flex justify-content-center align-items-center" />
+          <div class="d-flex align-items-center mb-3 mx-3">
+            <template v-if="form.avatar_preview || form.avatar">
+              <img
+                :src="
+                  form.avatar_preview ||
+                  (form.avatar
+                    ? `http://localhost:8000/assets/avatar/${form.avatar}`
+                    : '')
+                "
+                alt="Avatar"
+                class="avatar-circle d-flex justify-content-center align-items-center"
+              />
             </template>
             <template v-else>
-              <div class="avatar-circle d-flex justify-content-center align-items-center">
+              <div class="avatar-circle border-custom  d-flex justify-content-center align-items-center">
                 {{ getInitial(form?.fullname) || getInitial(form?.username) }}
               </div>
             </template>
 
             <div class="ms-4 text-center text-md-start">
               <h6 class="mt-2 mb-3 fw-bold">{{ form.fullname || form.username }}</h6>
-              <a href="#" @click="handleLogout"
-                class="list-group-item-action link-danger small d-flex align-items-center gap-1 mt-2">
+              <a
+                href="#"
+                @click="handleLogout"
+                class="list-group-item-action link-danger small d-flex align-items-center gap-1 mt-2"
+              >
                 <i class="bi bi-box-arrow-right"></i> Đăng xuất
               </a>
             </div>
-
           </div>
-
 
           <!-- <div class="bg-light rounded-3 p-3 text-center mb-3">
             <div class="fw-bold">POP MART MEMBER</div>
@@ -48,7 +61,9 @@
 
           <ul class="list-group list-group-flush">
             <router-link to="/update-user" class="text-decoration-none text-dark">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
                 <div>
                   <div class="fw-bold text-danger">Thông tin tài khoản</div>
                   <div class="small text-muted">Cập nhật thông tin</div>
@@ -58,7 +73,9 @@
             </router-link>
 
             <router-link to="/infor-user" class="text-decoration-none text-dark">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
                 <div>
                   <div class="fw-bold">Quản lý đơn hàng</div>
                   <div class="small text-muted">Đơn hàng của tôi</div>
@@ -81,38 +98,65 @@
               <form @submit.prevent="handleSubmit">
                 <div class="mb-3">
                   <label class="form-label">Tên người dùng</label>
-                  <input type="text" v-model="form.fullname" class="form-control form-control-lg rounded"
-                    placeholder="Nhập nickname của bạn" id="fullname">
+                  <input
+                    type="text"
+                    v-model="form.fullname"
+                    class="form-control form-control-lg rounded"
+                    placeholder="Nhập nickname của bạn"
+                    id="fullname"
+                  />
                 </div>
 
                 <div class="mb-3 text-center">
                   <label class="form-label d-block">Ảnh đại diện</label>
-                  <label for="avatar" class="border border-2 rounded-3 d-inline-block p-4 text-muted"
-                    style="cursor: pointer;">
+                  <label
+                    for="upload-profile"
+                    class="border border-2 rounded-3 d-inline-block p-4 text-muted"
+                    style="cursor: pointer"
+                  >
                     <div class="fs-1 mb-2">+</div>
                     <div class="fw-medium">Tải lên</div>
                   </label>
-                  <input type="file" id="avatar" class="d-none" @change="handleImageUpload" />
+                  <input
+                    type="file"
+                    id="upload-profile"
+                    class="d-none"
+                    @change="handleImageUpload"
+                  />
                 </div>
-
 
                 <div class="mb-3">
                   <label for="phone" class="form-label">Số điện thoại</label>
                   <div class="input-group">
                     <span class="input-group-text">+84</span>
-                    <input type="text" v-model="form.phone" class="form-control form-control-lg rounded" id="phone"
-                      placeholder="Nhập số điện thoại của bạn">
+                    <input
+                      type="text"
+                      v-model="form.phone"
+                      class="form-control form-control-lg rounded"
+                      id="phone"
+                      placeholder="Nhập số điện thoại của bạn"
+                    />
                   </div>
                 </div>
 
                 <div class="mb-3">
                   <label for="address" class="form-label">Địa chỉ</label>
-                  <input type="text" v-model="form.address" class="form-control form-control-lg rounded" id="address"
-                    placeholder="Nhập địa chỉ của bạn">
+                  <input
+                    type="text"
+                    v-model="form.address"
+                    class="form-control form-control-lg rounded"
+                    id="address"
+                    placeholder="Nhập địa chỉ của bạn"
+                  />
                 </div>
                 <div class="text-center">
-                  <button type="submit" style="background-color: #ca111f;" class="btn text-white w-100">Lưu tài
-                    khoản</button>
+                  <button
+                    type="submit"
+                    style="background-color: #ca111f"
+                    class="btn text-white w-100"
+                  >
+                    Lưu tài khoản
+                  </button>
                 </div>
               </form>
             </div>
@@ -120,7 +164,9 @@
             <!-- Cột phải -->
             <div class="col-md-5 border-start ps-md-4">
               <ul class="p-0 m-0 list-unstyled">
-                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
+                <li
+                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
+                >
                   <div class="d-flex align-items-center gap-3">
                     <i class="bi bi-envelope"></i>
                     <div>
@@ -128,33 +174,57 @@
                       <div class="small text-muted">Thay đổi địa chỉ email</div>
                     </div>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px;">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger w-100"
+                    style="max-width: 100px"
+                  >
                     <strong>Cập nhật</strong>
                   </button>
                 </li>
-                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
+                <li
+                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
+                >
                   <div class="d-flex align-items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                      class="bi bi-lock" viewBox="0 0 16 16">
-                      <path fill-rule="evenodd"
-                        d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                      class="bi bi-lock"
+                      viewBox="0 0 16 16"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3"
+                      />
                     </svg>
                     <div>
                       <div class="fw-bold">Đổi mật khẩu</div>
                     </div>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px;">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger w-100"
+                    style="max-width: 100px"
+                  >
                     <strong>Cập nhật</strong>
                   </button>
                 </li>
-                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
+                <li
+                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
+                >
                   <div class="d-flex align-items-center gap-3">
                     <i class="bi bi-trash"></i>
                     <div>
                       <div class="fw-bold">Xóa tài khoản</div>
                     </div>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px;">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger w-100"
+                    style="max-width: 100px"
+                  >
                     <strong>Xóa</strong>
                   </button>
                 </li>
@@ -163,137 +233,126 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
-
-
 </template>
 <script>
-import { ref, onMounted, computed, onUnmounted } from 'vue'
-import axios from 'axios'
-import { toast } from 'vue3-toastify'
-import { Image } from "ant-design-vue"
+import { ref, onMounted } from "vue";
+import axios from "axios";
+import { toast } from "vue3-toastify";
+import { Image } from "ant-design-vue";
 
 export default {
   setup() {
-    const primaryColor = '#ca111f';
-    const user = ref(null)
+    const primaryColor = "#ca111f";
+    const user = ref(null);
     const form = ref({
-      fullname: '',
-      email: '',
-      phone: '',
-      address: '',
-      avatar: '',
-      username: '',
-      avatarFile: null,
-      avatarPreview: null,
-    })
-
-    const isLoggedIn = computed(() => !!user.value)
+      fullname: "",
+      email: "",
+      phone: "",
+      address: "",
+      avatar: "",
+      username: "",
+      avatar_file: null,
+      avatar_preview: "",
+    });
 
     const personally = async (userId) => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/user/${userId}`, {
+        const res = await axios.get(`http://127.0.0.1:8000/api/user`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          }
-        })
-        user.value = res.data
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        user.value = res.data;
         // console.log(res.data.username);
 
-        Object.assign(form.value, {
+        form.value = {
           fullname: res.data.fullname,
           email: res.data.email,
-          phone: res.data.phone || '',
-          address: res.data.address || '',
-          avatar: res.data.avatar || '',
-          username: res.data.username || '',
-          avatarFile: null,
-          avatarPreview: null
-        })
+          phone: res.data.phone || "",
+          address: res.data.address || "",
+          avatar: (res.data.avatar || "").trim(),
+          username: res.data.username || "",
+        };
+        console.log("Avatar from API:", res.data.avatar);
       } catch (error) {
-        console.error('Không lấy được thông tin người dùng', error)
+        console.error("Không lấy được thông tin người dùng", error);
+      } finally {
+        loading.value = false;
       }
-    }
+    };
+
+    const handleImageUpload = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      form.value.avatar_preview = URL.createObjectURL(file);
+      form.value.avatar_file = file;
+    };
+
+    const isLoggedIn = ref(!!user.value);
 
     //  Đăng xuất
     const handleLogout = async () => {
       try {
-        await axios.post('http://127.0.0.1:8000/api/logout', null, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        })
-        localStorage.removeItem('user')
-        localStorage.removeItem('token')
-        user.value = null
-        alert('Đăng xuất thành công!')
-        window.location.href = '/'
-      } catch (error) {
-        alert('Lỗi khi đăng xuất. Vui lòng thử lại!')
-        console.error(error)
-      }
-    }
+        await axios.post("http://127.0.0.1:8000/api/logout", null, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
 
-    const handleImageUpload = (event) => {
-      const file = event.target.files[0]
-      if (file) {
-        if (form.value.avatarPreview) {
-          URL.revokeObjectURL(form.value.avatarPreview)
-        }
-        form.value.avatarFile = file
-        form.value.avatarPreview = URL.createObjectURL(file)
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+
+        isLoggedIn.value = false;
+
+        alert("Đăng xuất thành công!");
+        window.location.href = "/";
+      } catch (error) {
+        console.error("Lỗi đăng xuất:", error);
+        alert("Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!");
       }
-    }
-    onUnmounted(() => {
-      if (form.value.avatarPreview) URL.revokeObjectURL(form.value.avatarPreview)
-    })
+    };
 
     const handleSubmit = async () => {
       try {
-        const formData = new FormData()
-
-        // Đẩy các trường text vào formData
-        formData.append('fullname', form.value.fullname || '')
-        formData.append('phone', form.value.phone || '')
-        formData.append('address', form.value.address || '')
-        // Các trường khác nếu cần...
-
-        // Đẩy file avatar nếu có
-        if (form.value.avatarFile) {
-          formData.append('avatar', form.value.avatarFile)
+        const formData = new FormData();
+        formData.append("fullname", form.value.fullname);
+        formData.append("phone", form.value.phone);
+        formData.append("address", form.value.address);
+        if (form.value.avatar_file) {
+          formData.append("avatar", form.value.avatar_file);
         }
-        await axios.patch(`http://127.0.0.1:8000/api/user/${user.value.id}`, formData, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        })
+        formData.append("_method", "PATCH");
 
-        toast.success('Đã cập nhật thông tin thành công.')
+        await axios.post(`http://127.0.0.1:8000/api/user/${user.value.id}`, formData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            ...(form.value.avatar_file && {
+              "Content-Type": "multipart/form-data",
+            }),
+          },
+        });
+
+        toast.success("Đã cập nhật thông tin thành công.");
+        await personally();
       } catch (error) {
-        toast.error('Có lỗi xảy ra, vui lòng thử lại sau.')
-        console.error(error)
-        alert('Cập nhật thất bại.')
+        toast.error("Có lỗi xảy ra, vui lòng thử lại sau.");
+        console.error(error);
+        alert("Cập nhật thất bại.");
       }
-    }
+    };
 
     const getInitial = (username) => {
       if (username?.trim()) return username.trim().charAt(0).toUpperCase();
-      return '?';
+      return "?";
     };
 
     const loading = ref(true);
 
     onMounted(() => {
-      const storedUser = JSON.parse(localStorage.getItem('user'))
-      if (storedUser && storedUser.id) {
-        personally(storedUser.id).finally(() => {
-          loading.value = false
-        })
-      } else {
-        loading.value = false
-      }
-    })
+      personally();
+    });
 
     return {
       form,
@@ -303,16 +362,15 @@ export default {
       handleLogout,
       getInitial,
       loading,
-      primaryColor
-    }
+      primaryColor,
+    };
   },
-}
+};
 </script>
 <style scoped>
 .border-custom {
   border: 1px solid #ca111f;
 }
-
 
 .avatar-circle {
   width: clamp(80px, 25vw, 100px);
@@ -334,8 +392,6 @@ export default {
   display: block;
 }
 
-
-
 .fade-in {
   animation: fadeIn 0.4s ease-in-out;
 }
@@ -349,7 +405,6 @@ export default {
 li.list-group-item {
   border: none !important;
 }
-
 
 @keyframes fadeIn {
   from {

@@ -275,6 +275,7 @@ import numeral from 'numeral'
 import { ref } from 'vue'
 import axios from 'axios'
 import { User } from '@/stores/user'
+import dayjs from 'dayjs'
 import { RouterLink, useRouter } from 'vue-router'
 
 export default {
@@ -545,10 +546,14 @@ export default {
         isLoading.value = false
       }
     }
-
+    const today = dayjs().format('YYYY-MM-DD')
     const discountsFiltered = computed(() => {
-      return discounts.value.filter((discount) => discount.used < discount.usage_limit)
-    })
+  return discounts.value.filter(discount => {
+    const endDate = dayjs(discount.end_date).format('YYYY-MM-DD')
+    return discount.used < discount.usage_limit && endDate >= today
+  })
+})
+
     console.log(discountsFiltered.value)
     onMounted(() => {
       getProvinces()
@@ -589,7 +594,8 @@ export default {
       onDistrictChange,
       onProvinceChange,
       isLoggedIn,
-      discountsFiltered
+      discountsFiltered,
+      today
     }
   },
 }

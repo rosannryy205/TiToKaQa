@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->string('address')->nullable();
             $table->string('fullname')->nullable();
+            $table->integer('point')->default(500);
+            $table->string('rank')->default('Thường');
             $table->integer('verify_code')->nullable();
             $table->timestamp('verify_expiry')->nullable()->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->enum('role', ['user', 'admin']) -> default('user');

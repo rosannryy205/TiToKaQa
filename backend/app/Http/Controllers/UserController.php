@@ -358,22 +358,16 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
-        $request->validate([
-            'fullname' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+        $user->fullname = $request->input('fullname');
+        $user->phone = $request->input('phone');
+        $user->address = $request->input('address');
 
         if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $avatarPath;
+            $file = $request->file('avatar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/avatar'), $filename);
+            $user->avatar = $filename;
         }
-
-        $user->fullname = $request->input('fullname', $user->fullname);
-        $user->phone = $request->input('phone', $user->phone);
-        $user->address = $request->input('address', $user->address);
-
         $user->save();
 
         return response()->json([
