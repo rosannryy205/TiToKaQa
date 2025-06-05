@@ -15,7 +15,6 @@ return new class extends Migration
         Schema::create('foods', function (Blueprint $table){
             $table->id();
             $table->string('name');
-            $table->string('name_ascii')->nullable();
             $table->decimal('price', 10, 2)->default(0);
             $table->string('image');
             $table->integer('stock')->default(100);

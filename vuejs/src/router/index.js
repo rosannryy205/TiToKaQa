@@ -16,4 +16,9 @@ const router = createRouter({
   }
 });
 
+router.beforeEach((to, from, next) => {
+  document.title = to.meta.title || 'TITOKAQA RESTAURANT';
+  next();
+});
+
 export default router;

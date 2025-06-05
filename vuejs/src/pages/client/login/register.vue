@@ -201,7 +201,8 @@ const handleVerifyCode = async () => {
   } catch (err) {
     errorVerifyCode.value = err.response?.data?.message || 'Mã xác minh không đúng'
   } finally {
-    loadingVerify.value = false
+    loadingVerify.value = false;
+    localStorage.removeItem('verify_email');
   }
 }
 </script>
@@ -217,13 +218,13 @@ const handleVerifyCode = async () => {
 }
 
 .btn-black {
-  background-color: #000;
+  background-color:#d41d1d;
   border-color: #000;
   color: #fff;
 }
 
 .btn-black:hover {
-  background-color: #d41d1d;
+  background-color: #b21212;
   color: white;
 }
 

@@ -215,7 +215,8 @@ export default {
           this.errorReset = err.response?.data?.message || 'Không thể đặt lại mật khẩu. Vui lòng thử lại.'
         }
       } finally {
-        this.isLoading = false
+        this.isLoading = false,
+        localStorage.removeItem('verify_email');
       }
     },
 
@@ -248,13 +249,13 @@ export default {
 }
 
 .btn-black {
-  background-color: #000;
+  background-color:#d41d1d;
   border-color: #000;
   color: #fff;
 }
 
 .btn-black:hover {
-  background-color: #d41d1d;
+  background-color: #b21212;
   color: white;
 }
 

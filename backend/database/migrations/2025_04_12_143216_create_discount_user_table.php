@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('discount_id')->constrained('discounts')->onDelete('cascade');
             $table->date('used_at');
             $table->timestamps();
-            $table->unique(['user_id', 'discount_id', 'used_at']);
+            $table->unique(['user_id', 'discount_id']);
         });
     }
 

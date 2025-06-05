@@ -39,7 +39,7 @@
 <script>
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/userAuth'; 
+import { useUserStore } from '@/stores/userAuth';
 
 export default {
   name: 'LoginForm',
@@ -119,13 +119,13 @@ export default {
 }
 
 .btn-black {
-  background-color: #000;
+  background-color:#d41d1d;
   border-color: #000;
   color: #fff;
 }
 
 .btn-black:hover {
-  background-color: #d41d1d;
+  background-color: #b21212;
   color: white;
 }
 

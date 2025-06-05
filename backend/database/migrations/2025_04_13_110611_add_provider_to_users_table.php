@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-         $table->string('provider_id')->nullable()->after('password');
-         $table->string('provider_name')->nullable()->after('provider_id');
-         $table->string('provider_token')->nullable()->after('provider_name');
-         $table->string('provider_refresh_token')->nullable()->after('provider_token');
+            $table->string('provider_id')->nullable()->after('password');
+            $table->string('provider_name')->nullable()->after('provider_id');
+            $table->string('provider_token')->nullable()->after('provider_name');
+            $table->string('provider_refresh_token')->nullable()->after('provider_token');
         });
     }
 

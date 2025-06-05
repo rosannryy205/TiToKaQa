@@ -1,10 +1,9 @@
-
 const admin = [
-    {
-        path: "/admin",
-        name: "admin",
-        component: () => import("../components/layouts/LayoutAdmin.vue"),
-        redirect: "/admin/dashboard",
+  {
+    path: '/admin',
+    name: 'admin',
+    component: () => import('../components/layouts/LayoutAdmin.vue'),
+    redirect: '/admin/dashboard',
 
         children: [
             {
@@ -106,4 +105,4 @@ const admin = [
     }
 ]
 
-export default admin;
+export default admin

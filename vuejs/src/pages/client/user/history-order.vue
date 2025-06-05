@@ -131,7 +131,8 @@ export default {
 
     const {
       formatNumber,
-      formatDate
+      formatDate,
+
     } = Info.setup()
 
     const getOrderByUser = async () => {
