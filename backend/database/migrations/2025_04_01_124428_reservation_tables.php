@@ -19,7 +19,7 @@ return new class extends Migration
             // $table->timestamp('assigned_time')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('reserved_from')->nullable();
             $table->timestamp('reserved_to')->nullable();
-            $table->enum('reservation_status', ['Chờ Xác Nhận', 'Đã xếp bàn', 'Khách Đã Đến', 'Hoàn Thành', 'Đã Hủy'])->default('Chờ Xác Nhận');
+            // $table->enum('reservation_status', ['Chờ Xác Nhận', 'Đã xác nhận', 'Khách Đã Đến', 'Hoàn Thành', 'Đã Hủy'])->default('Chờ Xác Nhận');
 
         });
     }

@@ -258,10 +258,10 @@ export default {
         const key = `cart_${userId}_reservation_${orderId}`;
         if (localStorage.getItem(key) !== null) {
           localStorage.removeItem(key);
-          router.push({
+        }
+                  router.push({
             name: 'payment-result'
           })
-        }
 
       } catch (error) {
         toast.error('Có lỗi xảy ra!')

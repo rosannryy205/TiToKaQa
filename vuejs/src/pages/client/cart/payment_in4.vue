@@ -207,6 +207,7 @@ import numeral from 'numeral'
 import { ref, watch } from 'vue'
 import axios from 'axios'
 import { User } from '@/stores/user'
+import dayjs from 'dayjs'
 import { RouterLink, useRouter } from 'vue-router'
 
 export default {
@@ -366,8 +367,7 @@ export default {
           } else {
             shippingFee.value = 0
           }
-        },500)
-        updateShippingFee()
+        },1000)
       }
     )
 
@@ -540,10 +540,14 @@ export default {
         isLoading.value = false
       }
     }
-
+    const today = dayjs().format('YYYY-MM-DD')
     const discountsFiltered = computed(() => {
-      return discounts.value.filter((discount) => discount.used < discount.usage_limit)
-    })
+  return discounts.value.filter(discount => {
+    const endDate = dayjs(discount.end_date).format('YYYY-MM-DD')
+    return discount.used < discount.usage_limit && endDate >= today
+  })
+})
+
     console.log(discountsFiltered.value)
     onMounted(() => {
       getProvinces()
@@ -585,7 +589,8 @@ export default {
       onProvinceChange,
       isLoggedIn,
       discountsFiltered,
-      shippingFee
+      shippingFee,
+      today
     }
   },
 }
@@ -617,4 +622,5 @@ export default {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
 </style>

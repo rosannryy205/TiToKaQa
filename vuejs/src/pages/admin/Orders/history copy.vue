@@ -301,8 +301,8 @@ export default {
   setup() {
     const order = ref([])
 
-    const getOrders = () => {
-      axios.get(`http://127.0.0.1:8000/api/get_all_orders`)
+    const getOrders = async () => {
+      await axios.get(`http://127.0.0.1:8000/api/get_all_orders`)
         .then(response => {
           order.value = (response.data.orders ?? []).sort((a, b) => a.id - b.id)
           order.value.forEach(item => {
@@ -318,6 +318,7 @@ export default {
 
     onMounted(() => {
       getOrders()
+
     })
 
     return {
