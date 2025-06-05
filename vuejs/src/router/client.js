@@ -63,10 +63,20 @@ const client = [
         component: () => import('../pages/client/food/index.vue'),
       },
       {
+        path: 'food/:orderId',
+        name: 'client-food-reservation',
+        component: () => import('../pages/client/food/index.vue'),
+      },
+      {
         path: 'update-user',
         name: 'update-user',
         component: () => import('../pages/client/user/update-user.vue'),
         meta: { title: 'Cập nhật thông tin' },
+      },
+      {
+        path: 'infor-user',
+        name: 'infor-user',
+        component: () => import('../pages/client/user/infor-user.vue'),
       },
       {
         path: 'history-order',
@@ -99,10 +109,6 @@ const client = [
       {
         path: '/login',
         component: () => import('../pages/client/login/login.vue'),
-      },
-      {
-        path: '/verify-code',
-        component: () => import('../pages/client/login/verifyCode.vue'),
       },
       {
         path: '/register',
