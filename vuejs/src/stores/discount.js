@@ -3,11 +3,14 @@ import axios from 'axios'
 import { ref, onMounted, computed } from 'vue'
 import { watchEffect } from 'vue'
 import { toast } from 'vue3-toastify'
+import { useShippingStore } from './shippingStore'
 import { Cart } from '@/stores/cart'
 
 
 
 export function Discounts() {
+  const shippingStore = useShippingStore()
+  const shippingFee = computed(() => shippingStore.shippingFee)
   const discounts = ref([])
   const discountInput = ref('')
   const selectedDiscount = ref('')
@@ -20,6 +23,7 @@ export function Discounts() {
     totalPrice,
     totalQuantity,
     totalPriceItem,
+    loadCart
   } = Cart()
 
 
@@ -28,9 +32,6 @@ watchEffect(() => {
   const selected = discounts.value.find((d) => d.code === selectedDiscount.value)
   if (selected) {
     discountId.value = selected.id
-    console.log('✅ discountId đã được cập nhật:', discountId.value); // Thêm dòng này
-    console.log('✅ Tiền giảm:', discountAmount.value)
-    console.log('✅ Tổng sau giảm:', finalTotal.value)
   }
 })
 
@@ -73,28 +74,45 @@ watchEffect(() => {
     toast.success(`✅ Mã ${code} đã được áp dụng!`)
   }
 
-  const discountAmount = computed(() => {
+  const discountFoodAmount = computed(() => {
     const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
-    if (!discount) return 0
-
+    if (!discount || discount.discount_type !== 'salefood') return 0
+  
     const value = parseFloat(discount.discount_value)
     const max = parseFloat(discount.max_discount_amount || Infinity)
     let amount = 0
-
+  
     if (discount.discount_method === 'percent') {
       amount = (totalPrice.value * value) / 100
-    }
-    if (discount.discount_method === 'fixed') {
+    } else if (discount.discount_method === 'fixed') {
       amount = value
     }
-
+  
     return Math.min(amount, max)
   })
-
-  const finalTotal = computed(() => {
-    return Math.max(totalPrice.value - discountAmount.value, 0)
+  const discountShipAmount = computed(() => {
+    const discount = discounts.value.find((d) => d.code === selectedDiscount.value)
+    if (!discount || discount.discount_type !== 'freeship') return 0
+  
+    const value = parseFloat(discount.discount_value)
+    const max = parseFloat(discount.max_discount_amount || Infinity)
+    let amount = 0
+  
+    if (discount.discount_method === 'percent') {
+      amount = (shippingFee.value * value) / 100
+    } else if (discount.discount_method === 'fixed') {
+      amount = value
+    }
+  
+    return Math.min(amount, max)
   })
-
+  
+  const finalTotal = computed(() => {
+    return Math.max(
+      totalPrice.value - discountFoodAmount.value + shippingFee.value - discountShipAmount.value,
+      0
+    )
+  })
 
   onMounted(() => {
     getAllDiscount()
@@ -114,6 +132,7 @@ watchEffect(() => {
     totalPrice,
     totalQuantity,
     totalPriceItem,
-    discountAmount
-  }
+    loadCart,
+    discountFoodAmount,
+    discountShipAmount  }
 }
