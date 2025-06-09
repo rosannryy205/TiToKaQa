@@ -1,459 +1,774 @@
 <template>
-  <div class="d-flex justify-content-between mb-3">
-    <h2>Lịch đặt bàn</h2>
-       <router-link :to="{ name: 'insert-reservation' }" class="btn btn-danger1">
-      + Thêm đơn đặt bàn
-    </router-link>
+  <div class="d-flex justify-content-between mb-2">
+<h4>Lịch đặt bàn</h4>
+  <router-link :to="{ name: 'insert-reservation-admin' }" class="btn btn-outline-danger">
+    + Thêm đơn đặt bàn
+  </router-link>
   </div>
-  <div class="container">
-    <div class="row g-3">
-      <div class="col-12 col-sm-6 col-md-4" v-for="order in orderOfTable" :key="order.order_id">
-        <div class="card custom-card shadow-sm">
-          <div class="card-body p-3">
-            <h6 class="card-title mb-2 text-truncate">
-              {{ order.guest_name }} - {{ order.guest_phone }}
-            </h6>
-            <p class="card-text small text-muted mb-1">
-              <i class="fa fa-calendar"></i>
-              {{ formatDate(order.reserved_from) }} |
-              <i class="bi bi-clock"></i
-              >{{ formatTime(order.reserved_from) }} |
-              <i class="bi bi-people"></i> {{ order.guest_count }}
-            </p>
-            <p class="card-text small text-muted mb-1">
-              Bàn số: {{ order.tables?.map((t) => `${t.table_number}`).join(', ') }}
-            </p>
-            <p class="fw-bold text-danger mb-2">{{ formatNumber(order.total_price) }}VND</p>
-            <div class="d-flex justify-content-between align-items-center rounded-0">
-              <div class="form-group rounded-0">
+
+  <FullCalendar :options="calendarOptions" />
+
+
+  <transition name="popup-fade">
+    <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
+      <div class="event-detail-popup" @click.stop>
+        <div class="popup-header">
+          <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
+          <button class="close-button" @click="closeDetailPopup">&times;</button>
+        </div>
+        <div class="popup-content" v-if="info">
+          <div class="info-item">
+            <div class="info-block">
+              <i class="bi bi-table"></i>Ngày đặt:
+              <span v-for="(t, index) in info.tables" :key="index">
+                {{ formatDate(t.reserved_from)
+                }}<span v-if="index < info.tables.length - 1">, </span>
+              </span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-clock"></i>Giờ đặt:
+              <span v-for="(t, index) in info.tables" :key="index">
+                {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
+                }}<span v-if="index < info.tables.length - 1">, </span>
+              </span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <i class="fa-solid fa-calendar"></i>
+              <span
+                >Bàn số:
+                <span v-for="(t, index) in info.tables" :key="index">
+                  {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
+                </span>
+              </span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-people"></i>
+              <span
+                >Lượng khách:
+                {{ info.guest_count }}
+              </span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <i class="fa-solid fa-user"></i>
+              <span>Khách hàng: {{ info.guest_name }}</span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-telephone"></i>
+              <span>SĐT: {{ info.guest_phone }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <i class="bi bi-envelope"></i>
+              <span>Email: {{ info.guest_email }}</span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-card-heading"></i>
+              <span>Ghi chú: {{ info.note || 'Không có' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
+            </div>
+            <div class="info-block">
+              <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <span>
+                <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
+              </span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-card-list"></i>
+              <span
+                >Trạng thái đơn:
                 <select
-                  v-model="order.order_status"
-                  class="form-control rounded-0"
-                  @change="updateStatus(order.id, order.order_status)"
+                  v-model="info.order_status"
+                  class="p-1 border rounded-0"
+                  @change="updateStatus(info.id, info.order_status)"
                 >
                   <option
                     value="Chờ xác nhận"
-                    :disabled="!canSelectStatus(order.order_status, 'Chờ xác nhận')"
+                    :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')"
                   >
                     Chờ xác nhận
                   </option>
                   <option
                     value="Đã xác nhận"
-                    :disabled="!canSelectStatus(order.order_status, 'Đã xác nhận')"
+                    :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')"
                   >
                     Đã xác nhận
                   </option>
                   <option
                     value="Đang xử lý"
-                    :disabled="!canSelectStatus(order.order_status, 'Đang xử lý')"
+                    :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')"
                   >
                     Đang xử lý
                   </option>
                   <option
                     value="Khách đã đến"
-                    :disabled="!canSelectStatus(order.order_status, 'Khách đã đến')"
+                    :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')"
                   >
                     Khách đã đến
                   </option>
                   <option
                     value="Hoàn thành"
-                    :disabled="!canSelectStatus(order.order_status, 'Hoàn thành')"
+                    :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')"
                   >
                     Hoàn thành
                   </option>
-                  <option
-                    value="Đã hủy"
-                    :disabled="!canSelectStatus(order.order_status, 'Đã hủy')"
-                  >
+                  <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
                     Đã hủy
                   </option>
                 </select>
-              </div>
-              <div class="dropdown">
-                <button
-                  class="btn btn-light btn-sm border dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                  @click="toggleDropdown(order.id)"
-                >
-                  <i class="bi bi-three-dots"></i>
-                </button>
-                <ul
-                  class="dropdown-menu dropdown-menu-end"
-                  :class="{ 'd-block': activeDropdownId === order.id }"
-                >
-                  <li>
-                    <router-link
-                      :to="{name: 'admin-tables-list', params: { orderId: order.id }}"
-                      class="dropdown-item1"
-                      >Chuyển bàn</router-link
-                    >
-                  </li>
-                  <li>
-                    <router-link
-                      :to="{ name: 'list-food', params: { id: order.id } }"
-                      class="dropdown-item1"
-                      v-if="
-                        order.reservation_status !== 'Hoàn thành' &&
-                        order.reservation_status !== 'Đã hủy'
-                      "
-                      >Chọn món</router-link
-                    >
-                  </li>
-                  <li>
-                    <router-link
-                      :to="{ name: 'admin-orders-detail', params: { id: order.id } }"
-                      class="dropdown-item1"
-                      >Chi tiết</router-link
-                    >
-                  </li>
-                </ul>
-              </div>
+              </span>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal xếp bàn
-    <div class="modal fade" id="tableModal" tabindex="-1" aria-labelledby="tableModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title me-5" id="tableModalLabel">Sơ Đồ Bàn</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="row row-cols-2 row-cols-md-4 g-4">
-              <div class="col" v-for="table in availableTables" :key="table.id">
-                <div class="table-card p-3 text-center" :id="table.id"
-                  :class="{ selected: selectedTableIds.includes(table.id) }" @click="toggleTable(table.id)">
-                  <div class="icon-wrap mb-2">
-                    <i class="bi bi-person-fill"></i>
+          <div class="info-item1">
+            <i class="bi bi-journals" style="padding-right: 15px"></i>
+            <span>Các món đã đặt</span>
+            <div class="card-custom" style="max-height: 200px; overflow-y: auto">
+              <div
+                class="row align-items-center border-bottom"
+                v-for="item in info.details"
+                :key="item.id"
+              >
+                <div class="col-6 p-2">
+                  <div class="item-name">
+                    {{ item.food_name }}
                   </div>
-                  <h5 class="table-number">Bàn {{ table.table_number }}</h5>
-                  <p class="status-text">{{ table.status }} - {{ table.capacity }} người</p>
+                  <div class="item-details">
+                    <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3">
+                      <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
+                        + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }}
+                        đ)
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-2">{{ item.quantity }}</div>
+                <div class="col-3">
+                  <div class="total-price">
+                    {{ formatNumber(calculateTotalItemPrice(item)) }} VNĐ
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            <button type="button" class="btn btn-primary" @click="saveTableAssignment">Lưu</button>
-          </div>
+        </div>
+        <div class="popup-actions">
+          <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
+          <button class="delete-button">Chuyển bàn</button>
         </div>
       </div>
-    </div> -->
-  </div>
+    </div>
+  </transition>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
+import FullCalendar from '@fullcalendar/vue3'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid'
+import resourceTimelinePlugin from '@fullcalendar/resource-timeline'
+import viLocale from '@fullcalendar/core/locales/vi'
+import { onMounted } from 'vue'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
 import { toast } from 'vue3-toastify'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router' // Import useRouter
 
-export default {
-  setup() {
-    const { formatDate, formatTime, formatNumber } = Info.setup()
+const { formatDate, formatTime, formatNumber, info, getInfo} = Info.setup()
+const router = useRouter()
 
-    const orderOfTable = ref([])
-    const selectedOrderId = ref(null)
-    const selectedTableIds = ref([])
-    const route = useRoute()
-    const orderId = route.params.orderId
+const tables = ref([])
+const getTable = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/tables')
+    tables.value = res.data
+    calendarOptions.value.resources = tables.value.map((table) => ({
+      id: table.id,
+      title: 'Bàn ' + table.table_number,
+      capacity: 'Sức chứa ' + table.capacity,
+    }))
+  } catch (error) {
+    console.log(error)
+  }
+}
 
+const orderOfTable = ref([])
+const getOrderOfTable = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/order-tables')
+    orderOfTable.value = res.data.orders
+    calendarOptions.value.events = orderOfTable.value.map((order) => ({
+      id: order.id,
+      resourceId: order.tables.map((t) => `${t.id}`),
+      start: order.reserved_from,
+      end: order.reserved_to,
+      extendedProps: {
+        person_name: order.guest_name,
+        person_phone: order.guest_phone,
+        person_email: order.guest_email,
+        event_color: '#fff5f5',
+        status: order.order_status,
+        total_price: formatNumber(order.total_price),
+        total_quantity: order.total_quantity,
+      },
+    }))
+  } catch (error) {
+    console.log(error)
+  }
+}
 
+function renderEventContent(arg) {
+  const { event } = arg
+  return {
+    html: `
+  <div class="custom-event-content" style="background-color: ${event.extendedProps.event_color};">
+    <div class="title">Đơn hàng  ${event.id} - ${event.extendedProps.status}</div>
+    <div class="event-person-name"><i class="fa fa-user"></i> ${event.extendedProps.person_name} - ${event.extendedProps.person_phone || event.extendedProps.person_email}</div>
+    <div class="event-person-name"><i class="fa fa-user"></i>SL món: ${event.extendedProps.total_quantity} </div>
+    <div class="event-person-name"><i class="bi bi-people"></i>Tổng tiền: ${event.extendedProps.total_price}</div>
+  </div>
+`,
+  }
+}
+const showDetailPopup = ref(false)
+const getInfoDetail = async (arg) => {
+  const { event } = arg
+  await getInfo('order', event.id)
+  showDetailPopup.value = true
+  console.log(info.value)
+}
 
-    const getOrderOfTable = async () => {
-      try {
-        const res = await axios.get('http://127.0.0.1:8000/api/order-tables')
-        orderOfTable.value = res.data.orders
-      } catch (error) {
-        console.log(error)
-      }
+const calculateTotalItemPrice = (item) => {
+  const basePrice = item.price * item.quantity
+  const toppingTotal =
+    (item.toppings?.reduce((sum, topping) => sum + Number(topping.price), 0) || 0) * item.quantity
+  return basePrice + toppingTotal
+}
+
+const closeDetailPopup = () => {
+  showDetailPopup.value = false
+}
+
+const updateStatus = async (id, status) => {
+  try {
+    if (confirm(`Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}`)) {
+      await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
+        id: id,
+        order_status: status,
+      })
+      toast.success('Cập nhật thành công')
+      await getOrderOfTable()
     }
+  } catch (error) {
+    toast.error('Có lỗi xảy ra')
+    console.log(error)
+  }
+}
 
-    // const availableTables = ref([])
+const canSelectStatus = (currentStatus, optionStatus) => {
+  const statusOrder = [
+    'Chờ xác nhận',
+    'Đã xác nhận',
+    'Đang xử lý',
+    'Khách đã đến',
+    'Hoàn thành',
+    'Đã hủy',
+  ]
 
-    const selectOrder = (id) => {
-      selectedOrderId.value = id
-      selectedTableIds.value = []
-    }
+  const currentIndex = statusOrder.indexOf(currentStatus)
+  const optionIndex = statusOrder.indexOf(optionStatus)
 
-    // const fetchAvailableTables = async () => {
-    //   try {
-    //     await getInfo('order', selectedOrderId.value)
+  if (currentIndex === -1 || optionIndex === -1) return false
 
-    //     const reservedTo = new Date(info.value.reservations_time.replace(' ', 'T'))
-    //     reservedTo.setHours(reservedTo.getHours() + 2)
-    //     const reserved_to = formatDateTime(reservedTo)
+  if (optionStatus === currentStatus) return true
 
-    //     const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
-    //       order_id: selectedOrderId.value,
-    //       reserved_from: info.value.reservations_time,
-    //       reserved_to: reserved_to,
-    //     })
+  if (currentStatus === 'Hoàn thành' || currentStatus === 'Đã hủy') return false
 
-    //     availableTables.value = res.data.tables;
-    //     console.log(reserved_to);
+  if (optionIndex === currentIndex + 1) return true
 
-    //   } catch (error) {
-    //     alert('Lỗi khi lấy danh sách bàn có thể đặt')
-    //     console.error('Lỗi:', error)
-    //   }
-    // }
+  if (optionStatus === 'Đã hủy' && currentStatus !== 'Đã hủy') return true
 
-    // const toggleTable = (id) => {
-    //   if (selectedTableIds.value.includes(id)) {
-    //     selectedTableIds.value = selectedTableIds.value.filter((tid) => tid !== id)
-    //   } else {
-    //     selectedTableIds.value.push(id)
-    //   }
-    // }
-    // const formatDateTime = (date) => {
-    //   const pad = (n) => n.toString().padStart(2, '0')
-    //   return (
-    //     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
-    //     `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
-    //   )
-    // }
+  return false
+}
 
-    // const areTablesConsecutive = () => {
-    //   const numbers = availableTables.value
-    //     .filter(table => selectedTableIds.value.includes(table.id))
-    //     .map(table => table.table_number)
-    //     .sort((a, b) => a - b)
+const handleDateClick = (clickDate) => {
+  // const date = formatDateTime(clickDate.dateStr)
+  // const date = formatDateTime1(clickDate.dateStr)
+  localStorage.setItem('selectedDate', clickDate.dateStr)
+  router.push({
+    name: 'insert-reservation-admin',
+  })
+}
 
-    //   if (numbers.length <= 1) return true
+onMounted(async () => {
+  await getTable()
+  await getOrderOfTable()
+  // console.log(calendarOptions.value.events)
+  // console.log(calendarOptions.value.resources)
+})
 
-    //   for (let i = 1; i < numbers.length; i++) {
-    //     if (numbers[i] !== numbers[i - 1] + 1) {
-    //       return false
-    //     }
-    //   }
-    //   return true
-    // }
-
-    // const saveTableAssignment = async () => {
-    //   if (!areTablesConsecutive()) {
-    //     alert('Vui lòng chọn các bàn có số liền kề nhau!')
-    //     return
-    //   }
-
-    //   await getInfo('order', selectedOrderId.value)
-
-    //   const reservedTo = new Date(info.value.reservations_time.replace(' ', 'T'))
-    //   reservedTo.setHours(reservedTo.getHours() + 2)
-    //   const reserved_to = formatDateTime(reservedTo)
-
-    //   try {
-    //     await axios.post('http://127.0.0.1:8000/api/set-up/order-tables', {
-    //       order_id: selectedOrderId.value,
-    //       table_ids: selectedTableIds.value,
-    //       reserved_from: info.value.reservations_time,
-    //       reserved_to,
-    //     })
-    //     alert('Bàn đã được xếp thành công')
-    //   } catch (error) {
-    //     alert('Lỗi khi xếp bàn: ' + error.response.data.message)
-    //   }
-    // }
-
-    const activeDropdownId = ref(null)
-
-    const toggleDropdown = (id) => {
-      activeDropdownId.value = activeDropdownId.value === id ? null : id
-    }
-
-    const updateStatus = async (id, status) => {
-      try {
-        if (confirm(`Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}`)) {
-          await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
-            id: id,
-            order_status: status,
-          })
-          toast.success('Cập nhật thành công')
-          await getOrderOfTable()
-        }
-      } catch (error) {
-        toast.error('Có lỗi xảy ra')
-        console.log(error)
-      }
-    }
-
-    const canSelectStatus = (currentStatus, optionStatus) => {
-      const statusOrder = [
-        'Chờ xác nhận',
-        'Đã xác nhận',
-        'Đang xử lý',
-        'Khách đã đến',
-        'Hoàn thành',
-        'Đã hủy'
-      ];
-
-      const currentIndex = statusOrder.indexOf(currentStatus);
-      const optionIndex = statusOrder.indexOf(optionStatus);
-
-      if (currentIndex === -1 || optionIndex === -1) return false;
-
-      if (optionStatus === currentStatus) return true;
-
-      if (currentStatus === 'Hoàn thành' || currentStatus === 'Đã hủy') return false;
-
-      if (optionIndex === currentIndex + 1) return true;
-
-      if (optionStatus === 'Đã hủy' && currentStatus !== 'Đã hủy') return true;
-
-      return false;
-    }
-
-
-    onMounted(() => {
-      getOrderOfTable()
-      // setInterval(() => {
-      //   axios.get('http://127.0.0.1:8000/api/auto-cancel-orders')
-      // }, 6000)
-    })
-
+const calendarOptions = ref({
+  plugins: [
+    dayGridPlugin,
+    timeGridPlugin,
+    interactionPlugin,
+    resourceTimeGridPlugin,
+    resourceTimelinePlugin,
+  ],
+  locale: viLocale,
+  initialView: 'resourceTimelineDay',
+  headerToolbar: {
+    left: 'prev,next today',
+    center: 'title',
+    right: 'resourceTimelineDay,timeGridWeek,dayGridMonth',
+  },
+  views: {
+    resourceTimelineWeek: {
+      type: 'resourceTimeline',
+      duration: { days: 7 }, // tuần
+      slotDuration: '01:00:00', // khoảng cách thời gian
+    },
+    resourceTimelineDay: {
+      type: 'resourceTimeline',
+      duration: { days: 1 },
+      slotDuration: '00:30:00',
+    },
+  },
+  slotLabelInterval: '00:30:00',
+  slotDuration: '00:30:00',
+  slotMinTime: '08:00:00',
+  slotMaxTime: '21:00:00',
+  allDaySlot: false,
+  nowIndicator: true,
+  slotLabelFormat: {
+    hour: 'numeric',
+    minute: '2-digit',
+    omitZeroMinute: false,
+  },
+  timeZone: 'Asia/Ho_Chi_Minh',
+  resourceAreaWidth: '150px',
+  resources: [], // để trống ban đầu
+  resourceLabelContent: (resources) => {
+    const title = resources.resource.title
+    const capacity = resources.resource.extendedProps?.capacity
     return {
-      formatDate,
-      formatTime,
-      formatNumber,
-      orderOfTable,
-      selectedOrderId,
-      selectedTableIds,
-      selectOrder,
-      // toggleTable,
-      // saveTableAssignment,
-      // availableTables,
-      toggleDropdown,
-      activeDropdownId,
-      updateStatus,
-      canSelectStatus,
-      orderId
+      html: `<div class="ban">${title}<br/><small class="time-badge">${capacity}</small></div>`,
     }
   },
-}
+  eventContent: renderEventContent,
+  editable: false, // Không cho phép kéo thả sự kiện
+  selectable: true,
+  eventStartEditable: false, // Không cho phép thay đổi thời gian bắt đầu
+  eventDurationEditable: false, // Không cho phép thay đổi thời lượng
+  dateClick: handleDateClick,
+  eventClick: getInfoDetail,
+})
 </script>
-<style scoped>
-.left-side {
-  width: 50%;
-  float: left;
-}
 
-.right-side {
-  width: 45%;
-  float: right;
-}
-
-table {
-  width: 100%;
-}
-
-table th,
-table td {
-  text-align: left;
-  padding: 8px;
-}
-
-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.table-card.selected {
-  border: 2px solid #24aeb1;
-  background-color: #e8f9f8;
-}
-
-.custom-card {
-  overflow: visible !important;
-}
-
-.card-title {
-  font-weight: bold;
-}
-
-.bi-person-fill {
-  color: #c62c37;
-  font-size: 30px;
-}
-
-.table-card {
-  position: relative;
-  background: #f8f9fa;
-  border-radius: 10px;
+<style>
+.card-custom {
   border: 1px solid #dee2e6;
-  padding: 20px;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  border-radius: 0.375rem;
+  padding: 0 20px;
+  margin-top: 5px;
 }
-
-.table-number {
-  color: black;
+.item-name {
   font-weight: bold;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-}
-
-.status-text {
-  margin-top: 10px;
-}
-
-.area {
-  color: #6c757d;
-}
-
-.nav-tabs .nav-link {
-  cursor: pointer;
-}
-
-.modal-body {
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-.table td,
-.table th {
-  vertical-align: middle;
-}
-
-.btn-sm {
-  padding: 4px 8px;
   font-size: 14px;
 }
-
-.btn-danger {
-  padding: 4px 8px;
+.total-price {
+  font-size: 14px;
+  text-align: right;
+  color: #c92c3c;
 }
-
-.d-flex .w-50 {
-  flex: 1;
+.item-details {
+  font-size: 11px;
+  color: #6c757d;
 }
-
-.dropdown-item1 {
+.ban {
+  background-color: #ffffff;
+  /* border: 1px solid #ffffff; */
+  font-weight: bold;
+  /* border-radius: 5px; */
+}
+.title {
+  font-size: 12px;
   text-align: left;
-  color: #333;
-  padding: 6px 10px;
-  font-weight: normal;
-  text-decoration: none;
-  border: none;
-  font-size: 16px;
-  display: block;
-  background-color: transparent;
-  transition:
-    background-color 0.3s,
-    color 0.3s;
-  cursor: pointer;
+  margin-bottom: 2px;
+}
+.time-badge {
+  color: #8d8a8a;
+  font-size: small;
+}
+.event-detail-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.dropdown-item1:hover {
+.event-detail-popup {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 20px;
+  background-color: #c92c3c;
+  border-bottom: 1px solid #eee;
+}
+
+.popup-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+}
+.event-detail-popup.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+a{
+  text-decoration: none;
+}
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.8em;
+  cursor: pointer;
+  color: #ffffff;
+  padding: 0 5px;
+}
+
+.popup-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.info-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px; /* khoảng cách giữa 2 cột */
+  font-size: 0.95em;
+  color: #1d1d1d;
+}
+.info-block {
+  align-items: center;
+  gap: 8px;
+}
+.info-item i {
+  margin-right: 12px;
+  font-size: 1.1em;
+}
+
+.info-item span {
+  flex-grow: 1;
+}
+.popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+  background-color: #f5f5f5;
+}
+
+.popup-actions button {
+  padding: 8px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.edit-button {
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+}
+
+.edit-button:hover {
+  background-color: #c92c3c;
+  color: white;
+}
+
+.delete-button {
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+}
+
+.delete-button:hover {
+  background-color: #c92c3c;
+  color: white;
+}
+.fc-theme-standard .fc-scrollgrid {
+  border: none;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.5em;
+  font-weight: 600;
+  color: #333;
+}
+
+.fc-button-group .fc-button {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  color: #555;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-right: -1px;
+}
+
+.fc-button-group .fc-button:hover {
   background-color: #f0f0f0;
-  color: #800020;
+}
+
+.fc-button-group .fc-button.fc-button-active {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+  box-shadow: none;
+}
+
+.fc-button-group .fc-button:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.fc-button-group .fc-button:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* Header của lịch (thứ trong tuần, giờ) */
+.fc-timegrid-axis-frame {
+  display: flex;
+}
+
+.fc .fc-col-header-cell-cushion {
+  display: block;
+  font-size: 1.1em;
+  text-decoration: none;
+  color: #000000;
+}
+
+/* Nhãn thời gian ở trục Y (ví dụ: "8am", "9am") */
+.fc .fc-timegrid-slot-label-frame {
+  color: #000000;
+  font-size: 0.9em;
+  text-align: center;
+  font-weight: 500;
+}
+.fc-timegrid-slot-label {
+  visibility: visible !important;
+}
+
+/* Các ô thời gian và đường kẻ trong lưới lịch */
+.fc .fc-timegrid-slot {
+  height: 30px;
+  border-bottom: 1px dashed #eee;
+}
+
+.fc .fc-timegrid-slot.fc-timegrid-slot-minor {
+  border-top: none;
+  height: 15px;
+}
+
+.fc .fc-timegrid-divider {
+  display: none;
+}
+
+/* Đường kẻ thời gian hiện tại (Now Indicator) */
+.fc-timegrid-now-indicator-line {
+  border-top: 1px solid rgb(226, 26, 26) !important;
+  z-index: 2;
+}
+.fc-timegrid-now-indicator-arrow {
+  color: red !important;
+  border-left: none !important;
+  z-index: 2;
+}
+.fc-timegrid-now-indicator-border {
+  border-color: red !important;
+  z-index: 2;
+}
+.fc .fc-timegrid-slot-label-cushion {
+  padding: 0px 0px;
+}
+.fc-timegrid-now-indicator-line + .fc-timegrid-now-indicator-label {
+  background-color: red;
+  color: white;
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-size: 0.8em;
+  position: absolute;
+  left: 0;
+  margin-top: -10px;
+  z-index: 3;
+}
+
+.fc-event {
+  border-radius: 6px;
+  padding: 0px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  position: relative;
+  font-size: 0.8em;
+  line-height: 1.3;
+  margin-bottom: 2px;
+  background: none !important;
+  border: none !important;
+  color: inherit !important;
+}
+
+.custom-event-content {
+  height: 100%;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  color: #333;
+  gap: 2px;
+  border-left: 8px solid #c92c3c;
+}
+.fc-datagrid-cell-frame {
+  height: none !important;
+}
+.fc-license-message {
+  display: none;
+}
+
+.custom-event-content .event-person-name {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85em;
+  color: #3d3c3c;
+}
+
+.custom-event-content .event-person-name i {
+  margin-right: 5px;
+}
+
+.fc-event-time {
+  display: none;
+}
+
+.fc-event-title {
+  display: none;
+}
+
+.fc .fc-timegrid-col {
+  border-right: 1px solid #eee;
+}
+
+.fc .fc-timegrid-col-frame {
+  border-left: none;
+}
+
+.fc-timegrid-bg {
+  display: none;
+}
+
+.fc .fc-day-today {
+  background-color: #fcfcfc;
+}
+
+.fc-timegrid-cols .fc-day:last-child {
+  border-right: none;
+}
+.fc .fc-timeline-slot-cushion {
+  padding: 4px 10px;
+  white-space: nowrap;
+  text-decoration: none;
+  color: black;
+  text-align: center;
+}
+.fc .fc-timeline-header-row-chrono .fc-timeline-slot-frame {
+  justify-content: center;
+}
+/* ==================================================================== */
+/* CSS riêng cho Resource View */
+/* ==================================================================== */
+
+/* Tùy chỉnh cột tiêu đề tài nguyên (cột "Bàn") */
+.fc .fc-resource-timegrid-sidebar {
+  background-color: #f8f8f8; /* Nền giống header ngày */
+  border-right: 1px solid #eee; /* Viền phải */
+}
+
+/* Tiêu đề của mỗi tài nguyên (ví dụ: "Bàn 1") */
+.fc .fc-resource-timegrid-label-cell {
+  padding: 8px 10px;
+  font-weight: 600;
+  color: #333;
+  text-align: left; /* Căn trái cho tiêu đề bàn */
+  border-bottom: 1px solid #eee; /* Viền dưới */
+  display: flex;
+  align-items: center;
+  min-height: 40px; /* Đảm bảo đủ cao cho nội dung */
+}
+
+/* Phần chia giữa cột tài nguyên và các cột ngày */
+.fc-resource-timegrid-separator {
+  background-color: #eee;
+  width: 1px; /* Chiều rộng đường kẻ */
+}
+
+/* Để tiêu đề tài nguyên không bị cắt nếu có nhiều dòng */
+.fc .fc-resource-timegrid-label-cell .fc-resource-label-text {
+  white-space: normal;
+  word-wrap: break-word;
+}
+td,
+.fc-timegrid-slot,
+.fc-scrollgrid-sync-table td {
+  background-color: transparent !important;
+}
+.popup-fade-enter-active,
+.popup-fade-leave-active {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+.popup-fade-enter-from,
+.popup-fade-leave-to {
+  transform: translateY(-20px);
+}
+.popup-fade-enter-to,
+.popup-fade-leave-from {
+  transform: translateY(0px);
 }
 </style>

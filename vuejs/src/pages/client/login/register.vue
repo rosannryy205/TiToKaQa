@@ -1,153 +1,288 @@
 <template>
-    <div class="form-wrapper">
-      <div class="form-container text-center">
-        <h2 class="mb-4">REGISTER</h2>
-        <form method="POST" action="register">
-          <div class="mb-3">
-            <label for="country" class="form-label visually-hidden">Country</label>
-            <!-- Nếu cần select country thì thêm select ở đây -->
-          </div>
-          <div class="mb-3">
-            <label for="email" class="form-label visually-hidden">Email address</label>
-            <input
-              type="email"
-              name="email"
-              class="form-control"
-              id="email"
-              placeholder="Enter your e-mail address"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="name" class="form-label visually-hidden">Your Name</label>
-            <input
-              type="text"
-              name="name"
-              class="form-control"
-              id="name"
-              placeholder="Enter your name"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label visually-hidden">Your Password</label>
-            <input
-              type="password"
-              name="password"
-              class="form-control"
-              id="password"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label visually-hidden">Your Password</label>
-            <input
-              type="password"
-              name="password"
-              class="form-control"
-              id="password"
-              placeholder="Confirm your password"
-              required
-            />
-          </div>
-          <button type="submit" class="btn btn-black w-100">Register</button>
-        </form>
-  
-        <div class="divider my-4">Join With</div>
-  
-        <div class="d-flex justify-content-center gap-3">
-          <button class="btn rounded-circle" type="button">
-            <img
-              src="https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-1024.png"
-              alt="Google"
-              width="50"
-            />
-          </button>
-          <button class="btn rounded-circle" type="button">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
-              alt="Apple"
-              width="30"
-            />
-          </button>
+  <div class="form-wrapper">
+    <div class="form-container text-center">
+      <h2 class="mb-4" v-if="step === 1">ĐĂNG KÝ</h2>
+      <h2 class="mb-4" v-else>NHẬP MÃ XÁC MINH</h2>
+
+      <!-- Bước 1: Form đăng ký -->
+      <form v-if="step === 1" @submit.prevent="handleSendCode">
+        <div class="mb-3">
+          <small class="text-danger" :style="{ visibility: errors.email ? 'visible' : 'hidden' }">{{ errors.email || ' '
+            }}</small>
+          <small class="text-danger" :style="{ visibility: errors.username ? 'visible' : 'hidden' }">{{ errors.username
+            || ' ' }}</small>
+          <small class="text-danger" :style="{ visibility: errors.password ? 'visible' : 'hidden' }">{{ errors.password
+            || ' ' }}</small>
+          <small class="text-danger" :style="{ visibility: errors.password_confirmation ? 'visible' : 'hidden' }">{{
+            errors.password_confirmation || ' ' }}</small>
+          <input type="email" v-model="form.email" class="form-control" placeholder="Nhập địa chỉ email" required />
         </div>
-  
-        <p class="mt-4 text-muted" style="font-size: 0.9rem;">
-          By continuing, you agree to our
-          <a href="#" class="text-decoration-none">Platform's Terms of Service</a>
-          and
-          <a href="#" class="text-decoration-none">Privacy Policy</a>.
-        </p>
-        <p class="mt-4 text-muted" style="font-size: 0.9rem;">
-          You have an account?
-          <a href="/login" class="text-decoration-none">Login Now</a>
-        </p>
-      </div>
+
+        <div class="mb-3">
+
+          <input type="text" v-model="form.username" class="form-control" placeholder="Nhập tên đăng nhập" required />
+        </div>
+
+        <div class="mb-3">
+
+          <input type="password" v-model="form.password" class="form-control" placeholder="Nhập mật khẩu" required />
+        </div>
+
+        <div class="mb-3">
+
+          <input type="password" v-model="form.password_confirmation" class="form-control"
+            placeholder="Xác nhận mật khẩu" required />
+        </div>
+
+        <button type="submit" class="btn btn-black w-100" :disabled="loading">
+          <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+          Đăng ký
+        </button>
+      </form>
+
+      <!-- Bước 2: Nhập mã xác minh 6 ô input -->
+      <form v-else @submit.prevent="handleVerifyCode">
+        <div class="d-flex justify-content-center gap-2 my-3 code-inputs">
+          <input v-for="(digit, index) in digits" :key="index" v-model="digits[index]" maxlength="1"
+            class="form-control text-center " style="width: 50px" inputmode="numeric" pattern="[0-9]*"
+            @input="onInput(index)" @keydown.backspace="onBackspace(index, $event)" ref="otpInputs" />
+        </div>
+
+        <div class="mb-2 text-muted">Thời gian còn lại: {{ countdownText }}</div>
+        <div class="text-danger mb-2" v-if="errorVerifyCode">{{ errorVerifyCode }}</div>
+
+        <button type="submit" class="btn btn-black w-100" :disabled="loadingVerify">
+          <span v-if="loadingVerify" class="spinner-border spinner-border-sm me-2"></span>
+          Xác minh mã
+        </button>
+      </form>
     </div>
-  </template>
-  
-  <style scoped>
-  .form-container {
-    max-width: 400px;
-    width: 100%;
-    padding: 20px;
-    background: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  </div>
+</template>
+
+<script setup>
+import { reactive, ref, watch, onMounted, nextTick } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userAuth';
+
+const router = useRouter()
+
+// Bước form
+const step = ref(1)
+
+// Form đăng ký
+const form = reactive({
+  username: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+})
+
+const errors = reactive({
+  username: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+})
+
+const loading = ref(false)
+const loadingVerify = ref(false)
+
+// Mã xác minh dạng mảng 6 chữ số
+const digits = reactive(['', '', '', '', '', ''])
+const errorVerifyCode = ref('')
+
+// Countdown timer
+const countdown = ref(300) // 5 phút
+const countdownText = ref('05:00')
+let countdownInterval = null
+
+// Các refs input mã xác minh
+const otpInputs = ref([])
+
+const clearErrors = () => {
+  for (const key in errors) errors[key] = ''
+}
+
+// Hàm gửi code xác minh
+const handleSendCode = async () => {
+  clearErrors()
+  loading.value = true
+  try {
+    const res = await axios.post('http://127.0.0.1:8000/api/register/send-code', form)
+
+    if (res.status === 200 && res.data?.message?.includes('Mã xác minh')) {
+      alert(res.data.message || 'Mã xác minh đã được gửi')
+      localStorage.setItem('verify_email', form.email)
+      step.value = 2
+
+      // Countdown và focus...
+      countdown.value = 300
+      updateCountdownText()
+      if (countdownInterval) clearInterval(countdownInterval)
+      countdownInterval = setInterval(() => {
+        if (countdown.value > 0) {
+          countdown.value--
+          updateCountdownText()
+        } else {
+          clearInterval(countdownInterval)
+        }
+      }, 1000)
+
+      await nextTick()
+      otpInputs.value[0]?.focus()
+    } else {
+      throw new Error('Không thể gửi mã xác minh.')
+    }
+  } catch (err) {
+    if (err.response?.status === 422 && err.response?.data?.errors) {
+      const errorObj = err.response.data.errors
+      for (const key in errorObj) {
+        errors[key] = errorObj[key][0]
+      }
+    } else if (err.response?.data?.message) {
+      alert('Lỗi: ' + err.response.data.message)
+    } else {
+      alert('Có lỗi xảy ra. Vui lòng thử lại.')
+    }
+    console.error('Chi tiết lỗi:', err.response || err)
   }
-  
-  .btn-black {
-    background-color: #000;
-    border-color: #000;
-    color: #fff;
+  finally {
+    loading.value = false
   }
-  
-  .btn-black:hover {
-    background-color: #d41d1d;
-    color: white;
+
+}
+
+const updateCountdownText = () => {
+  const m = Math.floor(countdown.value / 60).toString().padStart(2, '0')
+  const s = (countdown.value % 60).toString().padStart(2, '0')
+  countdownText.value = `${m}:${s}`
+}
+
+// Xử lý nhập từng ô mã xác minh
+const onInput = (index) => {
+  const val = digits[index]
+  if (val.length > 1) {
+    digits[index] = val.slice(0, 1)
   }
-  
-  .form-container input,
-  .form-container select,
-  .btn {
-    border-radius: 0 !important;
+  if (val.length === 1 && index < 5) {
+    otpInputs.value[index + 1]?.focus()
   }
-  
-  h2 {
-    font-size: 1.5rem;
+}
+
+// Xử lý backspace để quay về ô trước
+const onBackspace = (index, event) => {
+  if (!digits[index] && index > 0) {
+    otpInputs.value[index - 1]?.focus()
   }
-  
-  .divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
+}
+
+
+const userStore = useUserStore();
+// Gửi xác minh mã
+const handleVerifyCode = async () => {
+  errorVerifyCode.value = ''
+  const code = digits.join('')
+  if (code.length !== 6) {
+    errorVerifyCode.value = 'Mã xác minh phải đủ 6 chữ số'
+    return
   }
-  
-  .divider::before,
-  .divider::after {
-    content: "";
-    flex: 1;
-    border-bottom: 1px solid #ddd;
+  loadingVerify.value = true
+  try {
+    const email = localStorage.getItem('verify_email')
+    const res = await axios.post('http://127.0.0.1:8000/api/register/verify-code', { email, code })
+
+    userStore.setUser(res.data.user, res.data.token);
+
+
+    alert('Đăng ký thành công!')
+    router.push('/')
+  } catch (err) {
+    errorVerifyCode.value = err.response?.data?.message || 'Mã xác minh không đúng'
+  } finally {
+    loadingVerify.value = false;
+    localStorage.removeItem('verify_email');
   }
-  
-  .divider::before {
-    margin-right: 0.5em;
-  }
-  
-  .divider::after {
-    margin-left: 0.5em;
-  }
-  
-  .form-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
-  
-  .navbar-brand {
-    display: flex;
-    align-items: center;
-  }
-  </style>
-  
+}
+</script>
+
+<style scoped>
+/* Giữ nguyên style bạn đã có */
+.form-container {
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-black {
+  background-color:#d41d1d;
+  border-color: #000;
+  color: #fff;
+}
+
+.btn-black:hover {
+  background-color: #b21212;
+  color: white;
+}
+
+.form-container input,
+.form-container select,
+.btn {
+  border-radius: 0 !important;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
+
+.divider::before {
+  margin-right: 0.5em;
+}
+
+.divider::after {
+  margin-left: 0.5em;
+}
+
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.alert {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.25rem;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+.code-inputs input {
+  font-size: 1.5rem;
+  padding: 0.5rem;
+}
+</style>

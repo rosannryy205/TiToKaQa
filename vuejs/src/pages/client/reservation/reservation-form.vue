@@ -6,7 +6,9 @@
   </div>
 
   <div class="container">
-    <h6 class="fw-bold">Chúng tôi sẽ giữ bàn trong {{ minutes }} phút {{ seconds }} giây</h6>
+    <h6 class="fw-bold">
+      Chúng tôi sẽ giữ bàn trong {{ minutes }} phút {{ seconds }} giây
+    </h6>
     <!-- Bọc toàn bộ row vào form -->
     <form @submit.prevent="reservation">
       <div class="row">
@@ -16,15 +18,15 @@
           <div class="border shadow-sm bg-white p-4 rounded-bottom">
             <div class="mb-3">
               <input type="text" class="form-control rounded border shadow-sm" placeholder="Tên của bạn"
-                v-model="form.fullname" />
+                v-model="form.fullname" required/>
             </div>
             <div class="mb-3">
               <input type="email" class="form-control rounded border shadow-sm" placeholder="Email"
-                v-model="form.email" />
+                v-model="form.email" required/>
             </div>
             <div class="mb-3">
               <input type="text" class="form-control rounded border shadow-sm" placeholder="Số điện thoại"
-                v-model="form.phone" />
+                v-model="form.phone" required/>
             </div>
             <div class="mb-3">
               <textarea class="form-control rounded border shadow-sm" rows="3" placeholder="Ghi chú"
@@ -44,7 +46,9 @@
           <div class="border pt-4">
             <div v-if="!cartItems.length > 0">
               <router-link :to="`/food/${orderId}`" class="bi bi-plus-circle-fill pb-2"></router-link>
-              <div class="text-center fw-medium fs-6 pb-4">Chọn món trước khi đến nhà hàng</div>
+              <div class="text-center fw-medium fs-6 pb-4">
+                Chọn món trước khi đến nhà hàng
+              </div>
             </div>
 
             <div class="list-product-scroll1 mb-3">
@@ -113,27 +117,29 @@
             <div class="mb-3">
               <label class="form-label fw-bold">Phương thức thanh toán</label>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY" />
-                <label class="form-check-label d-flex align-items-center" for="vnpay">
-                  <span class="me-2">Thanh toán qua VNPAY</span>
-                  <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO" />
-                <label class="form-check-label d-flex align-items-center" for="momo">
-                  <span class="me-2">Thanh toán qua Momo</span>
-                  <img src="/img/momo.png" height="20" width="20" alt="" />
-                </label>
-              </div>
-
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="payment" id="cod" value="Thanh toán COD" />
-                <label class="form-check-label d-flex align-items-center" for="cod">
-                  <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
-                  <img src="/img/cod.png" height="30" width="30" alt="" />
-                </label>
-              </div>
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY"
+                v-model="paymentMethod" />
+              <label class="form-check-label d-flex align-items-center" for="vnpay">
+                <span class="me-2">Thanh toán qua VNPAY</span>
+                <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO"
+                v-model="paymentMethod" />
+              <label class="form-check-label d-flex align-items-center" for="momo">
+                <span class="me-2">Thanh toán qua Momo</span>
+                <img src="/img/momo.png" height="20" width="20" alt="" />
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="cod" value="Thanh toán COD"
+                v-model="paymentMethod" />
+              <label class="form-check-label d-flex align-items-center" for="cod">
+                <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
+                <img src="/img/cod.png" height="30" width="30" alt="" />
+              </label>
+            </div>
             </div>
 
             <button type="submit" class="btn btn-danger1 w-100 mt-3">Thanh toán</button>
@@ -148,6 +154,7 @@
 import { User } from '@/stores/user'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Discounts } from '@/stores/discount'
+import { Cart } from '@/stores/cart'
 import numeral from 'numeral'
 import { toast } from 'vue3-toastify'
 import axios from 'axios'
@@ -157,30 +164,26 @@ import { Info } from '@/stores/info-order-reservation'
 export default {
   methods: {
     formatNumber(value) {
-      return numeral(value).format('0,0')
+      return numeral(value).format("0,0");
     },
     getImageUrl(image) {
-      return `/img/food/${image}`
+      return `/img/food/${image}`;
     },
   },
   setup() {
-    const note = ref('')
-    const isLoading = ref(false)
-    const route = useRoute()
-    const router = useRouter()
-    const user1 = JSON.parse(localStorage.getItem('user')) || {}
-    const userId = user1?.id || 'guest'
-    const orderId = route.params.orderId
-    const minutes = ref(5)
-    const seconds = ref(0)
-    let countdownInterval = null
-    const { form, user } = User.setup()
-    const { getInfo, info } = Info.setup()
+    const note = ref("");
+    const isLoading = ref(false);
+    const route = useRoute();
+    const router = useRouter();
+    const user1 = JSON.parse(localStorage.getItem("user")) || {};
+    const userId = user1?.id || "guest";
+    const orderId = route.params.orderId;
+    const minutes = ref(5);
+    const seconds = ref(0);
+    let countdownInterval = null;
+    const { form, user } = User.setup();
+    const { getInfo, info } = Info.setup();
     const {
-      cartItems,
-      loadCart,
-      totalPriceItem,
-      totalPrice,
       discountAmount,
       finalTotal,
       discountInput,
@@ -191,53 +194,63 @@ export default {
       discountId,
     } = Discounts()
 
-    const expirationTime = ref(null)
+    const {
+      cartKey, cartItems, totalPriceItem, loadCart, totalPrice
+    } = Cart()
+
+
+    const expirationTime = ref(null);
     const updateCountdown = async () => {
       try {
-        expirationTime.value = new Date(info.value.expiration_time)
+        expirationTime.value = new Date(info.value.expiration_time);
 
-        const now = new Date()
-        const diff = expirationTime.value - now
+        const now = new Date();
+        const diff = expirationTime.value - now;
         if (diff <= 0) {
-          clearInterval(countdownInterval)
-          minutes.value = 0
-          seconds.value = 0
+          clearInterval(countdownInterval);
+          minutes.value = 0;
+          seconds.value = 0;
 
-          await axios.put(`http://127.0.0.1:8000/api/order-history-info/cancel/${orderId}`)
+          await axios.put(
+            `http://127.0.0.1:8000/api/order-history-info/cancel/${orderId}`
+          );
           if (localStorage.removeItem(`cart_${userId}_reservation_${orderId}`)) {
             Swal.fire({
-              icon: 'error',
-              text: 'Đơn hàng của bạn đã hết thời gian giữ bàn! Vui lòng quay lại đặt đơn hàng khác',
-              confirmButtonText: 'Quay lại',
-              confirmButtonColor: '#d32f2f',
+              icon: "error",
+              text:
+                "Đơn hàng của bạn đã hết thời gian giữ bàn! Vui lòng quay lại đặt đơn hàng khác",
+              confirmButtonText: "Quay lại",
+              confirmButtonColor: "#d32f2f",
             }).then((result) => {
               if (result.isConfirmed) {
-                router.push('/reservation')
+                router.push("/reservation");
               }
-            })
+            });
 
-            return
+            return;
           }
-
         }
 
-        minutes.value = Math.floor((diff / 1000 / 60) % 60)
-        seconds.value = Math.floor((diff / 1000) % 60)
+        minutes.value = Math.floor((diff / 1000 / 60) % 60);
+        seconds.value = Math.floor((diff / 1000) % 60);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
+    };
 
-    const reservation = async () => {
-      isLoading.value = true
-
+    const paymentMethod = ref('')
+    const check_payment = async () => {
       try {
-        await axios.post('http://127.0.0.1:8000/api/reservation', {
+        if (!paymentMethod.value) {
+          alert('Vui lòng chọn phương thức thanh toán!')
+          return
+        }
+        const orderData = {
           id: orderId,
           guest_name: form.value.fullname || form.value.username,
           guest_phone: form.value.phone,
           guest_email: form.value.email,
-          note: form.value.note || '',
+          note: form.value.note || "",
           deposit_amount: 100000,
           total_price: finalTotal.value,
           money_reduce: discountAmount.value,
@@ -253,19 +266,59 @@ export default {
               price: t.price,
             })),
           })),
-        })
+        };
 
-        const key = `cart_${userId}_reservation_${orderId}`;
-        if (localStorage.getItem(key) !== null) {
-          localStorage.removeItem(key);
+        await axios.post("http://127.0.0.1:8000/api/reservation", orderData);
+
+        if (orderData.discount_id) {
+          await axios.post("http://localhost:8000/api/discounts/use", {
+            discount_id: orderData.discount_id,
+          });
         }
-                  router.push({
-            name: 'payment-result'
-          })
+        localStorage.setItem("payment_method", paymentMethod.value);
+        const cartKey = `cart_${userId}_reservation_${orderId}`;
+        localStorage.removeItem(cartKey);
 
+        if (paymentMethod.value === "Thanh toán VNPAY" || paymentMethod.value === "Thanh toán MOMO") {
+          const paymentRes = await axios.post("http://127.0.0.1:8000/api/payment", {
+            order_id: orderId,
+            amount: finalTotal.value,
+          });
+          if (paymentRes.data.payment_url) {
+            window.location.href = paymentRes.data.payment_url;
+            return;
+          } else {
+            alert("Không tạo được link thanh toán.");
+          }
+
+        }
+        if (paymentMethod.value === "Thanh toán COD") {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          await axios.post("http://127.0.0.1:8000/api/vnpay-return", {
+            order_id: orderId,
+            amount_paid: finalTotal.value,
+            payment_method: "Thanh toán COD",
+            payment_status: "Chưa thanh toán",
+            payment_type: "Thanh toán toàn bộ",
+          });
+          alert("Đặt hàng thành công!");
+        }
+
+        router.push("/payment-result");
       } catch (error) {
-        toast.error('Có lỗi xảy ra!')
-        console.log(error)
+        toast.error("Có lỗi xảy ra!");
+        console.error("Lỗi xảy ra:", error.message);
+        alert("Lỗi khi gửi đơn hàng. Vui lòng thử lại!");
+      }
+    };
+    const reservation = async () => {
+      isLoading.value = true
+      try {
+        console.log('✅ form gửi đi:', form.value)
+        await check_payment()
+        console.log('✅ check_out đã được gọi xong')
+      } catch (error) {
+        console.error('❌ Lỗi khi gọi check_out:', error)
       } finally {
         isLoading.value = false
       }
@@ -303,14 +356,14 @@ export default {
     // };
 
     onMounted(() => {
-      getInfo('order', orderId)
-      updateCountdown()
-      countdownInterval = setInterval(updateCountdown, 1000)
-    })
+      getInfo("order", orderId);
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, 1000);
+    });
 
     onUnmounted(() => {
-      clearInterval(countdownInterval)
-    })
+      clearInterval(countdownInterval);
+    });
 
     return {
       orderId,
@@ -338,10 +391,12 @@ export default {
       expirationTime,
       getInfo,
       info,
-      userId
-    }
+      userId,
+      paymentMethod,
+      cartKey
+    };
   },
-}
+};
 </script>
 
 <style>
