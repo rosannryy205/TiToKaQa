@@ -15,8 +15,13 @@
       <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0">
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
           <div class="d-flex flex-column flex-md-row align-items-center mb-3">
-            <template v-if="form && form.avatar">
-              <img :src="form.avatar" alt="Avatar" class="avatar-circle" />
+            <template v-if="form.avatar_preview || form.avatar">
+              <img
+                :src="avatarUrl"
+                alt="Avatar"
+                v-if="avatarUrl"
+                class="avatar-circle d-flex justify-content-center align-items-center"
+              />
             </template>
             <template v-else>
               <div
@@ -51,7 +56,7 @@
               </li>
             </router-link>
 
-            <router-link to="/infor-user" class="text-decoration-none text-dark">
+            <router-link to="/order-management" class="text-decoration-none text-dark">
               <li
                 class="list-group-item d-flex justify-content-between align-items-center"
               >
@@ -231,6 +236,20 @@ export default {
         loading.value = false; // Ẩn spinner sau khi hoàn tất API
       }
     };
+    const avatarUrl = computed(() => {
+      const avatar = form.value.avatar;
+
+      // Nếu đang chọn ảnh preview mới
+      if (form.value.avatar_preview) return form.value.avatar_preview;
+
+      // Nếu là link Google (OAuth), dùng trực tiếp
+      if (typeof avatar === "string" && avatar.startsWith("http")) return avatar;
+
+      // Nếu là ảnh từ server Laravel (tên file)
+      if (avatar) return `http://localhost:8000/assets/avatar/${avatar}`;
+
+      return null;
+    });
 
     onMounted(() => {
       getOrderByUser();
@@ -259,13 +278,14 @@ export default {
       filteredOrders,
       loading,
       getStatusBadge,
+      avatarUrl,
     };
   },
 };
 </script>
 <style scoped>
 .order-tabs {
-   -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
 
