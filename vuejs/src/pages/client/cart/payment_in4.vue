@@ -202,6 +202,7 @@
 import { FoodList } from '@/stores/food'
 // import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
+import { Cart } from '@/stores/cart'
 import { onMounted, computed } from 'vue'
 import numeral from 'numeral'
 import { ref, watch } from 'vue'
@@ -244,8 +245,6 @@ export default {
     const { user, form } = User.setup()
 
     const {
-      cartKey,
-      cartItems,
       discounts,
       discountInput,
       selectedDiscount,
@@ -256,12 +255,17 @@ export default {
       showMoreDiscounts,
       applyDiscountCode,
       handleDiscountInput,
-      finalTotal,
       discountAmount,
+      finalTotal
+    } = Discounts()
+
+    const {
+      cartKey,
+      cartItems,
       totalQuantity,
       totalPriceItem,
       loadCart,
-    } = Discounts()
+    } = Cart()
 
     const { isLoading } = FoodList.setup()
 
