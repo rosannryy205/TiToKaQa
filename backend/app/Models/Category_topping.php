@@ -8,4 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Category_topping extends Model
 {
     use HasFactory;
+
+
+    protected $table = 'category_toppings';
 }

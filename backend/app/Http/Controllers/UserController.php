@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use App\Mail\VerifyCodeMail;
 
 
 class UserController extends Controller
@@ -18,13 +20,14 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $user = User::all();
+        return $user;
     }
 
-    public function register(Request $request)
+    public function sendRegisterCode(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|unique:users|min:6|max:20|alpha_num',
+            'username' => 'required|max:20|alpha_num',
 
             'email' => [
                 'required',
@@ -36,15 +39,12 @@ class UserController extends Controller
                     }
                 }
             ],
-            'phone' => ['required', 'regex:/^(0|\+84)(\d{9})$/', 'unique:users,phone'],
 
             'password' => 'required|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
 
         ], [
             // Thông báo tiếng Việt cho từng rule
             'username.required' => 'Vui lòng nhập tên đăng nhập.',
-            'username.unique' => 'Tên đăng nhập đã tồn tại.',
-            'username.min' => 'Tên đăng nhập phải có ít nhất 6 ký tự.',
             'username.max' => 'Tên đăng nhập không được vượt quá 20 ký tự.',
             'username.alpha_num' => 'Tên đăng nhập chỉ có thể chứa chữ cái và số.',
 
@@ -52,9 +52,9 @@ class UserController extends Controller
             'email.email' => 'Email không đúng định dạng.',
             'email.unique' => 'Email đã được sử dụng.',
 
-            'phone.required' => 'Vui lòng nhập số điện thoại.',
-            'phone.regex' => 'Số điện thoại không đúng định dạng.',
-            'phone.unique' => 'Số điện thoại đã được sử dụng.',
+            // 'phone.required' => 'Vui lòng nhập số điện thoại.',
+            // 'phone.regex' => 'Số điện thoại không đúng định dạng.',
+            // 'phone.unique' => 'Số điện thoại đã được sử dụng.',
 
             'password.required' => 'Vui lòng nhập mật khẩu.',
             'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
@@ -66,21 +66,62 @@ class UserController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $user = User::create([
+        // Sinh mã và lưu tạm thông tin user trong cache
+        $code = rand(100000, 999999);
+        $data = [
             'username' => $request->username,
             'email' => $request->email,
-            'phone' => $request->phone ?? '',
             'password' => bcrypt($request->password),
             'address' => $request->address ?? '',
             'fullname' => $request->fullname ?? '',
-            'role'=>'user'
+            'role' => 'user'
+        ];
 
+
+        Cache::put('register_' . $request->email, [
+            'code' => $code,
+            'data' => $data,
+        ], now()->addMinutes(5));
+
+        try {
+            Mail::to($request->email)->send(new \App\Mail\ResetPasswordCode($code));
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi gửi email',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json(['message' => 'Mã xác minh đã được gửi đến email của bạn.']);
+    }
+
+    public function verifyRegisterCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|numeric',
         ]);
+
+        $cached = Cache::get('register_' . $request->email);
+
+        if (!$cached) {
+            return response()->json(['message' => 'Mã đã hết hạn hoặc không tồn tại'], 410);
+        }
+
+        if ($cached['code'] != $request->code) {
+            return response()->json(['message' => 'Mã xác minh không đúng'], 404);
+        }
+
+        // Tạo user và đăng nhập
+        $user = User::create(array_merge($cached['data'], ['role' => 'user']));
+
         Auth::login($user);
         $token = $user->createToken('auth')->plainTextToken;
 
         // Gửi mail chào mừng
         // Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
+
+        Cache::forget('register_' . $request->email);
 
         return response()->json([
             'message' => 'Đăng ký thành công!',
@@ -88,12 +129,15 @@ class UserController extends Controller
                 'id' => $user->id,
                 'username' => $user->username,
                 'email' => $user->email,
-                'phone' => $user->phone,
-                'role' => $user->role
+                'role' => $user->role,
             ],
-            'token' => $token
+            'token' => $token,
         ]);
     }
+
+
+
+
 
 
     public function login(Request $request)
@@ -204,7 +248,8 @@ class UserController extends Controller
         ]);
     }
 
-    public function sendCode(Request $request){
+    public function sendCode(Request $request)
+    {
         $validator = Validator::make(
             $request->all(),
             [
@@ -277,33 +322,34 @@ class UserController extends Controller
         }
 
         $user->verify_code = null;
-        $user->verify_expiry=null;
+        $user->verify_expiry = null;
         $user->save();
 
         return response()->json(['message' => 'Xác minh thành công']);
     }
 
 
-    public function ChangePassword(Request $request){
-        $validator=Validator::make($request->all(),[
-            'email'=>'required|email',
+    public function ChangePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
             'password' => 'required|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/',
-        ],[
+        ], [
             'password.required' => 'Vui lòng nhập mật khẩu.',
             'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
             'password.min' => 'Mật khẩu phải có ít nhất :min ký tự.',
             'password.regex' => 'Mật khẩu phải có ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.',
         ]);
 
-        if($validator->fails()){
-            return response()->json(['errors'=>$validator->errors()],422);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
         $user->password = bcrypt($request->password);
         $user->save();
-        return response()->json(['message'=>'Đặt lại mật khẩu thành công']);
+        return response()->json(['message' => 'Đặt lại mật khẩu thành công']);
     }
 
 
@@ -355,16 +401,19 @@ class UserController extends Controller
     {
 
         $user = User::findOrFail($id);
-        $user->fullname = $request->fullname;
-        $user->email = $request->email;
-        $user->phone = $request->phone;
-        $user->address = $request->address;
-        $user->update([
-            'fullname' => $request->fullname,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
-        ]);
+
+        $user->fullname = $request->input('fullname');
+        $user->phone = $request->input('phone');
+        $user->address = $request->input('address');
+
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('assets/avatar'), $filename);
+            $user->avatar = $filename;
+        }
+        $user->save();
+
         return response()->json([
             'message' => 'Đã cập nhật user thành công!',
             'user' => $user

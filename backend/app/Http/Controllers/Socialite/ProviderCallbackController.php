@@ -35,6 +35,7 @@ class ProviderCallbackController extends Controller
                 'provider_token' => $socialUser->token,
                 'provider_refresh_token' => $socialUser->refreshToken ?? null,
                 'username' => $socialUser->name ?? $socialUser->email,
+                'avatar' => $socialUser->getAvatar(),
             ]);
 
             $token = $user->createToken('api_token')->plainTextToken;
