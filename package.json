@@ -16,6 +16,7 @@
     "jquery": "^3.7.1",
     "jquery-bar-rating": "^1.2.2",
     "jquery-file-upload": "^4.0.11",
+    "leaflet": "^1.9.4",
     "perfect-scrollbar": "^1.5.5",
     "select2": "^4.0.13",
     "select2-bootstrap-theme": "0.1.0-beta.10",
@@ -23,8 +24,8 @@
     "simplemde": "^1.11.2",
     "summernote": "^0.8.20",
     "sweetalert": "^2.1.2",
-    "typeahead.js": "^0.11.1",
-    "ti-icons": "^0.1.2"
+    "ti-icons": "^0.1.2",
+    "typeahead.js": "^0.11.1"
   },
   "devDependencies": {
     "browser-sync": "^2.29.3",
