@@ -352,10 +352,6 @@ export default {
     },
   },
   setup() {
-    const restaurantLocation = {
-      lat: 10.854113664188024,
-      lng: 106.6262030926953,
-    }
 
     const router = useRouter()
 
@@ -386,56 +382,6 @@ export default {
     } = Discounts()
 
     const { isLoading } = FoodList.setup()
-
-    // const updateCartStorage = () => {
-    //   const cartKey = getCartKey()
-    //   localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
-    // }
-
-    const getCoordinatesFromAddress = async (address) => {
-      const apiKey = 'a642902bd23e49d3847cbfed7d30d5ed'
-      const res = await axios.get(`https://api.opencagedata.com/geocode/v1/json`, {
-        params: {
-          key: apiKey,
-          q: address,
-          pretty: 1,
-          limit: 1,
-        },
-      })
-      if (res.data.results.length) {
-        const { lat, lng } = res.data.results[0].geometry
-        return { lat, lng }
-      }
-      return null
-    }
-
-    const calculateRouteDistanceKm = async (startCoords, endCoords) => {
-      const apiKey = '5b3ce3597851110001cf624816b34e7b81c74399985b6d444d7fca5c'
-      try {
-        const response = await axios.post(
-          'https://api.openrouteservice.org/v2/directions/driving-car/geojson',
-          {
-            coordinates: [
-              [startCoords.lng, startCoords.lat],
-              [endCoords.lng, endCoords.lat],
-            ],
-          },
-          {
-            headers: {
-              Authorization: apiKey,
-              'Content-Type': 'application/json',
-            },
-          },
-        )
-
-        const distanceMeters = response.data.features[0].properties.summary.distance
-        return distanceMeters / 1000
-      } catch (error) {
-        console.error('Lỗi khi gọi OpenRouteService:', error)
-        return null
-      }
-    }
-
     const isLoggedIn = computed(() => !!localStorage.getItem('token'))
 
     const paymentMethod = ref('')
@@ -447,18 +393,8 @@ export default {
           return
         }
         const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`
-        const userLocation = await getCoordinatesFromAddress(fullAddress)
-        if (!userLocation) {
+        if (!fullAddress) {
           alert('Không lấy được vị trí của địa chỉ bạn đã nhập.')
-          isLoading.value = false
-          return
-        }
-
-        const distance = await calculateRouteDistanceKm(restaurantLocation, userLocation)
-        if (distance > 25) {
-          alert(
-            `Rất tiếc! Địa chỉ của bạn nằm ngoài bán kính giao hàng 25km (${distance.toFixed(2)}km).`,
-          )
           isLoading.value = false
           return
         }
@@ -470,7 +406,8 @@ export default {
           guest_address: fullAddress,
           note: note.value || '',
           total_price: finalTotal.value || 0,
-          money_reduce: discountFoodAmount > 0 ? discountFoodAmount : discountShipAmount,
+          money_reduce:
+          discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
