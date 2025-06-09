@@ -11,17 +11,12 @@
   <div v-else class="container mt-5 fade-in">
     <div class="row g-4">
       <!-- Sidebar -->
-      <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0" style="max-height: 300px">
+      <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0">
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
-          <div class="d-flex align-items-center mb-3 mx-3">
+          <div class="d-flex flex-column flex-md-row align-items-center mb-3">
             <template v-if="form.avatar_preview || form.avatar">
               <img
-                :src="
-                  form.avatar_preview ||
-                  (form.avatar?.startsWith('http')
-                    ? form.avatar
-                    : `http://localhost:8000/assets/avatar/${form.avatar}`)
-                "
+                :src="avatarUrl"
                 alt="Avatar"
                 class="avatar-circle d-flex justify-content-center align-items-center"
               />
@@ -34,12 +29,12 @@
               </div>
             </template>
 
-            <div class="ms-4 text-center text-md-start">
-              <h6 class="mt-2 mb-3 fw-bold">{{ form.fullname || form.username }}</h6>
+            <div class="ms-md-4 mt-3 mt-md-0 text-center text-md-start">
+              <h6 class="fw-bold mb-2">{{ form.fullname || form.username }}</h6>
               <a
                 href="#"
                 @click="handleLogout"
-                class="list-group-item-action link-danger small d-flex align-items-center gap-1 mt-2"
+                class="list-group-item-action link-danger small d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2"
               >
                 <i class="bi bi-box-arrow-right"></i> Đăng xuất
               </a>
@@ -164,7 +159,9 @@
             </div>
 
             <!-- Cột phải -->
-            <div class="col-md-5 border-start ps-md-4">
+            <div
+              class="col-md-5 ps-md-4 pt-4 pt-md-0 border-top border-md-0 border-md-start"
+            >
               <ul class="p-0 m-0 list-unstyled">
                 <li
                   class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
@@ -239,7 +236,7 @@
   </div>
 </template>
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { toast } from "vue3-toastify";
 import { Image } from "ant-design-vue";
@@ -345,6 +342,14 @@ export default {
       }
     };
 
+    const avatarUrl = computed(() => {
+      if (form.value.avatar_preview) return form.value.avatar_preview;
+      if (form.value.avatar?.startsWith("http")) return form.value.avatar;
+      if (form.value.avatar)
+        return `http://localhost:8000/assets/avatar/${form.value.avatar}`;
+      return null;
+    });
+
     const getInitial = (username) => {
       if (username?.trim()) return username.trim().charAt(0).toUpperCase();
       return "?";
@@ -365,6 +370,7 @@ export default {
       getInitial,
       loading,
       primaryColor,
+      avatarUrl,
     };
   },
 };
@@ -378,11 +384,12 @@ export default {
   width: clamp(80px, 25vw, 100px);
   height: clamp(80px, 25vw, 100px);
   border-radius: 50%;
-  aspect-ratio: 1/1;
   overflow: hidden;
-  /* QUAN TRỌNG: ẩn phần thừa */
-  position: relative;
-  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background-color: #f8f9fa;
 }
 
 .avatar-circle img {
@@ -424,6 +431,12 @@ li.list-group-item {
   .avatar-circle {
     max-width: 100px;
     font-size: 28px;
+  }
+}
+@media (min-width: 768px) {
+  .border-md-start {
+    border-top: none !important; /* Xoá border-top khi desktop */
+    border-left: 1px solid #dee2e6 !important;
   }
 }
 </style>
