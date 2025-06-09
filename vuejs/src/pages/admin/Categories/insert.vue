@@ -8,8 +8,8 @@
     </div>
   </div>
 
-  <form class="row mt-2 w-50">
-    <div class="col form-box ">
+  <form class="row mt-2">
+    <div class="col-12 col-md-6">
       <div class="card rounded-0 border-0 shadow mb-4">
         <div class="card-body">
           <div class="row">

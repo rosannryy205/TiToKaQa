@@ -13,7 +13,7 @@ const client = [
       {
         path: '/search',
         name: 'client-search',
-        component: () => import('../components/ThePageFood.vue'),
+        component: () => import('../pages/client/search/index.vue'),
         meta: { title: 'Tìm kiếm món ăn' },
       },
       {
