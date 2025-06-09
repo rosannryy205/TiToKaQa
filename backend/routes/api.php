@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdminCategoryToppingController;
 use App\Http\Controllers\AdminFoodController;
+use App\Http\Controllers\AdminToppingController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
@@ -71,10 +73,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // đăng ký đăng nhập quên mật khẩu
-Route::post('/register', [UserController::class, 'register']);
+Route::post('/register/send-code', [UserController::class, 'sendRegisterCode']);
+Route::post('/register/verify-code', [UserController::class, 'verifyRegisterCode']);
+
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/forgot',[UserController::class,'forgotPass']);
-Route::post('/code',[UserController::class,'verifyResetCode']);
+Route::post('/verify-code',[UserController::class,'verifyResetCode']);
 Route::post('/reset-password',[UserController::class,'ChangePassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
@@ -125,6 +129,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/foods', [AdminFoodController::class, 'index']);
     Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
     Route::post('/admin/foods', [AdminFoodController::class, 'store']);
+    Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
+    Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
+    Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
+    Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
+    Route::get('/admin/catetop',[AdminCategoryToppingController::class,'getAll']);
+    Route::post('/admin/toppings',[AdminToppingController::class,'store']);
 });
 
 //admin combo
