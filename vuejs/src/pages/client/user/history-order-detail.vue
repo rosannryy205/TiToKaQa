@@ -96,6 +96,9 @@
 
     <button v-if="info.order_status == 'Chờ xác nhận' || info.order_status == 'Đã xác nhận'"
       @click="cancelOrderForOrder" class="btn btn-danger1 mt-2 ms-2 p-2" style="width: 100px;">Hủy đơn</button>
+    <router-link :to="{ name: 'delivery', params: { id: info.id }   }">
+      <button class="btn btn-sm btn-outline-danger mt-2 ms-2 p-2" style="width: 120px;">Theo dõi đơn</button>
+    </router-link>
 
 
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"

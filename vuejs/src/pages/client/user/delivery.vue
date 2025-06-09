@@ -1,4 +1,9 @@
 <template>
+  <div v-if="isLoading" class="isLoading-overlay">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">isLoading...</span>
+    </div>
+  </div>
   <div class="container-sm fade-in container-delivery pt-20">
     <div class="p-4">
       <h2 class="text-2xl font-bold mb-4 text-gray-800">🛵 Theo dõi đơn hàng</h2>
@@ -14,15 +19,13 @@
 <script setup>
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-const user = JSON.parse(localStorage.getItem('user'))
-const user_id = user?.id
-console.log('User ID:', user_id)
-
-const order_id = parseInt(localStorage.getItem('order_id'))
-console.log('Order ID:', order_id)
+const isLoading = ref(false)
+const route = useRoute()
+const order_id = route.params.id
 
 const restaurant = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 const customer = ref({})
@@ -73,9 +76,10 @@ const getCoordinatesFromAddress = async (address) => {
 }
 
 onMounted(async () => {
+  isLoading.value = true
   try {
     //Gọi API lấy thông tin đơn hàng
-    const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${user_id}/${order_id}`)
+    const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${order_id}`)
     const order = res.data
 
     console.log(order)
@@ -162,14 +166,10 @@ onMounted(async () => {
     }, 300)
   } catch (error) {
     console.log('Lỗi rồi kìa mày')
+  }finally {
+    isLoading.value = false
   }
-
-
-
-
-
-
-})
+});
 </script>
 
 <style scoped>
@@ -212,5 +212,18 @@ onMounted(async () => {
   left: 16px;
   z-index: 500;
   pointer-events: none;
+}
+
+.isLoading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(148, 142, 142, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

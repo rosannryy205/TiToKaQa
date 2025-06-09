@@ -10,9 +10,8 @@ import {
   Image
 } from 'ant-design-vue'
 import App from './App.vue'
-import vSelect from "vue-select"
 import 'leaflet/dist/leaflet.css';
-
+import vSelect from 'vue-select'
 
 
 import Antd from 'ant-design-vue';
@@ -26,7 +25,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'vue3-toastify/dist/index.css';
 import 'sweetalert2/dist/sweetalert2.min.css'
-
 import './assets/style.css'; // Import CSS toàn cục
 import './assets/cart.css'; // Import CSS toàn cục
 import './assets/base.css'
@@ -36,6 +34,8 @@ import './assets/base.css'
 // Thêm dòng này để import Font Awesome
 import "@fortawesome/fontawesome-free/css/all.min.css"
 import 'vue3-toastify/dist/index.css';
+
+
 const app = createApp(App)
 
 const pinia = createPinia()
@@ -47,9 +47,7 @@ app.use(List)
 app.use(Menu)
 app.use(Image)
 app.use(Antd);
-
+app.component('v-select', vSelect)
 app.config.globalProperties.$message = message
-
-app.component("v-select", vSelect)
 
 app.mount('#app')

@@ -23,3 +23,4 @@ class Category_toppings extends Seeder
         ]);
     }
 }
+    
