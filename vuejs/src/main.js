@@ -6,22 +6,20 @@ import {
   List,
   Drawer,
   Button,
-  message
+  message,
+  Image
 } from 'ant-design-vue'
 import App from './App.vue'
-import vSelect from "vue-select"
 import 'leaflet/dist/leaflet.css';
-
+import vSelect from 'vue-select'
 
 
 import Antd from 'ant-design-vue';
-import 'ant-design-vue/dist/reset.css';
 
 // CSS import
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap/dist/css/bootstrap-grid.min.css'
 import 'bootstrap/dist/css/bootstrap-utilities.min.css'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "vue-select/dist/vue-select.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
@@ -37,6 +35,8 @@ import './assets/base.css'
 // Thêm dòng này để import Font Awesome
 import "@fortawesome/fontawesome-free/css/all.min.css"
 import 'vue3-toastify/dist/index.css';
+
+
 const app = createApp(App)
 
 const pinia = createPinia()
@@ -46,10 +46,9 @@ app.use(Button)
 app.use(Drawer)
 app.use(List)
 app.use(Menu)
+app.use(Image)
 app.use(Antd);
-
+app.component('v-select', vSelect)
 app.config.globalProperties.$message = message
-
-app.component("v-select", vSelect)
 
 app.mount('#app')

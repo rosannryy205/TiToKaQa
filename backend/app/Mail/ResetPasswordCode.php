@@ -29,13 +29,13 @@ class ResetPasswordCode extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Đặt lại mật khẩu',
+            subject: 'Mã xác minh',
         );
     }
 
 
     public function build(){
-        return $this->subject('Mã khôi phục mật khẩu')
+        return $this->subject('Mã xác minh')
                     ->view('emails.reset_code')
                     ->with(['code'=>$this->code]);
     }

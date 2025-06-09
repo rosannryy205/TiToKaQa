@@ -102,6 +102,8 @@ export const User = {
           .finally(() => {
             loading.value = false
           })
+          // console.log(form.value.avatar);
+
       } else {
         console.warn('Không tìm thấy user trong localStorage');
         isLoggedIn.value = false;
