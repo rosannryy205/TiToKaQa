@@ -23,14 +23,16 @@ export function Discounts() {
   } = Cart()
 
 
-  watchEffect(() => {
-    const selected = discounts.value.find((d) => d.code === selectedDiscount.value)
-    if (selected) {
-      discountId.value = selected.id
-      console.log('✅ Tiền giảm:', discountAmount.value)
-      console.log('✅ Tổng sau giảm:', finalTotal.value)
-    }
-  })
+ // src/stores/discount.js
+watchEffect(() => {
+  const selected = discounts.value.find((d) => d.code === selectedDiscount.value)
+  if (selected) {
+    discountId.value = selected.id
+    console.log('✅ discountId đã được cập nhật:', discountId.value); // Thêm dòng này
+    console.log('✅ Tiền giảm:', discountAmount.value)
+    console.log('✅ Tổng sau giảm:', finalTotal.value)
+  }
+})
 
   const getAllDiscount = async () => {
     try {
@@ -112,5 +114,6 @@ export function Discounts() {
     totalPrice,
     totalQuantity,
     totalPriceItem,
+    discountAmount
   }
 }
