@@ -1,12 +1,7 @@
 <template>
     <a-layout-header :style="{ background: 'var(--background-light)', padding: '0 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.09)' }">
-      <div style="display: flex; align-items: center; justify-content: space-between; height: 100%;">
+      <div style="display: flex; align-items: center; justify-content: space-between; height: 10vh;">
         <div class="header-left">
-          <component
-            :is="props.collapsed ? MenuUnfoldOutlined : MenuFoldOutlined"
-            class="trigger"
-            @click="() => emit('toggle-collapse')"
-          />
         </div>
         <div class="header-right">
           <a-space :size="16">
@@ -54,7 +49,6 @@
   import { h } from 'vue'; // Import h để dùng với icon trong a-button
   import {
     MenuUnfoldOutlined,
-    MenuFoldOutlined,
     SearchOutlined,
     BellOutlined,
     UserOutlined,

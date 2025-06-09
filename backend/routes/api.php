@@ -22,10 +22,13 @@ use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Models\Discount;
 use Laravel\Socialite\Contracts\Provider;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ShippingController;
+use App\Models\Combo;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
 Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
+
 //search
 // Route::get('/foods/search', [FoodController::class, 'search'])   ;
 
@@ -76,9 +79,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // đăng ký đăng nhập quên mật khẩu
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
-Route::post('/forgot',[UserController::class,'forgotPass']);
-Route::post('/code',[UserController::class,'verifyResetCode']);
-Route::post('/reset-password',[UserController::class,'ChangePassword']);
+Route::post('/forgot', [UserController::class, 'forgotPass']);
+Route::post('/code', [UserController::class, 'verifyResetCode']);
+Route::post('/reset-password', [UserController::class, 'ChangePassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
 });
@@ -91,27 +94,31 @@ Route::get('/search', [HomeController::class, 'search']);
 
 //delivery
 Route::get('/delivery/{user_id}/{id}', [OrderController::class, 'getOrderByUser']);
+//tinh phi ship
+Route::post('/ghn/service', [ShippingController::class, 'getGHNServices']);
+
+
 
 
 
 
 
 //cart
-Route::post('/order',[CartController::class,'order']);
+Route::post('/order', [CartController::class, 'order']);
 
-Route::put('/update/order/{id}',[OrderController::class,'reservationUpdate']);
-Route::put('/update/reservation-order/{id}',[OrderController::class,'reservationUpdatePrice']);
+Route::put('/update/order/{id}', [OrderController::class, 'reservationUpdate']);
+Route::put('/update/reservation-order/{id}', [OrderController::class, 'reservationUpdatePrice']);
 
 
 //admin_order
-Route::get('/order_detail/{id}',[CartController::class,'get_order_detail']);
-Route::get('/get_all_orders',[CartController::class,'get_all_orders']);
-Route::put('/update/{id}/status',[CartController::class,'update_status']);
+Route::get('/order_detail/{id}', [CartController::class, 'get_order_detail']);
+Route::get('/get_all_orders', [CartController::class, 'get_all_orders']);
+Route::put('/update/{id}/status', [CartController::class, 'update_status']);
 
 
 //discount
-Route::get('/discounts',[DiscountController::class,'getAllDiscounts']);
-Route::post('/discounts/use', [DiscountController::class,'used']);
+Route::get('/discounts', [DiscountController::class, 'getAllDiscounts']);
+Route::post('/discounts/use', [DiscountController::class, 'used']);
 
 //gg
 Route::get('/auth/{provider}/redirect', ProviderRedirectController::class)->name('auth.redirect');
@@ -134,3 +141,10 @@ Route::resource('/payment', PaymentController::class);
 // routes/api.php
 Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 
+
+
+
+/**admin*/
+Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
+Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
+Route::post('/admin/combo/create', [ComboController::class, 'createCombosByAdmin']);
