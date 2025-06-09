@@ -1,0 +1,233 @@
+<template>
+  <div>
+    <div class="d-flex justify-content-between">
+      <h3 class="text-danger fw-bold">Cập nhật món ăn</h3>
+      <div>
+        <router-link to="/foods" class="btn btn-outline-secondary rounded-0">
+          <i class="bi bi-arrow-counterclockwise"></i> Quay lại
+        </router-link>
+      </div>
+    </div>
+
+    <form @submit.prevent="updateFood" class="row mt-2" enctype="multipart/form-data">
+      <div class="col-md-8">
+        <div class="card rounded-0 border-0 shadow mb-4">
+          <div class="card-body">
+            <div class="row">
+              <div class="col mb-3">
+                <label for="name" class="form-label">Tên món <span class="text-danger">*</span></label>
+                <input type="text" id="name" class="form-control rounded-0" v-model="food.name" required>
+              </div>
+
+              <div class="col mb-3">
+                <label for="status" class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                <select id="status" class="form-select rounded-0" v-model="food.status" required>
+                  <option disabled value="">Chọn trạng thái</option>
+                  <option value="inactive">Ẩn</option>
+                  <option value="active">Hiện</option>
+                </select>
+
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col mb-3">
+                <label for="instock" class="form-label">Tồn kho <span class="text-danger">*</span></label>
+                <input type="number" id="instock" class="form-control rounded-0" min="0" v-model.number="food.instock"
+                  required>
+              </div>
+
+              <div class="col mb-3">
+                <label for="category" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                <select id="category" class="form-select rounded-0" v-model="food.category_id" required>
+                  <option disabled value="">Chọn danh mục</option>
+                  <template v-for="category in categories" :key="category.id">
+                    <option :value="category.id">{{ category.name }}</option>
+                    <option v-for="child in category.children" :key="'child-' + child.id" :value="child.id">
+                      &nbsp;&nbsp;↳ {{ child.name }}
+                    </option>
+                  </template>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Mô tả</label>
+              <textarea id="description" class="form-control rounded-0" rows="6" v-model="food.description"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="card rounded-0 border-0 shadow mb-2">
+          <div class="card-body">
+            <div class="row">
+              <div class="col mb-3">
+                <label for="price" class="form-label">Giá <span class="text-danger">*</span></label>
+                <input type="number" id="price" class="form-control rounded-0" min="0" v-model.number="food.price"
+                  required>
+              </div>
+
+              <div class="col mb-3">
+                <label for="sale_price" class="form-label">Giá giảm</label>
+                <input type="number" id="sale_price" class="form-control rounded-0" min="0"
+                  v-model.number="food.sale_price">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card rounded-0 border-0 shadow">
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="image" class="form-label">Ảnh món ăn <span class="text-danger">*</span></label>
+              <input type="file" id="image" class="form-control rounded-0" @change="onFileChange">
+            </div>
+            <div class="mb-3 p-2 text-center" v-if="previewImage">
+              <img :src="previewImage" class="w-50" alt="Preview image">
+            </div>
+            <div class="mb-3 p-2 text-center" v-else-if="food.image_url">
+              <img :src="food.image_url" class="w-50" alt="Current image">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 mb-4 text-center">
+        <button type="submit" class="btn btn-danger1 themsp" style="width: 200px;">
+          Cập nhật
+        </button>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import { useRoute, useRouter } from 'vue-router'
+
+const route = useRoute()
+const router = useRouter()
+
+const food = ref({
+  name: '',
+  status: '',
+  instock: 0,
+  category_id: '',
+  description: '',
+  price: 0,
+  sale_price: 0,
+  image_url: '',
+})
+
+const categories = ref([])
+const previewImage = ref(null)
+let selectedFile = null
+
+const fetchCategories = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/categories', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    categories.value = res.data
+  } catch (error) {
+    alert('Lỗi khi tải danh mục')
+    console.error(error)
+  }
+}
+const fetchFood = async (id) => {
+  try {
+    const res = await axios.get(`http://127.0.0.1:8000/api/admin/food/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+    const data = res.data
+    food.value.name = data.name
+    food.value.status = data.status
+    food.value.instock = data.stock
+    food.value.category_id = data.category_id
+    food.value.description = data.description
+    food.value.price = data.price
+    food.value.sale_price = data.sale_price
+    food.value.image_url = data.image_url // giả sử api trả về đường dẫn ảnh
+  } catch (error) {
+    if (error.response && error.response.data) {
+      // Nếu API trả lỗi có message cụ thể
+      alert('Lỗi khi tải thông tin món ăn: ' + (error.response.data.message || JSON.stringify(error.response.data)))
+    } else {
+      // Lỗi khác (mạng, code ...)
+      alert('Lỗi khi tải thông tin món ăn: ' + error.message)
+    }
+    console.error(error)
+  }
+}
+
+
+const onFileChange = (e) => {
+  const file = e.target.files[0]
+  if (file) {
+    selectedFile = file
+    previewImage.value = URL.createObjectURL(file)
+  }
+}
+
+const updateFood = async () => {
+  try {
+    const formData = new FormData()
+    formData.append('name', food.value.name)
+    formData.append('status', food.value.status)
+    formData.append('stock', food.value.instock)
+    formData.append('category_id', food.value.category_id)
+    formData.append('description', food.value.description)
+    formData.append('price', food.value.price)
+    formData.append('sale_price', food.value.sale_price)
+    if (selectedFile) {
+      formData.append('image', selectedFile)
+    }
+
+    const id = route.params.id
+    const res = await axios.post(`http://127.0.0.1:8000/api/admin/update-food/${id}`, formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    alert('Cập nhật thành công')
+    router.push('/admin/products')
+  } catch (error) {
+    let msg = 'Lỗi khi cập nhật món ăn.\n'
+    if (error.response) {
+      msg += `Mã lỗi: ${error.response.status}\n`
+      msg += `Message: ${error.response.data.message || JSON.stringify(error.response.data)}\n`
+
+    } else if (error.request) {
+      msg += 'Không nhận được phản hồi từ server.'
+    } else {
+      msg += error.message
+    }
+    alert(msg)
+    console.error(error)
+  }
+}
+
+
+onMounted(() => {
+  fetchCategories()
+  const id = route.params.id
+  if (id) {
+    fetchFood(id)
+  }
+})
+</script>
+
+<style>
+.themsp {
+  width: 200px;
+}
+</style>
