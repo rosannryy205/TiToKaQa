@@ -82,8 +82,13 @@ const admin = [
         component: () => import('../pages/admin/Users/role.vue'),
       },
       {
-        path: 'choose-list-food/:id',
-        name: 'list-food',
+        path: 'choose-list-food/:orderId',
+        name: 'admin-list-food1',
+        component: () => import('../pages/admin/Tables/listsp.vue'),
+      },
+      {
+        path: 'choose-list-food',
+        name: 'admin-list-food',
         component: () => import('../pages/admin/Tables/listsp.vue'),
       },
       {
@@ -103,7 +108,7 @@ const admin = [
       },
       {
         path: 'insert-reservation',
-        name: 'insert-reservation',
+        name: 'insert-reservation-admin',
         component: () => import('../pages/admin/Tables/insert.vue'),
       },
     ],

@@ -12,20 +12,17 @@ use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
-
-Route::post('/chatbot', [ChatbotController::class, 'chat']);
-Route::get('/home', [HomeController::class, 'index']);
-
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
-use App\Models\Discount;
-use Laravel\Socialite\Contracts\Provider;
 use App\Http\Controllers\PaymentController;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
+
 // home food
 Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
+Route::get('/home', [HomeController::class, 'index']);
+
 //search
 // Route::get('/foods/search', [FoodController::class, 'search'])   ;
 
@@ -55,10 +52,10 @@ Route::get('/foods', [OrderController::class, 'getAllFoodsWithToppings']);
 Route::post('/reservation-update-status', [OrderController::class, 'updateStatus']);
 Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
 Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
-
+Route::get('/load-order-detail/{order_id}', [OrderController::class, 'showOrderDetail']);
+Route::put('/update-order-detail/{order_id}', [OrderController::class, 'updateOrderDetails']);
 
 Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
-Route::post('/order-for-user', [OrderController::class, 'orderFoodForUser']);
 
 //history
 Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);
@@ -91,6 +88,11 @@ Route::get('/search', [HomeController::class, 'search']);
 
 //delivery
 Route::get('/delivery/{user_id}/{id}', [OrderController::class, 'getOrderByUser']);
+
+
+
+//getall user
+Route::resource('user', UserController::class);
 
 
 

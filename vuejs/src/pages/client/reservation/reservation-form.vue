@@ -148,6 +148,7 @@
 import { User } from '@/stores/user'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Discounts } from '@/stores/discount'
+import { Cart } from '@/stores/cart'
 import numeral from 'numeral'
 import { toast } from 'vue3-toastify'
 import axios from 'axios'
@@ -177,10 +178,6 @@ export default {
     const { form, user } = User.setup()
     const { getInfo, info } = Info.setup()
     const {
-      cartItems,
-      loadCart,
-      totalPriceItem,
-      totalPrice,
       discountAmount,
       finalTotal,
       discountInput,
@@ -190,6 +187,14 @@ export default {
       handleDiscountInput,
       discountId,
     } = Discounts()
+
+    const {
+      cartItems,
+      loadCart,
+      totalPriceItem,
+      totalPrice,
+    } = Cart()
+
 
     const expirationTime = ref(null)
     const updateCountdown = async () => {

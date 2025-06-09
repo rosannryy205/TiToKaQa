@@ -215,6 +215,8 @@ export default {
       primaryColor,
     } = User.setup();
 
+
+
     const { formatNumber, formatDate } = Info.setup();
 
     const getOrderByUser = async () => {
