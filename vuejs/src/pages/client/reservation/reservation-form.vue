@@ -195,10 +195,7 @@ export default {
     } = Discounts()
 
     const {
-      cartItems,
-      loadCart,
-      totalPriceItem,
-      totalPrice,
+      cartKey, cartItems, totalPriceItem, loadCart, totalPrice
     } = Cart()
 
 
@@ -271,7 +268,7 @@ export default {
           })),
         };
 
-        const res = await axios.post("http://127.0.0.1:8000/api/reservation", orderData);
+        await axios.post("http://127.0.0.1:8000/api/reservation", orderData);
 
         if (orderData.discount_id) {
           await axios.post("http://localhost:8000/api/discounts/use", {
@@ -395,7 +392,8 @@ export default {
       getInfo,
       info,
       userId,
-      paymentMethod
+      paymentMethod,
+      cartKey
     };
   },
 };

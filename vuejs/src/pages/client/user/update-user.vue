@@ -256,6 +256,8 @@ export default {
       avatar_file: null,
       avatar_preview: "",
     });
+    const userData = localStorage.getItem('user');
+    const userId = userData ? JSON.parse(userData).id : null;
 
     const personally = async (userId) => {
       try {
@@ -324,7 +326,7 @@ export default {
         }
         formData.append("_method", "PATCH");
 
-        await axios.post(`http://127.0.0.1:8000/api/user/${user.value.id}`, formData, {
+        await axios.post(`http://127.0.0.1:8000/api/user/${userId}`, formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
             ...(form.value.avatar_file && {
@@ -380,6 +382,7 @@ export default {
       loading,
       primaryColor,
       avatarUrl,
+      userId
     };
   },
 };
