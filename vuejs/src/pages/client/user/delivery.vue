@@ -8,8 +8,8 @@
     <div class="p-4">
       <h2 class="text-2xl font-bold mb-4 text-gray-800">🛵 Theo dõi đơn hàng</h2>
       <div id="deliveryMap" class="relative rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-        <div id="distanceBox"
-          class="absolute top-4 left-4 w-[100px] h-[100px] bg-white rounded-lg shadow-md flex items-center justify-center text-gray-800 text-base font-semibold z-[500] hidden">
+        <div id="distanceBox" v-show="showDistanceBox"
+          class="absolute top-4 left-4 w-[100px] h-[100px] bg-white rounded-lg shadow-md flex items-center justify-center text-gray-800 text-base font-semibold z-[500]">
           0 km
         </div>
       </div>
@@ -27,9 +27,12 @@ const isLoading = ref(false)
 const route = useRoute()
 const order_id = route.params.id
 
+const showDistanceBox = ref(false)
+
+
 const restaurant = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 const customer = ref({})
-const shipper = ref({})
+const shipper = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 
 async function getRoutePolyline(start, end) {
   const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
@@ -141,7 +144,7 @@ onMounted(async () => {
       const distanceBox = document.getElementById('distanceBox')
       if (distanceBox) {
         distanceBox.textContent = `${distanceInKm} km`
-        distanceBox.classList.remove('hidden')
+        showDistanceBox.value = true
       }
     }
 
@@ -166,7 +169,7 @@ onMounted(async () => {
     }, 300)
   } catch (error) {
     console.log('Lỗi rồi kìa mày')
-  }finally {
+  } finally {
     isLoading.value = false
   }
 });

@@ -14,17 +14,38 @@ export function Cart() {
   })
   const quantity = ref(1)
 
-  const loadCart = async () => {
-    const cartKey = isAdmin.value
-      ? orderId.value
-        ? `cart_admin_reservation_${orderId.value}`
-        : `cart_admin_reservation`
-      : orderId.value
-        ? `cart_${userId}_reservation_${orderId.value}`
-        : `cart_${userId}`
-    const storedCart = localStorage.getItem(cartKey)
-    cartItems.value = storedCart ? JSON.parse(storedCart) : []
-  }
+  // const loadCart = async () => {
+  //   const cartKey = isAdmin.value
+  //     ? orderId.value
+  //       ? `cart_admin_reservation_${orderId.value}`
+  //       : `cart_admin_reservation`
+  //     : orderId.value
+  //       ? `cart_${userId}_reservation_${orderId.value}`
+  //       : `cart_${userId}`
+  //   const storedCart = localStorage.getItem(cartKey)
+  //   cartItems.value = storedCart ? JSON.parse(storedCart) : []
+  // }
+
+  const cartKey = computed(() => {
+  return isAdmin.value
+    ? orderId.value
+      ? `cart_admin_reservation_${orderId.value}`
+      : `cart_admin_reservation`
+    : orderId.value
+      ? `cart_${userId}_reservation_${orderId.value}`
+      : `cart_${userId}`
+})
+
+const loadCart = async () => {
+  const storedCart = localStorage.getItem(cartKey.value)
+  cartItems.value = storedCart ? JSON.parse(storedCart) : []
+}
+
+const saveCart = () => {
+  localStorage.setItem(cartKey.value, JSON.stringify(cartItems.value))
+}
+
+
 
   const totalPrice = computed(() => {
     return cartItems.value.reduce((sum, item) => {
@@ -114,16 +135,16 @@ export function Cart() {
     cartItems.value = []
     saveCart()
   }
-  const saveCart = () => {
-    const cartKey = isAdmin.value
-      ? orderId.value
-        ? `cart_admin_reservation_${orderId.value}`
-        : `cart_admin_reservation`
-      : orderId.value
-        ? `cart_${userId}_reservation_${orderId.value}`
-        : `cart_${userId}`
-    localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
-  }
+  // const saveCart = () => {
+  //   const cartKey = isAdmin.value
+  //     ? orderId.value
+  //       ? `cart_admin_reservation_${orderId.value}`
+  //       : `cart_admin_reservation`
+  //     : orderId.value
+  //       ? `cart_${userId}_reservation_${orderId.value}`
+  //       : `cart_${userId}`
+  //   localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
+  // }
 
   onMounted(() => {
     loadCart()
@@ -145,5 +166,6 @@ export function Cart() {
     increaseQuantity2,
     decreaseQuantity1,
     clearCart,
+    cartKey
   }
 }

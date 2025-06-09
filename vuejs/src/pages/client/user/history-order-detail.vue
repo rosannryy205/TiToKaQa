@@ -96,9 +96,23 @@
 
     <button v-if="info.order_status == 'Chờ xác nhận' || info.order_status == 'Đã xác nhận'"
       @click="cancelOrderForOrder" class="btn btn-danger1 mt-2 ms-2 p-2" style="width: 100px;">Hủy đơn</button>
-    <router-link :to="{ name: 'delivery', params: { id: info.id }   }">
-      <button class="btn btn-sm btn-outline-danger mt-2 ms-2 p-2" style="width: 120px;">Theo dõi đơn</button>
+
+
+    <!-- Khi đơn hàng đang giao -->
+    <router-link :to="{ name: 'delivery', params: { id: info.id } }" v-if="info.order_status === 'Đang giao hàng'">
+      <button class="btn btn-sm btn-outline-danger mt-2 ms-2 p-2" style="width: 120px;">
+        Theo dõi đơn
+      </button>
     </router-link>
+
+    <!-- Khi không phải đang giao -->
+      <button v-else class="btn btn-sm btn-outline-secondary mt-2 ms-2 p-2" style="width: 120px;" disabled>
+        Theo dõi đơn
+      </button>
+      <p class="text-muted ms-2 mt-1" style="font-size: 0.9rem;">
+        * Nút theo dõi đơn hàng chỉ khả dụng khi đơn hàng trong trạng thái giao hàng
+      </p>
+
 
 
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
