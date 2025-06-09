@@ -36,16 +36,19 @@
                 placeholder="Số điện thoại"
               />
             </div>
-
             <div class="mb-3">
               <select
                 v-model="selectedProvince"
-                @change="onProvinceChange"
+                @change="fetchDistricts"
                 class="form-control-customer"
               >
-                <option :value="null" disabled selected>Chọn tỉnh / thành phố</option>
-                <option v-for="province in provinces" :key="province.code" :value="province">
-                  {{ province.name }}
+                <option value="">Chọn tỉnh / thành</option>
+                <option
+                  v-for="province in provinces"
+                  :key="province.ProvinceID"
+                  :value="province.ProvinceID"
+                >
+                  {{ province.ProvinceName }}
                 </option>
               </select>
             </div>
@@ -53,21 +56,30 @@
             <div class="mb-3">
               <select
                 v-model="selectedDistrict"
-                @change="onDistrictChange"
+                @change="fetchWards"
+                :disabled="!selectedProvince"
                 class="form-control-customer"
               >
-                <option :value="null" disabled selected>Chọn quận / huyện</option>
-                <option v-for="district in districts" :key="district.code" :value="district">
-                  {{ district.name }}
+                <option value="">Chọn quận / huyện</option>
+                <option
+                  v-for="district in districts"
+                  :key="district.DistrictID"
+                  :value="district.DistrictID"
+                >
+                  {{ district.DistrictName }}
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <select v-model="selectedWard" class="form-control-customer">
-                <option :value="null" disabled selected>Chọn xã / phường</option>
-                <option v-for="ward in wards" :key="ward.code" :value="ward">
-                  {{ ward.name }}
+              <select
+                v-model="selectedWard"
+                :disabled="!selectedDistrict"
+                class="form-control-customer"
+              >
+                <option value="">Chọn phường / xã</option>
+                <option v-for="ward in wards" :key="ward.WardCode" :value="ward.WardCode">
+                  {{ ward.WardName }}
                 </option>
               </select>
             </div>
@@ -134,11 +146,24 @@
           </div>
 
           <hr />
+
           <div class="d-flex justify-content-between mb-2">
             <span>Tạm tính</span>{{ formatNumber(totalPrice) }} VNĐ
           </div>
-          <div v-if="discountAmount > 0" class="d-flex justify-content-between mb-2">
-            <span>Giảm Giá</span> - {{ formatNumber(discountAmount) }} VNĐ
+          <div class="d-flex justify-content-between mb-2">
+            <span>Phí ship</span>{{ formatNumber(shippingFee) }} VNĐ
+          </div>
+          <div
+            v-if="discountFoodAmount > 0"
+            class="d-flex justify-content-between mb-2 text-success"
+          >
+            <span>Giảm giá sản phẩm</span> -{{ formatNumber(discountFoodAmount) }} VNĐ
+          </div>
+          <div
+            v-if="discountShipAmount > 0"
+            class="d-flex justify-content-between mb-2 text-success"
+          >
+            <span>Giảm giá phí ship</span> -{{ formatNumber(discountShipAmount) }} VNĐ
           </div>
           <div style="color: #c92c3c" class="d-flex justify-content-between mb-2 fw-bold">
             <span>Tổng thanh toán:</span>{{ formatNumber(finalTotal) }} VNĐ
@@ -169,46 +194,81 @@
 
           <!--chon-->
           <div class="discount-scroll-wrapper" v-if="isLoggedIn">
-            <div v-for="discount in discountsFiltered " :key="discount.id">
+            <div v-for="discount in discountsFiltered" :key="discount.id">
               <div
                 class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
                 :class="{
                   'disabled-voucher':
-                    totalPrice < discount.min_order_value || discount.used >= discount.usage_limit,
+                    totalPrice < discount.min_order_value ||
+                    discount.used >= discount.usage_limit ||
+                    (discount.discount_type === 'freeship' && !hasShippingFee),
+                  'freeship-voucher': discount.discount_type === 'freeship',
                 }"
                 @click="
                   totalPrice >= discount.min_order_value &&
                   discount.used < discount.usage_limit &&
-                  applyDiscountCode(discount.code)
+                  !(discount.discount_type === 'freeship' && !hasShippingFee) &&
+                  (selectedDiscount === discount.code
+                    ? removeDiscountCode()
+                    : applyDiscountCode(discount.code))
                 "
               >
+                <!-- Bên trái -->
                 <div class="voucher-left d-flex align-items-center">
-                  <div
-                    class="voucher-logo d-flex flex-column align-items-center justify-content-center"
-                  >
-                    <div class="logo-text">TITOKAQA</div>
-                    <div class="logo-small">Mall</div>
+                  <div class="voucher-logo d-flex align-items-center justify-content-center">
+                    <!-- Logo theo loại mã -->
+                    <img
+                      v-if="discount.discount_type === 'freeship'"
+                      src="/img/freeship-icon.png"
+                      alt="Freeship"
+                      class="voucher-icon"
+                    />
+                    <img v-else src="/img/discount-icon.png" alt="Discount" class="voucher-icon" />
                   </div>
                   <div class="voucher-info ps-3">
-                    <div class="voucher-title">{{ discount.name }}</div>
-                    <div class="voucher-title">Mã {{ discount.code }}</div>
+                    <div
+                      class="voucher-title"
+                      :class="{ 'freeship-text': discount.discount_type === 'freeship' }"
+                    >
+                      {{ discount.name }}
+                    </div>
+                    <div
+                      class="voucher-title"
+                      :class="{ 'freeship-text': discount.discount_type === 'freeship' }"
+                    >
+                      Mã {{ discount.code }}
+                    </div>
                     <div class="voucher-time">
                       <i class="fa-regular fa-clock me-1"></i>Ngày hết hạn: {{ discount.end_date }}
                     </div>
+                    <div
+                      v-if="discount.discount_type === 'freeship' && !hasShippingFee"
+                      class="remind text-danger fw-md"
+                    >
+                      Vui lòng chọn địa chỉ để dùng mã !
+                    </div>
+
                     <div v-if="totalPrice < discount.min_order_value" class="text-danger small">
                       Đơn tối thiểu: {{ discount.min_order_value.toLocaleString() }}đ
                     </div>
                   </div>
                 </div>
+
+                <!-- Bên phải -->
                 <div class="voucher-right text-end">
                   <div
                     class="voucher-status"
-                    :class="{ 'text-success': selectedDiscount === discount.code }"
+                    :class="{
+                      'text-success': selectedDiscount === discount.code,
+                      'freeship-text': discount.discount_type === 'freeship',
+                      'freeship-border': discount.discount_type === 'freeship',
+                    }"
                   >
-                    <span v-if="selectedDiscount === discount.code">Đã dùng ✅</span>
+                    <span v-if="selectedDiscount === discount.code" class="text-danger"
+                      >Bỏ dùng❌
+                    </span>
                     <span v-else>Dùng ngay</span>
                   </div>
-                  <div class="voucher-tag">Mới!</div>
                 </div>
               </div>
             </div>
@@ -270,13 +330,17 @@
 import { FoodList } from '@/stores/food'
 // import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, watch } from 'vue'
 import numeral from 'numeral'
 import { ref } from 'vue'
 import axios from 'axios'
 import { User } from '@/stores/user'
 import dayjs from 'dayjs'
 import { RouterLink, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { useShippingStore } from '@/stores/shippingStore'
+const shippingStore = useShippingStore()
+const { shippingFee } = storeToRefs(shippingStore)
 
 export default {
   methods: {
@@ -288,20 +352,12 @@ export default {
     },
   },
   setup() {
-
     const restaurantLocation = {
       lat: 10.854113664188024,
-      lng: 106.6262030926953
+      lng: 106.6262030926953,
     }
 
     const router = useRouter()
-    const selectedProvince = ref(null)
-    const selectedDistrict = ref(null)
-    const selectedWard = ref(null)
-
-    const provinces = ref([])
-    const districts = ref([])
-    const wards = ref([])
 
     const user1 = ref(null)
 
@@ -322,10 +378,11 @@ export default {
       applyDiscountCode,
       handleDiscountInput,
       finalTotal,
-      discountAmount,
+      discountFoodAmount,
       totalQuantity,
       totalPriceItem,
       loadCart,
+      discountShipAmount,
     } = Discounts()
 
     const { isLoading } = FoodList.setup()
@@ -342,8 +399,8 @@ export default {
           key: apiKey,
           q: address,
           pretty: 1,
-          limit: 1
-        }
+          limit: 1,
+        },
       })
       if (res.data.results.length) {
         const { lat, lng } = res.data.results[0].geometry
@@ -351,8 +408,6 @@ export default {
       }
       return null
     }
-
-
 
     const calculateRouteDistanceKm = async (startCoords, endCoords) => {
       const apiKey = '5b3ce3597851110001cf624816b34e7b81c74399985b6d444d7fca5c'
@@ -362,15 +417,15 @@ export default {
           {
             coordinates: [
               [startCoords.lng, startCoords.lat],
-              [endCoords.lng, endCoords.lat]
-            ]
+              [endCoords.lng, endCoords.lat],
+            ],
           },
           {
             headers: {
               Authorization: apiKey,
-              'Content-Type': 'application/json'
-            }
-          }
+              'Content-Type': 'application/json',
+            },
+          },
         )
 
         const distanceMeters = response.data.features[0].properties.summary.distance
@@ -381,58 +436,7 @@ export default {
       }
     }
 
-
-
-
-
-
-
-
-
-
     const isLoggedIn = computed(() => !!localStorage.getItem('token'))
-
-    const getProvinces = async () => {
-      try {
-        const res = await axios.get(`https://provinces.open-api.vn/api/?depth=1`)
-        provinces.value = res.data
-      } catch (error) {
-        console.error('Lỗi lấy tỉnh thành: ', error)
-      }
-    }
-
-    const onProvinceChange = async () => {
-      selectedDistrict.value = null
-      selectedWard.value = null
-      districts.value = []
-      wards.value = []
-
-      if (selectedProvince.value) {
-        try {
-          const res = await axios.get(
-            `https://provinces.open-api.vn/api/p/${selectedProvince.value.code}?depth=2`,
-          )
-          districts.value = res.data.districts
-        } catch (error) {
-          console.error('Lỗi khi lấy quận/huyện:', error)
-        }
-      }
-    }
-    const onDistrictChange = async () => {
-      selectedWard.value = null
-      wards.value = []
-
-      if (selectedDistrict.value) {
-        try {
-          const res = await axios.get(
-            `https://provinces.open-api.vn/api/d/${selectedDistrict.value.code}?depth=2`,
-          )
-          wards.value = res.data.wards
-        } catch (error) {
-          console.error('Lỗi khi lấy xã/phường:', error)
-        }
-      }
-    }
 
     const paymentMethod = ref('')
 
@@ -442,7 +446,7 @@ export default {
           alert('Vui lòng chọn phương thức thanh toán!')
           return
         }
-        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`;
+        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`
         const userLocation = await getCoordinatesFromAddress(fullAddress)
         if (!userLocation) {
           alert('Không lấy được vị trí của địa chỉ bạn đã nhập.')
@@ -452,7 +456,9 @@ export default {
 
         const distance = await calculateRouteDistanceKm(restaurantLocation, userLocation)
         if (distance > 25) {
-          alert(`Rất tiếc! Địa chỉ của bạn nằm ngoài bán kính giao hàng 25km (${distance.toFixed(2)}km).`)
+          alert(
+            `Rất tiếc! Địa chỉ của bạn nằm ngoài bán kính giao hàng 25km (${distance.toFixed(2)}km).`,
+          )
           isLoading.value = false
           return
         }
@@ -464,7 +470,7 @@ export default {
           guest_address: fullAddress,
           note: note.value || '',
           total_price: finalTotal.value || 0,
-          money_reduce: discountAmount.value,
+          money_reduce: discountFoodAmount > 0 ? discountFoodAmount : discountShipAmount,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
@@ -547,18 +553,132 @@ export default {
       }
     }
     const today = dayjs().format('YYYY-MM-DD')
+    const removeDiscountCode = () => {
+      selectedDiscount.value = null
+      // reset logic giảm giá (nếu có)
+    }
+
     const discountsFiltered = computed(() => {
-  return discounts.value.filter(discount => {
-    const endDate = dayjs(discount.end_date).format('YYYY-MM-DD')
-    return discount.used < discount.usage_limit && endDate >= today
-  })
-})
+      return discounts.value.filter((discount) => {
+        const endDate = dayjs(discount.end_date).format('YYYY-MM-DD')
+        return discount.used < discount.usage_limit && endDate >= today
+      })
+    })
+    //giao hang nhanh
+    const provinces = ref([])
+    const districts = ref([])
+    const wards = ref([])
 
-    console.log(discountsFiltered.value)
+    const selectedProvince = ref('')
+    const selectedDistrict = ref('')
+    const selectedWard = ref('')
+
+    const ghnToken = 'ce7a164e-3e1c-11f0-a700-860cdd37d888'
+
+    const fetchProvinces = async () => {
+      try {
+        const res = await axios.get(
+          'https://online-gateway.ghn.vn/shiip/public-api/master-data/province',
+          {
+            headers: {
+              Token: ghnToken,
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+        provinces.value = res.data.data
+        const hcm = provinces.value.find((p) =>
+          p.ProvinceName.toLowerCase().includes('hồ chí minh'),
+        )
+        if (hcm) {
+          selectedProvince.value = hcm.ProvinceID
+          fetchDistricts()
+        }
+      } catch (error) {
+        console.error('Lỗi khi fetch provinces:', error)
+      }
+    }
+
+    const fetchDistricts = async () => {
+      shippingServices.value = []
+      selectedService.value = null
+      selectedDistrict.value = ''
+      selectedWard.value = ''
+      districts.value = []
+      wards.value = []
+
+      try {
+        const res = await axios.post(
+          'https://online-gateway.ghn.vn/shiip/public-api/master-data/district',
+          { province_id: selectedProvince.value },
+          {
+            headers: {
+              Token: ghnToken,
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+        districts.value = res.data.data
+      } catch (error) {
+        console.error('Lỗi khi fetch districts:', error)
+      }
+      watch(selectedDistrict, (newVal) => {
+        if (newVal) {
+          fetchShippingServices()
+        }
+      })
+    }
+
+    const fetchWards = async () => {
+      selectedWard.value = ''
+      wards.value = []
+
+      try {
+        const res = await axios.post(
+          'https://online-gateway.ghn.vn/shiip/public-api/master-data/ward',
+          { district_id: selectedDistrict.value },
+          {
+            headers: {
+              Token: ghnToken,
+              'Content-Type': 'application/json',
+            },
+          },
+        )
+        wards.value = res.data.data
+      } catch (error) {
+        console.error('Lỗi khi fetch wards:', error)
+      }
+    }
+    const shippingServices = ref([])
+    const selectedService = ref(null)
+
+    const fetchShippingServices = async () => {
+      if (!selectedDistrict.value) return
+      try {
+        const res = await axios.post('http://localhost:8000/api/ghn/service', {
+          to_district_id: selectedDistrict.value,
+        })
+        shippingServices.value = res.data || []
+        selectedService.value = shippingServices.value.length ? shippingServices.value[0] : null
+      } catch (err) {
+        console.error('Lỗi khi lấy dịch vụ GHN:', err)
+      }
+    }
+    const hasShippingFee = computed(() => shippingFee.value > 0)
+
     onMounted(() => {
-      getProvinces()
+      fetchProvinces()
       loadCart()
-
+    })
+    watch([selectedDistrict, selectedWard, selectedService], () => {
+      if (selectedDistrict.value && selectedWard.value && selectedService.value) {
+        shippingStore.calculateShippingFee({
+          toDistrictId: selectedDistrict.value,
+          toWardCode: selectedWard.value,
+          serviceId: selectedService.value.service_id,
+          insuranceValue: finalTotal.value || 0,
+        })
+      }
     })
 
     return {
@@ -571,19 +691,23 @@ export default {
       isLoading,
       paymentMethod,
       note,
-
       cartItems,
       totalPrice,
       finalTotal,
+
       discounts,
       discountInput,
       selectedDiscount,
+      removeDiscountCode,
       showMoreDiscounts,
       getAllDiscount,
       handleDiscountInput,
       applyDiscountCode,
-      discountAmount,
+      discountFoodAmount,
       discountInputId,
+      isLoggedIn,
+      discountsFiltered,
+      today,
 
       provinces,
       districts,
@@ -591,11 +715,14 @@ export default {
       selectedProvince,
       selectedDistrict,
       selectedWard,
-      onDistrictChange,
-      onProvinceChange,
-      isLoggedIn,
-      discountsFiltered,
-      today
+      ghnToken,
+      fetchDistricts,
+      fetchWards,
+      shippingServices,
+      selectedService,
+      shippingFee,
+      discountShipAmount,
+      hasShippingFee,
     }
   },
 }
@@ -627,5 +754,4 @@ export default {
   opacity: 0.6;
   cursor: not-allowed;
 }
-
 </style>
