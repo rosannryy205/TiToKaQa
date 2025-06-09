@@ -115,6 +115,7 @@ export default {
     const userId = userData ? JSON.parse(userData).id : null;
     // console.log('User ID:', userId);
     const orders = ref([])
+    console.log("Thông tin đơn hàng: ".orders)
     const isDesktop = ref(window.innerWidth >= 768)
 
     const handleResize = () => {

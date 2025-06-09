@@ -18,6 +18,7 @@
               <img
                 :src="avatarUrl"
                 alt="Avatar"
+                v-if="avatarUrl"
                 class="avatar-circle d-flex justify-content-center align-items-center"
               />
             </template>
@@ -69,7 +70,7 @@
               </li>
             </router-link>
 
-            <router-link to="/infor-user" class="text-decoration-none text-dark">
+            <router-link to="/order-management" class="text-decoration-none text-dark">
               <li
                 class="list-group-item d-flex justify-content-between align-items-center"
               >
@@ -255,6 +256,8 @@ export default {
       avatar_file: null,
       avatar_preview: "",
     });
+    const userData = localStorage.getItem('user');
+    const userId = userData ? JSON.parse(userData).id : null;
 
     const personally = async (userId) => {
       try {
@@ -323,7 +326,7 @@ export default {
         }
         formData.append("_method", "PATCH");
 
-        await axios.post(`http://127.0.0.1:8000/api/user/${user.value.id}`, formData, {
+        await axios.post(`http://127.0.0.1:8000/api/user/${userId}`, formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
             ...(form.value.avatar_file && {
@@ -343,12 +346,20 @@ export default {
     };
 
     const avatarUrl = computed(() => {
+      const avatar = form.value.avatar;
+
+      // Nếu đang chọn ảnh preview mới
       if (form.value.avatar_preview) return form.value.avatar_preview;
-      if (form.value.avatar?.startsWith("http")) return form.value.avatar;
-      if (form.value.avatar)
-        return `http://localhost:8000/assets/avatar/${form.value.avatar}`;
+
+      // Nếu là link Google (OAuth), dùng trực tiếp
+      if (typeof avatar === "string" && avatar.startsWith("http")) return avatar;
+
+      // Nếu là ảnh từ server Laravel (tên file)
+      if (avatar) return `http://localhost:8000/assets/avatar/${avatar}`;
+
       return null;
     });
+
 
     const getInitial = (username) => {
       if (username?.trim()) return username.trim().charAt(0).toUpperCase();
@@ -371,6 +382,7 @@ export default {
       loading,
       primaryColor,
       avatarUrl,
+      userId
     };
   },
 };

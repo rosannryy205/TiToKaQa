@@ -13,17 +13,36 @@
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
             <div class="mb-3">
-              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn" />
+              <input
+                v-model="form.fullname"
+                type="text"
+                class="form-control-customer"
+                placeholder="Tên của bạn"
+              />
             </div>
             <div class="mb-3">
-              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn" />
+              <input
+                v-model="form.email"
+                type="email"
+                class="form-control-customer"
+                placeholder="Email của bạn"
+              />
             </div>
             <div class="mb-3">
-              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại" />
+              <input
+                v-model="form.phone"
+                type="text"
+                class="form-control-customer"
+                placeholder="Số điện thoại"
+              />
             </div>
 
             <div class="mb-3">
-              <select v-model="selectedProvince" @change="onProvinceChange" class="form-control-customer">
+              <select
+                v-model="selectedProvince"
+                @change="onProvinceChange"
+                class="form-control-customer"
+              >
                 <option :value="null" disabled selected>Chọn tỉnh / thành phố</option>
                 <option v-for="province in provinces" :key="province.code" :value="province">
                   {{ province.name }}
@@ -32,7 +51,11 @@
             </div>
 
             <div class="mb-3">
-              <select v-model="selectedDistrict" @change="onDistrictChange" class="form-control-customer">
+              <select
+                v-model="selectedDistrict"
+                @change="onDistrictChange"
+                class="form-control-customer"
+              >
                 <option :value="null" disabled selected>Chọn quận / huyện</option>
                 <option v-for="district in districts" :key="district.code" :value="district">
                   {{ district.name }}
@@ -50,10 +73,20 @@
             </div>
 
             <div class="mb-3">
-              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ" />
+              <input
+                v-model="form.address"
+                type="text"
+                class="form-control-customer"
+                placeholder="Địa chỉ"
+              />
             </div>
             <div class="mb-3">
-              <textarea v-model="note" class="form-control-customer" rows="3" placeholder="Ghi chú"></textarea>
+              <textarea
+                v-model="note"
+                class="form-control-customer"
+                rows="3"
+                placeholder="Ghi chú"
+              ></textarea>
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <router-link to="/cart" class="btn btn-outline-secondary">
@@ -74,7 +107,13 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
+              <img
+                :src="getImageUrl(item.image)"
+                alt=""
+                class="me-3 rounded"
+                width="80"
+                height="80"
+              />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>Loại: {{ item.type }}</div>
@@ -120,8 +159,13 @@
             </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input v-model="discountInput" type="text" id="discount" class="form-control"
-                placeholder="Nhập mã giảm giá..." />
+              <input
+                v-model="discountInput"
+                type="text"
+                id="discount"
+                class="form-control"
+                placeholder="Nhập mã giảm giá..."
+              />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
           </div>
@@ -129,16 +173,22 @@
           <!--chon-->
           <div class="discount-scroll-wrapper" v-if="isLoggedIn">
             <div v-for="discount in discountsFiltered" :key="discount.id">
-              <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2" :class="{
-                'disabled-voucher':
-                  totalPrice < discount.min_order_value || discount.used >= discount.usage_limit,
-              }" @click="
-                totalPrice >= discount.min_order_value &&
-                discount.used < discount.usage_limit &&
-                applyDiscountCode(discount.code)
-                ">
+              <div
+                class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
+                :class="{
+                  'disabled-voucher':
+                    totalPrice < discount.min_order_value || discount.used >= discount.usage_limit,
+                }"
+                @click="
+                  totalPrice >= discount.min_order_value &&
+                  discount.used < discount.usage_limit &&
+                  applyDiscountCode(discount.code)
+                "
+              >
                 <div class="voucher-left d-flex align-items-center">
-                  <div class="voucher-logo d-flex flex-column align-items-center justify-content-center">
+                  <div
+                    class="voucher-logo d-flex flex-column align-items-center justify-content-center"
+                  >
                     <div class="logo-text">TITOKAQA</div>
                     <div class="logo-small">Mall</div>
                   </div>
@@ -154,7 +204,10 @@
                   </div>
                 </div>
                 <div class="voucher-right text-end">
-                  <div class="voucher-status" :class="{ 'text-success': selectedDiscount === discount.code }">
+                  <div
+                    class="voucher-status"
+                    :class="{ 'text-success': selectedDiscount === discount.code }"
+                  >
                     <span v-if="selectedDiscount === discount.code">Đã dùng ✅</span>
                     <span v-else>Dùng ngay</span>
                   </div>
@@ -168,24 +221,42 @@
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY"
-                v-model="paymentMethod" />
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="vnpay"
+                value="Thanh toán VNPAY"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
                 <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO"
-                v-model="paymentMethod" />
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="momo"
+                value="Thanh toán MOMO"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
                 <img src="/img/momo.png" height="20" width="20" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="cod" value="Thanh toán COD"
-                v-model="paymentMethod" />
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="cod"
+                value="Thanh toán COD"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="cod">
                 <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
                 <img src="/img/cod.png" height="30" width="30" alt="" />
@@ -202,6 +273,7 @@
 import { FoodList } from '@/stores/food'
 // import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
+import { Cart } from '@/stores/cart'
 import { onMounted, computed } from 'vue'
 import numeral from 'numeral'
 import { ref, watch } from 'vue'
@@ -220,13 +292,10 @@ export default {
     },
   },
   setup() {
-
     const restaurantLocation = {
       lat: 10.854113664188024,
-      lng: 106.6262030926953
+      lng: 106.6262030926953,
     }
-
-
 
     const router = useRouter()
     const selectedProvince = ref(null)
@@ -237,31 +306,24 @@ export default {
     const provinces = ref([])
     const districts = ref([])
     const wards = ref([])
-
-    const user1 = ref(null)
-
     const note = ref('')
     const { user, form } = User.setup()
 
     const {
-      cartKey,
-      cartItems,
       discounts,
       discountInput,
       selectedDiscount,
       discountId,
-      totalPrice,
       getAllDiscount,
       discountInputId,
       showMoreDiscounts,
       applyDiscountCode,
       handleDiscountInput,
-      finalTotal,
       discountAmount,
-      totalQuantity,
-      totalPriceItem,
-      loadCart,
+      finalTotal,
     } = Discounts()
+
+    const { cartKey, cartItems, totalQuantity, totalPriceItem, loadCart, totalPrice } = Cart()
 
     const { isLoading } = FoodList.setup()
 
@@ -277,8 +339,8 @@ export default {
           key: apiKey,
           q: address,
           pretty: 1,
-          limit: 1
-        }
+          limit: 1,
+        },
       })
       if (res.data.results.length) {
         const { lat, lng } = res.data.results[0].geometry
@@ -286,8 +348,6 @@ export default {
       }
       return null
     }
-
-
 
     const calculateRouteDistanceKm = async (startCoords, endCoords) => {
       const apiKey = '5b3ce3597851110001cf624816b34e7b81c74399985b6d444d7fca5c'
@@ -297,15 +357,15 @@ export default {
           {
             coordinates: [
               [startCoords.lng, startCoords.lat],
-              [endCoords.lng, endCoords.lat]
-            ]
+              [endCoords.lng, endCoords.lat],
+            ],
           },
           {
             headers: {
               Authorization: apiKey,
-              'Content-Type': 'application/json'
-            }
-          }
+              'Content-Type': 'application/json',
+            },
+          },
         )
 
         const distanceMeters = response.data.features[0].properties.summary.distance
@@ -337,13 +397,11 @@ export default {
           return
         }
 
-        // Nếu vượt quá 25km thì không hiển thị phí ship
         if (distance > 25) {
           shippingFee.value = 0
           return
         }
 
-        // Trong giới hạn thì tính phí ship
         shippingFee.value = distance * 1500
       } else {
         shippingFee.value = 0
@@ -351,35 +409,22 @@ export default {
     }
 
     let feeTimeout = null
-    watch(
-      [() => form.value.address, selectedProvince, selectedDistrict, selectedWard],
-      () => {
-        clearTimeout(feeTimeout)
-        feeTimeout = setTimeout(() => {
-          const isFilled =
-            form.value.address &&
-            selectedProvince.value &&
-            selectedDistrict.value &&
-            selectedWard.value
+    watch([() => form.value.address, selectedProvince, selectedDistrict, selectedWard], () => {
+      clearTimeout(feeTimeout)
+      feeTimeout = setTimeout(() => {
+        const isFilled =
+          form.value.address &&
+          selectedProvince.value &&
+          selectedDistrict.value &&
+          selectedWard.value
 
-          if (isFilled) {
-            updateShippingFee()
-          } else {
-            shippingFee.value = 0
-          }
-        },1000)
-      }
-    )
-
-
-
-
-
-
-
-
-
-
+        if (isFilled) {
+          updateShippingFee()
+        } else {
+          shippingFee.value = 0
+        }
+      }, 1000)
+    })
 
     const isLoggedIn = computed(() => !!localStorage.getItem('token'))
 
@@ -429,11 +474,13 @@ export default {
 
     const check_out = async () => {
       try {
+        await loadCart()
+
         if (!paymentMethod.value) {
           alert('Vui lòng chọn phương thức thanh toán!')
           return
         }
-        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`;
+        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`
         const userLocation = await getCoordinatesFromAddress(fullAddress)
         if (!userLocation) {
           alert('Không lấy được vị trí của địa chỉ bạn đã nhập.')
@@ -443,7 +490,9 @@ export default {
 
         const distance = await calculateRouteDistanceKm(restaurantLocation, userLocation)
         if (distance > 25) {
-          alert(`Rất tiếc! Địa chỉ của bạn nằm ngoài bán kính giao hàng 25km (${distance.toFixed(2)}km).`)
+          alert(
+            `Rất tiếc! Địa chỉ của bạn nằm ngoài bán kính giao hàng 25km (${distance.toFixed(2)}km).`,
+          )
           isLoading.value = false
           return
         }
@@ -521,7 +570,7 @@ export default {
           router.push('/payment-result')
         }
       } catch (error) {
-        console.error('Lỗi xảy ra:', error.message)
+        console.log('Lỗi xảy ra:', error)
         alert('Lỗi khi gửi đơn hàng. Vui lòng thử lại!')
       }
     }
@@ -540,19 +589,17 @@ export default {
     }
     const today = dayjs().format('YYYY-MM-DD')
     const discountsFiltered = computed(() => {
-  return discounts.value.filter(discount => {
-    const endDate = dayjs(discount.end_date).format('YYYY-MM-DD')
-    return discount.used < discount.usage_limit && endDate >= today
-  })
-})
-
-    console.log(discountsFiltered.value)
-    onMounted(() => {
-      getProvinces()
-      loadCart()
-
+      return discounts.value.filter((discount) => {
+        const endDate = dayjs(discount.end_date).format('YYYY-MM-DD')
+        return discount.used < discount.usage_limit && endDate >= today
+      })
     })
 
+    console.log(discountsFiltered.value)
+    onMounted(async () => {
+      await getProvinces()
+      await loadCart()
+    })
     return {
       user,
       totalPriceItem,
@@ -576,6 +623,7 @@ export default {
       applyDiscountCode,
       discountAmount,
       discountInputId,
+      discountId,
 
       provinces,
       districts,
@@ -588,7 +636,7 @@ export default {
       isLoggedIn,
       discountsFiltered,
       shippingFee,
-      today
+      today,
     }
   },
 }
@@ -620,5 +668,4 @@ export default {
   opacity: 0.6;
   cursor: not-allowed;
 }
-
 </style>
