@@ -13,28 +13,13 @@
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
             <div class="mb-3">
-              <input
-                v-model="form.fullname"
-                type="text"
-                class="form-control-customer"
-                placeholder="Tên của bạn"
-              />
+              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn" />
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.email"
-                type="email"
-                class="form-control-customer"
-                placeholder="Email của bạn"
-              />
+              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn" />
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.phone"
-                type="text"
-                class="form-control-customer"
-                placeholder="Số điện thoại"
-              />
+              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại" />
             </div>
             <div class="mb-3">
               <select
@@ -85,20 +70,10 @@
             </div>
 
             <div class="mb-3">
-              <input
-                v-model="form.address"
-                type="text"
-                class="form-control-customer"
-                placeholder="Địa chỉ"
-              />
+              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ" />
             </div>
             <div class="mb-3">
-              <textarea
-                v-model="note"
-                class="form-control-customer"
-                rows="3"
-                placeholder="Ghi chú"
-              ></textarea>
+              <textarea v-model="note" class="form-control-customer" rows="3" placeholder="Ghi chú"></textarea>
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <router-link to="/cart" class="btn btn-outline-secondary">
@@ -119,13 +94,7 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img
-                :src="getImageUrl(item.image)"
-                alt=""
-                class="me-3 rounded"
-                width="80"
-                height="80"
-              />
+              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>Loại: {{ item.type }}</div>
@@ -181,13 +150,8 @@
             </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input
-                v-model="discountInput"
-                type="text"
-                id="discount"
-                class="form-control"
-                placeholder="Nhập mã giảm giá..."
-              />
+              <input v-model="discountInput" type="text" id="discount" class="form-control"
+                placeholder="Nhập mã giảm giá..." />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
           </div>
@@ -278,42 +242,24 @@
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="vnpay"
-                value="Thanh toán VNPAY"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
                 <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="momo"
-                value="Thanh toán MOMO"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
                 <img src="/img/momo.png" height="20" width="20" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="cod"
-                value="Thanh toán COD"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="cod" value="Thanh toán COD"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="cod">
                 <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
                 <img src="/img/cod.png" height="30" width="30" alt="" />
@@ -330,9 +276,10 @@
 import { FoodList } from '@/stores/food'
 // import { Payment } from '@/stores/payment'
 import { Discounts } from '@/stores/discount'
-import { onMounted, computed, watch } from 'vue'
+import { Cart } from '@/stores/cart'
+import { onMounted, computed } from 'vue'
 import numeral from 'numeral'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import axios from 'axios'
 import { User } from '@/stores/user'
 import dayjs from 'dayjs'
@@ -352,7 +299,6 @@ export default {
     },
   },
   setup() {
-
     const router = useRouter()
 
     const user1 = ref(null)
@@ -361,8 +307,6 @@ export default {
     const { user, form } = User.setup()
 
     const {
-      cartKey,
-      cartItems,
       discounts,
       discountInput,
       selectedDiscount,
@@ -380,6 +324,11 @@ export default {
       loadCart,
       discountShipAmount,
     } = Discounts()
+    const {
+      cartItems,
+      cartKey,
+
+    } = Cart()
 
     const { isLoading } = FoodList.setup()
     const isLoggedIn = computed(() => !!localStorage.getItem('token'))
@@ -406,8 +355,7 @@ export default {
           guest_address: fullAddress,
           note: note.value || '',
           total_price: finalTotal.value || 0,
-          money_reduce:
-          discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
+          money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,

@@ -60,7 +60,6 @@ export const Info = {
       return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
 
-
     return {
       info,
       getInfo,

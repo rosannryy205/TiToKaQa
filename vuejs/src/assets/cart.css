@@ -606,8 +606,9 @@ input .form-control-customer:focus {
     align-items: flex-start !important;
   }
 
-  .card-body .text-center {
-    margin-left: 150px;
+  .qty-control {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
 

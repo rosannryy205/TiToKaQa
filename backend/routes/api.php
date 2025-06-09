@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdminCategoryToppingController;
 use App\Http\Controllers\AdminFoodController;
+use App\Http\Controllers\AdminToppingController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
@@ -12,22 +14,18 @@ use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
-
-Route::post('/chatbot', [ChatbotController::class, 'chat']);
-Route::get('/home', [HomeController::class, 'index']);
-
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
-use App\Models\Discount;
-use Laravel\Socialite\Contracts\Provider;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ShippingController;
 use App\Models\Combo;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
+
 // home food
 Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
+Route::get('/home', [HomeController::class, 'index']);
 
 //search
 // Route::get('/foods/search', [FoodController::class, 'search'])   ;
@@ -58,10 +56,10 @@ Route::get('/foods', [OrderController::class, 'getAllFoodsWithToppings']);
 Route::post('/reservation-update-status', [OrderController::class, 'updateStatus']);
 Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
 Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
-
+Route::get('/load-order-detail/{order_id}', [OrderController::class, 'showOrderDetail']);
+Route::put('/update-order-detail/{order_id}', [OrderController::class, 'updateOrderDetails']);
 
 Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
-Route::post('/order-for-user', [OrderController::class, 'orderFoodForUser']);
 
 //history
 Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);
@@ -77,11 +75,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // đăng ký đăng nhập quên mật khẩu
-Route::post('/register', [UserController::class, 'register']);
+Route::post('/register/send-code', [UserController::class, 'sendRegisterCode']);
+Route::post('/register/verify-code', [UserController::class, 'verifyRegisterCode']);
+
 Route::post('/login', [UserController::class, 'login']);
-Route::post('/forgot', [UserController::class, 'forgotPass']);
-Route::post('/code', [UserController::class, 'verifyResetCode']);
-Route::post('/reset-password', [UserController::class, 'ChangePassword']);
+Route::post('/forgot',[UserController::class,'forgotPass']);
+Route::post('/verify-code',[UserController::class,'verifyResetCode']);
+Route::post('/reset-password',[UserController::class,'ChangePassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
 });
@@ -98,6 +98,11 @@ Route::get('/delivery/{user_id}/{id}', [OrderController::class, 'getOrderByUser'
 Route::post('/ghn/service', [ShippingController::class, 'getGHNServices']);
 
 
+
+
+
+//getall user
+Route::resource('user', UserController::class);
 
 
 
@@ -130,6 +135,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/foods', [AdminFoodController::class, 'index']);
     Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
     Route::post('/admin/foods', [AdminFoodController::class, 'store']);
+    Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
+    Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
+    Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
+    Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
+    Route::get('/admin/catetop',[AdminCategoryToppingController::class,'getAll']);
+    Route::post('/admin/toppings',[AdminToppingController::class,'store']);
 });
 
 //admin combo

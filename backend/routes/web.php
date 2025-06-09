@@ -21,3 +21,6 @@ Route::get('/', function () {
 
 Route::get('api', [HomeController::class, 'api']);
 // Route::post('/chatbot', [ChatbotController::class, 'chat'])->middleware('csrf');
+Route::get('/calendar', function () {
+    return view('calendar');
+});

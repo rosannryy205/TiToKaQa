@@ -13,7 +13,7 @@ const client = [
       {
         path: '/search',
         name: 'client-search',
-        component: () => import('../components/ThePageFood.vue'),
+        component: () => import('../pages/client/search/index.vue'),
         meta: { title: 'Tìm kiếm món ăn' },
       },
       {
@@ -63,10 +63,21 @@ const client = [
         component: () => import('../pages/client/food/index.vue'),
       },
       {
+        path: 'food/:orderId',
+        name: 'client-food-reservation',
+        component: () => import('../pages/client/food/index.vue'),
+      },
+      {
         path: 'update-user',
         name: 'update-user',
         component: () => import('../pages/client/user/update-user.vue'),
         meta: { title: 'Cập nhật thông tin' },
+      },
+      {
+        path: 'order-management',
+        name: 'order-management',
+        component: () => import('../pages/client/user/order-management.vue'),
+        meta: { title: 'Quản lý đơn hàng' },
       },
       {
         path: 'history-order',

@@ -160,7 +160,6 @@ export default {
       return `cart_${userId}`
     }
 
-
     const loadCart = () => {
       const cartKey = getCartKey()
       const storedCart = localStorage.getItem(cartKey)
