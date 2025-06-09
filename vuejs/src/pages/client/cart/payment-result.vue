@@ -13,7 +13,7 @@
               <p class="alert alert-success mb-0" v-else>
                 Thanh toán thành công! Cảm ơn bạn đã đặt hàng.</p>
             </div>
-            <router-link to="/history-order" class="btn btn-check-out mt-2">Theo dõi đơn hàng</router-link>
+            <router-link to="/order-management" class="btn btn-check-out mt-2">Theo dõi đơn hàng</router-link>
           </div>
         </div>
       </div>

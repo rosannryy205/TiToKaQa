@@ -74,9 +74,10 @@ const client = [
         meta: { title: 'Cập nhật thông tin' },
       },
       {
-        path: 'infor-user',
-        name: 'infor-user',
-        component: () => import('../pages/client/user/infor-user.vue'),
+        path: 'order-management',
+        name: 'order-management',
+        component: () => import('../pages/client/user/order-management.vue'),
+        meta: { title: 'Quản lý đơn hàng' },
       },
       {
         path: 'history-order',
