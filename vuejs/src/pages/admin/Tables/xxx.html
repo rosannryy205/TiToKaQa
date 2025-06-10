@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Optimized Order Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    
+  </head>
+
+  <body>
+    <div class="container">
+      <nav class="tabs-container" aria-label="Order Status Tabs">
+        <ul class="tab-list" role="tablist">
+          <li class="tab-item active" data-tab-target="all" role="tab" aria-selected="true" id="tab-all">Tất cả</li>
+          <li class="tab-item" data-tab-target="pending" role="tab" aria-selected="false" id="tab-pending">Chờ xác nhận</li>
+          <li class="tab-item" data-tab-target="confirmed" role="tab" aria-selected="false" id="tab-confirmed">Đã xác nhận</li>
+          <li class="tab-item" data-tab-target="in-progress" role="tab" aria-selected="false" id="tab-in-progress">Đang xử lý</li>
+          <li class="tab-item" data-tab-target="delivering" role="tab" aria-selected="false" id="tab-delivering">Đang giao hàng</li>
+          <li class="tab-item" data-tab-target="completed" role="tab" aria-selected="false" id="tab-completed">Giao thành công</li>
+          <li class="tab-item" data-tab-target="failed" role="tab" aria-selected="false" id="tab-failed">Giao thất bại</li>
+          <li class="tab-item" data-tab-target="canceled" role="tab" aria-selected="false" id="tab-canceled">Đã hủy</li>
+        </ul>
+      </nav>
+
+      <div class="tab-content">
+        <div class="tab-pane active" id="all-content" role="tabpanel" aria-labelledby="tab-all">
+          <div class="order-cards-grid">
+            <article class="order-card-container" data-status="in-progress">
+              <header class="order-header">
+                <div class="user-info">
+                  <div class="avatar-placeholder">MC</div>
+                  <div class="name-order">
+                    <h3 class="user-name">Morgan Cox</h3>
+                    <p class="order-details-line">#916 / Takeaway</p>
+                  </div>
+                </div>
+                <div class="status-info">
+                  <div class="status-pill in-progress">
+                    <span class="icon-status">🕒</span>
+                    <span>In Progress</span>
+                  </div>
+                  <div class="kitchen-status">
+                    <span class="dot blue-dot"></span>
+                    <span>In Kitchen</span>
+                  </div>
+                </div>
+              </header>
+              <div class="date-time-info">
+                <time datetime="2023-07-12T18:19">Date: <strong>July 12, 2023</strong></time>
+                <time datetime="2023-07-12T18:19">Time: <strong>06:19 PM</strong></time>
+              </div>
+              <div class="items-section" data-max-items="2">
+                <ul class="item-list">
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">Pizza Margherita (Large)</span>
+                      <span class="item-qty">x1</span>
+                    </div>
+                    <span class="item-topping">+ Double Cheese</span>
+                    <span class="item-topping">+ Mushrooms</span>
+                    <span class="item-topping">No Olives</span>
+                  </li>
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">Coca-Cola (Regular)</span>
+                      <span class="item-qty">x2</span>
+                    </div>
+                  </li>
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">Garlic Bread</span>
+                      <span class="item-qty">x1</span>
+                    </div>
+                  </li>
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">Chocolate Lava Cake</span>
+                      <span class="item-qty">x1</span>
+                    </div>
+                    <span class="item-topping">Add extra vanilla ice cream</span>
+                  </li>
+                </ul>
+                <button class="more-items" type="button" style="display: none"></button>
+              </div>
+              <div class="status-update-section">
+                <label for="status-916" class="sr-only">Update status for Order #916</label>
+                <select id="status-916" class="status-dropdown">
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="in-progress" selected>In Progress</option>
+                  <option value="delivering">Delivering</option>
+                  <option value="completed">Completed</option>
+                  <option value="canceled">Canceled</option>
+                </select>
+              </div>
+              <div class="total-section">
+                <div class="total-label">Total</div>
+                <div class="total-amount">$86.96</div>
+              </div>
+              <div class="buttons-section">
+                <button class="btn btn-details">See Details</button>
+                <button class="btn btn-pay">Pay Bills</button>
+              </div>
+            </article>
+
+            <article class="order-card-container" data-status="completed">
+              <header class="order-header">
+                <div class="user-info">
+                  <div class="avatar-placeholder">JD</div>
+                  <div class="name-order">
+                    <h3 class="user-name">John Doe</h3>
+                    <p class="order-details-line">#917 / Delivery</p>
+                  </div>
+                </div>
+                <div class="status-info">
+                  <div class="status-pill completed">
+                    <span class="icon-status">✅</span>
+                    <span>Completed</span>
+                  </div>
+                  <div class="kitchen-status">
+                    <span class="dot green-dot"></span>
+                    <span>Delivered</span>
+                  </div>
+                </div>
+              </header>
+              <div class="date-time-info">
+                <time datetime="2023-07-11T16:30">Date: <strong>July 11, 2023</strong></time>
+                <time datetime="2023-07-11T16:30">Time: <strong>04:30 PM</strong></time>
+              </div>
+              <div class="items-section" data-max-items="2">
+                <ul class="item-list">
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">Chicken Burger (Large)</span>
+                      <span class="item-qty">x1</span>
+                    </div>
+                  </li>
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">French Fries</span>
+                      <span class="item-qty">x1</span>
+                    </div>
+                    <span class="item-topping">Extra crispy</span>
+                  </li>
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">Iced Tea</span>
+                      <span class="item-qty">x1</span>
+                    </div>
+                  </li>
+                </ul>
+                <button class="more-items" type="button" style="display: none"></button>
+              </div>
+              <div class="status-update-section">
+                <label for="status-917" class="sr-only">Update status for Order #917</label>
+                <select id="status-917" class="status-dropdown">
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="delivering">Delivering</option>
+                  <option value="completed" selected>Completed</option>
+                  <option value="canceled">Canceled</option>
+                </select>
+              </div>
+              <div class="total-section">
+                <div class="total-label">Total</div>
+                <div class="total-amount">$16.50</div>
+              </div>
+              <div class="buttons-section">
+                <button class="btn btn-details">See Details</button>
+                <button class="btn btn-pay">Pay Bills</button>
+              </div>
+            </article>
+
+            <article class="order-card-container" data-status="pending">
+              <header class="order-header">
+                <div class="user-info">
+                  <div class="avatar-placeholder">JS</div>
+                  <div class="name-order">
+                    <h3 class="user-name">Jane Smith</h3>
+                    <p class="order-details-line">#918 / Dine-in / Table 5</p>
+                  </div>
+                </div>
+                <div class="status-info">
+                  <div class="status-pill pending">
+                    <span class="icon-status">⏳</span>
+                    <span>Pending</span>
+                  </div>
+                  <div class="kitchen-status">
+                    <span class="dot orange-dot"></span>
+                    <span>Awaiting confirmation</span>
+                  </div>
+                </div>
+              </header>
+              <div class="date-time-info">
+                <time datetime="2023-07-12T19:00">Date: <strong>July 12, 2023</strong></time>
+                <time datetime="2023-07-12T19:00">Time: <strong>07:00 PM</strong></time>
+              </div>
+              <div class="items-section" data-max-items="2">
+                <ul class="item-list">
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">Espresso Macchiato</span>
+                      <span class="item-qty">x1</span>
+                    </div>
+                    <span class="item-topping">No sugar</span>
+                    <span class="item-topping">Extra foam</span>
+                  </li>
+                </ul>
+                <button class="more-items" type="button" style="display: none"></button>
+              </div>
+              <div class="status-update-section">
+                <label for="status-918" class="sr-only">Update status for Order #918</label>
+                <select id="status-918" class="status-dropdown">
+                  <option value="pending" selected>Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="delivering">Delivering</option>
+                  <option value="completed">Completed</option>
+                  <option value="canceled">Canceled</option>
+                </select>
+              </div>
+              <div class="total-section">
+                <div class="total-label">Total</div>
+                <div class="total-amount">$18.00</div>
+              </div>
+              <div class="buttons-section">
+                <button class="btn btn-details">See Details</button>
+                <button class="btn btn-pay">Pay Bills</button>
+              </div>
+            </article>
+
+            <article class="order-card-container" data-status="delivering">
+              <header class="order-header">
+                <div class="user-info">
+                  <div class="avatar-placeholder">AW</div>
+                  <div class="name-order">
+                    <h3 class="user-name">Alice Williams</h3>
+                    <p class="order-details-line">#919 / Delivery</p>
+                  </div>
+                </div>
+                <div class="status-info">
+                  <div class="status-pill delivering">
+                    <span class="icon-status">🚚</span>
+                    <span>Delivering</span>
+                  </div>
+                  <div class="kitchen-status">
+                    <span class="dot green-dot"></span>
+                    <span>Out for Delivery</span>
+                  </div>
+                </div>
+              </header>
+              <div class="date-time-info">
+                <time datetime="2023-07-12T19:30">Date: <strong>July 12, 2023</strong></time>
+                <time datetime="2023-07-12T19:30">Time: <strong>07:30 PM</strong></time>
+              </div>
+              <div class="items-section" data-max-items="2">
+                <ul class="item-list">
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">Sushi Set Deluxe</span>
+                      <span class="item-qty">x1</span>
+                    </div>
+                  </li>
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">Miso Soup</span>
+                      <span class="item-qty">x2</span>
+                    </div>
+                  </li>
+                  <li class="item-entry">
+                    <div class="item-main-line">
+                      <span class="item-name">Green Tea</span>
+                      <span class="item-qty">x2</span>
+                    </div>
+                  </li>
+                </ul>
+                <button class="more-items" type="button" style="display: none"></button>
+              </div>
+              <div class="status-update-section">
+                <label for="status-919" class="sr-only">Update status for Order #919</label>
+                <select id="status-919" class="status-dropdown">
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="delivering" selected>Delivering</option>
+                  <option value="completed">Completed</option>
+                  <option value="canceled">Canceled</option>
+                </select>
+              </div>
+              <div class="total-section">
+                <div class="total-label">Total</div>
+                <div class="total-amount">$55.00</div>
+              </div>
+              <div class="buttons-section">
+                <button class="btn btn-details">See Details</button>
+                <button class="btn btn-pay">Pay Bills</button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="pending-content" role="tabpanel" aria-labelledby="tab-pending"></div>
+        <div class="tab-pane" id="confirmed-content" role="tabpanel" aria-labelledby="tab-confirmed"></div>
+        <div class="tab-pane" id="in-progress-content" role="tabpanel" aria-labelledby="tab-in-progress"></div>
+        <div class="tab-pane" id="delivering-content" role="tabpanel" aria-labelledby="tab-delivering"></div>
+        <div class="tab-pane" id="completed-content" role="tabpanel" aria-labelledby="tab-completed"></div>
+        <div class="tab-pane" id="failed-content" role="tabpanel" aria-labelledby="tab-failed"></div>
+        <div class="tab-pane" id="canceled-content" role="tabpanel" aria-labelledby="tab-canceled"></div>
+      </div>
+    </div>
+
+    
+  </body>
+</html>

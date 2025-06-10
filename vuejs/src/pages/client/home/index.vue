@@ -443,53 +443,64 @@ export default {
       const userId = user?.id || 'guest'
       const cartKey = `cart_${userId}`
 
-      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
 
-      const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')
-      ).map((el) => parseInt(el.value))
+        const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+        const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
 
-      const selectedToppings = toppingList.value
-        .filter((topping) => selectedToppingId.includes(topping.id))
-        .map((topping) => ({
-          id: topping.id,
-          name: topping.name,
-          price: topping.price,
-          food_toppings_id: topping.pivot?.id || null
-        }))
+        let allSelectedToppings = [];
 
-      const cartItem = {
-        id: foodDetail.value.id,
-        name: foodDetail.value.name,
-        image: foodDetail.value.image,
-        price: foodDetail.value.price,
-        spicyLevel: selectedSpicyName,
-        toppings: selectedToppings,
-        quantity: quantity.value,
-        type: foodDetail.value.type,
-      }
+        if (selectedSpicy) {
+            allSelectedToppings.push({
+                id: selectedSpicy.id,
+                name: selectedSpicy.name,
+                price: selectedSpicy.price,
+                food_toppings_id: selectedSpicy.pivot?.id || null,
+                is_spicy_level: true
+            });
+        }
 
-      let cart = JSON.parse(localStorage.getItem(cartKey)) || []
+        const selectedToppingIds = Array.from(
+            document.querySelectorAll('input[name="topping[]"]:checked')
+        ).map((el) => parseInt(el.value));
 
-      const existingItem = cart.findIndex(
-        (item) =>
-          item.id === cartItem.id &&
-          item.spicyLevel === cartItem.spicyLevel &&
-          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort())
-      )
+        const normalToppings = toppingList.value
+            .filter((topping) => selectedToppingIds.includes(topping.id))
+            .map((topping) => ({
+                id: topping.id,
+                name: topping.name,
+                price: topping.price,
+                food_toppings_id: topping.pivot?.id || null,
+                is_spicy_level: false
+            }));
 
-      if (existingItem !== -1) {
-        cart[existingItem].quantity += 1
-      } else {
-        cart.push(cartItem)
-      }
+        allSelectedToppings = [...allSelectedToppings, ...normalToppings];
 
-      localStorage.setItem(cartKey, JSON.stringify(cart))
+        const cartItem = {
+            id: foodDetail.value.id,
+            name: foodDetail.value.name,
+            image: foodDetail.value.image,
+            price: foodDetail.value.price,
+            toppings: allSelectedToppings,
+            quantity: quantity.value,
+            type: foodDetail.value.type,
+        };
+
+        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        const existingItemIndex = cart.findIndex(
+            (item) =>
+                item.id === cartItem.id &&
+                JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
+        );
+
+        if (existingItemIndex !== -1) {
+            cart[existingItemIndex].quantity += 1;
+        } else {
+            cart.push(cartItem);
+        }
+
+        localStorage.setItem(cartKey, JSON.stringify(cart));
       toast.success('🛍️ Đã thêm vào giỏ hàng!')
-
-    }
+    };
     const increaseQuantity = () => {
       quantity.value += 1
     }
