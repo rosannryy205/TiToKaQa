@@ -92,7 +92,7 @@ const client = [
         meta: { title: 'Chi tiết đơn hàng' },
       },
       {
-        path: '/delivery/:id',
+        path: 'delivery/:id',
         name: 'delivery',
         component: () => import('../pages/client/user/delivery.vue'),
         meta: { title: 'Theo dõi đơn hàng' },

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\VerifyCodeMail;
-
+use Svg\Tag\Rect;
 
 class UserController extends Controller
 {
@@ -418,6 +418,25 @@ class UserController extends Controller
             'message' => 'Đã cập nhật user thành công!',
             'user' => $user
         ], 200);
+    }
+
+    public function updateStatus(Request $request, $id){
+        $user = User::find($id);
+
+        if(!$user){
+            return response() -> json([
+                'mess' => "User not found"
+            ],404);
+        }
+
+        $user -> status = $request -> status ;
+
+        $user -> save();
+
+        return response() -> json([
+            'mess' => 'Complete',
+            'user' => $user
+        ]);
     }
 
     /**
