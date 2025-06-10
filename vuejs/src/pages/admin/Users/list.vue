@@ -7,12 +7,12 @@
     </button>
     <span class="vd">Tìm kiếm</span>
     <input type="text" class="form-control rounded" style="max-width: 200px" placeholder="Tìm kiếm" />
-    <span class="vd">Lọc</span>
-    <select class="form-select w-auto rounded" style="max-width: 250px">
-      <option selected>Lọc theo vai trò</option>
-      <option>Admin</option>
-      <option>Nhân viên</option>
-      <option>Khách hàng</option>
+    <span class="vd">Lọc theo vai trò</span>
+    <select class="form-select w-auto rounded" style="max-width: 250px" v-model="selectRole">
+      <option value="">Tất cả</option>
+      <option value="admin">Admin</option>
+      <option value="staff">Nhân viên</option>
+      <option value="user">Khách hàng</option>
     </select>
 
     <span class="vd">Hiển thị</span>
@@ -39,7 +39,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in allUser" :key="user.id">
+        <tr v-for="user in fillterUsers" :key="user.id">
           <td>{{ user.id }}</td>
           <td>{{ user.username }}</td>
           <td>{{ user.fullname }}</td>
@@ -57,7 +57,8 @@
             {{ user.status }}
           </td>
           <td class="d-flex justify-content-center gap-2">
-            <button @click="toggleStatus(user)" v-if="user.status==='Active'" class="btn btn-danger-delete">Khoá</button>
+            <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
+              class="btn btn-danger-delete">Khoá</button>
             <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở Khóa</button>
           </td>
         </tr>
@@ -75,18 +76,19 @@
           1
         </div>
         <div class="col-9">
-          <div class="card-body" v-for="user in allUser" :key="user.id">
+          <div class="card-body" v-for="user in fillterUsers" :key="user.id">
             <h5 class="card-title">{{ user.fullname }}</h5>
             <p class="card-text"><strong>SĐT:</strong>{{ user.phone }}</p>
             <p class="card-text"><strong>Email:</strong>{{ user.email }}</p>
             <p class="card-text"><strong>Vai trò: </strong>
               <select class="form-select w-auto">
-                <option :selected="user.role==='admin'">Admin</option>
-                <option :selected="user.role==='staff'">Nhân viên</option>
-                <option :selected="user.role==='user'">Khách hàng</option>
+                <option :selected="user.role === 'admin'">Admin</option>
+                <option :selected="user.role === 'staff'">Nhân viên</option>
+                <option :selected="user.role === 'user'">Khách hàng</option>
               </select>
             </p>
-            <button @click="toggleStatus(user)" v-if="user.status==='Active'" class="btn btn-danger-delete">Khoá</button>
+            <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
+              class="btn btn-danger-delete">Khoá</button>
             <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở Khóa</button>
           </div>
         </div>
@@ -101,10 +103,12 @@
 import { useMenu } from '@/stores/use-menu'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
+import { computed } from 'vue'
 
 useMenu().onSelectedKeys(['admin-roles'])
 
 const allUser = ref([])
+const selectRole = ref('')
 
 const fecthAllUser = async () => {
   try {
@@ -128,6 +132,11 @@ const toggleStatus = async (user) => {
   }
 }
 
+const fillterUsers = computed(()=>{
+  if(!selectRole.value) return allUser.value
+  return allUser.value.filter(user => user.role === selectRole.value)
+})
+
 onMounted(() => {
   fecthAllUser()
 })
@@ -138,14 +147,17 @@ onMounted(() => {
 .delete_mobile {
   display: none;
 }
-.btn-danger-delete{
+
+.btn-danger-delete {
   background-color: #C92C3C;
   color: white;
 }
-.btn-danger-delete:hover{
+
+.btn-danger-delete:hover {
   background-color: #a51928;
   color: white;
 }
+
 @media (max-width: 768px) {
   .table-responsive {
     display: none;
@@ -158,6 +170,7 @@ onMounted(() => {
   .delete_desktop {
     display: none;
   }
+
   .delete_mobile {
     display: block;
   }
