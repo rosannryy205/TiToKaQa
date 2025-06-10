@@ -165,7 +165,7 @@
         </div>
         <div class="popup-actions">
           <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
-          <button class="delete-button">Chuyển bàn</button>
+          <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
         </div>
       </div>
     </div>
