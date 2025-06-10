@@ -217,7 +217,7 @@ const menuItems = [
       {
         key: '/admin/tables',
         to: '/admin/tables',
-        label: 'Sơ đồ bàn',
+        label: 'Danh sách bàn',
         icon: AppstoreOutlined,
       },
       {

@@ -199,9 +199,7 @@
                     <div class="fw-semibold">{{ item.name }}</div>
 
                     <div class="d-flex justify-content-between">
-                      <div class="text-muted small">
-                        {{ item.spicyLevelName || 'Không cay' }}
-                      </div>
+
                       <i
                         class="bi bi-x-circle me-3 mb-2"
                         style="cursor: pointer"
@@ -227,7 +225,7 @@
                       type="button"
                       class="btn border-0 fw-bold bg-white"
                       style="background-color: transparent"
-                      @click="decreaseQuantity2(index)"
+                      @click="decreaseQuantity1(index)"
                     >
                       −
                     </button>
@@ -236,7 +234,7 @@
                       type="button"
                       class="btn border-0 fw-bold bg-white"
                       style="background-color: transparent"
-                      @click="increaseQuantity1(index)"
+                      @click="increaseQuantity2(index)"
                     >
                       +
                     </button>
@@ -408,25 +406,38 @@ export default {
     }
 
     const handleAddToCartClick = () => {
-      // Lấy dữ liệu cần thiết từ FoodList store (foodDetail, quantity, v.v.)
       const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
       const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
 
-      const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked'),
-      ).map((el) => parseInt(el.value))
+      let allSelectedToppings = [];
 
-      const selectedToppings = toppingList.value
-        .filter((topping) => selectedToppingId.includes(topping.id))
-        .map((topping) => ({
-          id: topping.id,
-          name: topping.name,
-          price: topping.price,
-          food_toppings_id: topping.pivot?.id || null,
-        }))
+        if (selectedSpicy) {
+            allSelectedToppings.push({
+                id: selectedSpicy.id,
+                name: selectedSpicy.name,
+                price: selectedSpicy.price,
+                food_toppings_id: selectedSpicy.pivot?.id || null,
+                is_spicy_level: true
+            });
+        }
 
-      addToCart(foodDetail.value, quantity.value, selectedSpicyName, selectedToppings)
+      const selectedToppingIds = Array.from(
+            document.querySelectorAll('input[name="topping[]"]:checked')
+        ).map((el) => parseInt(el.value));
+
+        const normalToppings = toppingList.value
+            .filter((topping) => selectedToppingIds.includes(topping.id))
+            .map((topping) => ({
+                id: topping.id,
+                name: topping.name,
+                price: topping.price,
+                food_toppings_id: topping.pivot?.id || null,
+                is_spicy_level: false
+            }));
+
+        allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+
+      addToCart(foodDetail.value, quantity.value, allSelectedToppings)
     }
 
     // hàm load món đã đặt trước từ đơn hàng

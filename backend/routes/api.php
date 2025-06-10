@@ -47,6 +47,7 @@ Route::post('/choose-table', [OrderController::class, 'chooseTable']);
 //reservation - tables - admin
 Route::get('/tables', [OrderController::class, 'getTables']);
 Route::get('/order-tables', [OrderController::class, 'getOrderOfTable']);
+Route::get('/order-current-tables', [OrderController::class, 'getCurrentOrder']);
 Route::put('/change-table', [OrderController::class, 'changeTable']);
 Route::post('/set-up/order-tables', [OrderController::class, 'setUpTable']);
 Route::post('/available-tables', [OrderController::class, 'getAvailableTables']);

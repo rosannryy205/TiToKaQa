@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Sơ đồ bàn</h2>
+    <h2>Danh sách bàn</h2>
     <div style="display: flex; align-items: center; gap: 18px; padding-top: 10px">
       <!-- Tabs -->
       <div class="">
