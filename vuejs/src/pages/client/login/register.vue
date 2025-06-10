@@ -38,7 +38,26 @@
           <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
           Đăng ký
         </button>
+
+
       </form>
+      <!-- Tách phần đăng nhập mạng xã hội ra khỏi form -->
+      <div v-if="step === 1" class="mt-4">
+        <div class="divider mb-3"><span class="text-muted">HOẶC</span></div>
+        <button type="button" class="btn btn-outline-dark w-100 mb-2" @click="loginWithGoogle">
+          <i class="fab fa-google me-2"></i> Đăng nhập với Google
+        </button>
+        <button type="button" class="btn btn-outline-primary w-100" >
+          <i class="fab fa-facebook-f me-2"></i> Đăng nhập với Facebook
+        </button>
+        <p class="mt-4 text-muted" style="font-size: 0.9rem;">
+          Bằng cách tiếp tục, bạn đồng ý với chúng tôi
+          <a href="#" class="text-decoration-none">Điều khoản dịch vụ của nền tảng</a> và
+          <a href="#" class="text-decoration-none">Chính sách bảo mật</a>.
+        </p>
+        <p class="mt-4 text-muted p" style="font-size: 0.9rem;"></p>
+      </div>
+
 
       <!-- Bước 2: Nhập mã xác minh 6 ô input -->
       <form v-else @submit.prevent="handleVerifyCode">
@@ -56,6 +75,7 @@
           Xác minh mã
         </button>
       </form>
+
     </div>
   </div>
 </template>
@@ -67,6 +87,11 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userAuth';
 
 const router = useRouter()
+
+// đăng ký bằng google
+const loginWithGoogle = () => {
+  window.location.href = 'http://127.0.0.1:8000/api/auth/google/redirect';
+};
 
 // Bước form
 const step = ref(1)
@@ -218,7 +243,7 @@ const handleVerifyCode = async () => {
 }
 
 .btn-black {
-  background-color:#d41d1d;
+  background-color: #d41d1d;
   border-color: #000;
   color: #fff;
 }
@@ -281,6 +306,7 @@ h2 {
   background-color: #f8d7da;
   border: 1px solid #f5c6cb;
 }
+
 .code-inputs input {
   font-size: 1.5rem;
   padding: 0.5rem;

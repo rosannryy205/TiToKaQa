@@ -182,7 +182,7 @@ export default {
       "Tất cả đơn",
       "Chờ thanh toán",
       "Đang xử lý",
-      "Đang vận chuyển",
+      "Đang giao hàng",
       "Đã giao",
       "Đã hủy",
     ];

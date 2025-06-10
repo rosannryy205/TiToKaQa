@@ -700,29 +700,24 @@ table td {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-/* ===== Logo ===== */
+/* ===== Voucher logo icon ===== */
 .voucher-logo {
   width: 50px;
   height: 50px;
-  background-color: #d70018;
-  color: #fff;
   border-radius: 6px;
-  font-weight: bold;
-  font-size: 20px;
   display: flex;
-  flex-direction: column;
-  text-align: center;
   justify-content: center;
   align-items: center;
+  background-color: transparent; /* Không cần màu nền nếu có ảnh */
 }
 
-.logo-text,
-.logo-small {
-  font-size: 10px;
-  line-height: 1;
+.voucher-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-/* ===== Info ===== */
+/* ===== Voucher info ===== */
 .voucher-info {
   font-size: 13px;
 }
@@ -741,12 +736,13 @@ table td {
 /* ===== Status & Tag ===== */
 .voucher-status {
   background-color: #fff;
-  border: 1px solid #ff424f;
   border-radius: 4px;
   padding: 4px 8px;
   font-size: 12px;
   color: #ff424f;
   margin-bottom: 6px;
+  border: 1px solid #ff424f;
+  white-space: nowrap;
 }
 
 .voucher-tag {
@@ -762,6 +758,32 @@ table td {
   transform: rotate(15deg);
 }
 
+/* ===== Freeship style ===== */
+.freeship-voucher {
+  border: 2px solid #28a745 !important;
+  background-color: #e6f5ec !important;
+}
+
+.freeship-text {
+  color: #28a745 !important;
+  font-weight: 600;
+}
+
+.freeship-tag {
+  background-color: #28a745 !important;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Thêm border cho voucher-status nếu freeship */
+.voucher-status.freeship-border {
+  border: 1px solid #28a745;
+  color: #28a745;
+}
+
 /* ===== Disabled voucher ===== */
 .disabled-voucher {
   opacity: 0.5;
@@ -775,12 +797,11 @@ table td {
   .voucher-logo {
     width: 45px;
     height: 45px;
-    font-size: 16px;
   }
 
-  .logo-text,
-  .logo-small {
-    font-size: 9px;
+  .voucher-icon {
+    width: 100%;
+    height: 100%;
   }
 
   .voucher-info {
@@ -811,12 +832,11 @@ table td {
   .voucher-logo {
     width: 40px;
     height: 40px;
-    font-size: 14px;
   }
 
-  .logo-text,
-  .logo-small {
-    font-size: 8px;
+  .voucher-icon {
+    width: 100%;
+    height: 100%;
   }
 
   .voucher-info {
@@ -841,4 +861,56 @@ table td {
     font-size: 8px;
     padding: 1px 3px;
   }
+}
+
+/* ===== Giới hạn số dòng và đảm bảo chiều cao đều nhau ===== */
+.voucher-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.voucher-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 1; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.voucher-time {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.shopee-voucher {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+}
+.voucher-logo {
+  min-width: 50px;
+  min-height: 50px;
+}
+
+.voucher-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.remove-discount-text {
+  color: #c92c3c;
+  font-weight: bold;
+}
+#app > div > div.container-sm.py-4 > div > div.col-md-5 > div > div.d-flex.justify-content-between.mb-2.text-success{
+  border: none !important;
+}
+#app > div > div.container-sm.py-4 > div > div.col-md-5 > div > div.d-flex.justify-content-between.mb-2.text-success > span{
+  color: #0f0e0ea3 !important;
 }

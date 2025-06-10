@@ -7,12 +7,12 @@
     </button>
     <span class="vd">Tìm kiếm</span>
     <input type="text" class="form-control rounded" style="max-width: 200px" placeholder="Tìm kiếm" />
-    <span class="vd">Lọc</span>
-    <select class="form-select w-auto rounded" style="max-width: 250px">
-      <option selected>Lọc theo vai trò</option>
-      <option>Admin</option>
-      <option>Nhân viên</option>
-      <option>Khách hàng</option>
+    <span class="vd">Lọc theo vai trò</span>
+    <select class="form-select w-auto rounded" style="max-width: 250px" v-model="selectRole">
+      <option value="">Tất cả</option>
+      <option value="admin">Admin</option>
+      <option value="staff">Nhân viên</option>
+      <option value="user">Khách hàng</option>
     </select>
 
     <span class="vd">Hiển thị</span>
@@ -27,35 +27,39 @@
     <table class="table table-bordered">
       <thead class="table-light">
         <tr>
-          <th><input type="checkbox" /></th>
+          <th>Mã KH</th>
           <th>Username</th>
           <th>Họ và tên</th>
           <th>Số điện thoại</th>
           <th>Email</th>
           <th>Địa chỉ</th>
           <th>Vai trò</th>
+          <th>Trạng thái</th>
           <th>Tuỳ chọn</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td><input type="checkbox" /></td>
-          <td>nguyenvanA</td>
-          <td>Nguyễn Văn A</td>
-          <td>0901234567</td>
-          <td>nguyenvana@gmail.com</td>
-          <td>Hồ Chí Minh</td>
+        <tr v-for="user in fillterUsers" :key="user.id">
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.fullname }}</td>
+          <td>{{ user.phone }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.address }}</td>
           <td>
             <select class="form-select">
-              <option>Admin</option>
-              <option selected>Nhân viên</option>
-              <option>Khách hàng</option>
+              <option :selected="user.role === 'admin'">Admin</option>
+              <option :selected="user.role === 'staff'">Nhân viên</option>
+              <option :selected="user.role === 'user'">Khách hàng</option>
             </select>
           </td>
+          <td>
+            {{ user.status }}
+          </td>
           <td class="d-flex justify-content-center gap-2">
-            <button type="button" class="btn btn-primary">Sửa</button>
-            <button class="btn btn-danger-delete">Xoá</button>
-            <button class="btn btn-warning">Khoá</button>
+            <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
+              class="btn btn-danger-delete">Khoá</button>
+            <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở Khóa</button>
           </td>
         </tr>
       </tbody>
@@ -72,21 +76,20 @@
           1
         </div>
         <div class="col-9">
-          <div class="card-body">
-            <h5 class="card-title">Nguyễn Văn A</h5>
-            <p class="card-text"><strong>SĐT:</strong> 0901234567</p>
-            <p class="card-text"><strong>Email:</strong> nguyenvana@gmail.com</p>
-            <p class="card-text"><strong>Vai trò:</strong>
+          <div class="card-body" v-for="user in fillterUsers" :key="user.id">
+            <h5 class="card-title">{{ user.fullname }}</h5>
+            <p class="card-text"><strong>SĐT:</strong>{{ user.phone }}</p>
+            <p class="card-text"><strong>Email:</strong>{{ user.email }}</p>
+            <p class="card-text"><strong>Vai trò: </strong>
               <select class="form-select w-auto">
-                <option>Admin</option>
-                <option selected>Nhân viên</option>
-                <option>Khách hàng</option>
+                <option :selected="user.role === 'admin'">Admin</option>
+                <option :selected="user.role === 'staff'">Nhân viên</option>
+                <option :selected="user.role === 'user'">Khách hàng</option>
               </select>
             </p>
-            <button class="btn btn-primary btn-sm">Sửa</button>
-            <button class="btn btn-danger-delete btn-sm">Xoá</button>
-            <button class="btn btn-warning">Khoá</button>
-
+            <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
+              class="btn btn-danger-delete">Khoá</button>
+            <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở Khóa</button>
           </div>
         </div>
       </div>
@@ -96,27 +99,65 @@
   <button class="btn btn-danger-delete delete_mobile">Xoá</button>
 </template>
 
-<script>
+<script setup>
 import { useMenu } from '@/stores/use-menu'
-export default {
-  setup() {
-    useMenu().onSelectedKeys(['admin-roles'])
-  },
+import { onMounted, ref } from 'vue'
+import axios from 'axios'
+import { computed } from 'vue'
+
+useMenu().onSelectedKeys(['admin-roles'])
+
+const allUser = ref([])
+const selectRole = ref('')
+
+const fecthAllUser = async () => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/api/user`)
+    allUser.value = response.data
+  } catch (error) {
+    console.log('Lỗi kìa mày', error)
+  }
 }
+
+const toggleStatus = async (user) => {
+  const newStatus = user.status === 'Active' ? 'Block' : 'Active'
+  try {
+    await axios.put(`http://127.0.0.1:8000/api/update/${user.id}`, {
+      status: newStatus,
+    })
+    user.status = newStatus
+  } catch (error) {
+    console.log('Error:', error)
+    alert('Không thể cập nhật người dùng')
+  }
+}
+
+const fillterUsers = computed(()=>{
+  if(!selectRole.value) return allUser.value
+  return allUser.value.filter(user => user.role === selectRole.value)
+})
+
+onMounted(() => {
+  fecthAllUser()
+})
 </script>
+
 
 <style scoped>
 .delete_mobile {
   display: none;
 }
-.btn-danger-delete{
+
+.btn-danger-delete {
   background-color: #C92C3C;
   color: white;
 }
-.btn-danger-delete:hover{
+
+.btn-danger-delete:hover {
   background-color: #a51928;
   color: white;
 }
+
 @media (max-width: 768px) {
   .table-responsive {
     display: none;
@@ -129,6 +170,7 @@ export default {
   .delete_desktop {
     display: none;
   }
+
   .delete_mobile {
     display: block;
   }

@@ -984,10 +984,9 @@ class OrderController extends Controller
     }
 
 
-    public function getOrderByUser($user_id, $id)
+    public function getOrderByUser($id)
     {
         $order = DB::table('orders')
-            ->where('user_id', $user_id)
             ->where('id', $id)
             ->first();
 

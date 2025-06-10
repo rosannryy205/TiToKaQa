@@ -1,10 +1,15 @@
 <template>
+  <div v-if="isLoading" class="isLoading-overlay">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">isLoading...</span>
+    </div>
+  </div>
   <div class="container-sm fade-in container-delivery pt-20">
     <div class="p-4">
       <h2 class="text-2xl font-bold mb-4 text-gray-800">🛵 Theo dõi đơn hàng</h2>
       <div id="deliveryMap" class="relative rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-        <div id="distanceBox"
-          class="absolute top-4 left-4 w-[100px] h-[100px] bg-white rounded-lg shadow-md flex items-center justify-center text-gray-800 text-base font-semibold z-[500] hidden">
+        <div id="distanceBox" v-show="showDistanceBox"
+          class="absolute top-4 left-4 w-[100px] h-[100px] bg-white rounded-lg shadow-md flex items-center justify-center text-gray-800 text-base font-semibold z-[500]">
           0 km
         </div>
       </div>
@@ -14,20 +19,23 @@
 <script setup>
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-const user = JSON.parse(localStorage.getItem('user'))
-const user_id = user?.id
-console.log('User ID:', user_id)
+const isLoading = ref(false)
+const route = useRoute()
+const order_id = route.params.id
 
-const order_id = parseInt(localStorage.getItem('order_id'))
-console.log('Order ID:', order_id)
+const showDistanceBox = ref(false)
+
 
 const restaurant = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 const customer = ref({})
-const shipper = ref({})
+const shipper = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 
+
+//Api Heigit
 async function getRoutePolyline(start, end) {
   const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
     method: 'POST',
@@ -55,27 +63,33 @@ async function getRoutePolyline(start, end) {
   return { coords, distance }
 }
 
+
+//Api LocationIQ
 const getCoordinatesFromAddress = async (address) => {
-  const apiKey = 'a642902bd23e49d3847cbfed7d30d5ed'
-  const res = await axios.get(`https://api.opencagedata.com/geocode/v1/json`, {
+  const apiKey = 'pk.a3a8213154230324b5a5b37fd3e5f48a'
+  const res = await axios.get('https://us1.locationiq.com/v1/search.php', {
     params: {
       key: apiKey,
       q: address,
-      pretty: 1,
+      format: 'json',
       limit: 1
     }
   })
-  if (res.data.results.length) {
-    const { lat, lng } = res.data.results[0].geometry
-    return { lat, lng }
+
+  if (res.data.length > 0) {
+    const { lat, lon } = res.data[0]
+    return { lat: parseFloat(lat), lng: parseFloat(lon) }
   }
+
   return null
 }
 
+
 onMounted(async () => {
+  isLoading.value = true
   try {
     //Gọi API lấy thông tin đơn hàng
-    const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${user_id}/${order_id}`)
+    const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${order_id}`)
     const order = res.data
 
     console.log(order)
@@ -137,7 +151,7 @@ onMounted(async () => {
       const distanceBox = document.getElementById('distanceBox')
       if (distanceBox) {
         distanceBox.textContent = `${distanceInKm} km`
-        distanceBox.classList.remove('hidden')
+        showDistanceBox.value = true
       }
     }
 
@@ -162,14 +176,10 @@ onMounted(async () => {
     }, 300)
   } catch (error) {
     console.log('Lỗi rồi kìa mày')
+  } finally {
+    isLoading.value = false
   }
-
-
-
-
-
-
-})
+});
 </script>
 
 <style scoped>
@@ -212,5 +222,18 @@ onMounted(async () => {
   left: 16px;
   z-index: 500;
   pointer-events: none;
+}
+
+.isLoading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(148, 142, 142, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

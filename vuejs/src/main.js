@@ -25,8 +25,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'vue3-toastify/dist/index.css';
 import 'sweetalert2/dist/sweetalert2.min.css'
-import './assets/style.css'; // Import CSS toàn cục
-import './assets/cart.css'; // Import CSS toàn cục
+
+import './assets/style.css';
+import './assets/cart.css';
 import './assets/base.css'
 
 
