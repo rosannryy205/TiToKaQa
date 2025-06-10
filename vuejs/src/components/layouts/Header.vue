@@ -51,7 +51,7 @@
               </div>
             </form>
 
-            <div class="me-3">
+            <div class="me-2">
               <router-link to="/login" v-if="!isLoggedIn" class="text-decoration-none text-primary-black">
                   <button  class="icon-btn me-2"  >
                     <i class="bi bi-people"></i>
@@ -68,8 +68,8 @@
               </template>
             </div>
 
-            <div class="d-none d-lg-block">
-              <router-link to="/delivery" style="color: black;">
+            <!-- <div class="d-none d-lg-block">
+              <router-link :to="{ name: 'delivery', params: { id: order_id   } }" style="color: black;">
                 <div class="loader">
                   <div class="truckWrapper">
                     <div class="truckBody">
@@ -122,7 +122,7 @@
                   </div>
                 </div>
               </router-link>
-            </div>
+            </div> -->
 
             <div>
               <router-link to="/cart" class="icon-btn text-dark" title="Giỏ hàng">
@@ -187,9 +187,9 @@
               </button>
             </template>
 
-            <router-link to="/delivery" class="icon-btn text-dark mb-2">
+            <!-- <router-link to="/delivery" class="icon-btn text-dark mb-2">
               <i class="bi bi-truck me-2"></i> Theo dõi đơn hàng
-            </router-link>
+            </router-link> -->
             <router-link to="/cart" class="icon-btn text-dark mb-2">
               <i class="bi bi-cart me-2"></i> Giỏ hàng
             </router-link>
@@ -336,6 +336,8 @@ const toppings = ref([]);
 const spicyLevel = ref([]);
 const toppingList = ref([]);
 const quantity = ref(1);
+const order_id = parseInt(localStorage.getItem('order_id'))
+
 
 const formatNumber = (num) => new Intl.NumberFormat().format(num);
 const getImageUrl = (img) => `http://127.0.0.1:8000/storage/img/food/${img}`;
