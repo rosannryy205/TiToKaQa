@@ -103,6 +103,8 @@ Route::post('/ghn/service', [ShippingController::class, 'getGHNServices']);
 
 //getall user
 Route::resource('user', UserController::class);
+Route::put('/update/{id}', [UserController::class, 'updateStatus']);
+
 
 
 

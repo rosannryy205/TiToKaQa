@@ -34,6 +34,8 @@ const restaurant = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 const customer = ref({})
 const shipper = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 
+
+//Api Heigit
 async function getRoutePolyline(start, end) {
   const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
     method: 'POST',
@@ -61,22 +63,27 @@ async function getRoutePolyline(start, end) {
   return { coords, distance }
 }
 
+
+//Api LocationIQ
 const getCoordinatesFromAddress = async (address) => {
-  const apiKey = 'a642902bd23e49d3847cbfed7d30d5ed'
-  const res = await axios.get(`https://api.opencagedata.com/geocode/v1/json`, {
+  const apiKey = 'pk.a3a8213154230324b5a5b37fd3e5f48a'
+  const res = await axios.get('https://us1.locationiq.com/v1/search.php', {
     params: {
       key: apiKey,
       q: address,
-      pretty: 1,
+      format: 'json',
       limit: 1
     }
   })
-  if (res.data.results.length) {
-    const { lat, lng } = res.data.results[0].geometry
-    return { lat, lng }
+
+  if (res.data.length > 0) {
+    const { lat, lon } = res.data[0]
+    return { lat: parseFloat(lat), lng: parseFloat(lon) }
   }
+
   return null
 }
+
 
 onMounted(async () => {
   isLoading.value = true
