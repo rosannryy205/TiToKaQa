@@ -36,14 +36,14 @@ export function Cart() {
       : `cart_${userId}`
 })
 
-const loadCart = async () => {
-  const storedCart = localStorage.getItem(cartKey.value)
-  cartItems.value = storedCart ? JSON.parse(storedCart) : []
-}
+  const loadCart = async () => {
+    const storedCart = localStorage.getItem(cartKey.value)
+    cartItems.value = storedCart ? JSON.parse(storedCart) : []
+  }
 
-const saveCart = () => {
-  localStorage.setItem(cartKey.value, JSON.stringify(cartItems.value))
-}
+  const saveCart = () => {
+    localStorage.setItem(cartKey.value, JSON.stringify(cartItems.value))
+  }
 
 
 
@@ -60,31 +60,27 @@ const saveCart = () => {
     }, 0)
   })
 
-  const addToCart = (foodDetail, quantity, selectedSpicyName, selectedToppings) => {
+  const addToCart = (foodDetail, quantity, toppings) => {
     const newCartItem = {
       id: foodDetail.id,
       name: foodDetail.name,
       image: foodDetail.image,
       price: foodDetail.price,
-      spicyLevel: selectedSpicyName,
-      toppings: selectedToppings,
-      quantity: quantity, // Sử dụng tham số quantity
+      toppings: toppings,
+      quantity: quantity,
       type: foodDetail.type,
     }
 
-    // Trong addToCart
       const existingItemIndex = cartItems.value.findIndex(
         (item) =>
-          item.id === newCartItem.id &&
-          item.spicyLevel === newCartItem.spicyLevel &&
-          // Đảm bảo sắp xếp theo một thuộc tính cố định, ví dụ 'id'
-          JSON.stringify(item.toppings.sort((a,b) => a.id - b.id)) === JSON.stringify(newCartItem.toppings.sort((a,b) => a.id - b.id)),
-      )
+            item.id === newCartItem.id &&
+            JSON.stringify(item.toppings.sort((a,b) => a.id - b.id)) === JSON.stringify(newCartItem.toppings.sort((a,b) => a.id - b.id)),
+    )
 
     if (existingItemIndex !== -1) {
-      cartItems.value[existingItemIndex].quantity += newCartItem.quantity
+        cartItems.value[existingItemIndex].quantity += newCartItem.quantity
     } else {
-      cartItems.value.push(newCartItem)
+        cartItems.value.push(newCartItem)
     }
 
     saveCart()

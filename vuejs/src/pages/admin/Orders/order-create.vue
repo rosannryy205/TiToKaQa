@@ -23,137 +23,23 @@
               <label for="name" class="form-label fs-5">
                 Thông tin khách hàng <span class="text-danger">*</span>
               </label>
-              <v-select
+              <!-- <v-select
                 v-model="selectguest"
                 :options="guest"
                 label="usernameEmail"
                 placeholder="Chọn khách hàng"
                 :clearable="true"
                 class="form-control rounded"
-              />
+              /> -->
               <div class="mt-2">
                 <label for="name" class="form-label">
                   Tên khách hàng <span class="text-danger">*</span>
                 </label>
                 <input type="text" class="form-control rounded-0" required v-model="guest_name" />
-                <label for="name" class="form-label">
-                  Số điện thoại <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control rounded-0" required v-model="guest_phone" />
-                <label for="category" class="form-label">
-                  Email <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control rounded-0" required v-model="guest_email" />
                 <label for="category" class="form-label">
                   Ghi chú <span class="text-danger">*</span>
                 </label>
-                <textarea
-                  class="form-control rounded-0"
-                  id="description"
-                  rows="1"
-                  v-model="note"
-                ></textarea>
-              </div>
-            </div>
-
-            <div
-              class="col-12 col-lg-7 mb-3 pt-3 pt-lg-0 mt-3 mt-lg-0"
-              style="border-left: 1px solid #cccc"
-            >
-              <label for="category" class="form-label">
-                Tìm bàn <span class="text-danger">*</span>
-              </label>
-              <div class="row mb-3 gx-2 gy-2">
-                <div class="col-12 col-sm-4">
-                  <input
-                    type="date"
-                    class="form-control rounded"
-                    v-model="date"
-                    :min="today"
-                    @change="findTable"
-                  />
-                </div>
-                <div class="col-12 col-sm-4">
-                  <select class="form-control rounded" v-model="time" @change="findTable">
-                    <option value="">Chọn giờ</option>
-                    <option v-for="time in filteredTimeOptions" :key="time" :value="time">
-                      {{ time }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-12 col-sm-4">
-                  <input
-                    type="number"
-                    class="form-control rounded"
-                    placeholder="Số lượng người"
-                    v-model="guest_count"
-                  />
-                </div>
-              </div>
-              <div class="table-container">
-                <div class="table-block" v-for="ban in paginatedTables" :key="ban.id">
-                  <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                    <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
-                  </div>
-                  <div
-                    @click="toggleTable(ban.id)"
-                    :class="[
-                      selectedTableIds.includes(ban.id) ? 'table-rect1' : 'table-rect',
-                      {
-                        medium: getChairCount(ban.capacity) === 2,
-                        large: getChairCount(ban.capacity) === 3,
-                        billed: ban.status === 'Đã đặt trước',
-                        'billed-text': ban.status === 'Đã đặt trước',
-                        reservation: ban.status === 'Có khách',
-                        'reservation-text': ban.status === 'Có khách',
-                      },
-                    ]"
-                  >
-                    Bàn {{ ban.name || ban.id }}
-                  </div>
-                  <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                    <div
-                      class="chair"
-                      v-for="n in getChairCount(ban.capacity)"
-                      :key="'b' + n"
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              <div class="d-flex justify-content-center mt-3 w-100">
-                <nav>
-                  <ul class="pagination">
-                    <li class="page-item" :class="{ disabled: currentPage.tables === 1 }">
-                      <button class="page-link" @click="goToPage(currentPage.tables - 1, 'tables')">
-                        «
-                      </button>
-                    </li>
-
-                    <li
-                      v-for="page in totalPagesTables"
-                      :key="page"
-                      class="page-item"
-                      :class="{ active: currentPage.tables === page }"
-                    >
-                      <button type="button" class="page-link" @click="goToPage(page, 'tables')">
-                        {{ page }}
-                      </button>
-                    </li>
-
-                    <li
-                      class="page-item"
-                      :class="{ disabled: currentPage.tables === totalPagesTables }"
-                    >
-                      <button
-                        type="button"
-                        class="page-link"
-                        @click="goToPage(currentPage.tables + 1, 'tables')"
-                      >
-                        »
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
+                <textarea class="form-control rounded-0" id="description" rows="1" v-model="note"></textarea>
               </div>
             </div>
           </div>
@@ -164,10 +50,7 @@
             <div class="row">
               <div class="col-12 col-md-6 col-lg-3 mb-3">
                 Lọc theo danh mục:
-                <select
-                  class="form-control rounded"
-                  @change="getFoodByCategory($event.target.value)"
-                >
+                <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
                   <option value="">Tất cả món ăn</option>
                   <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
                     {{ item.indent }}{{ item.name }}
@@ -176,32 +59,16 @@
               </div>
               <div class="col-12 col-md-6 col-lg-3 mb-3">
                 Tìm kiếm theo tên:
-                <v-select
-                  v-model="selectfood"
-                  :options="foods"
-                  label="name"
-                  placeholder="Nhập tên món ăn"
-                  :clearable="true"
-                  @input="onFoodSearch"
-                  class="form-control rounded"
-                />
+                <v-select v-model="selectfood" :options="foods" label="name" placeholder="Nhập tên món ăn"
+                  :clearable="true" @input="onFoodSearch" class="form-control rounded" />
               </div>
               <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
-                <div
-                  class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start"
-                >
+                <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
                   <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
                     <div class="gap-1">
-                      <div
-                        class="d-flex flex-column align-items-center"
-                        @click="openModal(product)"
-                      >
-                        <img
-                          :src="getImageUrl(product.image)"
-                          alt=""
-                          srcset=""
-                          style="width: 60px; height: 60px; object-fit: cover"
-                        />
+                      <div class="d-flex flex-column align-items-center" @click="openModal(product)">
+                        <img :src="getImageUrl(product.image)" alt="" srcset=""
+                          style="width: 60px; height: 60px; object-fit: cover" />
                         <div class="product_name text-center mt-1">{{ product.name }}</div>
                         <strong class="text-danger product_price">
                           {{ formatNumber(product.price) }} VND
@@ -214,35 +81,20 @@
                     <nav>
                       <ul class="pagination">
                         <li class="page-item" :class="{ disabled: currentPage.foods === 1 }">
-                          <button
-                            type="button"
-                            class="page-link"
-                            @click="goToPage(currentPage.foods - 1, 'foods')"
-                          >
+                          <button type="button" class="page-link" @click="goToPage(currentPage.foods - 1, 'foods')">
                             «
                           </button>
                         </li>
 
-                        <li
-                          v-for="page in totalPagesFoods"
-                          :key="page"
-                          class="page-item"
-                          :class="{ active: currentPage.foods === page }"
-                        >
+                        <li v-for="page in totalPagesFoods" :key="page" class="page-item"
+                          :class="{ active: currentPage.foods === page }">
                           <button type="button" class="page-link" @click="goToPage(page, 'foods')">
                             {{ page }}
                           </button>
                         </li>
 
-                        <li
-                          class="page-item"
-                          :class="{ disabled: currentPage.foods === totalPagesFoods }"
-                        >
-                          <button
-                            type="button"
-                            class="page-link"
-                            @click="goToPage(currentPage.foods + 1, 'foods')"
-                          >
+                        <li class="page-item" :class="{ disabled: currentPage.foods === totalPagesFoods }">
+                          <button type="button" class="page-link" @click="goToPage(currentPage.foods + 1, 'foods')">
                             »
                           </button>
                         </li>
@@ -259,16 +111,9 @@
                           <i class="bi bi-bag-plus-fill"></i>
                           Thêm đơn hàng
                         </div>
-                        <div
-                          class="d-flex align-items-center p-2 border rounded shadow-sm"
-                          style="max-width: 500px"
-                        >
-                          <img
-                            :src="getImageUrl(foodDetail.image)"
-                            class="rounded me-3 border"
-                            style="width: 60px; height: 60px; object-fit: cover"
-                            alt="Drink"
-                          />
+                        <div class="d-flex align-items-center p-2 border rounded shadow-sm" style="max-width: 500px">
+                          <img :src="getImageUrl(foodDetail.image)" class="rounded me-3 border"
+                            style="width: 60px; height: 60px; object-fit: cover" alt="Drink" />
                           <div class="flex-grow-1">
                             <div class="text-dark fw-semibold mb-2">{{ foodDetail.name }}</div>
                             <div class="d-flex justify-content-between align-items-center">
@@ -276,19 +121,11 @@
                                 {{ formatNumber(foodDetail.price) }}VNĐ
                               </div>
                               <div class="input-group input-group-sm" style="width: 100px">
-                                <button
-                                  class="btn btn-outline-secondary"
-                                  @click="decreaseQuantity"
-                                  type="button"
-                                >
+                                <button class="btn btn-outline-secondary" @click="decreaseQuantity" type="button">
                                   −
                                 </button>
                                 <span>{{ quantity }}</span>
-                                <button
-                                  class="btn btn-outline-secondary"
-                                  @click="increaseQuantity"
-                                  type="button"
-                                >
+                                <button class="btn btn-outline-secondary" @click="increaseQuantity" type="button">
                                   +
                                 </button>
                               </div>
@@ -297,16 +134,10 @@
                         </div>
                       </div>
                       <form @submit.prevent="handleAddToCartClick">
-                        <div
-                          style="max-height: 400px; overflow-y: auto"
-                          class="pe-3 ps-3"
-                          v-if="toppingList.length"
-                        >
+                        <div style="max-height: 400px; overflow-y: auto" class="pe-3 ps-3" v-if="toppingList.length">
                           <div class="mb-3">
                             <div class="mb-3" v-if="spicyLevel.length">
-                              <label for="spicyLevel" class="form-label fw-bold text-danger"
-                                >🌶 Mức độ cay:</label
-                              >
+                              <label for="spicyLevel" class="form-label fw-bold text-danger">🌶 Mức độ cay:</label>
                               <select class="form-select rounded" id="spicyLevel">
                                 <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
                                   {{ item.name }}
@@ -316,23 +147,13 @@
                           </div>
 
                           <label class="form-label fw-bold text-danger">🧀 Chọn Topping:</label>
-                          <div
-                            v-for="topping in toppingList"
-                            :key="topping.id"
-                            class="d-flex justify-content-between align-items-center mb-2"
-                          >
+                          <div v-for="topping in toppingList" :key="topping.id"
+                            class="d-flex justify-content-between align-items-center mb-2">
                             <label class="d-flex align-items-center text-dark">
-                              <input
-                                type="checkbox"
-                                :value="topping.id"
-                                name="topping[]"
-                                class="me-2"
-                              />
+                              <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                               {{ topping.name }}
                             </label>
-                            <span class="text-muted small"
-                              >{{ formatNumber(topping.price) }} VND</span
-                            >
+                            <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
                           </div>
                         </div>
                         <div v-else class="mt-5">
@@ -352,23 +173,14 @@
                 <div class="col-12 col-lg-4 border p-3 mt-3 mt-lg-0">
                   <div class="d-flex justify-content-between border-bottom mb-3">
                     <h5>Chi tiết</h5>
-                    <a href="#" class="text-danger fw-semibold" @click.prevent="clearCart"
-                      >Xoá tất cả</a
-                    >
+                    <a href="#" class="text-danger fw-semibold" @click.prevent="clearCart">Xoá tất cả</a>
                   </div>
                   <div style="max-height: 200px; overflow-y: auto" class="pe-1">
-                    <div
-                      class="border rounded p-3 mb-3"
-                      style="background-color: #fff"
-                      v-for="(item, index) in cartItems"
-                      :key="index"
-                    >
+                    <div class="border rounded p-3 mb-3" style="background-color: #fff"
+                      v-for="(item, index) in cartItems" :key="index">
                       <div class="d-flex align-items-start border-bottom mb-2 pb-1">
-                        <img
-                          :src="getImageUrl(item.image)"
-                          class="rounded me-2"
-                          style="width: 60px; height: 60px; object-fit: cover"
-                        />
+                        <img :src="getImageUrl(item.image)" class="rounded me-2"
+                          style="width: 60px; height: 60px; object-fit: cover" />
 
                         <div class="flex-grow-1" style="max-height: 200px; overflow-y: auto">
                           <div class="fw-semibold">{{ item.name }}</div>
@@ -380,35 +192,20 @@
                               </div>
                             </div>
                             <div v-else class="text-muted small">Không có topping</div>
-                            <i
-                              class="bi bi-x-circle me-3 mb-2"
-                              style="cursor: pointer"
-                              @click="removeItem(index)"
-                            ></i>
+                            <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
                           </div>
                         </div>
                       </div>
 
                       <div class="d-flex justify-content-between align-items-center">
-                        <div
-                          class="d-flex align-items-center border rounded"
-                          style="background-color: #f8f9fa"
-                        >
-                          <button
-                            type="button"
-                            class="btn border-0 fw-bold bg-white"
-                            style="background-color: transparent"
-                            @click="decreaseQuantity1(index)"
-                          >
+                        <div class="d-flex align-items-center border rounded" style="background-color: #f8f9fa">
+                          <button type="button" class="btn border-0 fw-bold bg-white"
+                            style="background-color: transparent" @click="decreaseQuantity1(index)">
                             −
                           </button>
                           <span class="px-2">{{ item.quantity }}</span>
-                          <button
-                            type="button"
-                            class="btn border-0 fw-bold bg-white"
-                            style="background-color: transparent"
-                            @click="increaseQuantity2(index)"
-                          >
+                          <button type="button" class="btn border-0 fw-bold bg-white"
+                            style="background-color: transparent" @click="increaseQuantity2(index)">
                             +
                           </button>
                         </div>
@@ -427,17 +224,10 @@
                         <span>{{ formatNumber(totalPrice) }} VNĐ</span>
                       </li>
                       <li
-                        class="list-group-item d-flex justify-content-between align-items-center bg-transparent"
-                      >
-                        Phí giữ bàn
-                        <span>100,000 VNĐ</span>
-                      </li>
-                      <li
-                        class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger"
-                      >
+                        class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
                         Tổng thanh toán
                         <span class="text-danger fw-bold">
-                          {{ formatNumber(totalPrice + 100000) }} VNĐ
+                          {{ formatNumber(totalPrice) }} VNĐ
                         </span>
                       </li>
                     </ul>
@@ -455,33 +245,22 @@
                         MoMo
                       </button>
                       <button class="btn btn-payment">
-                        <img
-                          src="/img/Logo-VNPAY-QR-1 (1).png"
-                          alt="Qris Icon"
-                          class="payment-icon mb-1"
-                        />
+                        <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
                         <br />
                         QR code
                       </button>
                     </div>
                     <hr />
                     <div class="d-flex flex-column flex-sm-row">
-                      <button
-                        type="button"
-                        @click="$router.back()"
-                        class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2"
-                      >
+                      <button type="button" @click="$router.back()"
+                        class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
                         Quay lại
                       </button>
-                      <button
-                        type="submit"
-                        class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2"
-                      >
-                        Đặt bàn
-                      </button>
-                      <button class="btn btn-outline-danger flex-fill p-2" type="button">
-                        Thanh toán
-                      </button>
+                      <div class="modal-footer border-0">
+                        <button class="btn btn-danger1 w-100 fw-bold" type="submit" @click="check_out">
+                          🛒 Thêm vào đơn hàng
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -494,7 +273,7 @@
   </form>
 </template>
 
-<script>
+<!-- <script>
 import axios from 'axios'
 import { ref, computed, onMounted } from 'vue'
 import { toast } from 'vue3-toastify'
@@ -887,7 +666,214 @@ export default {
     }
   },
 }
+</script> -->
+<script>
+import axios from 'axios'
+import { ref, computed, onMounted, watch } from 'vue'
+import { toast } from 'vue3-toastify'
+import { Cart } from '@/stores/cart'
+import vSelect from 'vue-select'
+import { FoodList } from '@/stores/food'
+import { useRouter } from 'vue-router'
+
+export default {
+  components: {
+    'v-select': vSelect,
+  },
+  setup() {
+    const {
+      cartItems,
+      finalTotal,
+      loadCart,
+      totalPriceItem,
+      totalPrice,
+      saveCart,
+      addToCart,
+      quantity,
+      increaseQuantity,
+      decreaseQuantity,
+      removeItem,
+      increaseQuantity2,
+      decreaseQuantity1,
+      clearCart,
+    } = Cart()
+
+    const {
+      foods,
+      getFoodByCategory,
+      openModal,
+      formatNumber,
+      getImageUrl,
+      flatCategoryList,
+      foodDetail,
+      spicyLevel,
+      toppingList,
+    } = FoodList.setup()
+
+    const router = useRouter()
+    const isLoading = ref(false)
+    const selectfood = ref(null)
+    const searchFoodTerm = ref('')
+    const currentPage = ref({ foods: 1 })
+    const itemsPerPageFoods = 16
+    const guest_name = ref('')
+    const note = ref('')
+
+    const paginatedFoods = computed(() => {
+      const filtered = foods.value.filter((food) =>
+        food.name.toLowerCase().includes(searchFoodTerm.value.toLowerCase())
+      )
+      const start = (currentPage.value.foods - 1) * itemsPerPageFoods
+      return filtered.slice(start, start + itemsPerPageFoods)
+    })
+
+
+    const check_out = async () => {
+      isLoading.value = true
+      try {
+
+        if (!guest_name.value) {
+          alert('Vui lòng nhập đầy đủ thông tin khách hàng!')
+          return
+        }
+
+        const orderData = {
+          user_id: null,
+          guest_name: guest_name.value,
+          note: note.value || '',
+          total_price: totalPrice.value,
+          order_detail: cartItems.value.map((item) => ({
+            food_id: item.id,
+            combo_id: null,
+            quantity: item.quantity,
+            price: item.price,
+            type: item.type,
+            toppings: item.toppings.map((t) => ({
+              food_toppings_id: t.food_toppings_id,
+              price: t.price,
+            })),
+          })),
+        }
+
+        await axios.post('http://127.0.0.1:8000/api/ordertakecaway', orderData)
+
+        toast.success('Đặt hàng thành công!')
+        clearCart()
+        guest_name.value = ''
+        note.value = ''
+      } catch (error) {
+        console.error('Lỗi khi gửi đơn hàng:', error)
+        toast.error('Đặt hàng thất bại, vui lòng thử lại!')
+      } finally {
+        isLoading.value = false
+      }
+    }
+
+
+
+    const totalPagesFoods = computed(() => {
+      const filtered = foods.value.filter((food) =>
+        food.name.toLowerCase().includes(searchFoodTerm.value.toLowerCase())
+      )
+      return Math.ceil(filtered.length / itemsPerPageFoods)
+    })
+
+    const goToPage = (page, key) => {
+      if (page >= 1 && page <= totalPagesFoods.value) {
+        currentPage.value[key] = page
+      }
+    }
+
+    const onFoodSearch = (event) => {
+      searchFoodTerm.value = event.target.value
+      currentPage.value.foods = 1
+    }
+
+    const handleAddToCartClick = () => {
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+
+      let allSelectedToppings = []
+
+      if (selectedSpicy) {
+        allSelectedToppings.push({
+          id: selectedSpicy.id,
+          name: selectedSpicy.name,
+          price: selectedSpicy.price,
+          food_toppings_id: selectedSpicy.pivot?.id || null,
+          is_spicy_level: true,
+        })
+      }
+
+      const selectedToppingIds = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')
+      ).map((el) => parseInt(el.value))
+
+      const normalToppings = toppingList.value
+        .filter((topping) => selectedToppingIds.includes(topping.id))
+        .map((topping) => ({
+          id: topping.id,
+          name: topping.name,
+          price: topping.price,
+          food_toppings_id: topping.pivot?.id || null,
+          is_spicy_level: false,
+        }))
+
+      allSelectedToppings = [...allSelectedToppings, ...normalToppings]
+
+      addToCart(foodDetail.value, quantity.value, allSelectedToppings)
+    }
+
+    watch(selectfood, (newValue) => {
+      searchFoodTerm.value = newValue?.name || ''
+    })
+
+    onMounted(() => {
+      loadCart()
+    })
+
+    return {
+      foods,
+      formatNumber,
+      getImageUrl,
+      getFoodByCategory,
+      openModal,
+      spicyLevel,
+      toppingList,
+      flatCategoryList,
+      foodDetail,
+      addToCart,
+      quantity,
+      decreaseQuantity,
+      increaseQuantity,
+      decreaseQuantity1,
+      increaseQuantity2,
+      cartItems,
+      loadCart,
+      totalPriceItem,
+      totalPrice,
+      finalTotal,
+      saveCart,
+      removeItem,
+      clearCart,
+      check_out,
+      isLoading,
+      guest_name,
+      note,
+
+      paginatedFoods,
+      totalPagesFoods,
+      currentPage,
+      goToPage,
+      selectfood,
+      searchFoodTerm,
+      onFoodSearch,
+      handleAddToCartClick,
+    }
+  },
+}
 </script>
+
 <style>
 .bi-plus-circle-fill {
   font-size: 40px;
