@@ -36,14 +36,14 @@ export function Cart() {
       : `cart_${userId}`
 })
 
-const loadCart = async () => {
-  const storedCart = localStorage.getItem(cartKey.value)
-  cartItems.value = storedCart ? JSON.parse(storedCart) : []
-}
+  const loadCart = async () => {
+    const storedCart = localStorage.getItem(cartKey.value)
+    cartItems.value = storedCart ? JSON.parse(storedCart) : []
+  }
 
-const saveCart = () => {
-  localStorage.setItem(cartKey.value, JSON.stringify(cartItems.value))
-}
+  const saveCart = () => {
+    localStorage.setItem(cartKey.value, JSON.stringify(cartItems.value))
+  }
 
 
 
