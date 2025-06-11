@@ -113,9 +113,11 @@ Route::put('/update/{id}', [UserController::class, 'updateStatus']);
 
 //cart
 Route::post('/order', [CartController::class, 'order']);
-
+Route::post('/ordertakecaway', [CartController::class, 'orderTakeAway']);
 Route::put('/update/order/{id}', [OrderController::class, 'reservationUpdate']);
 Route::put('/update/reservation-order/{id}', [OrderController::class, 'reservationUpdatePrice']);
+Route::post('/order/{id}/complete', [OrderController::class, 'handelOrderComplete']);
+Route::post('/order/{id}/cancel', [OrderController::class, 'handelOrderCancel']);
 
 
 //admin_order
