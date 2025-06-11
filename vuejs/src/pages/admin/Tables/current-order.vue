@@ -31,9 +31,8 @@
               </strong>
             </div>
           </div>
-          <div>Chi tiết đơn</div>
           <div v-for="food in order.details" :key="food.food_id">
-            <div class="flex-grow-1" style="max-height: 200px; overflow-y: auto">
+            <div class="flex-grow-1" >
               <div class="fw-semibold">{{ food.food_name }}</div>
 
               <div class="text-muted small" v-if="food.toppings && food.toppings.length">
@@ -45,7 +44,7 @@
             </div>
           </div>
 
-          <div class="status-update-section">
+          <div class="status-update-section pt-1">
             <select
               v-model="order.order_status"
               class="status-dropdown"
@@ -88,12 +87,13 @@
           </div>
 
           <div class="total-section">
-            <div class="total-label">Total</div>
-            <div class="total-amount">$18.00</div>
+            <div class="total-label">Tổng tiền</div>
+            <div class="total-amount">{{ formatNumber(order.total_price) }}VNĐ</div>
           </div>
+          <hr>
           <div class="buttons-section">
-            <button class="btn btn-details">See Details</button>
-            <button class="btn btn-pay">Pay Bills</button>
+            <button class="btn btn-details">Chi tiết</button>
+            <button class="btn btn-pay">Thanh toán</button>
           </div>
         </article>
       </div>
@@ -475,16 +475,16 @@ export default {
 
 .total-amount {
   font-weight: 700;
-  font-size: 24px;
-  color: #333;
+  font-size: 16px;
+  color: #c92c3c;
 }
 
 /* Status Update Section */
 .status-update-section {
   display: flex;
   gap: 10px;
-  margin-bottom: 15px;
   align-items: center;
+  margin-top: 10px;
 }
 
 .status-dropdown {
@@ -516,7 +516,6 @@ export default {
   gap: 10px;
   justify-content: flex-end;
   flex-wrap: wrap;
-  margin-top: 15px;
 }
 
 .btn {

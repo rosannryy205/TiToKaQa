@@ -336,7 +336,7 @@ class OrderController extends Controller
             if (!$order) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Order not found.'
+                    'message' => 'K có đơn hàng.'
                 ], 404);
             }
             foreach ($order->details as $detail) {

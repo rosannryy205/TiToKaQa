@@ -255,7 +255,7 @@ const menuItems = [
       {
         key: 'users/list',
         to: '/admin/users/list',
-        label: 'Danh sách người dùng',
+        label: 'Tất cả người dùng',
         icon: AppstoreOutlined,
       },
       {
