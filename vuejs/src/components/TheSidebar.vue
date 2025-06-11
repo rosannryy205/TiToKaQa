@@ -214,12 +214,6 @@ const menuItems = [
         label: 'Danh sách đơn hàng',
         icon: AppstoreOutlined,
       },
-      {
-        key: '/admin/order-create',
-        to: '/admin/order-create',
-        label: 'Quản lý đơn hàng',
-        icon: TagsOutlined,
-      },
     ]
   },
   {
