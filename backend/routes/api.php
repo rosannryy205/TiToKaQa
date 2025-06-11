@@ -49,6 +49,7 @@ Route::post('/choose-table', [OrderController::class, 'chooseTable']);
 //reservation - tables - admin
 Route::get('/tables', [OrderController::class, 'getTables']);
 Route::get('/order-tables', [OrderController::class, 'getOrderOfTable']);
+Route::get('/order-current-tables', [OrderController::class, 'getCurrentOrder']);
 Route::put('/change-table', [OrderController::class, 'changeTable']);
 Route::post('/set-up/order-tables', [OrderController::class, 'setUpTable']);
 Route::post('/available-tables', [OrderController::class, 'getAvailableTables']);
@@ -114,9 +115,11 @@ Route::put('/update/{id}', [UserController::class, 'updateStatus']);
 
 //cart
 Route::post('/order', [CartController::class, 'order']);
-
+Route::post('/ordertakecaway', [CartController::class, 'orderTakeAway']);
 Route::put('/update/order/{id}', [OrderController::class, 'reservationUpdate']);
 Route::put('/update/reservation-order/{id}', [OrderController::class, 'reservationUpdatePrice']);
+Route::post('/order/{id}/complete', [OrderController::class, 'handelOrderComplete']);
+Route::post('/order/{id}/cancel', [OrderController::class, 'handelOrderCancel']);
 
 
 //admin_order

@@ -518,8 +518,6 @@ export default {
     height: 32px;
   }
 }
-<<<<<<< HEAD
-=======
 .img_thumbnail {
     width: 50px;
 }
@@ -542,5 +540,4 @@ export default {
 
 }
 
->>>>>>> 356c610a8d3cbbfaf34c22f5880a4af8fe3aeca4
 </style>
