@@ -204,10 +204,23 @@ const menuItems = [
     ],
   },
   {
-    key: '/admin/orders/history',
-    to: '/admin/orders/history',
+    key: 'order-management',
     label: 'Đơn hàng',
     icon: HistoryOutlined,
+     children: [
+      {
+        key: '/admin/orders/history',
+        to: '/admin/orders/history',
+        label: 'Danh sách đơn hàng',
+        icon: AppstoreOutlined,
+      },
+      {
+        key: '/admin/order-create',
+        to: '/admin/order-create',
+        label: 'Quản lý đơn hàng',
+        icon: TagsOutlined,
+      },
+    ]
   },
   {
     key: 'tables-reservation-management', // Key cho mục cha
