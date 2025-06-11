@@ -6,7 +6,7 @@
   </div>
 
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-    <h3 class="text-danger fw-bold mb-2 mb-md-0">Thêm đơn đặt bàn</h3>
+    <h3 class="text-danger fw-bold mb-2 mb-md-0">Thêm đơn hàng</h3>
     <div>
       <a href="#" class="btn btn-outline-secondary rounded-0" @click="$router.back()">
         <i class="bi bi-arrow-counterclockwise"></i> Quay lại
