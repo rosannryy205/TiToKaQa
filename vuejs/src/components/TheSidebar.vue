@@ -204,10 +204,23 @@ const menuItems = [
     ],
   },
   {
-    key: '/admin/orders/history',
-    to: '/admin/orders/history',
+    key: 'order-management',
     label: 'Đơn hàng',
     icon: HistoryOutlined,
+     children: [
+      {
+        key: '/admin/orders/history',
+        to: '/admin/orders/history',
+        label: 'Danh sách đơn hàng',
+        icon: AppstoreOutlined,
+      },
+      {
+        key: '/admin/order-create',
+        to: '/admin/order-create',
+        label: 'Quản lý đơn hàng',
+        icon: TagsOutlined,
+      },
+    ]
   },
   {
     key: 'tables-reservation-management', // Key cho mục cha
@@ -217,7 +230,7 @@ const menuItems = [
       {
         key: '/admin/tables',
         to: '/admin/tables',
-        label: 'Sơ đồ bàn',
+        label: 'Danh sách bàn',
         icon: AppstoreOutlined,
       },
       {
@@ -242,7 +255,7 @@ const menuItems = [
       {
         key: 'users/list',
         to: '/admin/users/list',
-        label: 'Danh sách người dùng',
+        label: 'Tất cả người dùng',
         icon: AppstoreOutlined,
       },
       {

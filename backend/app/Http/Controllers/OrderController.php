@@ -336,7 +336,7 @@ class OrderController extends Controller
             if (!$order) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Order not found.'
+                    'message' => 'K có đơn hàng.'
                 ], 404);
             }
             foreach ($order->details as $detail) {
@@ -536,7 +536,7 @@ class OrderController extends Controller
         ], 200);
     }
 
-
+    //lấy tất cả order theo user
     public function getInfoOrderByUser(Request $request)
     {
         $userId = $request->id;
@@ -551,6 +551,7 @@ class OrderController extends Controller
         ]);
     }
 
+    //huỷ đơn
     public function cancelOrder(Request $request)
     {
         $order = Order::find($request->id);
@@ -571,7 +572,7 @@ class OrderController extends Controller
         return response()->json(['message' => 'Đơn hàng đã được hủy thành công.']);
     }
 
-
+    //cập nhật địa chỉ
     public function updateAddressForOrder(Request $request, $id)
     {
         try {
@@ -596,12 +597,14 @@ class OrderController extends Controller
         }
     }
 
+    //lấy tất cả bàn
     public function getTables()
     {
         $tables = Table::orderBy('capacity', 'asc')->get();
         return $tables;
     }
 
+    //lấy đơn đặt bàn
     public function getOrderOfTable()
     {
         $reservations = Reservation_table::with([
@@ -683,9 +686,112 @@ class OrderController extends Controller
         }
     }
 
+    public function getCurrentOrder()
+    {
+        $reservations = Reservation_table::with([
+            'order.details.foods',
+            'order.details.toppings.food_toppings.toppings',
+            'order.tables'
+        ])->whereHas('order', function ($query) {
+            $query->whereNull('guest_address');
+        })->get();
 
+        if ($reservations->isNotEmpty()) {
+            $data = $reservations->map(function ($reservation) {
+                $order = $reservation->order;
+                $totalQuantity = $order->details->sum('quantity');
+                $details = $order->details->map(function ($detail) {
+                    return [
+                        'id' => $detail->id,
+                        'food_id' => $detail->food_id,
+                        'food_name' => $detail->foods->name ?? null, // Lấy tên món ăn từ mối quan hệ foods
+                        'quantity' => $detail->quantity,
+                        'price' => $detail->price,
+                        'toppings' => $detail->toppings->map(function ($topping) {
+                            return [
+                                'food_toppings_id' => $topping->food_toppings_id,
+                                'topping_name' => $topping->food_toppings->toppings->name ?? null,
+                                'price' => $topping->price,
+                            ];
+                        }),
+                    ];
+                });
 
+                return [
+                    'reserved_from' => $reservation->reserved_from,
+                    'reserved_to' => $reservation->reserved_to,
+                    'id' => $order->id,
+                    'user_id' => $order->user_id,
+                    'discount_id' => $order->discount_id,
+                    'order_time' => $order->order_time,
+                    'order_status' => $order->order_status,
+                    'total_price' => $order->total_price,
+                    'comment' => $order->comment,
+                    'review_time' => $order->review_time,
+                    'rating' => $order->rating,
+                    'guest_name' => $order->guest_name,
+                    'guest_phone' => $order->guest_phone,
+                    'guest_email' => $order->guest_email,
+                    'guest_address' => $order->guest_address,
+                    'guest_count' => $order->guest_count,
+                    'note' => $order->note,
+                    'deposit_amount' => $order->deposit_amount,
+                    'check_in_time' => $order->check_in_time,
+                    'expiration_time' => $order->expiration_time,
+                    'money_reduce' => $order->money_reduce,
+                    'details' => $details,
+                    // 'details1' => $order->details,
+                    'total_quantity' => $totalQuantity,
+                    'tables' => $order->tables->map(function ($table) {
+                        return [
+                            'id' => $table->id,
+                            'table_number' => $table->table_number,
+                            'capacity' => $table->capacity,
+                            'status' => $table->status
+                        ];
+                    }),
+                ];
+            });
 
+            // Sắp xếp dữ liệu
+            $sortedData = $data->sort(function ($a, $b) {
+                $statusA = $a['order_status'];
+                $statusB = $b['order_status'];
+
+                // Chuyển đổi thời gian thành đối tượng Carbon để so sánh dễ dàng
+                $timeA = ($statusA === 'Khách đã đến' && $a['check_in_time'])
+                    ? Carbon::parse($a['check_in_time'])
+                    : Carbon::parse($a['order_time']);
+
+                $timeB = ($statusB === 'Khách đã đến' && $b['check_in_time'])
+                    ? Carbon::parse($b['check_in_time'])
+                    : Carbon::parse($b['order_time']);
+
+                // Ưu tiên 'Khách đã đến' và so sánh theo check_in_time
+                if ($statusA === 'Khách đã đến' && $statusB !== 'Khách đã đến') {
+                    return -1; // A ưu tiên hơn B
+                } elseif ($statusA !== 'Khách đã đến' && $statusB === 'Khách đã đến') {
+                    return 1; // B ưu tiên hơn A
+                } else {
+                    // Cả hai cùng trạng thái 'Khách đã đến' hoặc cả hai không phải 'Khách đã đến'
+                    return $timeA->timestamp - $timeB->timestamp; // Sắp xếp theo thời gian tăng dần
+                }
+            })->values(); // Đảm bảo các khóa mảng được đặt lại sau khi sắp xếp
+
+            return response()->json([
+                'status' => true,
+                'mess' => 'Lấy danh sách đơn hàng thành công',
+                'orders' => $sortedData
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'mess' => 'Không có đơn hàng nào'
+            ]);
+        }
+    }
+
+    //xếp bàn
     public function setUpTable(Request $request)
     {
         try {
@@ -760,6 +866,8 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
+    //cập nhật trạng thái
     public function updateStatus(Request $request)
     {
         $order = Order::find($request->id);
@@ -801,6 +909,7 @@ class OrderController extends Controller
         ]);
     }
 
+    //in hoá đơn
     public function generateInvoice(Request $request)
     {
         try {
@@ -856,6 +965,7 @@ class OrderController extends Controller
         }
     }
 
+    //cập nhật mã giảm giá
     public function reservationUpdate(Request $request)
     {
         try {
