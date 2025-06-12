@@ -22,7 +22,7 @@ date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Throwable;
+
 
 class OrderController extends Controller
 {
@@ -47,6 +47,7 @@ class OrderController extends Controller
             $availableTables = Table::whereNotIn('id', $conflictingTableIds)
                 ->where('capacity', '>=', $numberOfGuests)
                 ->orderBy('capacity', 'asc')
+                ->orderBy('table_number', 'asc')
                 ->get();
 
             if ($availableTables->isEmpty()) {
@@ -195,6 +196,7 @@ class OrderController extends Controller
                     'deposit_amount' => $request->deposit_amount ?? null,
                     'total_price' => $request->total_price ?? null,
                     'money_reduce' => $request->money_reduce ?? null,
+                    'order_status' => 'Đã xác nhận',
                 ]);
 
                 $reserved_from = $request->reserved_from;
@@ -446,6 +448,9 @@ class OrderController extends Controller
     }
 
 
+
+
+
     // lấy thông tin theo id đơn hàng hoặc id user
     public function getInfoReservation(Request $request)
     {
@@ -597,12 +602,6 @@ class OrderController extends Controller
         }
     }
 
-    //lấy tất cả bàn
-    public function getTables()
-    {
-        $tables = Table::orderBy('capacity', 'asc')->get();
-        return $tables;
-    }
 
     //lấy đơn đặt bàn
     public function getOrderOfTable()

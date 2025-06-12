@@ -15,7 +15,7 @@
           </div>
 
           <div class="d-none d-lg-flex align-items-center ms-auto ">
-            <form @submit.prevent="searchProduct" >
+            <form @submit.prevent="searchProduct">
               <div class="input-wrapper position-relative me-3" ref="wrapperRef">
                 <button class="icon-search-submit" type="submit">
                   <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -53,10 +53,10 @@
 
             <div class="me-2">
               <router-link to="/login" v-if="!isLoggedIn" class="text-decoration-none text-primary-black">
-                  <button  class="icon-btn me-2"  >
-                    <i class="bi bi-people"></i>
-                  </button>
-                </router-link>
+                <button class="icon-btn me-2">
+                  <i class="bi bi-people"></i>
+                </button>
+              </router-link>
               <template v-else>
                 <div class="d-flex align-items-center">
                   <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
@@ -276,7 +276,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/userAuth';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import {  ref, onMounted, onBeforeUnmount,computed} from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import * as bootstrap from 'bootstrap';
 import { toast } from 'vue3-toastify';
 // const { formattedTime, isCounting, startCountdown } = useCountdown(60);
@@ -621,8 +621,8 @@ onBeforeUnmount(() => {
   color: red;
 }
 
-.text-primary-black{
-  color:black;
+.text-primary-black {
+  color: black;
 }
 
 .loading,

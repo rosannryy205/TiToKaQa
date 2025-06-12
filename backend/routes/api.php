@@ -19,6 +19,7 @@ use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ShippingController;
+use App\Http\Controllers\TableController;
 use App\Models\Combo;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
@@ -46,8 +47,9 @@ Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']
 Route::post('/reservation', [OrderController::class, 'reservation']);
 Route::get('/order-reservation-info', [OrderController::class, 'getInfoReservation']);
 Route::post('/choose-table', [OrderController::class, 'chooseTable']);
-//reservation - tables - admin
-Route::get('/tables', [OrderController::class, 'getTables']);
+
+
+//reservation
 Route::get('/order-tables', [OrderController::class, 'getOrderOfTable']);
 Route::get('/order-current-tables', [OrderController::class, 'getCurrentOrder']);
 Route::put('/change-table', [OrderController::class, 'changeTable']);
@@ -59,6 +61,18 @@ Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
 Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
 Route::get('/load-order-detail/{order_id}', [OrderController::class, 'showOrderDetail']);
 Route::put('/update-order-detail/{order_id}', [OrderController::class, 'updateOrderDetails']);
+
+
+// table-admin
+Route::get('/tables', [TableController::class, 'getTables']);
+Route::get('/all-tables', [TableController::class, 'getAllTable']);
+Route::get('/tables/{id}', [TableController::class, 'getTableById']);
+Route::put('/tables/{id}', [TableController::class, 'updateTable']);
+Route::delete('/tables/{id}', [TableController::class, 'deleteTable']);
+// Route::get('/restore-tables/{id}', [TableController::class, 'restoreTable']);
+Route::post('/insert-table', [TableController::class, 'insertTable']);
+
+
 
 Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
 
