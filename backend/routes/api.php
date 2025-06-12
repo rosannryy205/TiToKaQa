@@ -63,7 +63,9 @@ Route::put('/update-order-detail/{order_id}', [OrderController::class, 'updateOr
 Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
 
 //history
-Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/order-history-info', [OrderController::class, 'getInfoOrderByUser']);
+});
 Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
 
