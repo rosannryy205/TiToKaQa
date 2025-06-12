@@ -539,7 +539,7 @@ class OrderController extends Controller
     //lấy tất cả order theo user
     public function getInfoOrderByUser(Request $request)
     {
-        $userId = $request->id;
+        $userId = $request->user()->id;
 
         $orders = Order::where('user_id', $userId)
             ->orderBy('id', 'desc')
