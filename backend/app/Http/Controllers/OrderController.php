@@ -870,23 +870,27 @@ class OrderController extends Controller
     public function updateStatus(Request $request)
     {
         $order = Order::find($request->id);
+        $reservation = Reservation_table::where('order_id', $request->id)->first();
 
         $order->order_status = $request->order_status;
+
         if ($request->order_status === 'Khách đã đến') {
             $order->check_in_time = Carbon::now();
         }
-        if (in_array($request->order_status, ['Đã hủy', 'Hoàn thành'])) {
-            foreach ($order->tables as $table) {
-                $table->status = 'Bàn trống';
-                $table->save();
-            }
+
+        if ($request->order_status === 'Hoàn thành' && $reservation) {
+            $reservation->reserved_to = Carbon::now();
+            $reservation->save(); // Nhớ lưu thay đổi
         }
+
         $order->save();
+
         return response()->json([
             'status' => $request->order_status,
             'message' => 'Đơn hàng đã được cập nhật thành công.'
         ]);
     }
+
 
 
 
