@@ -77,26 +77,30 @@ Route::post('/insert-table', [TableController::class, 'insertTable']);
 Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
 
 //history
-Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/order-history-info', [OrderController::class, 'getInfoOrderByUser']);
+});
 Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
 
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::resource('user', UserController::class);
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::patch('/user', [UserController::class, 'update']);
+    // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
 
 // đăng ký đăng nhập quên mật khẩu
 Route::post('/register/send-code', [UserController::class, 'sendRegisterCode']);
 Route::post('/register/verify-code', [UserController::class, 'verifyRegisterCode']);
 
 Route::post('/login', [UserController::class, 'login']);
-Route::post('/forgot',[UserController::class,'forgotPass']);
-Route::post('/verify-code',[UserController::class,'verifyResetCode']);
-Route::post('/reset-password',[UserController::class,'ChangePassword']);
+Route::post('/forgot', [UserController::class, 'forgotPass']);
+Route::post('/verify-code', [UserController::class, 'verifyResetCode']);
+Route::post('/reset-password', [UserController::class, 'ChangePassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
 });
@@ -127,9 +131,11 @@ Route::put('/update/{id}', [UserController::class, 'updateStatus']);
 
 //cart
 Route::post('/order', [CartController::class, 'order']);
-
+Route::post('/ordertakecaway', [CartController::class, 'orderTakeAway']);
 Route::put('/update/order/{id}', [OrderController::class, 'reservationUpdate']);
 Route::put('/update/reservation-order/{id}', [OrderController::class, 'reservationUpdatePrice']);
+Route::post('/order/{id}/complete', [OrderController::class, 'handelOrderComplete']);
+Route::post('/order/{id}/cancel', [OrderController::class, 'handelOrderCancel']);
 
 
 //admin_order
@@ -156,8 +162,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
     Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
-    Route::get('/admin/catetop',[AdminCategoryToppingController::class,'getAll']);
-    Route::post('/admin/toppings',[AdminToppingController::class,'store']);
+    Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
+    Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
 });
 
 
