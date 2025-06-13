@@ -87,8 +87,8 @@
             <div class="mb-3 p-2 text-center" v-if="previewImage">
               <img :src="previewImage" class="w-50" alt="Preview image">
             </div>
-            <div class="mb-3 p-2 text-center" v-else-if="food.image_url">
-              <img :src="food.image_url" class="w-50" alt="Current image">
+            <div class="mb-3 p-2 text-center" v-else-if="food.image">
+              <img :src="'http://127.0.0.1:8000/storage/img/food/' + food.image" class="w-50" alt="Current image">
             </div>
           </div>
         </div>
@@ -135,10 +135,19 @@ const fetchCategories = async () => {
     })
     categories.value = res.data
   } catch (error) {
-    alert('Lỗi khi tải danh mục')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Lỗi khi tải danh mục',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    })
     console.error(error)
   }
 }
+
 const fetchFood = async (id) => {
   try {
     const res = await axios.get(`http://127.0.0.1:8000/api/admin/food/${id}`, {
@@ -154,19 +163,22 @@ const fetchFood = async (id) => {
     food.value.description = data.description
     food.value.price = data.price
     food.value.sale_price = data.sale_price
-    food.value.image_url = data.image_url // giả sử api trả về đường dẫn ảnh
+    food.value.image = data.image
+
   } catch (error) {
-    if (error.response && error.response.data) {
-      // Nếu API trả lỗi có message cụ thể
-      alert('Lỗi khi tải thông tin món ăn: ' + (error.response.data.message || JSON.stringify(error.response.data)))
-    } else {
-      // Lỗi khác (mạng, code ...)
-      alert('Lỗi khi tải thông tin món ăn: ' + error.message)
-    }
+    const msg = error.response?.data?.message || error.message || 'Không xác định'
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: `Lỗi khi tải món ăn: ${msg}`,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    })
     console.error(error)
   }
 }
-
 
 const onFileChange = (e) => {
   const file = e.target.files[0]
@@ -175,6 +187,7 @@ const onFileChange = (e) => {
     previewImage.value = URL.createObjectURL(file)
   }
 }
+
 
 const updateFood = async () => {
   try {
@@ -191,30 +204,47 @@ const updateFood = async () => {
     }
 
     const id = route.params.id
-    const res = await axios.post(`http://127.0.0.1:8000/api/admin/update-food/${id}`, formData, {
+    await axios.post(`http://127.0.0.1:8000/api/admin/update-food/${id}`, formData, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'multipart/form-data'
       }
     })
 
-    alert('Cập nhật thành công')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Cập nhật món ăn thành công!',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    })
+
     router.push('/admin/products')
   } catch (error) {
-    let msg = 'Lỗi khi cập nhật món ăn.\n'
+    let msg = 'Lỗi khi cập nhật món ăn. '
     if (error.response) {
-      msg += `Mã lỗi: ${error.response.status}\n`
-      msg += `Message: ${error.response.data.message || JSON.stringify(error.response.data)}\n`
-
+      msg += `(${error.response.status}) ${error.response.data.message || JSON.stringify(error.response.data)}`
     } else if (error.request) {
       msg += 'Không nhận được phản hồi từ server.'
     } else {
       msg += error.message
     }
-    alert(msg)
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: msg,
+      showConfirmButton: false,
+      timer: 4000,
+      timerProgressBar: true
+    })
     console.error(error)
   }
 }
+
 
 
 onMounted(() => {

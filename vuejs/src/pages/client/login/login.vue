@@ -3,9 +3,9 @@
     <div class="form-container text-center">
       <h2 class="mb-4">ĐĂNG NHẬP</h2>
       <form method="POST" @submit.prevent="handleLogin">
-        <div v-if="loginError" class="alert alert-danger">
+        <!-- <div v-if="loginError" class="alert alert-danger">
           {{ loginError }}
-        </div>
+        </div> -->
         <div class="mb-3">
           <label for="email" class="form-label visually-hidden">ĐỊA CHỈ EMAIL</label>
           <input v-model="loginData.login" type="email" id="email" name="email" class="form-control"
@@ -21,7 +21,18 @@
           <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
           ĐĂNG NHẬP
         </button>
+
+
       </form>
+       <div class="mt-4">
+          <div class="divider mb-3"><span class="text-muted">HOẶC</span></div>
+          <button class="btn btn-outline-dark w-100 mb-2" @click="loginWithGoogle()">
+            <i class="fab fa-google me-2"></i> Đăng nhập với Google
+          </button>
+          <button class="btn btn-outline-primary w-100" >
+            <i class="fab fa-facebook-f me-2"></i> Đăng nhập với Facebook
+          </button>
+        </div>
 
       <p class="mt-4 text-muted" style="font-size: 0.9rem;">
         Bằng cách tiếp tục, bạn đồng ý với chúng tôi
@@ -40,6 +51,7 @@
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userAuth';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'LoginForm',
@@ -62,48 +74,74 @@ export default {
   },
 
   methods: {
-    async handleLogin() {
-      this.loginError = '';
-      this.loading = true;
-
-      try {
-        const response = await axios.post('http://127.0.0.1:8000/api/login', this.loginData);
-
-        // Lưu user và token vào store
-        this.userStore.setUser(response.data.user, response.data.token);
-
-        alert('Đăng nhập thành công!');
-
-        // Reset form
-        this.loginData.login = '';
-        this.loginData.password = '';
-
-        // Điều hướng
-        if (response.data.user.role === 'admin') {
-          this.router.push('/admin');
-        } else {
-          this.router.push('/home');
-        }
-      } catch (error) {
-        console.error('Lỗi đăng nhập:', error);
-
-        if (error.response?.status === 422) {
-          const errors = error.response.data.errors;
-          const firstKey = Object.keys(errors)[0];
-          this.loginError = errors[firstKey][0];
-        } else if (error.response?.status === 401) {
-          this.loginError = 'Sai email hoặc mật khẩu!';
-        } else if (error.response?.status === 500) {
-          this.loginError = error.response.data.message || 'Lỗi máy chủ. Vui lòng thử lại sau.';
-        } else if (error.request) {
-          this.loginError = 'Không thể kết nối đến máy chủ. Kiểm tra internet.';
-        } else {
-          this.loginError = 'Đã có lỗi xảy ra. Vui lòng thử lại.';
-        }
-      } finally {
-        this.loading = false;
-      }
+    async loginWithGoogle() {
+      window.location.href = 'http://127.0.0.1:8000/api/auth/google/redirect';
     },
+
+async handleLogin() {
+  this.loginError = '';
+  this.loading = true;
+
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/login', this.loginData);
+
+    // Lưu user và token vào store
+    this.userStore.setUser(response.data.user, response.data.token);
+
+    // Hiển thị toast đăng nhập thành công
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Đăng nhập thành công!',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
+
+    // Reset form
+    this.loginData.login = '';
+    this.loginData.password = '';
+
+    // Điều hướng
+    if (response.data.user.role === 'admin') {
+      this.router.push('/admin');
+    } else {
+      this.router.push('/home');
+    }
+  } catch (error) {
+    console.error('Lỗi đăng nhập:', error);
+
+    let errorMessage = 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+    if (error.response?.status === 422) {
+      const errors = error.response.data.errors;
+      const firstKey = Object.keys(errors)[0];
+      errorMessage = errors[firstKey][0];
+    } else if (error.response?.status === 401) {
+      errorMessage = 'Sai email hoặc mật khẩu!';
+    } else if (error.response?.status === 500) {
+      errorMessage = error.response.data.message || 'Lỗi máy chủ. Vui lòng thử lại sau.';
+    } else if (error.request) {
+      errorMessage = 'Không thể kết nối đến máy chủ. Kiểm tra internet.';
+    }
+
+    // Hiển thị toast lỗi
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: errorMessage,
+      showConfirmButton: false,
+      timer: 5000,
+      timerProgressBar: true
+    });
+
+    this.loginError = errorMessage; // nếu bạn vẫn muốn giữ cho UI hiển thị dưới form
+  } finally {
+    this.loading = false;
+  }
+},
+
   },
 };
 </script>

@@ -120,6 +120,11 @@ const admin = [
         name: 'update-combo',
         component: () => import('../pages/admin/Combo/update.vue'),
       },
+      {
+        path: 'order-create',
+        name: 'order-create',
+        component: () => import('../pages/admin/Orders/order-create.vue'),
+      },
     ],
   }
 ]
