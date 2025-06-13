@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between">
       <h3 class="text-danger fw-bold">Cập nhật món ăn</h3>
       <div>
-        <router-link to="/foods" class="btn btn-outline-secondary rounded-0">
+        <router-link to="/admin/products" class="btn btn-outline-secondary rounded-0">
           <i class="bi bi-arrow-counterclockwise"></i> Quay lại
         </router-link>
       </div>
@@ -95,8 +95,8 @@
       </div>
 
       <div class="col-12 mb-4 text-center">
-        <button type="submit" class="btn btn-danger1 themsp" style="width: 200px;">
-          Cập nhật
+        <button type="submit" class="btn btn-danger-save mt-2" style="width: 200px;">
+          Cập nhật món ăn
         </button>
       </div>
     </form>

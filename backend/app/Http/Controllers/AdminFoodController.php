@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Food;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class AdminFoodController extends Controller
 {
@@ -15,25 +16,26 @@ class AdminFoodController extends Controller
     public function index(Request $request)
     {
         $limit = (int) $request->input('limit', 10);
-        // Default limit = 10
-        $categoryId = $request->input('categoryId'); // Lấy giá trị categoryId từ request
+        $categoryId = $request->input('categoryId');
+        $search = $request->input('search');
 
-        $query = Food::with('category')->orderBy('id', 'desc'); // Query cơ bản, bao gồm thông tin danh mục của món ăn
+        $query = Food::with('category')->orderBy('id', 'desc');
 
-        // Nếu có categoryId, lọc món ăn theo categoryId và các danh mục con của nó
         if ($categoryId) {
-            // Lấy tất cả danh mục con của categoryId
             $categoryIds = Category::where('parent_id', $categoryId)
-                ->orWhere('id', $categoryId) // Bao gồm cả danh mục cha
-                ->pluck('id'); // Lấy danh sách ID của danh mục con và cha
+                ->orWhere('id', $categoryId)
+                ->pluck('id');
 
-            // Lọc món ăn theo danh mục con và cha
             $query->whereIn('category_id', $categoryIds);
         }
 
-        // Trả về kết quả theo phân trang
+        if ($search) {
+            $query->where('name', 'like', "%$search%");
+        }
+
         return response()->json($query->paginate($limit));
     }
+
 
 
     /**
@@ -207,7 +209,8 @@ class AdminFoodController extends Controller
         return response()->json(['message' => 'Xóa món ăn thành công.'], 200);
     }
 
-    public function getAllFood(){
+    public function getAllFood()
+    {
         try {
             $allFood = Food::with('category')->get();
             return response()->json($allFood);
@@ -215,10 +218,10 @@ class AdminFoodController extends Controller
             return response()->json([
                 'message' => 'Error',
                 'error' => $e->getMessage()
-            ],500);
+            ], 500);
         }
     }
-    
+
     public function deleteMultiple(Request $request)
     {
         $ids = $request->input('ids');
@@ -230,5 +233,31 @@ class AdminFoodController extends Controller
         Food::whereIn('id', $ids)->delete();
 
         return response()->json(['message' => 'Xoá thành công']);
+    }
+
+    public function search(Request $request)
+    {
+        $keyword = $request->input('keyword');
+
+        $foods = Food::where('name', 'like', "%{$keyword}%")
+            ->orWhere('description', 'like', "%{$keyword}%")
+            ->get();
+
+        return response()->json($foods);
+    }
+
+    public function updateStatus($id, Request $request)
+    {
+        $food = Food::findOrFail($id);
+        $newStatus = $request->input('status');
+
+        if (!in_array($newStatus, ['active', 'inactive'])) {
+            return response()->json(['message' => 'Trạng thái không hợp lệ'], 400);
+        }
+
+        $food->status = $newStatus;
+        $food->save();
+
+        return response()->json(['message' => 'Cập nhật trạng thái thành công']);
     }
 }

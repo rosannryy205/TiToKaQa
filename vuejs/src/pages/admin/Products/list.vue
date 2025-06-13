@@ -7,9 +7,11 @@
       + Thêm món ăn
     </router-link>
     <span class="vd">Tìm kiếm</span>
-    <input type="text" class="custom-input" placeholder="Tìm kiếm danh mục" />
+    <input type="text" v-model="searchText" placeholder="Tìm món ăn..." class="clean-input" />
+
+
     <span class="vd">Lọc</span>
-    <select class="custom-select" v-model="selectedCategory">
+    <select class="clean-select" v-model="selectedCategory">
       <option value="">Tất cả danh mục</option>
 
       <template v-for="category in categories" :key="category.id">
@@ -19,7 +21,16 @@
         </option>
       </template>
     </select>
+
+    <span class="vd">Hiển thị</span>
+    <select class="custom-select" v-model="limit">
+      <option :value="5">5</option>
+      <option :value="10">10</option>
+      <option :value="15">15</option>
+    </select>
   </div>
+
+
 
   <!-- Table Responsive -->
   <!-- <div class="table-responsive d-none d-lg-block">
@@ -108,7 +119,13 @@
               </button>
             </router-link>
             <button class="btn btn-clean btn-delete btn-sm" @click="deleteFood(food.id)">Xoá</button>
-            <button class="btn btn-outline btn-sm">Ẩn</button>
+
+            <button @click="toggleStatus(food)" class="btn btn-toggle-status"
+              :class="food.status === 'active' ? 'btn-outline-secondary' : 'btn-outline-success'"
+              style="min-width: 60px">
+              {{ food.status === 'active' ? 'Ẩn' : 'Hiện' }}
+            </button>
+
             <!-- <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#toppingModal">Toppings</button> -->
           </td>
         </tr>
@@ -168,12 +185,15 @@ import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
+
 const foods = ref([]);
 const currentPage = ref(1);
 const lastPage = ref(1);
 const limit = ref(10);
 const selectedCategory = ref('');
 const selectedFoods = ref([]);
+const searchText = ref('');
+
 const newFood = ref({
   name: '',
   price: '',
@@ -183,6 +203,10 @@ const newFood = ref({
   description: '',
   image: null
 });
+
+
+
+
 
 
 const categories = ref([])
@@ -215,26 +239,19 @@ const fetchFoods = async () => {
       params: {
         limit: limit.value,
         page: currentPage.value,
-        categoryId: selectedCategory.value || ''
+        categoryId: selectedCategory.value || '',
+        search: searchText.value || ''
       }
     });
-    console.log('Params gửi lên:', {
-      limit: limit.value,
-      page: currentPage.value,
-      categoryId: selectedCategory.value
-    });
-    console.log('Foods API response:', response.data);
-
 
     foods.value = response.data.data || [];
-
-
     currentPage.value = response.data.current_page || 1;
     lastPage.value = response.data.last_page || 1;
   } catch (error) {
     console.error('Lỗi khi load danh sách món ăn:', error.response?.data || error.message);
   }
-}
+};
+
 
 
 
@@ -246,6 +263,11 @@ onMounted(() => {
 })
 
 watch(currentPage, () => {
+  fetchFoods()
+})
+
+watch(searchText, () => {
+  currentPage.value = 1
   fetchFoods()
 })
 
@@ -366,8 +388,52 @@ const deleteSelectedFoods = async () => {
       });
     }
   }
+
+
+
 };
 
+const toggleStatus = async (food) => {
+  const newStatus = food.status === 'active' ? 'inactive' : 'active';
+
+  console.log('food:', food); // Kiểm tra toàn bộ object
+  console.log('Gửi ID:', food.id);
+  console.log('Trạng thái mới:', newStatus);
+
+  try {
+    await axios.put(`http://127.0.0.1:8000/api/admin/food/${food.id}/status`, {
+      status: newStatus,
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    food.status = newStatus;
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Đã cập nhật trạng thái thành công',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
+
+  } catch (err) {
+    console.error('Lỗi khi gọi API:', err); // In rõ lỗi hơn
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Có lỗi khi cập nhật trạng thái',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
+  }
+}
 
 </script>
 
@@ -413,6 +479,26 @@ export default {
   box-shadow: none;
 }
 
+.clean-input,
+.clean-select {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  height: 28px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  background-color: transparent;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-shadow: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.clean-input:focus,
+.clean-select:focus {
+  border-color: #c92c3c;
+}
+
 .btn-add {
   background: none;
   color: #c92c3c;
@@ -421,10 +507,12 @@ export default {
   border-radius: 4px;
   font-weight: normal;
 }
+
 .btn-add:hover {
   background-color: #c92c3c;
   color: #fff;
 }
+
 .btn-update {
   background: none;
   color: #ab9c00;
@@ -433,10 +521,12 @@ export default {
   border-radius: 4px;
   font-weight: normal;
 }
+
 .btn-update:hover {
   background-color: #ab9c00;
   color: #fff;
 }
+
 .btn-outline {
   background: none;
   border: 1px solid #ccc;
@@ -444,10 +534,12 @@ export default {
   border-radius: 4px;
   color: #555;
 }
+
 .btn-outline:hover {
   background-color: #eee;
   color: #333;
 }
+
 .btn-clean {
   background-color: transparent !important;
   border: 1px solid #c92c3c;
@@ -456,14 +548,17 @@ export default {
   font-size: 0.85rem;
   border-radius: 4px;
 }
+
 .btn-clean:hover {
   background-color: #c92c3c !important;
   color: white !important;
 }
+
 .btn-delete {
   border-color: #c92c3c !important;
   color: #c92c3c !important;
 }
+
 .btn-delete:hover {
   background-color: #c92c3c !important;
   color: white !important;
@@ -472,6 +567,8 @@ export default {
 .delete_mobile {
   display: none;
 }
+
+
 
 @media (max-width: 768px) {
   .table-responsive {
