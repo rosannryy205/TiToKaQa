@@ -382,11 +382,15 @@ async function updateCombo() {
 
 // ================== Xóa COMBO ==================
 async function deleteCombo(comboId) {
- try {
-  
- } catch (error) {
-  
- }
+  try {
+    if (!confirm('Bạn có chắc muốn xóa combo này?')) return;
+    await axios.delete(`http://127.0.0.1:8000/api/admin/combos/delete/${comboId}`)
+    toast.success('Xóa combo thành công!')
+  } catch (error) {
+    console.error(error)
+    toast.error('Lỗi khi xóa combo!')
+  }
+}
 
 
 // ================== KHỞI TẠO ==================

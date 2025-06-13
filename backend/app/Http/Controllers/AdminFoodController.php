@@ -14,7 +14,8 @@ class AdminFoodController extends Controller
      */
     public function index(Request $request)
     {
-        $limit = $request->input('limit', 10); // Default limit = 10
+        $limit = (int) $request->input('limit', 10);
+        // Default limit = 10
         $categoryId = $request->input('categoryId'); // Lấy giá trị categoryId từ request
 
         $query = Food::with('category')->orderBy('id', 'desc'); // Query cơ bản, bao gồm thông tin danh mục của món ăn
@@ -124,7 +125,7 @@ class AdminFoodController extends Controller
             return response()->json(['message' => 'Lỗi khi lấy món ăn', 'error' => $e->getMessage()], 500);
         }
     }
-    
+
     public function update(Request $request, string $id)
     {
         // Tìm món ăn cần sửa
@@ -216,5 +217,18 @@ class AdminFoodController extends Controller
                 'error' => $e->getMessage()
             ],500);
         }
+    }
+    
+    public function deleteMultiple(Request $request)
+    {
+        $ids = $request->input('ids');
+
+        if (!is_array($ids) || empty($ids)) {
+            return response()->json(['message' => 'Danh sách ID không hợp lệ'], 400);
+        }
+
+        Food::whereIn('id', $ids)->delete();
+
+        return response()->json(['message' => 'Xoá thành công']);
     }
 }

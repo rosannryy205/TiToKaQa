@@ -155,10 +155,11 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 
 //admin
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::get('/admin/foods', [AdminFoodController::class, 'index']);
+    Route::get('/admin/manage/foods', [AdminFoodController::class, 'index']);
     Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
     Route::post('/admin/foods', [AdminFoodController::class, 'store']);
     Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
+    Route::post('/admin/foods/delete-multiple', [AdminFoodController::class, 'deleteMultiple']);
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
     Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
@@ -190,3 +191,4 @@ Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
 Route::patch('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
 Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);
+Route::post('/admin/combo/create', [ComboController::class, 'createCombosByAdmin']);
