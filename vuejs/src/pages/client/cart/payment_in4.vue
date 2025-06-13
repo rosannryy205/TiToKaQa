@@ -22,46 +22,26 @@
               <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại" />
             </div>
             <div class="mb-3">
-              <select
-                v-model="selectedProvince"
-                @change="fetchDistricts"
-                class="form-control-customer"
-              >
+              <select v-model="selectedProvince" @change="fetchDistricts" class="form-control-customer">
                 <option value="">Chọn tỉnh / thành</option>
-                <option
-                  v-for="province in provinces"
-                  :key="province.ProvinceID"
-                  :value="province.ProvinceID"
-                >
+                <option v-for="province in provinces" :key="province.ProvinceID" :value="province.ProvinceID">
                   {{ province.ProvinceName }}
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <select
-                v-model="selectedDistrict"
-                @change="fetchWards"
-                :disabled="!selectedProvince"
-                class="form-control-customer"
-              >
+              <select v-model="selectedDistrict" @change="fetchWards" :disabled="!selectedProvince"
+                class="form-control-customer">
                 <option value="">Chọn quận / huyện</option>
-                <option
-                  v-for="district in districts"
-                  :key="district.DistrictID"
-                  :value="district.DistrictID"
-                >
+                <option v-for="district in districts" :key="district.DistrictID" :value="district.DistrictID">
                   {{ district.DistrictName }}
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <select
-                v-model="selectedWard"
-                :disabled="!selectedDistrict"
-                class="form-control-customer"
-              >
+              <select v-model="selectedWard" :disabled="!selectedDistrict" class="form-control-customer">
                 <option value="">Chọn phường / xã</option>
                 <option v-for="ward in wards" :key="ward.WardCode" :value="ward.WardCode">
                   {{ ward.WardName }}
@@ -122,16 +102,10 @@
           <div class="d-flex justify-content-between mb-2">
             <span>Phí ship</span>{{ formatNumber(shippingFee) }} VNĐ
           </div>
-          <div
-            v-if="discountFoodAmount > 0"
-            class="d-flex justify-content-between mb-2 text-success"
-          >
+          <div v-if="discountFoodAmount > 0" class="d-flex justify-content-between mb-2 text-success">
             <span>Giảm giá sản phẩm</span> -{{ formatNumber(discountFoodAmount) }} VNĐ
           </div>
-          <div
-            v-if="discountShipAmount > 0"
-            class="d-flex justify-content-between mb-2 text-success"
-          >
+          <div v-if="discountShipAmount > 0" class="d-flex justify-content-between mb-2 text-success">
             <span>Giảm giá phí ship</span> -{{ formatNumber(discountShipAmount) }} VNĐ
           </div>
           <div style="color: #c92c3c" class="d-flex justify-content-between mb-2 fw-bold">
@@ -159,56 +133,40 @@
           <!--chon-->
           <div class="discount-scroll-wrapper" v-if="isLoggedIn">
             <div v-for="discount in discountsFiltered" :key="discount.id">
-              <div
-                class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
-                :class="{
-                  'disabled-voucher':
-                    totalPrice < discount.min_order_value ||
-                    discount.used >= discount.usage_limit ||
-                    (discount.discount_type === 'freeship' && !hasShippingFee),
-                  'freeship-voucher': discount.discount_type === 'freeship',
-                }"
-                @click="
-                  totalPrice >= discount.min_order_value &&
-                  discount.used < discount.usage_limit &&
-                  !(discount.discount_type === 'freeship' && !hasShippingFee) &&
-                  (selectedDiscount === discount.code
-                    ? removeDiscountCode()
-                    : applyDiscountCode(discount.code))
-                "
-              >
+              <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2" :class="{
+                'disabled-voucher':
+                  totalPrice < discount.min_order_value ||
+                  discount.used >= discount.usage_limit ||
+                  (discount.discount_type === 'freeship' && !hasShippingFee),
+                'freeship-voucher': discount.discount_type === 'freeship',
+              }" @click="
+                totalPrice >= discount.min_order_value &&
+                discount.used < discount.usage_limit &&
+                !(discount.discount_type === 'freeship' && !hasShippingFee) &&
+                (selectedDiscount === discount.code
+                  ? removeDiscountCode()
+                  : applyDiscountCode(discount.code))
+                ">
                 <!-- Bên trái -->
                 <div class="voucher-left d-flex align-items-center">
                   <div class="voucher-logo d-flex align-items-center justify-content-center">
                     <!-- Logo theo loại mã -->
-                    <img
-                      v-if="discount.discount_type === 'freeship'"
-                      src="/img/freeship-icon.png"
-                      alt="Freeship"
-                      class="voucher-icon"
-                    />
+                    <img v-if="discount.discount_type === 'freeship'" src="/img/freeship-icon.png" alt="Freeship"
+                      class="voucher-icon" />
                     <img v-else src="/img/discount-icon.png" alt="Discount" class="voucher-icon" />
                   </div>
                   <div class="voucher-info ps-3">
-                    <div
-                      class="voucher-title"
-                      :class="{ 'freeship-text': discount.discount_type === 'freeship' }"
-                    >
+                    <div class="voucher-title" :class="{ 'freeship-text': discount.discount_type === 'freeship' }">
                       {{ discount.name }}
                     </div>
-                    <div
-                      class="voucher-title"
-                      :class="{ 'freeship-text': discount.discount_type === 'freeship' }"
-                    >
+                    <div class="voucher-title" :class="{ 'freeship-text': discount.discount_type === 'freeship' }">
                       Mã {{ discount.code }}
                     </div>
                     <div class="voucher-time">
                       <i class="fa-regular fa-clock me-1"></i>Ngày hết hạn: {{ discount.end_date }}
                     </div>
-                    <div
-                      v-if="discount.discount_type === 'freeship' && !hasShippingFee"
-                      class="remind text-danger fw-md"
-                    >
+                    <div v-if="discount.discount_type === 'freeship' && !hasShippingFee"
+                      class="remind text-danger fw-md">
                       Vui lòng chọn địa chỉ để dùng mã !
                     </div>
 
@@ -220,16 +178,12 @@
 
                 <!-- Bên phải -->
                 <div class="voucher-right text-end">
-                  <div
-                    class="voucher-status"
-                    :class="{
-                      'text-success': selectedDiscount === discount.code,
-                      'freeship-text': discount.discount_type === 'freeship',
-                      'freeship-border': discount.discount_type === 'freeship',
-                    }"
-                  >
-                    <span v-if="selectedDiscount === discount.code" class="text-danger"
-                      >Bỏ dùng❌
+                  <div class="voucher-status" :class="{
+                    'text-success': selectedDiscount === discount.code,
+                    'freeship-text': discount.discount_type === 'freeship',
+                    'freeship-border': discount.discount_type === 'freeship',
+                  }">
+                    <span v-if="selectedDiscount === discount.code" class="text-danger">Bỏ dùng❌
                     </span>
                     <span v-else>Dùng ngay</span>
                   </div>
@@ -324,6 +278,7 @@ export default {
       loadCart,
       discountShipAmount,
     } = Discounts()
+
     const {
       cartItems,
       cartKey,
@@ -341,7 +296,12 @@ export default {
           alert('Vui lòng chọn phương thức thanh toán!')
           return
         }
-        const fullAddress = `${form.value.address}, ${selectedWard.value?.name || ''}, ${selectedDistrict.value?.name || ''}, ${selectedProvince.value?.name || ''}`
+        const province = provinces.value.find(p => p.ProvinceID === selectedProvince.value)
+        const district = districts.value.find(d => d.DistrictID === selectedDistrict.value)
+        const ward = wards.value.find(w => w.WardCode === selectedWard.value)
+
+        const fullAddress = `${form.value.address}, ${ward?.WardName || ''}, ${district?.DistrictName || ''}, ${province?.ProvinceName || ''}`
+
         if (!fullAddress) {
           alert('Không lấy được vị trí của địa chỉ bạn đã nhập.')
           isLoading.value = false
@@ -398,7 +358,7 @@ export default {
           })
           if (paymentRes.data.payment_url) {
             localStorage.setItem('payment_method', paymentMethod.value)
-            localStorage.removeItem(cartKey)
+            localStorage.removeItem(cartKey.value)
             window.location.href = paymentRes.data.payment_url
           } else {
             alert('Không tạo được link thanh toán.')
@@ -416,7 +376,7 @@ export default {
           })
           alert('Đặt hàng thành công!')
           localStorage.setItem('payment_method', paymentMethod.value)
-          localStorage.removeItem(cartKey)
+          localStorage.removeItem(cartKey.value)
           router.push('/payment-result')
         }
       } catch (error) {
