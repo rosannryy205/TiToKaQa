@@ -1,9 +1,5 @@
 <template>
-  <div
-    v-if="loading"
-    class="d-flex justify-content-center align-items-center"
-    style="min-height: 50vh"
-  >
+  <div v-if="loading" class="d-flex justify-content-center align-items-center" style="min-height: 50vh">
     <div class="spinner-border text-danger" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
@@ -15,29 +11,19 @@
       <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0">
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
           <div class="d-flex flex-column flex-md-row align-items-center mb-3">
-            <template v-if="form.avatar_preview || form.avatar">
-              <img
-                :src="avatarUrl"
-                alt="Avatar"
-                v-if="avatarUrl"
-                class="avatar-circle d-flex justify-content-center align-items-center"
-              />
+            <template v-if="avatarUrl">
+              <img :src="avatarUrl" alt="Avatar" class="avatar-circle" />
             </template>
             <template v-else>
-              <div
-                class="avatar-circle border-custom d-flex justify-content-center align-items-center"
-              >
+              <div class="avatar-circle border-custom d-flex justify-content-center align-items-center">
                 {{ getInitial(form?.fullname) || getInitial(form?.username) }}
               </div>
             </template>
 
             <div class="ms-md-4 mt-3 mt-md-0 text-center text-md-start">
               <h6 class="fw-bold mb-2">{{ form.fullname || form.username }}</h6>
-              <a
-                href="#"
-                @click="handleLogout"
-                class="list-group-item-action link-danger small d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2"
-              >
+              <a href="#" @click="handleLogout"
+                class="list-group-item-action link-danger small d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2">
                 <i class="bi bi-box-arrow-right"></i> Đăng xuất
               </a>
             </div>
@@ -45,9 +31,7 @@
 
           <ul class="list-group list-group-flush">
             <router-link to="/update-user" class="text-decoration-none text-dark">
-              <li
-                class="list-group-item d-flex justify-content-between align-items-center"
-              >
+              <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <div class="fw-bold">Thông tin tài khoản</div>
                   <div class="small text-muted">Cập nhật thông tin</div>
@@ -57,9 +41,7 @@
             </router-link>
 
             <router-link to="/order-management" class="text-decoration-none text-dark">
-              <li
-                class="list-group-item d-flex justify-content-between align-items-center"
-              >
+              <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <div class="fw-bold text-danger">Quản lý đơn hàng</div>
                   <div class="small text-muted">Đơn hàng của tôi</div>
@@ -76,12 +58,8 @@
         <h4 class="fw-bold mb-4">Đơn hàng của tôi</h4>
         <!-- Tabs -->
         <div class="order-tabs d-flex flex-nowrap overflow-auto gap-3 mb-4">
-          <div
-            v-for="tab in tabs"
-            :key="tab"
-            :class="['tab-item', { active: activeTab === tab }]"
-            @click="setActive(tab)"
-          >
+          <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]"
+            @click="setActive(tab)">
             {{ tab }}
           </div>
         </div>
@@ -106,11 +84,8 @@
                   <td>{{ formatNumber(order.total_price) }} VND</td>
                   <td>{{ order.order_status || order.order_reservation_time }}</td>
                   <td>
-                    <router-link
-                      :to="{ name: 'history-order-detail', params: { id: order.id } }"
-                      class="btn btn-outline-primary btn-sm"
-                      >Xem</router-link
-                    >
+                    <router-link :to="{ name: 'history-order-detail', params: { id: order.id } }"
+                      class="btn btn-outline-primary btn-sm">Xem</router-link>
                   </td>
                 </tr>
               </tbody>
@@ -134,11 +109,8 @@
                     <strong>Trạng thái:</strong>
                     {{ order.order_status || order.order_reservation_time }}
                   </p>
-                  <router-link
-                    :to="{ name: 'history-order-detail', params: { id: order.id } }"
-                    class="btn btn-outline-primary btn-sm"
-                    >Xem</router-link
-                  >
+                  <router-link :to="{ name: 'history-order-detail', params: { id: order.id } }"
+                    class="btn btn-outline-primary btn-sm">Xem</router-link>
                 </div>
               </div>
             </div>
@@ -147,10 +119,8 @@
 
         <!-- No Orders -->
         <div v-else class="text-center mt-5">
-          <div
-            class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center"
-            style="width: 80px; height: 80px"
-          >
+          <div class="bg-light rounded-circle d-inline-flex justify-content-center align-items-center"
+            style="width: 80px; height: 80px">
             <i class="bi bi-receipt fs-2 text-muted"></i>
           </div>
           <p class="text-muted mt-3">Bạn chưa có đơn hàng nào.</p>
@@ -182,7 +152,7 @@ export default {
       "Tất cả đơn",
       "Chờ thanh toán",
       "Đang xử lý",
-      "Đang vận chuyển",
+      "Đang giao hàng",
       "Đã giao",
       "Đã hủy",
     ];
@@ -218,6 +188,7 @@ export default {
       handleLogout,
       handleImageUpload,
       primaryColor,
+      avatarUrl,
     } = User.setup();
 
 
@@ -228,7 +199,11 @@ export default {
       console.log("Đang gọi API lấy lịch sử đơn hàng...");
       try {
         const res = await axios.get(
-          `http://127.0.0.1:8000/api/order-history-info/${userId}`
+          `http://127.0.0.1:8000/api/order-history-info`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
         );
         orders.value = res.data.orders || [];
         console.log("Đơn hàng:", orders.value);
@@ -238,20 +213,6 @@ export default {
         loading.value = false; // Ẩn spinner sau khi hoàn tất API
       }
     };
-    const avatarUrl = computed(() => {
-      const avatar = form.value.avatar;
-
-      // Nếu đang chọn ảnh preview mới
-      if (form.value.avatar_preview) return form.value.avatar_preview;
-
-      // Nếu là link Google (OAuth), dùng trực tiếp
-      if (typeof avatar === "string" && avatar.startsWith("http")) return avatar;
-
-      // Nếu là ảnh từ server Laravel (tên file)
-      if (avatar) return `http://localhost:8000/assets/avatar/${avatar}`;
-
-      return null;
-    });
 
     onMounted(() => {
       getOrderByUser();
@@ -296,7 +257,8 @@ export default {
 }
 
 .tab-item {
-  flex: 0 0 auto; /* QUAN TRỌNG: không co lại */
+  flex: 0 0 auto;
+  /* QUAN TRỌNG: không co lại */
   padding: 0.6rem 1.2rem;
   white-space: nowrap;
   border-radius: 8px;
@@ -352,11 +314,13 @@ li.list-group-item {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 @media (max-width: 768px) {
   .tab-item {
     padding: 0.75rem 1.2rem;
