@@ -77,12 +77,12 @@
           <div class="card-payment1 border shadow-sm bg-white p-4 rounded-bottom">
             <div class="d-flex justify-content-between mb-2">
               <span>Tạm tính</span>
-              <span>{{ formatNumber(totalPrice) }} VNĐ</span>
+              <span>{{ formatNumber(totalPrice + 100000) }} VNĐ</span>
             </div>
 
             <div class="d-flex justify-content-between mb-2">
               <span>Khuyến mãi</span>
-              <span class="text-success">-{{ formatNumber(discountAmount) }} VNĐ</span>
+              <span class="text-success">-{{ formatNumber(discountFoodAmount) }} VNĐ</span>
             </div>
 
             <div class="input-group mb-2">
@@ -111,7 +111,7 @@
             <hr />
             <div class="d-flex justify-content-between mb-3">
               <strong class="fs-5">Tổng cộng (VAT)</strong>
-              <strong class="text-danger fs-5">{{ formatNumber(finalTotal) }} VNĐ</strong>
+              <strong class="text-danger fs-5">{{ formatNumber(finalTotal  + 100000) }} VNĐ</strong>
             </div>
 
             <div class="mb-3">
@@ -184,14 +184,14 @@ export default {
     const { form, user } = User.setup();
     const { getInfo, info } = Info.setup();
     const {
-      discountAmount,
-      finalTotal,
+      discounts,
       discountInput,
       selectedDiscount,
-      discounts,
+      discountId,
       applyDiscountCode,
       handleDiscountInput,
-      discountId,
+      finalTotal,
+      discountFoodAmount,
     } = Discounts()
 
     const {
@@ -252,8 +252,8 @@ export default {
           guest_email: form.value.email,
           note: form.value.note || "",
           deposit_amount: 100000,
-          total_price: finalTotal.value,
-          money_reduce: discountAmount.value,
+          total_price: finalTotal.value  + 100000,
+          money_reduce: discountFoodAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
@@ -375,7 +375,7 @@ export default {
       loadCart,
       totalPriceItem,
       totalPrice,
-      discountAmount,
+      discountFoodAmount,
       finalTotal,
       discountInput,
       selectedDiscount,

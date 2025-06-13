@@ -73,9 +73,10 @@ export function Cart() {
 
       const existingItemIndex = cartItems.value.findIndex(
         (item) =>
-            item.id === newCartItem.id &&
-            JSON.stringify(item.toppings.sort((a,b) => a.id - b.id)) === JSON.stringify(newCartItem.toppings.sort((a,b) => a.id - b.id)),
-    )
+          item.id === newCartItem.id &&
+          // item.spicyLevel === newCartItem.spicyLevel &&
+          JSON.stringify(item.toppings.sort((a,b) => a.id - b.id)) === JSON.stringify(newCartItem.toppings.sort((a,b) => a.id - b.id)),
+      )
 
     if (existingItemIndex !== -1) {
         cartItems.value[existingItemIndex].quantity += newCartItem.quantity

@@ -19,6 +19,7 @@ use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ShippingController;
+use App\Http\Controllers\TableController;
 use App\Models\Combo;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
@@ -42,12 +43,13 @@ Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']);
 
 
-//reservation
+//reservation-client
 Route::post('/reservation', [OrderController::class, 'reservation']);
 Route::get('/order-reservation-info', [OrderController::class, 'getInfoReservation']);
 Route::post('/choose-table', [OrderController::class, 'chooseTable']);
-//reservation - tables - admin
-Route::get('/tables', [OrderController::class, 'getTables']);
+
+
+//reservation-admin
 Route::get('/order-tables', [OrderController::class, 'getOrderOfTable']);
 Route::get('/order-current-tables', [OrderController::class, 'getCurrentOrder']);
 Route::put('/change-table', [OrderController::class, 'changeTable']);
@@ -60,10 +62,24 @@ Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']
 Route::get('/load-order-detail/{order_id}', [OrderController::class, 'showOrderDetail']);
 Route::put('/update-order-detail/{order_id}', [OrderController::class, 'updateOrderDetails']);
 
+
+// table-admin
+Route::get('/tables', [TableController::class, 'getTables']);
+Route::get('/all-tables', [TableController::class, 'getAllTable']);
+Route::get('/tables/{id}', [TableController::class, 'getTableById']);
+Route::put('/tables/{id}', [TableController::class, 'updateTable']);
+Route::delete('/tables/{id}', [TableController::class, 'deleteTable']);
+// Route::get('/restore-tables/{id}', [TableController::class, 'restoreTable']);
+Route::post('/insert-table', [TableController::class, 'insertTable']);
+
+
+
 Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
 
 //history
-Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/order-history-info', [OrderController::class, 'getInfoOrderByUser']);
+});
 Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
 
@@ -139,10 +155,13 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 
 //admin
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::get('/admin/foods', [AdminFoodController::class, 'index']);
+    Route::get('/admin/manage/foods', [AdminFoodController::class, 'index']);
     Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
     Route::post('/admin/foods', [AdminFoodController::class, 'store']);
+    Route::get('/admin/foods/search', [FoodController::class, 'search']);
     Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
+    Route::post('/admin/foods/delete-multiple', [AdminFoodController::class, 'deleteMultiple']);
+    Route::put('admin/food/{id}/status', [AdminFoodController::class, 'updateStatus']);
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
     Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
@@ -166,7 +185,11 @@ Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 
 
 
-/**admin*/
+/**combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
-Route::post('/admin/combo/create', [ComboController::class, 'createCombosByAdmin']);
+Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
+Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
+Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
+Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
+Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);

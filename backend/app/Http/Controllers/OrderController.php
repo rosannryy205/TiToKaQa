@@ -22,7 +22,7 @@ date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Throwable;
+
 
 class OrderController extends Controller
 {
@@ -47,6 +47,7 @@ class OrderController extends Controller
             $availableTables = Table::whereNotIn('id', $conflictingTableIds)
                 ->where('capacity', '>=', $numberOfGuests)
                 ->orderBy('capacity', 'asc')
+                ->orderBy('table_number', 'asc')
                 ->get();
 
             if ($availableTables->isEmpty()) {
@@ -195,6 +196,7 @@ class OrderController extends Controller
                     'deposit_amount' => $request->deposit_amount ?? null,
                     'total_price' => $request->total_price ?? null,
                     'money_reduce' => $request->money_reduce ?? null,
+                    'order_status' => 'Đã xác nhận',
                 ]);
 
                 $reserved_from = $request->reserved_from;
@@ -446,6 +448,9 @@ class OrderController extends Controller
     }
 
 
+
+
+
     // lấy thông tin theo id đơn hàng hoặc id user
     public function getInfoReservation(Request $request)
     {
@@ -539,7 +544,7 @@ class OrderController extends Controller
     //lấy tất cả order theo user
     public function getInfoOrderByUser(Request $request)
     {
-        $userId = $request->id;
+        $userId = $request->user()->id;
 
         $orders = Order::where('user_id', $userId)
             ->orderBy('id', 'desc')
@@ -597,12 +602,6 @@ class OrderController extends Controller
         }
     }
 
-    //lấy tất cả bàn
-    public function getTables()
-    {
-        $tables = Table::orderBy('capacity', 'asc')->get();
-        return $tables;
-    }
 
     //lấy đơn đặt bàn
     public function getOrderOfTable()
@@ -871,23 +870,27 @@ class OrderController extends Controller
     public function updateStatus(Request $request)
     {
         $order = Order::find($request->id);
+        $reservation = Reservation_table::where('order_id', $request->id)->first();
 
         $order->order_status = $request->order_status;
+
         if ($request->order_status === 'Khách đã đến') {
             $order->check_in_time = Carbon::now();
         }
-        if (in_array($request->order_status, ['Đã hủy', 'Hoàn thành'])) {
-            foreach ($order->tables as $table) {
-                $table->status = 'Bàn trống';
-                $table->save();
-            }
+
+        if ($request->order_status === 'Hoàn thành' && $reservation) {
+            $reservation->reserved_to = Carbon::now();
+            $reservation->save(); // Nhớ lưu thay đổi
         }
+
         $order->save();
+
         return response()->json([
             'status' => $request->order_status,
             'message' => 'Đơn hàng đã được cập nhật thành công.'
         ]);
     }
+
 
 
 
