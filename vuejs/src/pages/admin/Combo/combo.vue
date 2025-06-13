@@ -144,7 +144,7 @@
     </div>
   </div>
 
-  
+
 </template>
 
 <script setup>
@@ -205,6 +205,7 @@ async function deleteCombo(comboId) {
 onMounted(() => {
   fetchCombos()
 })
+
 </script>
 
 <style scoped>
