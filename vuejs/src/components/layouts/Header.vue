@@ -15,7 +15,7 @@
           </div>
 
           <div class="d-none d-lg-flex align-items-center ms-auto ">
-            <form @submit.prevent="searchProduct" >
+            <form @submit.prevent="searchProduct">
               <div class="input-wrapper position-relative me-3" ref="wrapperRef">
                 <button class="icon-search-submit" type="submit">
                   <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -53,10 +53,10 @@
 
             <div class="me-2">
               <router-link to="/login" v-if="!isLoggedIn" class="text-decoration-none text-primary-black">
-                  <button  class="icon-btn me-2"  >
-                    <i class="bi bi-people"></i>
-                  </button>
-                </router-link>
+                <button class="icon-btn me-2">
+                  <i class="bi bi-people"></i>
+                </button>
+              </router-link>
               <template v-else>
                 <div class="d-flex align-items-center">
                   <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
@@ -276,9 +276,10 @@ import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/userAuth';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import {  ref, onMounted, onBeforeUnmount,computed} from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import * as bootstrap from 'bootstrap';
 import { toast } from 'vue3-toastify';
+import Swal from 'sweetalert2';
 // const { formattedTime, isCounting, startCountdown } = useCountdown(60);
 const auth = useAuthStore();
 //Google
@@ -290,12 +291,23 @@ const router = useRouter();
 window.bootstrap = bootstrap;
 //  Đăng xuất
 const handleLogout = async () => {
+  const confirmResult = await Swal.fire({
+  title: 'Đăng xuất khỏi hệ thống?',
+  text: 'Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng!',
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonText: 'Đăng xuất',
+  cancelButtonText: 'Huỷ bỏ',
+  confirmButtonColor: '#e3342f',   
+  cancelButtonColor: '#6c757d',
+  reverseButtons: true,
+  focusCancel: true,
+});
 
-
-  const confirmLogout = confirm('Bạn chắc chắn muốn đăng xuất?');
-  if (!confirmLogout) {
+  if (!confirmResult.isConfirmed) {
     return;
   }
+
   try {
     await axios.post('http://127.0.0.1:8000/api/logout', {}, {
       headers: {
@@ -308,11 +320,28 @@ const handleLogout = async () => {
     user.value = null;
     isLoggedIn.value = false;
 
-    alert('Đăng xuất thành công');
+    await Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Đăng xuất thành công',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+    });
+
     window.location.href = '/home';
   } catch (error) {
     console.error('Lỗi đăng xuất:', error);
-    alert('Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!');
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Có lỗi xảy ra khi đăng xuất',
+      showConfirmButton: false,
+      timer: 2500,
+      timerProgressBar: true,
+    });
   }
 };
 
@@ -621,8 +650,8 @@ onBeforeUnmount(() => {
   color: red;
 }
 
-.text-primary-black{
-  color:black;
+.text-primary-black {
+  color: black;
 }
 
 .loading,

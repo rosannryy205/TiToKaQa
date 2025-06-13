@@ -69,7 +69,7 @@
                 large: getChairCount(ban.capacity) === 3,
               }"
             >
-              Bàn {{ ban.name || ban.id }}
+              B{{ ban.table_number }}
             </div>
             <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
               <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n"></div>
@@ -257,7 +257,7 @@ export default {
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin: 5px 0;
+  margin: 2px 0;
 }
 
 .chair {
@@ -268,16 +268,16 @@ export default {
 }
 
 .table-rect {
-  background-color: #c0392b;
-  color: white;
+  background-color: #f4f4f4;
+  color: rgb(81, 73, 73);
   padding: 10px 20px;
   border-radius: 10px;
   text-align: center;
-  font-weight: bold;
   border: 5px solid #ddd;
   min-width: 80px;
+  font-weight: bold;
+  font-size: 16px;
 }
-
 .table-rect.medium {
   min-width: 120px;
 }
@@ -286,7 +286,6 @@ export default {
   min-width: 160px;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .table-container {
     gap: 10px;

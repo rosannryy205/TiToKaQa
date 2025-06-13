@@ -8,11 +8,11 @@
     <span class="vd">Tìm kiếm</span>
     <input type="text" class="custom-input" placeholder="Tìm kiếm danh mục" />
     <span class="vd">Lọc</span>
-    <select class="custom-select">
-      <option selected>Lọc theo danh mục cha</option>
-      <option>Danh mục 1</option>
-      <option>Danh mục 2</option>
+    <select v-model="selectedParent" class="custom-select">
+      <option value="" selected>Lọc theo danh mục cha</option>
+      <option v-for="cate in categories" :key="cate.id" :value="cate.id">{{ cate.name }}</option>
     </select>
+
   </div>
 
   <!-- Table Desktop -->
@@ -28,47 +28,41 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td><input type="checkbox" /></td>
-          <td>1</td>
-          <td>Chưa phân loại</td>
-          <td>Danh mục mặc định</td>
-          <td class="d-flex justify-content-center gap-2 flex-wrap">
-            <button class="btn btn-outline">Sửa</button>
-            <button class="btn btn-danger-delete btn-sm">Xoá</button>
-            <button class="btn btn-outline">Thêm sản phẩm</button>
-          </td>
-        </tr>
-        <tr>
-          <td><input type="checkbox" /></td>
-          <td>2</td>
-          <td>Mỳ</td>
-          <td></td>
-          <td class="d-flex justify-content-center gap-2 flex-wrap">
-            <button class="btn btn-outline">Sửa</button>
-            <button class="btn btn-danger-delete">Xoá</button>
-            <button class="btn btn-outline">Thêm sản phẩm</button>
-          </td>
-        </tr>
-        <tr>
-          <td><input type="checkbox" /></td>
-          <td>3</td>
-          <td>Mỳ trộn</td>
-          <td>Mỳ</td>
-          <td class="d-flex justify-content-center gap-2 flex-wrap">
-            <button class="btn btn-outline">Sửa</button>
-            <button class="btn btn-danger-delete">Xoá</button>
-            <button class="btn btn-outline">Thêm sản phẩm</button>
-          </td>
-        </tr>
+        <template v-for="(item, index) in categories" :key="item.id">
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>{{ index + 1 }}</td>
+            <td>{{ item.name }}</td>
+            <td>Không có (Danh mục cha)</td>
+            <td class="d-flex justify-content-center gap-2 flex-wrap">
+              <button class="btn btn-outline">Sửa</button>
+              <button class="btn btn-danger-delete btn-sm">Xoá</button>
+              <button class="btn btn-outline">Thêm sản phẩm</button>
+            </td>
+          </tr>
+
+          <!-- Nếu có danh mục con -->
+          <tr v-for="(child, childIndex) in item.children" :key="child.id">
+            <td><input type="checkbox" /></td>
+            <td>{{ index + 1 }}.{{ childIndex + 1 }}</td>
+            <td>{{ child.name }}</td>
+            <td>{{ item.name }}</td>
+            <td class="d-flex justify-content-center gap-2 flex-wrap">
+              <button class="btn btn-outline">Sửa</button>
+              <button class="btn btn-danger-delete btn-sm">Xoá</button>
+              <button class="btn btn-outline">Thêm sản phẩm</button>
+            </td>
+          </tr>
+        </template>
       </tbody>
+
     </table>
   </div>
   <button class="btn btn-danger-delete delete_desktop">Xoá</button>
 
   <!-- Mobile View -->
   <div class="d-block d-lg-none">
-    <div class="card mb-3" v-for="(item, index) in [1,2,3]" :key="index">
+    <div class="card mb-3" v-for="(item, index) in [1, 2, 3]" :key="index">
       <div class="row g-0 align-items-center">
         <div class="col-3 fs-4 fw-bold ps-4">
           <input type="checkbox" />
@@ -90,13 +84,45 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { useMenu } from '@/stores/use-menu'
+import { ref, onMounted,computed } from 'vue'
 export default {
   setup() {
-    useMenu().onSelectedKeys(['admin-roles'])
+
+
+    const selectedParent = ref('')
+
+    const filteredCategories = computed(() => {
+      if (!selectedParent.value) return categories.value
+      return categories.value.filter(c => c.id == selectedParent.value)
+    })
+
+
+    const categories = ref([])
+
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/admin/categories')
+        categories.value = response.data
+      } catch (error) {
+        console.error('Lỗi khi load danh mục:', error)
+      }
+    }
+
+    onMounted(() => {
+      useMenu().onSelectedKeys(['admin-roles'])
+      fetchCategories()
+    })
+
+    return {
+      categories
+    }
   },
 }
 </script>
+
+
 
 <style scoped>
 .title {

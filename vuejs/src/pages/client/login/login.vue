@@ -3,9 +3,9 @@
     <div class="form-container text-center">
       <h2 class="mb-4">ĐĂNG NHẬP</h2>
       <form method="POST" @submit.prevent="handleLogin">
-        <div v-if="loginError" class="alert alert-danger">
+        <!-- <div v-if="loginError" class="alert alert-danger">
           {{ loginError }}
-        </div>
+        </div> -->
         <div class="mb-3">
           <label for="email" class="form-label visually-hidden">ĐỊA CHỈ EMAIL</label>
           <input v-model="loginData.login" type="email" id="email" name="email" class="form-control"
@@ -51,6 +51,7 @@
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userAuth';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'LoginForm',
@@ -77,30 +78,39 @@ export default {
       window.location.href = 'http://127.0.0.1:8000/api/auth/google/redirect';
     },
 
-    async handleLogin() {
-      this.loginError = '';
-      this.loading = true;
+async handleLogin() {
+  this.loginError = '';
+  this.loading = true;
 
-      try {
-        const response = await axios.post('http://127.0.0.1:8000/api/login', this.loginData);
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/login', this.loginData);
 
-        // Lưu user và token vào store
-        this.userStore.setUser(response.data.user, response.data.token);
+    // Lưu user và token vào store
+    this.userStore.setUser(response.data.user, response.data.token);
 
-        alert('Đăng nhập thành công!');
+    // Hiển thị toast đăng nhập thành công
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Đăng nhập thành công!',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
 
-        // Reset form
-        this.loginData.login = '';
-        this.loginData.password = '';
+    // Reset form
+    this.loginData.login = '';
+    this.loginData.password = '';
 
-        // Điều hướng
-        if (response.data.user.role === 'admin') {
-          this.router.push('/admin');
-        } else {
-          this.router.push('/home');
-        }
-      } catch (error) {
-        console.error('Lỗi đăng nhập:', error);
+    // Điều hướng
+    if (response.data.user.role === 'admin') {
+      this.router.push('/admin');
+    } else {
+      this.router.push('/home');
+    }
+  } catch (error) {
+    console.error('Lỗi đăng nhập:', error);
 
         if (error.response?.status === 422) {
           const errors = error.response.data.errors;
