@@ -100,6 +100,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import Swal from 'sweetalert2';
 
 
 // Dữ liệu món ăn mới
@@ -139,7 +140,11 @@ const fetchCategories = async () => {
 
 // Xử lý chọn ảnh
 const handleImageChange = (e) => {
-  newFood.value.image = e.target.files[0]
+  const file = e.target.files[0]
+  if (file) {
+    newFood.value.image = file
+    previewImage.value = URL.createObjectURL(file)
+  }
 }
 
 // Gửi dữ liệu lên server
@@ -165,7 +170,15 @@ const addFood = async () => {
       }
     })
 
-    alert('Thêm món ăn thành công!')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Thêm món ăn thành công!',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    })
 
     // Reset form
     newFood.value = {
@@ -204,18 +217,45 @@ const addFood = async () => {
         for (const field of priorityOrder) {
           if (allErrors[field]) {
             errorAdd.value[field] = allErrors[field][0]
-            alert(`Lỗi: ${allErrors[field][0]}`)
+
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: `Lỗi: ${allErrors[field][0]}`,
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true
+            })
+
             break
           }
         }
       } else {
-        alert('Lỗi không xác định: ' + error.response.status)
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: `Lỗi không xác định: ${error.response.status}`,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        })
       }
     } else {
-      alert('Không thể kết nối đến server hoặc lỗi khác.')
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Không thể kết nối đến server hoặc lỗi khác.',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      })
     }
   }
 }
+
 
 
 
