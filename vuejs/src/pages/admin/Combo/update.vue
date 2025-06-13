@@ -366,7 +366,7 @@ async function updateCombo() {
     console.log(`${key}: ${value}`)
   }
 }
-    await axios.patch(
+    await axios.post(
       `http://127.0.0.1:8000/api/admin/combos/update/${comboId}`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
@@ -378,16 +378,6 @@ async function updateCombo() {
     toast.error('Cập nhật combo thất bại!')
   }
 }
-
-
-// ================== Xóa COMBO ==================
-async function deleteCombo(comboId) {
- try {
-  
- } catch (error) {
-  
- }
-
 
 // ================== KHỞI TẠO ==================
 onMounted(() => {
