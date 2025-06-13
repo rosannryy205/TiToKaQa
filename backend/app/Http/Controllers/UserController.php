@@ -11,7 +11,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\VerifyCodeMail;
+use Exception;
 use Svg\Tag\Rect;
+use Illuminate\Support\Facades\Storage;
+
+use function Laravel\Prompts\error;
 
 class UserController extends Controller
 {
@@ -168,6 +172,16 @@ class UserController extends Controller
         }
 
         $user = Auth::user();
+
+
+        if ($user->status === 'Block') {
+            Auth::logout(); // Đăng xuất ngay nếu đã login thành công
+            return response()->json([
+                'message' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.'
+            ], 403);
+        }
+
+
         /** @var \App\Models\User $user */
         $token = $user->createToken('auth')->plainTextToken;
         return response()->json([
@@ -379,11 +393,10 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         //
-        $user = User::find($id);
-        return response()->json($user);
+        return response()->json($request->user());
     }
 
     /**
@@ -397,43 +410,59 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
+        $user = $request->user();
 
-        $user = User::findOrFail($id);
+        $request->validate([
+            'fullname' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
 
-        $user->fullname = $request->input('fullname');
-        $user->phone = $request->input('phone');
-        $user->address = $request->input('address');
+        try {
+            $user->fullname = $request->input('fullname');
+            $user->phone = $request->input('phone');
+            $user->address = $request->input('address');
 
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('assets/avatar'), $filename);
-            $user->avatar = $filename;
+            if ($request->hasFile('avatar')) {
+                $file = $request->file('avatar');
+                $filename = $file->hashName();
+                $path = $file->storePubliclyAs('avatar', $filename, 'public');
+                if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                    Storage::disk('public')->delete($user->avatar);
+                }
+                $user->avatar = $path;
+            }
+            $user->save();
+
+            return response()->json([
+                'message' => 'Thông tin và ảnh đại diện đã được cập nhật thành công.',
+                'user' => $user,
+                'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Đã xảy ra lỗi server khi cập nhật thông tin.'], 500);
         }
+    }
+
+
+    public function updateStatus(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'mess' => "User not found"
+            ], 404);
+        }
+
+        $user->status = $request->status;
+
         $user->save();
 
         return response()->json([
-            'message' => 'Đã cập nhật user thành công!',
-            'user' => $user
-        ], 200);
-    }
-
-    public function updateStatus(Request $request, $id){
-        $user = User::find($id);
-
-        if(!$user){
-            return response() -> json([
-                'mess' => "User not found"
-            ],404);
-        }
-
-        $user -> status = $request -> status ;
-
-        $user -> save();
-
-        return response() -> json([
             'mess' => 'Complete',
             'user' => $user
         ]);

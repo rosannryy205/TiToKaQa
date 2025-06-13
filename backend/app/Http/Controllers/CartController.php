@@ -258,7 +258,8 @@ class CartController extends Controller
         $orders = Order::with([
             'details.foods', // lấy tên món ăn
             'details.toppings.food_toppings.topping', // lấy tên topping
-            'tables'
+            'tables',
+            'payment'
         ])->orderByDesc('order_time')->get();
 
         if ($orders->isNotEmpty()) {
@@ -316,6 +317,13 @@ class CartController extends Controller
                             'reserved_to' => $table->pivot->reserved_to,
                         ];
                     }),
+                    'payment' => [
+                        'amount_paid' => $order->payment->amount_paid ?? null,
+                        'payment_method' => $order->payment->payment_method ?? null,
+                        'payment_status' => $order->payment->payment_status ?? null,
+                        'payment_time' => $order->payment->payment_time ?? null,
+                        'payment_type' => $order->payment->payment_type ?? null,
+                    ],
                 ];
             });
 
@@ -338,7 +346,7 @@ class CartController extends Controller
             'order_status' => 'required|string|max:255'
         ]);
 
-        $order = Order::with('details')->find($id);
+        $order = Order::with('details', 'payment')->find($id);
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
@@ -363,6 +371,28 @@ class CartController extends Controller
 
             $order->order_status = $newStatus;
             $order->save();
+
+            if ($order->payment) {
+                $payment = $order->payment;
+
+                if ($newStatus === 'Giao thành công') {
+                    $payment->payment_status = 'Đã thanh toán';
+                } elseif (in_array($newStatus, ['Giao thất bại', 'Đã hủy'])) {
+                    $payment->payment_status = 'Thanh toán thất bại';
+                }
+
+                // Nếu là thanh toán online và đơn hàng giao thành công thì luôn đảm bảo đánh dấu là đã thanh toán
+                if (
+                    $newStatus === 'Giao thành công' &&
+                    in_array($payment->payment_method, ['Thanh toán VNPAY', 'Thanh toán MOMO'])
+                ) {
+                    $payment->payment_status = 'Đã thanh toán';
+                }
+
+                $payment->save();
+            }
+
+
 
             DB::commit();
 
