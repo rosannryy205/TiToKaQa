@@ -2,7 +2,6 @@
   <h3 class="title">Quản lý danh mục</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <!-- Nút thêm combo -->
     <router-link :to="{ name: 'insert-combo' }" class="btn btn-add"> + Thêm Combo </router-link>
 
     <input type="text" class="clean-input" placeholder="Tìm kiếm" aria-label="Tìm kiếm" />
@@ -37,21 +36,22 @@
                 class="btn btn-outline btn-sm"
                 data-bs-toggle="modal"
                 data-bs-target="#menuModal"
+                @click="showComboDetail(item)"
               >
                 Chi tiết
               </button>
             </div>
           </td>
-
           <td>{{ formatNumber(item.price) }} VNĐ</td>
           <td class="d-none d-md-table-cell">
             <div class="d-flex justify-content-center gap-2 flex-wrap">
-              <button type="button" class="btn btn-outline btn-sm">Sửa</button>
-              <button class="btn btn-clean btn-delete btn-sm">Xoá</button>
+              <router-link :to="`/admin/update-combo/${item.id}`" class="btn btn-update">Sửa</router-link>
+              <button class="btn btn-clean btn-delete btn-sm" @click="deleteCombo(item.id)">Xoá</button>
               <button
                 class="btn btn-outline btn-sm"
                 data-bs-toggle="modal"
                 data-bs-target="#menuModal"
+                @click="showComboDetail(item)"
               >
                 Chi tiết
               </button>
@@ -64,6 +64,7 @@
 
   <button class="btn btn-clean btn-delete">Xoá</button>
 
+  <!--modal-->
   <div
     class="modal fade"
     id="menuModal"
@@ -71,135 +72,139 @@
     aria-labelledby="menuModalLabel"
     aria-hidden="true"
   >
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="menuModalLabel">Danh sách món</h5>
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+      <div class="modal-content shadow-sm rounded-3">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-semibold text-danger" id="menuModalLabel">
+            Chi tiết combo
+          </h5>
           <button
             type="button"
-            class="btn-close"
+            class="btn btn-sm btn-outline-secondary"
             data-bs-dismiss="modal"
             aria-label="Close"
-          ></button>
+          >
+            &times;
+          </button>
         </div>
 
         <div class="modal-body">
-          <div class="d-flex flex-column flex-md-row mb-3 gap-2">
-            <input
-              type="text"
-              class="clean-input w-100"
-              placeholder="Nhập tên món..."
-              id="searchInput"
-            />
-            <select class="clean-select w-100 w-md-auto" id="categoryFilter">
-              <option value="">Tất cả</option>
-              <option value="Khai vị">Khai vị</option>
-              <option value="Món chính">Món chính</option>
-              <option value="Tráng miệng">Tráng miệng</option>
-              <option value="Đồ uống">Đồ uống</option>
-            </select>
-          </div>
+          <div v-if="selectedCombo">
+            <div class="mb-4 d-flex flex-column flex-md-row align-items-start gap-3">
+              <img
+                :src="`/img/food/${selectedCombo.image}`"
+                :alt="selectedCombo.name"
+                class="rounded"
+                style="width: 100px; height: 100px; object-fit: cover"
+              />
+              <div>
+                <h4 class="fw-bold mb-1">{{ selectedCombo.name }}</h4>
+                <p class="mb-0 text-muted">Giá combo: {{ formatNumber(selectedCombo.price) }} VNĐ</p>
+              </div>
+            </div>
 
-          <div class="pe-3 table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Chọn</th>
-                  <th>Tên món</th>
-                  <th>Topping</th>
-                  <th>Giá</th>
-                </tr>
-              </thead>
-              <tbody id="menuList">
-                <tr data-category="Khai vị">
-                  <td><input type="checkbox" class="menu-checkbox" data-price="60000" /></td>
-                  <td>Salad rau củ</td>
-                  <td><button class="btn btn-clean btn-sm">Topping</button></td>
-                  <td>60.000 đ</td>
-                </tr>
-                <tr data-category="Món chính">
-                  <td><input type="checkbox" class="menu-checkbox" data-price="380000" /></td>
-                  <td>Lẩu cua đồng</td>
-                  <td><button class="btn btn-clean btn-sm">Topping</button></td>
-                  <td>380.000 đ</td>
-                </tr>
-                <tr data-category="Món chính">
-                  <td><input type="checkbox" class="menu-checkbox" data-price="250000" /></td>
-                  <td>Gà nướng mật ong</td>
-                  <td><button class="btn btn-clean btn-sm">Topping</button></td>
-                  <td>250.000 đ</td>
-                </tr>
-                <tr data-category="Tráng miệng">
-                  <td><input type="checkbox" class="menu-checkbox" data-price="20000" /></td>
-                  <td>Rau câu dừa</td>
-                  <td><button class="btn btn-clean btn-sm">Topping</button></td>
-                  <td>20.000 đ</td>
-                </tr>
-                <tr data-category="Đồ uống">
-                  <td><input type="checkbox" class="menu-checkbox" data-price="40000" /></td>
-                  <td>Trà sữa</td>
-                  <td><button class="btn btn-clean btn-sm">Topping</button></td>
-                  <td>40.000 đ</td>
-                </tr>
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="3" class="text-end fw-bold">Tổng cộng:</td>
-                  <td class="fw-bold" id="totalAmount">0 đ</td>
-                </tr>
-              </tfoot>
-            </table>
+            <div class="table-responsive">
+              <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>STT</th>
+                    <th>Bao gồm</th>
+                    <th>Số lượng</th>
+                    <th>Giá món</th>
+                    <th>Thành tiền</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(food, index) in selectedCombo.foods" :key="food.id">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ food.name }}</td>
+                    <td>{{ food.pivot.quantity }}</td>
+                    <td>{{ formatNumber(food.price) }} đ</td>
+                    <td>{{ formatNumber(food.pivot.quantity * food.price) }} đ</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4" class="text-end fw-semibold">Tổng giá combo: </td>
+                    <td class="fw-bold text-danger"> {{ formatNumber(comboTotal) }} đ</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
-          <button class="btn btn-clean btn-delete btn-sm" id="deleteSelected">Xoá</button>
+          <div v-else>
+            <p class="text-muted">Không có dữ liệu combo để hiển thị.</p>
+          </div>
         </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-clean btn-sm" data-bs-dismiss="modal">Đóng</button>
-          <button type="button" class="btn btn-clean btn-sm">Lưu lại</button>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
         </div>
       </div>
     </div>
   </div>
+
+  
 </template>
 
-<script>
-import { useMenu } from '@/stores/use-menu'
-import router from '@/router'
-import { ref, onMounted } from 'vue'
+<script setup>
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import numeral from 'numeral'
+import { useMenu } from '@/stores/use-menu'
+import { toast } from 'vue3-toastify'
 
-export default {
-  methods: {
-    formatNumber(value) {
-      return numeral(value).format('0,0')
-    },
-  },
-  setup() {
-    useMenu().onSelectedKeys(['admin-roles'])
+useMenu().onSelectedKeys(['admin-roles'])
 
-    const combo = ref([])
+const combo = ref([])
+const selectedCombo = ref(null)
 
-    const fetchCombos = async () => {
-      try {
-        const res = await axios.get('http://127.0.0.1:8000/api/admin/combos')
-        combo.value = res.data
-        console.log(combo.value)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-    onMounted(() => {
-      fetchCombos()
-    })
-
-    return {
-      combo,
-      fetchCombos,
-    }
-  },
+function formatNumber(value) {
+  return numeral(value).format('0,0')
 }
+
+function showComboDetail(item) {
+  selectedCombo.value = {
+    ...item,
+    foods: Array.isArray(item.foods) ? item.foods : []
+  }
+}
+
+const comboTotal = computed(() => {
+  if (!selectedCombo.value || !Array.isArray(selectedCombo.value.foods)) return 0
+  return selectedCombo.value.foods.reduce(
+    (total, food) => total + food.price * food.pivot.quantity,
+    0
+  )
+})
+
+async function fetchCombos() {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/combos')
+    combo.value = res.data
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+async function deleteCombo(comboId) {
+    try {
+      if (!confirm("Bạn có chắc muốn xóa combo này?")) return;
+      if (!comboId) {
+        console.log("Không tìm thấy Id Combo !");
+        return
+      }
+      await axios.delete(`http://127.0.0.1:8000/api/admin/combos/delete/${comboId}'`)
+      toast.success("Đã xóa combo thành công !")
+      combo.value = combo.value.filter(combo => combo.id !== comboId);
+    } catch (error) {
+      console.log(error);
+      toast.warning("Lỗi khi xóa combo: " + error.message);
+    }
+}
+onMounted(() => {
+  fetchCombos()
+})
 </script>
 
 <style scoped>
@@ -229,29 +234,18 @@ export default {
   appearance: none;
   cursor: pointer;
 }
-
 .clean-input:focus,
 .clean-select:focus {
   border-color: #c92c3c;
-  background-color: transparent;
-  box-shadow: none;
-  outline: none;
 }
 .custom-select {
+  box-shadow: none;
   border: 1px solid #bbb;
   padding: 2px 6px;
   height: 28px;
   font-size: 13px;
   border-radius: 4px;
-  outline: none;
-  box-shadow: none !important;
-  transition: border-color 0.3s ease;
 }
-.custom-select:focus {
-  border-color: #999;
-  box-shadow: none;
-}
-
 .btn-add {
   background: none;
   color: #c92c3c;
@@ -259,14 +253,21 @@ export default {
   padding: 4px 10px;
   border-radius: 4px;
   font-weight: normal;
-  cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
 }
-
 .btn-add:hover {
   background-color: #c92c3c;
+  color: #fff;
+}
+.btn-update {
+  background: none;
+  color: #ab9c00;
+  border: 1px solid #ab9c00;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+}
+.btn-update:hover {
+  background-color: #ab9c00;
   color: #fff;
 }
 .btn-outline {
@@ -275,13 +276,7 @@ export default {
   padding: 4px 10px;
   border-radius: 4px;
   color: #555;
-  font-weight: normal;
-  cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
 }
-
 .btn-outline:hover {
   background-color: #eee;
   color: #333;
@@ -293,12 +288,7 @@ export default {
   padding: 4px 12px;
   font-size: 0.85rem;
   border-radius: 4px;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-  cursor: pointer;
 }
-
 .btn-clean:hover {
   background-color: #c92c3c !important;
   color: white !important;
@@ -307,7 +297,6 @@ export default {
   border-color: #c92c3c !important;
   color: #c92c3c !important;
 }
-
 .btn-delete:hover {
   background-color: #c92c3c !important;
   color: white !important;
@@ -317,14 +306,12 @@ export default {
     width: 36px;
     height: 36px;
   }
-
   .clean-input,
   .clean-select,
   .custom-select {
     width: 100% !important;
     margin-top: 5px;
   }
-
   .btn-outline,
   .btn-clean {
     padding: 4px 8px;
