@@ -3,7 +3,7 @@
     <TheSidebar :collapsed="collapsed" @toggleCollapse="toggleSidebar" />
     <div class="main-content flex-grow-1 d-flex flex-column">
       <TheHeader @toggleCollapse="toggleSidebar" />
-      <main class="flex-grow-1 p-3">
+      <main class="flex-grow-1 p-3" style="min-height: 800px">
         <router-view />
       </main>
       <TheFooter />

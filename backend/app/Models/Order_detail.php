@@ -18,8 +18,8 @@ class Order_detail extends Model
         return $this->hasMany(Order_topping::class, 'order_detail_id');
     }
     public function foods()
-{
-    return $this->belongsTo(Food::class, 'food_id');
-}
+    {
+        return $this->belongsTo(Food::class, 'food_id');
+    }
 
 }

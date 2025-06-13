@@ -14,29 +14,16 @@
       </div>
       <div class="col-12 col-md-6 col-lg-3 mb-3">
         Tìm kiếm theo tên:
-        <v-select
-          v-model="selectfood"
-          :options="foods"
-          label="name"
-          placeholder="Nhập tên món ăn"
-          :clearable="true"
-          @input="onFoodSearch"
-          class="form-control rounded"
-        />
+        <v-select v-model="selectfood" :options="foods" label="name" placeholder="Nhập tên món ăn" :clearable="true"
+          @input="onFoodSearch" class="form-control rounded" />
       </div>
       <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
-        <div
-          class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start"
-        >
+        <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
           <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
             <div class="gap-1">
               <div class="d-flex flex-column align-items-center" @click="openModal(product)">
-                <img
-                  :src="getImageUrl(product.image)"
-                  alt=""
-                  srcset=""
-                  style="width: 60px; height: 60px; object-fit: cover"
-                />
+                <img :src="getImageUrl(product.image)" alt="" srcset=""
+                  style="width: 60px; height: 60px; object-fit: cover" />
                 <div class="product_name text-center mt-1">{{ product.name }}</div>
                 <strong class="text-danger product_price">
                   {{ formatNumber(product.price) }} VND
@@ -49,32 +36,20 @@
             <nav>
               <ul class="pagination">
                 <li class="page-item" :class="{ disabled: currentPage.foods === 1 }">
-                  <button
-                    type="button"
-                    class="page-link"
-                    @click="goToPage(currentPage.foods - 1, 'foods')"
-                  >
+                  <button type="button" class="page-link" @click="goToPage(currentPage.foods - 1, 'foods')">
                     «
                   </button>
                 </li>
 
-                <li
-                  v-for="page in totalPagesFoods"
-                  :key="page"
-                  class="page-item"
-                  :class="{ active: currentPage.foods === page }"
-                >
+                <li v-for="page in totalPagesFoods" :key="page" class="page-item"
+                  :class="{ active: currentPage.foods === page }">
                   <button type="button" class="page-link" @click="goToPage(page, 'foods')">
                     {{ page }}
                   </button>
                 </li>
 
                 <li class="page-item" :class="{ disabled: currentPage.foods === totalPagesFoods }">
-                  <button
-                    type="button"
-                    class="page-link"
-                    @click="goToPage(currentPage.foods + 1, 'foods')"
-                  >
+                  <button type="button" class="page-link" @click="goToPage(currentPage.foods + 1, 'foods')">
                     »
                   </button>
                 </li>
@@ -91,16 +66,9 @@
                   <i class="bi bi-bag-plus-fill"></i>
                   Thêm đơn hàng
                 </div>
-                <div
-                  class="d-flex align-items-center p-2 border rounded shadow-sm"
-                  style="max-width: 500px"
-                >
-                  <img
-                    :src="getImageUrl(foodDetail.image)"
-                    class="rounded me-3 border"
-                    style="width: 60px; height: 60px; object-fit: cover"
-                    alt="Drink"
-                  />
+                <div class="d-flex align-items-center p-2 border rounded shadow-sm" style="max-width: 500px">
+                  <img :src="getImageUrl(foodDetail.image)" class="rounded me-3 border"
+                    style="width: 60px; height: 60px; object-fit: cover" alt="Drink" />
                   <div class="flex-grow-1">
                     <div class="text-dark fw-semibold mb-2">{{ foodDetail.name }}</div>
                     <div class="d-flex justify-content-between align-items-center">
@@ -108,19 +76,11 @@
                         {{ formatNumber(foodDetail.price) }}VNĐ
                       </div>
                       <div class="input-group input-group-sm" style="width: 100px">
-                        <button
-                          class="btn btn-outline-secondary"
-                          @click="decreaseQuantity"
-                          type="button"
-                        >
+                        <button class="btn btn-outline-secondary" @click="decreaseQuantity" type="button">
                           −
                         </button>
                         <span>{{ quantity }}</span>
-                        <button
-                          class="btn btn-outline-secondary"
-                          @click="increaseQuantity"
-                          type="button"
-                        >
+                        <button class="btn btn-outline-secondary" @click="increaseQuantity" type="button">
                           +
                         </button>
                       </div>
@@ -129,16 +89,11 @@
                 </div>
               </div>
               <form @submit.prevent="handleAddToCartClick">
-                <div
-                  style="max-height: 400px; overflow-y: auto"
-                  class="pe-3 ps-3"
-                  v-if="toppingList.length"
-                >
+                <div style="max-height: 400px; overflow-y: auto" class="pe-3 ps-3" v-if="toppingList.length">
                   <div class="mb-3">
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold text-danger">
-                        🌶 Mức độ cay:</label
-                      >
+                        🌶 Mức độ cay:</label>
                       <select class="form-select rounded" id="spicyLevel">
                         <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
                           {{ item.name }}
@@ -148,11 +103,8 @@
                   </div>
 
                   <label class="form-label fw-bold text-danger">🧀 Chọn Topping:</label>
-                  <div
-                    v-for="topping in toppingList"
-                    :key="topping.id"
-                    class="d-flex justify-content-between align-items-center mb-2"
-                  >
+                  <div v-for="topping in toppingList" :key="topping.id"
+                    class="d-flex justify-content-between align-items-center mb-2">
                     <label class="d-flex align-items-center text-dark">
                       <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                       {{ topping.name }}
@@ -181,32 +133,18 @@
               <a href="#" class="text-danger fw-semibold" @click.prevent="clearCart">Xoá tất cả</a>
             </div>
             <div style="max-height: 200px; overflow-y: auto" class="pe-1">
-              <div
-                class="border rounded p-3 mb-3"
-                style="background-color: #fff"
-                v-for="(item, index) in cartItems"
-                :key="index"
-              >
+              <div class="border rounded p-3 mb-3" style="background-color: #fff" v-for="(item, index) in cartItems"
+                :key="index">
                 <div class="d-flex align-items-start border-bottom mb-2 pb-1">
-                  <img
-                    :src="getImageUrl(item.image)"
-                    class="rounded me-2"
-                    style="width: 60px; height: 60px; object-fit: cover"
-                    alt="Shrimp fried spicy sauce"
-                  />
+                  <img :src="getImageUrl(item.image)" class="rounded me-2"
+                    style="width: 60px; height: 60px; object-fit: cover" alt="Shrimp fried spicy sauce" />
 
                   <div class="flex-grow-1" style="max-height: 200px; overflow-y: auto">
                     <div class="fw-semibold">{{ item.name }}</div>
 
                     <div class="d-flex justify-content-between">
-                      <div class="text-muted small">
-                        {{ item.spicyLevelName || 'Không cay' }}
-                      </div>
-                      <i
-                        class="bi bi-x-circle me-3 mb-2"
-                        style="cursor: pointer"
-                        @click="removeItem(index)"
-                      ></i>
+
+                      <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
                     </div>
 
                     <div class="text-muted small" v-if="item.toppings.length">
@@ -219,25 +157,14 @@
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center">
-                  <div
-                    class="d-flex align-items-center border rounded"
-                    style="background-color: #f8f9fa"
-                  >
-                    <button
-                      type="button"
-                      class="btn border-0 fw-bold bg-white"
-                      style="background-color: transparent"
-                      @click="decreaseQuantity2(index)"
-                    >
+                  <div class="d-flex align-items-center border rounded" style="background-color: #f8f9fa">
+                    <button type="button" class="btn border-0 fw-bold bg-white" style="background-color: transparent"
+                      @click="decreaseQuantity1(index)">
                       −
                     </button>
                     <span class="px-2">{{ item.quantity }}</span>
-                    <button
-                      type="button"
-                      class="btn border-0 fw-bold bg-white"
-                      style="background-color: transparent"
-                      @click="increaseQuantity1(index)"
-                    >
+                    <button type="button" class="btn border-0 fw-bold bg-white" style="background-color: transparent"
+                      @click="increaseQuantity2(index)">
                       +
                     </button>
                   </div>
@@ -255,15 +182,12 @@
                   Tạm tính
                   <span>{{ formatNumber(totalPrice) }} VNĐ</span>
                 </li>
-                <li
-                  class="list-group-item d-flex justify-content-between align-items-center bg-transparent"
-                >
+                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
                   Phí giữ bàn
                   <span>100,000 VNĐ</span>
                 </li>
                 <li
-                  class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger"
-                >
+                  class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
                   Tổng thanh toán
                   <span class="text-danger fw-bold">
                     {{ formatNumber(totalPrice + 100000) }} VNĐ
@@ -284,28 +208,18 @@
                   MoMo
                 </button>
                 <button class="btn btn-payment" type="button">
-                  <img
-                    src="/img/Logo-VNPAY-QR-1 (1).png"
-                    alt="Qris Icon"
-                    class="payment-icon mb-1"
-                  />
+                  <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
                   <br />
                   QR code
                 </button>
               </div>
               <hr />
               <div class="d-flex flex-column flex-sm-row">
-                <button
-                  type="button"
-                  @click="$router.back()"
-                  class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2"
-                >
+                <button type="button" @click="$router.back()"
+                  class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
                   Quay lại
                 </button>
-                <button
-                  type="submit"
-                  class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2"
-                >
+                <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
                   Lưu lại
                 </button>
                 <button class="btn btn-outline-danger flex-fill p-2" type="button">
@@ -339,13 +253,13 @@ export default {
       foods,
       getFoodByCategory,
       openModal,
-      spicyLevel,
-      toppingList,
       formatNumber,
       getImageUrl,
       flatCategoryList,
       foodDetail,
-      isLoading,
+      spicyLevel,
+      toppingList,
+      isLoading
     } = FoodList.setup()
 
     const selectfood = ref(null)
@@ -408,25 +322,37 @@ export default {
     }
 
     const handleAddToCartClick = () => {
-      // Lấy dữ liệu cần thiết từ FoodList store (foodDetail, quantity, v.v.)
       const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
       const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
 
-      const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked'),
-      ).map((el) => parseInt(el.value))
+      let allSelectedToppings = [];
 
-      const selectedToppings = toppingList.value
-        .filter((topping) => selectedToppingId.includes(topping.id))
+      if (selectedSpicy) {
+        allSelectedToppings.push({
+          name: selectedSpicy.name,
+          price: selectedSpicy.price,
+          food_toppings_id: selectedSpicy.pivot?.id || null,
+          is_spicy_level: true
+        });
+      }
+
+      const selectedToppingIds = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')
+      ).map((el) => parseInt(el.value));
+
+      const normalToppings = toppingList.value
+        .filter((topping) => selectedToppingIds.includes(topping.id))
         .map((topping) => ({
-          id: topping.id,
+          id: topping.food_toppings_id,
           name: topping.name,
           price: topping.price,
           food_toppings_id: topping.pivot?.id || null,
-        }))
+          is_spicy_level: false
+        }));
 
-      addToCart(foodDetail.value, quantity.value, selectedSpicyName, selectedToppings)
+      allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+
+      addToCart(foodDetail.value, quantity.value, allSelectedToppings)
     }
 
     // hàm load món đã đặt trước từ đơn hàng
@@ -437,9 +363,9 @@ export default {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/load-order-detail/${id}`)
         const orderDetails = response.data.data
-        cartItems.value = [] // Xóa giỏ hàng hiện tại trước khi load mới
+        cartItems.value = []
 
-        if (orderDetails && orderDetails.details && Array.isArray(orderDetails.details)) {
+        if (orderDetails) {
           orderDetails.details.forEach((detail) => {
             let mainItem = null
             let itemId = null
@@ -460,18 +386,15 @@ export default {
               itemImage = mainItem.image
               basePrice = parseFloat(mainItem.sale_price || mainItem.price)
             } else {
-              console.warn(
-                `[Load Order] Invalid detail type or missing item data for detail ID: ${detail.id}`,
-              )
               return
             }
 
             const itemToppings = detail.toppings
               ? detail.toppings.map((t) => ({
-                  id: t.food_toppings_id,
-                  name: t.food_toppings.toppings.name,
-                  price: parseFloat(t.price),
-                }))
+                food_toppings_id: t.food_toppings_id,
+                name: t.food_toppings.toppings.name,
+                price: t.price || 0,
+              }))
               : []
 
             const item = {
@@ -481,8 +404,6 @@ export default {
               image: itemImage,
               quantity: detail.quantity,
               toppings: itemToppings,
-              spicyLevelId: null, // Cần thêm logic nếu món ăn có cấp độ cay
-              spicyLevelName: null, // Cần thêm logic nếu món ăn có cấp độ cay
               combo_id: detail.type === 'combo' ? itemId : null,
               type: detail.type,
             }
@@ -498,47 +419,49 @@ export default {
     // hàm update order_detail
     const submitCart = async (orderIdToSubmit) => {
       if (!orderIdToSubmit) {
-        toast.error('Không tìm thấy mã đơn hàng để cập nhật!')
-        return
+        toast.error('Không tìm thấy đơn hàng để cập nhật!');
+        return;
       }
 
       if (cartItems.value.length === 0) {
-        toast.warning('Giỏ hàng trống, không có gì để cập nhật.')
-        return
+        toast.warning('Giỏ hàng trống, không có gì để cập nhật.');
+        return;
       }
 
       try {
         const payloadDetails = cartItems.value.map((item) => {
-          const type = item.type
-          const foodId = type === 'food' ? item.id : null
-          const comboId = type === 'combo' ? item.id : null
-          const spicyLevelId = item.spicyLevelId || null
+          const type = item.type;
+          const foodId = type === 'food' ? item.id : null;
+          const comboId = type === 'combo' ? item.id : null;
 
           return {
             food_id: foodId,
             combo_id: comboId,
             quantity: item.quantity,
             type: type,
-            spicy_level_id: spicyLevelId,
             toppings: item.toppings.map((top) => ({
-              food_toppings_id: top.id,
+              food_toppings_id: top.food_toppings_id, // Dùng food_toppings_id nếu có, nếu không thì dùng id (dành cho trường hợp spicyLevel)
             })),
-          }
-        })
+          };
+        });
 
         await axios.put(`http://127.0.0.1:8000/api/update-order-detail/${orderIdToSubmit}`, {
           details: payloadDetails,
-        })
+        });
 
-        toast.success('Thêm món thành công!')
+        toast.success('Cập nhật đơn hàng thành công!');
 
-        clearCart()
-        await loadOrderDetails(orderIdToSubmit)
+        clearCart();
+        await loadOrderDetails(orderIdToSubmit);
       } catch (error) {
-        console.error('Lỗi khi cập nhật đơn hàng:', error)
-        toast.error('Có lỗi xảy ra khi cập nhật đơn hàng!')
+        console.error('Lỗi khi cập nhật đơn hàng:', error);
+        if (error.response && error.response.data && error.response.data.message) {
+          toast.error(`Lỗi: ${error.response.data.message}`);
+        } else {
+          toast.error('Có lỗi xảy ra khi cập nhật đơn hàng!');
+        }
       }
-    }
+    };
 
     onMounted(() => {
       const orderId = route.params.orderId

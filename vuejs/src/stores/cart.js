@@ -14,17 +14,38 @@ export function Cart() {
   })
   const quantity = ref(1)
 
+  // const loadCart = async () => {
+  //   const cartKey = isAdmin.value
+  //     ? orderId.value
+  //       ? `cart_admin_reservation_${orderId.value}`
+  //       : `cart_admin_reservation`
+  //     : orderId.value
+  //       ? `cart_${userId}_reservation_${orderId.value}`
+  //       : `cart_${userId}`
+  //   const storedCart = localStorage.getItem(cartKey)
+  //   cartItems.value = storedCart ? JSON.parse(storedCart) : []
+  // }
+
+  const cartKey = computed(() => {
+  return isAdmin.value
+    ? orderId.value
+      ? `cart_admin_reservation_${orderId.value}`
+      : `cart_admin_reservation`
+    : orderId.value
+      ? `cart_${userId}_reservation_${orderId.value}`
+      : `cart_${userId}`
+})
+
   const loadCart = async () => {
-    const cartKey = isAdmin.value
-      ? orderId.value
-        ? `cart_admin_reservation_${orderId.value}`
-        : `cart_admin_reservation`
-      : orderId.value
-        ? `cart_${userId}_reservation_${orderId.value}`
-        : `cart_${userId}`
-    const storedCart = localStorage.getItem(cartKey)
+    const storedCart = localStorage.getItem(cartKey.value)
     cartItems.value = storedCart ? JSON.parse(storedCart) : []
   }
+
+  const saveCart = () => {
+    localStorage.setItem(cartKey.value, JSON.stringify(cartItems.value))
+  }
+
+
 
   const totalPrice = computed(() => {
     return cartItems.value.reduce((sum, item) => {
@@ -39,30 +60,28 @@ export function Cart() {
     }, 0)
   })
 
-  const addToCart = (foodDetail, quantity, selectedSpicyName, selectedToppings) => {
+  const addToCart = (foodDetail, quantity, toppings) => {
     const newCartItem = {
       id: foodDetail.id,
       name: foodDetail.name,
       image: foodDetail.image,
       price: foodDetail.price,
-      spicyLevel: selectedSpicyName,
-      toppings: selectedToppings,
-      quantity: quantity, // Sử dụng tham số quantity
+      toppings: toppings,
+      quantity: quantity,
       type: foodDetail.type,
     }
 
-    // Trong addToCart
       const existingItemIndex = cartItems.value.findIndex(
         (item) =>
           item.id === newCartItem.id &&
-          item.spicyLevel === newCartItem.spicyLevel &&
+          // item.spicyLevel === newCartItem.spicyLevel &&
           JSON.stringify(item.toppings.sort((a,b) => a.id - b.id)) === JSON.stringify(newCartItem.toppings.sort((a,b) => a.id - b.id)),
       )
 
     if (existingItemIndex !== -1) {
-      cartItems.value[existingItemIndex].quantity += newCartItem.quantity
+        cartItems.value[existingItemIndex].quantity += newCartItem.quantity
     } else {
-      cartItems.value.push(newCartItem)
+        cartItems.value.push(newCartItem)
     }
 
     saveCart()
@@ -113,16 +132,16 @@ export function Cart() {
     cartItems.value = []
     saveCart()
   }
-  const saveCart = () => {
-    const cartKey = isAdmin.value
-      ? orderId.value
-        ? `cart_admin_reservation_${orderId.value}`
-        : `cart_admin_reservation`
-      : orderId.value
-        ? `cart_${userId}_reservation_${orderId.value}`
-        : `cart_${userId}`
-    localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
-  }
+  // const saveCart = () => {
+  //   const cartKey = isAdmin.value
+  //     ? orderId.value
+  //       ? `cart_admin_reservation_${orderId.value}`
+  //       : `cart_admin_reservation`
+  //     : orderId.value
+  //       ? `cart_${userId}_reservation_${orderId.value}`
+  //       : `cart_${userId}`
+  //   localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
+  // }
 
   onMounted(() => {
     loadCart()
@@ -144,5 +163,6 @@ export function Cart() {
     increaseQuantity2,
     decreaseQuantity1,
     clearCart,
+    cartKey
   }
 }
