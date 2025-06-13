@@ -56,7 +56,6 @@ export function Cart() {
         (item) =>
           item.id === newCartItem.id &&
           item.spicyLevel === newCartItem.spicyLevel &&
-          // Đảm bảo sắp xếp theo một thuộc tính cố định, ví dụ 'id'
           JSON.stringify(item.toppings.sort((a,b) => a.id - b.id)) === JSON.stringify(newCartItem.toppings.sort((a,b) => a.id - b.id)),
       )
 

@@ -13,7 +13,8 @@ class Combo extends Model
     
     public function foods()
 {
-    return $this->belongsToMany(Food::class, 'combo_details', 'combo_id', 'food_id');
+    return $this->belongsToMany(Food::class, 'combo_details', 'combo_id', 'food_id')
+    ->withPivot('quantity');
 }
 public function details()
     {

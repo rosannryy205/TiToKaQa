@@ -37,6 +37,8 @@ class Food extends Model
     }
     public function combos()
     {
-        return $this->belongsToMany(Combo::class, 'combo_details', 'food_id', 'combo_id');
+        return $this->belongsToMany(Combo::class, 'combo_details', 'food_id', 'combo_id')
+                    ->withPivot('quantity');
     }
+    
 }
