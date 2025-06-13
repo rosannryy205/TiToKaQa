@@ -158,8 +158,10 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/manage/foods', [AdminFoodController::class, 'index']);
     Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
     Route::post('/admin/foods', [AdminFoodController::class, 'store']);
+    Route::get('/admin/foods/search', [FoodController::class, 'search']);
     Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
     Route::post('/admin/foods/delete-multiple', [AdminFoodController::class, 'deleteMultiple']);
+    Route::put('admin/food/{id}/status', [AdminFoodController::class, 'updateStatus']);
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
     Route::get('/admin/toppings', [AdminToppingController::class, 'index']);

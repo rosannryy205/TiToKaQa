@@ -2,9 +2,9 @@
   <div class="d-flex justify-content-between">
     <h3 class="text-danger fw-bold">Thêm món ăn</h3>
     <div>
-      <a href="#" class="btn btn-outline-secondary rounded-0">
+      <RouterLink to="/admin/products" class="btn btn-outline-secondary rounded-0">
         <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-      </a>
+      </RouterLink>
     </div>
   </div>
 
@@ -86,8 +86,8 @@
     </div>
   </form>
 
-  <button type="button" class="btn btn-danger1 themsp" @click="addFood">
-    + Thêm
+  <button type="button" class="btn btn-danger-save" @click="addFood">
+    Thêm món ăn +
   </button>
 </template>
 
