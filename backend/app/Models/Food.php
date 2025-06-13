@@ -32,11 +32,13 @@ class Food extends Model
     public function toppings()
     {
         return $this->belongsToMany(Topping::class, 'food_toppings')
-            ->using(Food_topping::class) // dùng model trung gian
+            ->using(Food_topping::class) 
             ->withPivot('id', 'price');
     }
     public function combos()
     {
-        return $this->belongsToMany(Combo::class, 'combo_details', 'food_id', 'combo_id');
+        return $this->belongsToMany(Combo::class, 'combo_details', 'food_id', 'combo_id')
+                    ->withPivot('quantity');
     }
+    
 }

@@ -253,7 +253,6 @@ export default {
       }
     };
 
-
     const isLoggedIn = ref(!!user.value);
 
     //  Đăng xuất
