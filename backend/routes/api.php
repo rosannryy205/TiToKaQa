@@ -19,6 +19,7 @@ use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ShippingController;
+use App\Http\Controllers\TableController;
 use App\Models\Combo;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
@@ -42,13 +43,15 @@ Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']);
 
 
-//reservation
+//reservation-client
 Route::post('/reservation', [OrderController::class, 'reservation']);
 Route::get('/order-reservation-info', [OrderController::class, 'getInfoReservation']);
 Route::post('/choose-table', [OrderController::class, 'chooseTable']);
-//reservation - tables - admin
-Route::get('/tables', [OrderController::class, 'getTables']);
+
+
+//reservation-admin
 Route::get('/order-tables', [OrderController::class, 'getOrderOfTable']);
+Route::get('/order-current-tables', [OrderController::class, 'getCurrentOrder']);
 Route::put('/change-table', [OrderController::class, 'changeTable']);
 Route::post('/set-up/order-tables', [OrderController::class, 'setUpTable']);
 Route::post('/available-tables', [OrderController::class, 'getAvailableTables']);
@@ -59,29 +62,45 @@ Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']
 Route::get('/load-order-detail/{order_id}', [OrderController::class, 'showOrderDetail']);
 Route::put('/update-order-detail/{order_id}', [OrderController::class, 'updateOrderDetails']);
 
+
+// table-admin
+Route::get('/tables', [TableController::class, 'getTables']);
+Route::get('/all-tables', [TableController::class, 'getAllTable']);
+Route::get('/tables/{id}', [TableController::class, 'getTableById']);
+Route::put('/tables/{id}', [TableController::class, 'updateTable']);
+Route::delete('/tables/{id}', [TableController::class, 'deleteTable']);
+// Route::get('/restore-tables/{id}', [TableController::class, 'restoreTable']);
+Route::post('/insert-table', [TableController::class, 'insertTable']);
+
+
+
 Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
 
 //history
-Route::get('/order-history-info/{id}', [OrderController::class, 'getInfoOrderByUser']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/order-history-info', [OrderController::class, 'getInfoOrderByUser']);
+});
 Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
 
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::resource('user', UserController::class);
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::patch('/user', [UserController::class, 'update']);
+    // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
 
 // đăng ký đăng nhập quên mật khẩu
 Route::post('/register/send-code', [UserController::class, 'sendRegisterCode']);
 Route::post('/register/verify-code', [UserController::class, 'verifyRegisterCode']);
 
 Route::post('/login', [UserController::class, 'login']);
-Route::post('/forgot',[UserController::class,'forgotPass']);
-Route::post('/verify-code',[UserController::class,'verifyResetCode']);
-Route::post('/reset-password',[UserController::class,'ChangePassword']);
+Route::post('/forgot', [UserController::class, 'forgotPass']);
+Route::post('/verify-code', [UserController::class, 'verifyResetCode']);
+Route::post('/reset-password', [UserController::class, 'ChangePassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
 });
@@ -93,7 +112,7 @@ Route::get('/search', [HomeController::class, 'search']);
 
 
 //delivery
-Route::get('/delivery/{user_id}/{id}', [OrderController::class, 'getOrderByUser']);
+Route::get('/delivery/{id}', [OrderController::class, 'getOrderByUser']);
 //tinh phi ship
 Route::post('/ghn/service', [ShippingController::class, 'getGHNServices']);
 
@@ -103,6 +122,8 @@ Route::post('/ghn/service', [ShippingController::class, 'getGHNServices']);
 
 //getall user
 Route::resource('user', UserController::class);
+Route::put('/update/{id}', [UserController::class, 'updateStatus']);
+
 
 
 
@@ -110,9 +131,11 @@ Route::resource('user', UserController::class);
 
 //cart
 Route::post('/order', [CartController::class, 'order']);
-
+Route::post('/ordertakecaway', [CartController::class, 'orderTakeAway']);
 Route::put('/update/order/{id}', [OrderController::class, 'reservationUpdate']);
 Route::put('/update/reservation-order/{id}', [OrderController::class, 'reservationUpdatePrice']);
+Route::post('/order/{id}/complete', [OrderController::class, 'handelOrderComplete']);
+Route::post('/order/{id}/cancel', [OrderController::class, 'handelOrderCancel']);
 
 
 //admin_order
@@ -139,9 +162,18 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
     Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
-    Route::get('/admin/catetop',[AdminCategoryToppingController::class,'getAll']);
-    Route::post('/admin/toppings',[AdminToppingController::class,'store']);
+    Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
+    Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
 });
+
+
+//adminfood
+Route::get('/admin/foods', [AdminFoodController::class, 'getAllFood']);
+
+//admin combo
+Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
+
+
 
 Route::resource('/payment', PaymentController::class);
 // routes/api.php
@@ -150,7 +182,7 @@ Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 
 
 
-/**combo*/
+/**combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);

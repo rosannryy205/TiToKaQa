@@ -2,7 +2,7 @@
   <h3 class="title">Quản lý món ăn</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    
+
     <router-link :to="{ name: 'insert-food' }" class="btn btn-add">
       + Thêm món ăn
     </router-link>
@@ -28,8 +28,11 @@
         <tr>
           <th><input type="checkbox" /></th>
           <th>STT</th>
-          <th class="d-none d-md-table-cell">Tên</th>
+          <th class="d-none d-md-table-cell">Ảnh sản phẩm</th>
+          <th>Tên sản phẩm</th>
           <th>Danh mục cha</th>
+          <th>Giá sản phẩm</th>
+          <th>Trạng thái sản phẩm</th>
           <th>Tuỳ chọn</th>
         </tr>
       </thead>
@@ -37,6 +40,9 @@
         <tr>
           <td><input type="checkbox" /></td>
           <td>1</td>
+          <td>1</td>
+          <td>Chưa phân loại</td>
+          <td>Chưa phân loại</td>
           <td>Chưa phân loại</td>
           <td>Danh mục mặc định</td>
           <td class="d-flex justify-content-center gap-2 flex-wrap">

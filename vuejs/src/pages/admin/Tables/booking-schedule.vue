@@ -1,9 +1,9 @@
 <template>
   <div class="d-flex justify-content-between mb-2">
-<h4>Lịch đặt bàn</h4>
-  <router-link :to="{ name: 'insert-reservation-admin' }" class="btn btn-outline-danger">
-    + Thêm đơn đặt bàn
-  </router-link>
+    <h4>Lịch đặt bàn</h4>
+    <router-link :to="{ name: 'insert-reservation-admin' }" class="btn btn-outline-danger">
+      + Thêm đơn đặt bàn
+    </router-link>
   </div>
 
   <FullCalendar :options="calendarOptions" />
@@ -36,8 +36,7 @@
           <div class="info-item">
             <div class="info-block">
               <i class="fa-solid fa-calendar"></i>
-              <span
-                >Bàn số:
+              <span>Bàn số:
                 <span v-for="(t, index) in info.tables" :key="index">
                   {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
                 </span>
@@ -45,8 +44,7 @@
             </div>
             <div class="info-block">
               <i class="bi bi-people"></i>
-              <span
-                >Lượng khách:
+              <span>Lượng khách:
                 {{ info.guest_count }}
               </span>
             </div>
@@ -87,41 +85,22 @@
             </div>
             <div class="info-block">
               <i class="bi bi-card-list"></i>
-              <span
-                >Trạng thái đơn:
-                <select
-                  v-model="info.order_status"
-                  class="p-1 border rounded-0"
-                  @change="updateStatus(info.id, info.order_status)"
-                >
-                  <option
-                    value="Chờ xác nhận"
-                    :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')"
-                  >
+              <span>Trạng thái đơn:
+                <select v-model="info.order_status" class="p-1 border rounded-0"
+                  @change="updateStatus(info.id, info.order_status)">
+                  <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
                     Chờ xác nhận
                   </option>
-                  <option
-                    value="Đã xác nhận"
-                    :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')"
-                  >
+                  <option value="Đã xác nhận" :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
                     Đã xác nhận
                   </option>
-                  <option
-                    value="Đang xử lý"
-                    :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')"
-                  >
+                  <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
                     Đang xử lý
                   </option>
-                  <option
-                    value="Khách đã đến"
-                    :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')"
-                  >
+                  <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
                     Khách đã đến
                   </option>
-                  <option
-                    value="Hoàn thành"
-                    :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')"
-                  >
+                  <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
                     Hoàn thành
                   </option>
                   <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
@@ -135,11 +114,7 @@
             <i class="bi bi-journals" style="padding-right: 15px"></i>
             <span>Các món đã đặt</span>
             <div class="card-custom" style="max-height: 200px; overflow-y: auto">
-              <div
-                class="row align-items-center border-bottom"
-                v-for="item in info.details"
-                :key="item.id"
-              >
+              <div class="row align-items-center border-bottom" v-for="item in info.details" :key="item.id">
                 <div class="col-6 p-2">
                   <div class="item-name">
                     {{ item.food_name }}
@@ -165,7 +140,7 @@
         </div>
         <div class="popup-actions">
           <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
-          <button class="delete-button">Chuyển bàn</button>
+          <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
         </div>
       </div>
     </div>
@@ -187,19 +162,24 @@ import { Info } from '@/stores/info-order-reservation'
 import { toast } from 'vue3-toastify'
 import { useRouter } from 'vue-router' // Import useRouter
 
-const { formatDate, formatTime, formatNumber, info, getInfo} = Info.setup()
+const { formatDate, formatTime, formatNumber, info, getInfo } = Info.setup()
 const router = useRouter()
 
 const tables = ref([])
 const getTable = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/tables')
-    tables.value = res.data
+    const res = await axios.get('http://127.0.0.1:8000/api/all-tables')
+    tables.value = res.data;
+
     calendarOptions.value.resources = tables.value.map((table) => ({
       id: table.id,
       title: 'Bàn ' + table.table_number,
       capacity: 'Sức chứa ' + table.capacity,
-    }))
+      extendedProps: {
+        tableNumber: table.table_number,
+      }
+    }));
+
   } catch (error) {
     console.log(error)
   }
@@ -360,7 +340,7 @@ const calendarOptions = ref({
   },
   timeZone: 'Asia/Ho_Chi_Minh',
   resourceAreaWidth: '150px',
-  resources: [], // để trống ban đầu
+  resources: [],
   resourceLabelContent: (resources) => {
     const title = resources.resource.title
     const capacity = resources.resource.extendedProps?.capacity
@@ -372,9 +352,15 @@ const calendarOptions = ref({
   editable: false, // Không cho phép kéo thả sự kiện
   selectable: true,
   eventStartEditable: false, // Không cho phép thay đổi thời gian bắt đầu
-  eventDurationEditable: false, // Không cho phép thay đổi thời lượng
+  eventDurationEditable: true, // Không cho phép thay đổi thời lượng
   dateClick: handleDateClick,
   eventClick: getInfoDetail,
+  resourceOrder: (resourceA, resourceB) => {
+    const tableNumA = resourceA.extendedProps?.tableNumber || 0;
+    const tableNumB = resourceB.extendedProps?.tableNumber || 0;
+
+    return tableNumA - tableNumB;
+  },
 })
 </script>
 
@@ -385,34 +371,41 @@ const calendarOptions = ref({
   padding: 0 20px;
   margin-top: 5px;
 }
+
 .item-name {
   font-weight: bold;
   font-size: 14px;
 }
+
 .total-price {
   font-size: 14px;
   text-align: right;
   color: #c92c3c;
 }
+
 .item-details {
   font-size: 11px;
   color: #6c757d;
 }
+
 .ban {
   background-color: #ffffff;
   /* border: 1px solid #ffffff; */
   font-weight: bold;
   /* border-radius: 5px; */
 }
+
 .title {
   font-size: 12px;
   text-align: left;
   margin-bottom: 2px;
 }
+
 .time-badge {
   color: #8d8a8a;
   font-size: small;
 }
+
 .event-detail-popup-overlay {
   position: fixed;
   top: 0;
@@ -451,13 +444,16 @@ const calendarOptions = ref({
   margin: 0;
   color: #ffffff;
 }
+
 .event-detail-popup.show {
   opacity: 1;
   transform: translateY(0);
 }
-a{
+
+a {
   text-decoration: none;
 }
+
 .close-button {
   background: none;
   border: none;
@@ -477,14 +473,17 @@ a{
 .info-item {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px; /* khoảng cách giữa 2 cột */
+  gap: 16px;
+  /* khoảng cách giữa 2 cột */
   font-size: 0.95em;
   color: #1d1d1d;
 }
+
 .info-block {
   align-items: center;
   gap: 8px;
 }
+
 .info-item i {
   margin-right: 12px;
   font-size: 1.1em;
@@ -493,6 +492,7 @@ a{
 .info-item span {
   flex-grow: 1;
 }
+
 .popup-actions {
   display: flex;
   justify-content: flex-end;
@@ -531,6 +531,7 @@ a{
   background-color: #c92c3c;
   color: white;
 }
+
 .fc-theme-standard .fc-scrollgrid {
   border: none;
 }
@@ -590,6 +591,7 @@ a{
   text-align: center;
   font-weight: 500;
 }
+
 .fc-timegrid-slot-label {
   visibility: visible !important;
 }
@@ -614,19 +616,23 @@ a{
   border-top: 1px solid rgb(226, 26, 26) !important;
   z-index: 2;
 }
+
 .fc-timegrid-now-indicator-arrow {
   color: red !important;
   border-left: none !important;
   z-index: 2;
 }
+
 .fc-timegrid-now-indicator-border {
   border-color: red !important;
   z-index: 2;
 }
+
 .fc .fc-timegrid-slot-label-cushion {
   padding: 0px 0px;
 }
-.fc-timegrid-now-indicator-line + .fc-timegrid-now-indicator-label {
+
+.fc-timegrid-now-indicator-line+.fc-timegrid-now-indicator-label {
   background-color: red;
   color: white;
   border-radius: 3px;
@@ -664,9 +670,11 @@ a{
   gap: 2px;
   border-left: 8px solid #c92c3c;
 }
+
 .fc-datagrid-cell-frame {
   height: none !important;
 }
+
 .fc-license-message {
   display: none;
 }
@@ -709,6 +717,7 @@ a{
 .fc-timegrid-cols .fc-day:last-child {
   border-right: none;
 }
+
 .fc .fc-timeline-slot-cushion {
   padding: 4px 10px;
   white-space: nowrap;
@@ -716,17 +725,21 @@ a{
   color: black;
   text-align: center;
 }
+
 .fc .fc-timeline-header-row-chrono .fc-timeline-slot-frame {
   justify-content: center;
 }
+
 /* ==================================================================== */
 /* CSS riêng cho Resource View */
 /* ==================================================================== */
 
 /* Tùy chỉnh cột tiêu đề tài nguyên (cột "Bàn") */
 .fc .fc-resource-timegrid-sidebar {
-  background-color: #f8f8f8; /* Nền giống header ngày */
-  border-right: 1px solid #eee; /* Viền phải */
+  background-color: #f8f8f8;
+  /* Nền giống header ngày */
+  border-right: 1px solid #eee;
+  /* Viền phải */
 }
 
 /* Tiêu đề của mỗi tài nguyên (ví dụ: "Bàn 1") */
@@ -734,17 +747,21 @@ a{
   padding: 8px 10px;
   font-weight: 600;
   color: #333;
-  text-align: left; /* Căn trái cho tiêu đề bàn */
-  border-bottom: 1px solid #eee; /* Viền dưới */
+  text-align: left;
+  /* Căn trái cho tiêu đề bàn */
+  border-bottom: 1px solid #eee;
+  /* Viền dưới */
   display: flex;
   align-items: center;
-  min-height: 40px; /* Đảm bảo đủ cao cho nội dung */
+  min-height: 40px;
+  /* Đảm bảo đủ cao cho nội dung */
 }
 
 /* Phần chia giữa cột tài nguyên và các cột ngày */
 .fc-resource-timegrid-separator {
   background-color: #eee;
-  width: 1px; /* Chiều rộng đường kẻ */
+  width: 1px;
+  /* Chiều rộng đường kẻ */
 }
 
 /* Để tiêu đề tài nguyên không bị cắt nếu có nhiều dòng */
@@ -752,21 +769,25 @@ a{
   white-space: normal;
   word-wrap: break-word;
 }
+
 td,
 .fc-timegrid-slot,
 .fc-scrollgrid-sync-table td {
   background-color: transparent !important;
 }
+
 .popup-fade-enter-active,
 .popup-fade-leave-active {
   transition:
     opacity 0.3s ease,
     transform 0.3s ease;
 }
+
 .popup-fade-enter-from,
 .popup-fade-leave-to {
   transform: translateY(-20px);
 }
+
 .popup-fade-enter-to,
 .popup-fade-leave-from {
   transform: translateY(0px);

@@ -15,7 +15,7 @@
           </div>
 
           <div class="d-none d-lg-flex align-items-center ms-auto ">
-            <form @submit.prevent="searchProduct" >
+            <form @submit.prevent="searchProduct">
               <div class="input-wrapper position-relative me-3" ref="wrapperRef">
                 <button class="icon-search-submit" type="submit">
                   <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -51,12 +51,12 @@
               </div>
             </form>
 
-            <div class="me-3">
+            <div class="me-2">
               <router-link to="/login" v-if="!isLoggedIn" class="text-decoration-none text-primary-black">
-                  <button  class="icon-btn me-2"  >
-                    <i class="bi bi-people"></i>
-                  </button>
-                </router-link>
+                <button class="icon-btn me-2">
+                  <i class="bi bi-people"></i>
+                </button>
+              </router-link>
               <template v-else>
                 <div class="d-flex align-items-center">
                   <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
@@ -68,8 +68,8 @@
               </template>
             </div>
 
-            <div class="d-none d-lg-block">
-              <router-link to="/delivery" style="color: black;">
+            <!-- <div class="d-none d-lg-block">
+              <router-link :to="{ name: 'delivery', params: { id: order_id   } }" style="color: black;">
                 <div class="loader">
                   <div class="truckWrapper">
                     <div class="truckBody">
@@ -122,7 +122,7 @@
                   </div>
                 </div>
               </router-link>
-            </div>
+            </div> -->
 
             <div>
               <router-link to="/cart" class="icon-btn text-dark" title="Giỏ hàng">
@@ -187,9 +187,9 @@
               </button>
             </template>
 
-            <router-link to="/delivery" class="icon-btn text-dark mb-2">
+            <!-- <router-link to="/delivery" class="icon-btn text-dark mb-2">
               <i class="bi bi-truck me-2"></i> Theo dõi đơn hàng
-            </router-link>
+            </router-link> -->
             <router-link to="/cart" class="icon-btn text-dark mb-2">
               <i class="bi bi-cart me-2"></i> Giỏ hàng
             </router-link>
@@ -276,7 +276,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/userAuth';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import {  ref, onMounted, onBeforeUnmount,computed} from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import * as bootstrap from 'bootstrap';
 import { toast } from 'vue3-toastify';
 // const { formattedTime, isCounting, startCountdown } = useCountdown(60);
@@ -336,6 +336,8 @@ const toppings = ref([]);
 const spicyLevel = ref([]);
 const toppingList = ref([]);
 const quantity = ref(1);
+const order_id = parseInt(localStorage.getItem('order_id'))
+
 
 const formatNumber = (num) => new Intl.NumberFormat().format(num);
 const getImageUrl = (img) => `http://127.0.0.1:8000/storage/img/food/${img}`;
@@ -619,8 +621,8 @@ onBeforeUnmount(() => {
   color: red;
 }
 
-.text-primary-black{
-  color:black;
+.text-primary-black {
+  color: black;
 }
 
 .loading,

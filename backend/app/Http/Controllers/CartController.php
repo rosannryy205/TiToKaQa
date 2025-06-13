@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Food;
 use App\Models\Order;
 use App\Models\Order_detail;
 use App\Models\Order_topping;
 use App\Models\Reservation_table;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class CartController extends Controller
@@ -69,6 +71,17 @@ class CartController extends Controller
                             'type' => $item['type'],
                         ]);
 
+                        // Trừ stock và cộng quantity_sold nếu là món ăn đơn lẻ
+                        if (!empty($item['food_id'])) {
+                            $food = Food::find($item['food_id']);
+                            if ($food) {
+                                $food->stock -= $item['quantity'];
+                                $food->quantity_sold += $item['quantity'];
+                                $food->save();
+                            }
+                        }
+
+                        //Topping
                         if (!empty($item['toppings'])) {
                             foreach ($item['toppings'] as $topping) {
                                 Order_topping::create([
@@ -95,6 +108,88 @@ class CartController extends Controller
             ], 422);
         }
     }
+
+
+    public function orderTakeAway(Request $request)
+{
+    try {
+        $data = $request->validate(
+            [
+                'user_id' => 'nullable|numeric',
+                'guest_name' => 'required|string|max:255',
+                'note' => 'nullable|string',
+                'order_detail' => 'nullable|array',
+                'total_price' => 'nullable|numeric',
+                'money_reduce' => 'nullable|numeric',
+                'discount_id' => 'nullable|numeric',
+            ],
+            [
+                'guest_name.required' => 'Vui lòng nhập họ tên.',
+            ]
+        );
+
+        try {
+            $order = Order::create([
+                'user_id' => $data['user_id'] ?? null,
+                'guest_name' => $data['guest_name'],
+                'guest_phone' => null,
+                'guest_email' => null,
+                'guest_address' => null,
+                'total_price' => $data['total_price'] ?? 0,
+                'money_reduce' => $data['money_reduce'] ?? 0,
+                'discount_id' => $data['discount_id'] ?? null,
+                'note' => $data['note'] ?? null,
+                'order_status' => "Hoàn thành",
+            ]);
+
+            if (!empty($data['order_detail'])) {
+                foreach ($data['order_detail'] as $item) {
+                    $orderDetail = Order_detail::create([
+                        'order_id' => $order->id,
+                        'food_id' => $item['food_id'] ?? null,
+                        'combo_id' => $item['combo_id'] ?? null,
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price'],
+                        'type' => $item['type'],
+                    ]);
+
+                    if (!empty($item['food_id'])) {
+                        $food = Food::find($item['food_id']);
+                        if ($food) {
+                            $food->stock -= $item['quantity'];
+                            $food->quantity_sold += $item['quantity'];
+                            $food->save();
+                        }
+                    }
+
+                    if (!empty($item['toppings'])) {
+                        foreach ($item['toppings'] as $topping) {
+                            Order_topping::create([
+                                'food_toppings_id' => $topping['food_toppings_id'],
+                                'order_detail_id' => $orderDetail->id,
+                                'price' => $topping['price'],
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Đặt hàng thành công',
+                'order_id' => $order->id
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
+        }
+    } catch (ValidationException $e) {
+        return response()->json([
+            'status' => false,
+            'errors' => $e->errors()
+        ], 422);
+    }
+}
+
 
     public function get_order_detail(Request $request)
     {
@@ -241,23 +336,44 @@ class CartController extends Controller
             'order_status' => 'required|string|max:255'
         ]);
 
-        $order = Order::find($id);
+        $order = Order::with('details')->find($id);
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
         }
 
-        $order->order_status = $request->order_status;
+        $oldStatus = $order->order_status;
+        $newStatus = $request->order_status;
 
-        if ($order->save()) {
+        DB::beginTransaction();
+        try {
+            // Nếu chuyển trạng thái sang "Đã hủy" từ các trạng thái đã trừ stock trước đó
+            if ($newStatus === 'Đã hủy' && in_array($oldStatus, ['Chờ xác nhận', 'Đã xác nhận'])) {
+                foreach ($order->details as $detail) {
+                    $food = Food::find($detail->food_id);
+                    if ($food) {
+                        $food->stock += $detail->quantity;
+                        $food->quantity_sold -= $detail->quantity;
+                        $food->save();
+                    }
+                }
+            }
+
+            $order->order_status = $newStatus;
+            $order->save();
+
+            DB::commit();
+
             return response()->json([
                 "success" => true,
                 "message" => "Cập nhật trạng thái thành công"
             ]);
-        } else {
+        } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Cập nhật thất bại'
+                'message' => 'Đã xảy ra lỗi khi cập nhật trạng thái',
+                'error' => $e->getMessage()
             ], 500);
         }
     }

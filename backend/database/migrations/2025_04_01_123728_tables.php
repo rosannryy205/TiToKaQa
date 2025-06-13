@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('capacity');
             $table->integer('table_number');
-            $table->enum('status', ['Bàn trống', 'Có khách', 'Đã đặt trước'])->default('Bàn trống');
+            $table->timestamp('deleted_at')->nullable();
         });
     }
 

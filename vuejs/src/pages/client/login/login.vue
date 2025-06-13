@@ -21,7 +21,18 @@
           <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
           ĐĂNG NHẬP
         </button>
+
+
       </form>
+       <div class="mt-4">
+          <div class="divider mb-3"><span class="text-muted">HOẶC</span></div>
+          <button class="btn btn-outline-dark w-100 mb-2" @click="loginWithGoogle()">
+            <i class="fab fa-google me-2"></i> Đăng nhập với Google
+          </button>
+          <button class="btn btn-outline-primary w-100" >
+            <i class="fab fa-facebook-f me-2"></i> Đăng nhập với Facebook
+          </button>
+        </div>
 
       <p class="mt-4 text-muted" style="font-size: 0.9rem;">
         Bằng cách tiếp tục, bạn đồng ý với chúng tôi
@@ -62,6 +73,10 @@ export default {
   },
 
   methods: {
+    async loginWithGoogle() {
+      window.location.href = 'http://127.0.0.1:8000/api/auth/google/redirect';
+    },
+
     async handleLogin() {
       this.loginError = '';
       this.loading = true;
@@ -104,6 +119,7 @@ export default {
         this.loading = false;
       }
     },
+
   },
 };
 </script>
