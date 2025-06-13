@@ -77,7 +77,7 @@
         </article>
 
 
-        
+
         <article class="order-card-container" v-for="(order, index) in orderTakeAway" :key="order.id">
           <header class="order-header">
             <div class="user-info">
@@ -130,13 +130,6 @@
           <div class="total-section">
             <div class="total-label">Tổng tiền</div>
             <div class="total-amount">{{ formatNumber(order.total_price) }}VNĐ</div>
-          </div>
-
-          <hr>
-
-          <div class="buttons-section">
-            <button class="btn btn-details">Chi tiết</button>
-            <button class="btn btn-pay">Thanh toán</button>
           </div>
         </article>
 
@@ -634,6 +627,7 @@ export default {
 
 .food-list-scroll {
   max-height: 90px;
+  min-height: 90px;
   /* Có thể chỉnh: 150px, 250px, hoặc 30vh tuỳ ý */
   overflow-y: auto;
   margin-top: 0.5rem;

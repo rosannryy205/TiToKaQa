@@ -24,15 +24,15 @@
 
 
       </form>
-       <div class="mt-4">
-          <div class="divider mb-3"><span class="text-muted">HOẶC</span></div>
-          <button class="btn btn-outline-dark w-100 mb-2" @click="loginWithGoogle()">
-            <i class="fab fa-google me-2"></i> Đăng nhập với Google
-          </button>
-          <button class="btn btn-outline-primary w-100" >
-            <i class="fab fa-facebook-f me-2"></i> Đăng nhập với Facebook
-          </button>
-        </div>
+      <div class="mt-4">
+        <div class="divider mb-3"><span class="text-muted">HOẶC</span></div>
+        <button class="btn btn-outline-dark w-100 mb-2" @click="loginWithGoogle()">
+          <i class="fab fa-google me-2"></i> Đăng nhập với Google
+        </button>
+        <button class="btn btn-outline-primary w-100">
+          <i class="fab fa-facebook-f me-2"></i> Đăng nhập với Facebook
+        </button>
+      </div>
 
       <p class="mt-4 text-muted" style="font-size: 0.9rem;">
         Bằng cách tiếp tục, bạn đồng ý với chúng tôi
@@ -108,6 +108,8 @@ export default {
           this.loginError = errors[firstKey][0];
         } else if (error.response?.status === 401) {
           this.loginError = 'Sai email hoặc mật khẩu!';
+        } else if (error.response?.status === 403) {
+          this.loginError = error.response.data.message || 'Tài khoản của bạn không được phép đăng nhập.';
         } else if (error.response?.status === 500) {
           this.loginError = error.response.data.message || 'Lỗi máy chủ. Vui lòng thử lại sau.';
         } else if (error.request) {

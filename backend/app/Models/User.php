@@ -32,6 +32,7 @@ class User extends Authenticatable
         'provider_name',
         'provider_token',
         'provider_refresh_token',
+        'status'
 
     ];
 
