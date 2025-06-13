@@ -241,6 +241,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { useRoute } from 'vue-router'
+import { toast } from 'vue3-toastify'
 
 export default {
   name: 'HomePage',
@@ -423,56 +424,66 @@ export default {
       const user = JSON.parse(localStorage.getItem('user'))
       const userId = user?.id || 'guest'
       const cartKey = orderId
-        ? `cart_${userId}_reservation_${orderId}`
-        : `cart_${userId}`
+          ? `cart_${userId}_reservation_${orderId}`
+          : `cart_${userId}`
 
+        const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+        const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
 
-      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-      const selectedSpicyName = selectedSpicy ? selectedSpicy.name : 'Không cay'
+        let allSelectedToppings = [];
 
-      const selectedToppingId = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')
-      ).map((el) => parseInt(el.value))
+        if (selectedSpicy) {
+            allSelectedToppings.push({
+                id: selectedSpicy.id,
+                name: selectedSpicy.name,
+                price: selectedSpicy.price,
+                food_toppings_id: selectedSpicy.pivot?.id || null,
+                is_spicy_level: true
+            });
+        }
 
-      const selectedToppings = toppingList.value
-        .filter((topping) => selectedToppingId.includes(topping.id))
-        .map((topping) => ({
-          id: topping.id,
-          name: topping.name,
-          price: topping.price,
-          food_toppings_id: topping.pivot?.id || null
-        }))
+        const selectedToppingIds = Array.from(
+            document.querySelectorAll('input[name="topping[]"]:checked')
+        ).map((el) => parseInt(el.value));
 
-      const cartItem = {
-        id: foodDetail.value.id,
-        name: foodDetail.value.name,
-        image: foodDetail.value.image,
-        price: foodDetail.value.price,
-        spicyLevel: selectedSpicyName,
-        toppings: selectedToppings,
-        quantity: quantity.value,
-        type: foodDetail.value.type,
-      }
+        const normalToppings = toppingList.value
+            .filter((topping) => selectedToppingIds.includes(topping.id))
+            .map((topping) => ({
+                id: topping.id,
+                name: topping.name,
+                price: topping.price,
+                food_toppings_id: topping.pivot?.id || null,
+                is_spicy_level: false
+            }));
 
-      let cart = JSON.parse(localStorage.getItem(cartKey)) || []
+        allSelectedToppings = [...allSelectedToppings, ...normalToppings];
 
-      const existingItem = cart.findIndex(
-        (item) =>
-          item.id === cartItem.id &&
-          item.spicyLevel === cartItem.spicyLevel &&
-          JSON.stringify(item.toppings.sort()) === JSON.stringify(cartItem.toppings.sort())
-      )
+        const cartItem = {
+            id: foodDetail.value.id,
+            name: foodDetail.value.name,
+            image: foodDetail.value.image,
+            price: foodDetail.value.price,
+            toppings: allSelectedToppings,
+            quantity: quantity.value,
+            type: foodDetail.value.type,
+        };
 
-      if (existingItem !== -1) {
-        cart[existingItem].quantity += 1
-      } else {
-        cart.push(cartItem)
-      }
+        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        const existingItemIndex = cart.findIndex(
+            (item) =>
+                item.id === cartItem.id &&
+                JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
+        );
 
-      localStorage.setItem(cartKey, JSON.stringify(cart))
-      alert('Đã thêm vào giỏ hàng!')
-    }
+        if (existingItemIndex !== -1) {
+            cart[existingItemIndex].quantity += 1;
+        } else {
+            cart.push(cartItem);
+        }
+
+        localStorage.setItem(cartKey, JSON.stringify(cart));
+      toast.success('🛍️ Đã thêm vào giỏ hàng!')
+    };
 
 
 

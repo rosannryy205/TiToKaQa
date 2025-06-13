@@ -205,4 +205,16 @@ class AdminFoodController extends Controller
         $food->delete();
         return response()->json(['message' => 'Xóa món ăn thành công.'], 200);
     }
+
+    public function getAllFood(){
+        try {
+            $allFood = Food::with('category')->get();
+            return response()->json($allFood);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error',
+                'error' => $e->getMessage()
+            ],500);
+        }
+    }
 }

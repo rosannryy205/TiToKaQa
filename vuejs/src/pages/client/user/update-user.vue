@@ -1,9 +1,5 @@
 <template>
-  <div
-    v-if="loading"
-    class="d-flex justify-content-center align-items-center"
-    style="min-height: 50vh"
-  >
+  <div v-if="loading" class="d-flex justify-content-center align-items-center" style="min-height: 50vh">
     <div class="spinner-border text-danger" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
@@ -14,29 +10,28 @@
       <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0">
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
           <div class="d-flex flex-column flex-md-row align-items-center mb-3">
-            <template v-if="form.avatar_preview || form.avatar">
-              <img
-                :src="avatarUrl"
-                alt="Avatar"
-                v-if="avatarUrl"
-                class="avatar-circle d-flex justify-content-center align-items-center"
-              />
-            </template>
-            <template v-else>
-              <div
-                class="avatar-circle border-custom d-flex justify-content-center align-items-center"
-              >
-                {{ getInitial(form?.fullname) || getInitial(form?.username) }}
+            <div class="avatar-container">
+              <template v-if="avatarUrl">
+                <img :src="avatarUrl" alt="Avatar" class="avatar-circle" />
+              </template>
+              <template v-else>
+                <div class="avatar-circle border-custom d-flex justify-content-center align-items-center">
+                  {{ getInitial(form?.fullname) || getInitial(form?.username) }}
+                </div>
+              </template>
+
+              <div class="avatar-overlay">
+                <label for="avatar" class="btn btn-sm btn-light">
+                  <i class="bi bi-pencil"></i>
+                </label>
+                <input type="file" id="avatar" class="d-none" @change="handleImageUpload" />
               </div>
-            </template>
+            </div>
 
             <div class="ms-md-4 mt-3 mt-md-0 text-center text-md-start">
               <h6 class="fw-bold mb-2">{{ form.fullname || form.username }}</h6>
-              <a
-                href="#"
-                @click="handleLogout"
-                class="list-group-item-action link-danger small d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2"
-              >
+              <a href="#" @click="handleLogout"
+                class="list-group-item-action link-danger small d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2">
                 <i class="bi bi-box-arrow-right"></i> Đăng xuất
               </a>
             </div>
@@ -59,9 +54,7 @@
 
           <ul class="list-group list-group-flush">
             <router-link to="/update-user" class="text-decoration-none text-dark">
-              <li
-                class="list-group-item d-flex justify-content-between align-items-center"
-              >
+              <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <div class="fw-bold text-danger">Thông tin tài khoản</div>
                   <div class="small text-muted">Cập nhật thông tin</div>
@@ -71,9 +64,7 @@
             </router-link>
 
             <router-link to="/order-management" class="text-decoration-none text-dark">
-              <li
-                class="list-group-item d-flex justify-content-between align-items-center"
-              >
+              <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                   <div class="fw-bold">Quản lý đơn hàng</div>
                   <div class="small text-muted">Đơn hàng của tôi</div>
@@ -96,63 +87,26 @@
               <form @submit.prevent="handleSubmit">
                 <div class="mb-3">
                   <label class="form-label">Tên người dùng</label>
-                  <input
-                    type="text"
-                    v-model="form.fullname"
-                    class="form-control form-control-lg rounded"
-                    placeholder="Nhập nickname của bạn"
-                    id="fullname"
-                  />
-                </div>
-
-                <div class="mb-3 text-center">
-                  <label class="form-label d-block">Ảnh đại diện</label>
-                  <label
-                    for="upload-profile"
-                    class="border border-2 rounded-3 d-inline-block p-4 text-muted"
-                    style="cursor: pointer"
-                  >
-                    <div class="fs-1 mb-2">+</div>
-                    <div class="fw-medium">Tải lên</div>
-                  </label>
-                  <input
-                    type="file"
-                    id="upload-profile"
-                    class="d-none"
-                    @change="handleImageUpload"
-                  />
+                  <input type="text" v-model="form.fullname" class="form-control form-control-lg rounded"
+                    placeholder="Nhập nickname của bạn" id="fullname" />
                 </div>
 
                 <div class="mb-3">
                   <label for="phone" class="form-label">Số điện thoại</label>
                   <div class="input-group">
                     <span class="input-group-text">+84</span>
-                    <input
-                      type="text"
-                      v-model="form.phone"
-                      class="form-control form-control-lg rounded"
-                      id="phone"
-                      placeholder="Nhập số điện thoại của bạn"
-                    />
+                    <input type="text" v-model="form.phone" class="form-control form-control-lg rounded" id="phone"
+                      placeholder="Nhập số điện thoại của bạn" />
                   </div>
                 </div>
 
                 <div class="mb-3">
                   <label for="address" class="form-label">Địa chỉ</label>
-                  <input
-                    type="text"
-                    v-model="form.address"
-                    class="form-control form-control-lg rounded"
-                    id="address"
-                    placeholder="Nhập địa chỉ của bạn"
-                  />
+                  <input type="text" v-model="form.address" class="form-control form-control-lg rounded" id="address"
+                    placeholder="Nhập địa chỉ của bạn" />
                 </div>
                 <div class="text-center">
-                  <button
-                    type="submit"
-                    style="background-color: #ca111f"
-                    class="btn text-white w-100"
-                  >
+                  <button type="submit" style="background-color: #ca111f" class="btn text-white w-100">
                     Lưu tài khoản
                   </button>
                 </div>
@@ -160,13 +114,9 @@
             </div>
 
             <!-- Cột phải -->
-            <div
-              class="col-md-5 ps-md-4 pt-4 pt-md-0 border-top border-md-0 border-md-start"
-            >
+            <div class="col-md-5 ps-md-4 pt-4 pt-md-0 border-top border-md-0 border-md-start">
               <ul class="p-0 m-0 list-unstyled">
-                <li
-                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
-                >
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
                     <i class="bi bi-envelope"></i>
                     <div>
@@ -174,57 +124,33 @@
                       <div class="small text-muted">Thay đổi địa chỉ email</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger w-100"
-                    style="max-width: 100px"
-                  >
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px">
                     <strong>Cập nhật</strong>
                   </button>
                 </li>
-                <li
-                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
-                >
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      class="bi bi-lock"
-                      viewBox="0 0 16 16"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3"
-                      />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                      class="bi bi-lock" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd"
+                        d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3" />
                     </svg>
                     <div>
                       <div class="fw-bold">Đổi mật khẩu</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger w-100"
-                    style="max-width: 100px"
-                  >
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px">
                     <strong>Cập nhật</strong>
                   </button>
                 </li>
-                <li
-                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
-                >
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
                     <i class="bi bi-trash"></i>
                     <div>
                       <div class="fw-bold">Xóa tài khoản</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger w-100"
-                    style="max-width: 100px"
-                  >
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px">
                     <strong>Xóa</strong>
                   </button>
                 </li>
@@ -240,55 +166,91 @@
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import { toast } from "vue3-toastify";
-import { Image } from "ant-design-vue";
+// import { User } from "@/stores/user";
 
 export default {
   setup() {
-    const primaryColor = "#ca111f";
+    // const {
+    //   user,
+    //   form,
+    //   handleImageUpload,
+    //   handleLogout,
+    //   handleSubmit,
+    //   getInitial,
+    //   loading,
+    //   displayAvatarUrl,
+    // } = User.setup()
     const user = ref(null);
     const form = ref({
       fullname: "",
       email: "",
       phone: "",
       address: "",
-      avatar: "",
+      avatar: null,
       username: "",
-      avatar_file: null,
-      avatar_preview: "",
     });
-    const userData = localStorage.getItem('user');
-    const userId = userData ? JSON.parse(userData).id : null;
-
-    const personally = async (userId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Bạn chưa đăng nhập.");
+      return (window.location.href = "/login");
+    }
+    const personally = async () => {
       try {
         const res = await axios.get(`http://127.0.0.1:8000/api/user`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
-        user.value = res.data;
-        // console.log(res.data.username);
 
-        form.value = {
-          fullname: res.data.fullname || "",
-          email: res.data.email || "",
-          phone: res.data.phone || "",
-          address: res.data.address || "",
-          avatar: (res.data.avatar || "").trim(),
-          username: res.data.username || "",
-        };
+        const data = res.data;
+        const currentUserData = data.user || (Array.isArray(data) ? data[0] : data);
+        if (currentUserData) {
+          user.value = currentUserData;
+          form.value.fullname = currentUserData.fullname || currentUserData.username || "";
+          form.value.email = currentUserData.email || "";
+          form.value.phone = currentUserData.phone || "";
+          form.value.address = currentUserData.address || "";
+          form.value.username = currentUserData.username || "";
+
+          let avatarPath = data.avatar_url || currentUserData.avatar;
+
+          if (avatarPath) {
+            form.value.avatar = (avatarPath.startsWith('http://') || avatarPath.startsWith('https://'))
+              ? avatarPath
+              : `http://127.0.0.1:8000/storage/${avatarPath}`;
+          } else {
+            form.value.avatar = null;
+          }
+        } else {
+          console.warn('Không thể phân tích dữ liệu người dùng từ phản hồi:', data);
+          toast.error("Định dạng dữ liệu người dùng không hợp lệ khi tải trang.");
+        }
+
+        tempAvatar.value = null;
       } catch (error) {
         console.error("Không lấy được thông tin người dùng", error);
+        toast.error("Không thể tải thông tin người dùng.");
       } finally {
         loading.value = false;
       }
     };
 
+    const tempAvatar = ref(null);
+    const avatarUrl = computed(() => {
+      if (tempAvatar.value) {
+        return tempAvatar.value;
+      }
+      return form.value.avatar;
+    });
     const handleImageUpload = (event) => {
       const file = event.target.files[0];
-      if (!file) return;
-      form.value.avatar_preview = URL.createObjectURL(file);
-      form.value.avatar_file = file;
+      if (file) {
+        form.value.avatar = file;
+        tempAvatar.value = URL.createObjectURL(file);
+      } else {
+        form.value.avatar = null;
+        tempAvatar.value = null;
+      }
     };
 
     const isLoggedIn = ref(!!user.value);
@@ -307,59 +269,38 @@ export default {
 
         isLoggedIn.value = false;
 
-        alert("Đăng xuất thành công!");
+        toast.success('Đăng xuất thành công!');
         window.location.href = "/";
       } catch (error) {
         console.error("Lỗi đăng xuất:", error);
         alert("Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!");
       }
     };
-
     const handleSubmit = async () => {
       try {
         const formData = new FormData();
-        formData.append("fullname", form.value.fullname);
-        formData.append("phone", form.value.phone);
-        formData.append("address", form.value.address);
-        if (form.value.avatar_file) {
-          formData.append("avatar", form.value.avatar_file);
+        formData.append("fullname", form.value.fullname || "");
+        formData.append("phone", form.value.phone || "");
+        formData.append("address", form.value.address || "");
+        if (form.value.avatar instanceof File) {
+          formData.append("avatar", form.value.avatar);
         }
         formData.append("_method", "PATCH");
 
-        await axios.post(`http://127.0.0.1:8000/api/user/${userId}`, formData, {
+        await axios.post(`http://127.0.0.1:8000/api/user`, formData, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            ...(form.value.avatar_file && {
-              "Content-Type": "multipart/form-data",
-            }),
-          },
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data',
+          }
         });
-
-        toast.success("Đã cập nhật thông tin thành công.");
-        console.log("Gửi form:", form.value);
-        await personally();
+        toast.success('Cập nhật thành công!')
+        console.log(form.value)
+        await personally()
       } catch (error) {
-        toast.error("Có lỗi xảy ra, vui lòng thử lại sau.");
-        console.error(error);
-        alert("Cập nhật thất bại.");
+        console.error(error)
+        toast.error('Cập nhật thất bại!')
       }
     };
-
-    const avatarUrl = computed(() => {
-      const avatar = form.value.avatar;
-
-      // Nếu đang chọn ảnh preview mới
-      if (form.value.avatar_preview) return form.value.avatar_preview;
-
-      // Nếu là link Google (OAuth), dùng trực tiếp
-      if (typeof avatar === "string" && avatar.startsWith("http")) return avatar;
-
-      // Nếu là ảnh từ server Laravel (tên file)
-      if (avatar) return `http://localhost:8000/assets/avatar/${avatar}`;
-
-      return null;
-    });
-
 
     const getInitial = (username) => {
       if (username?.trim()) return username.trim().charAt(0).toUpperCase();
@@ -380,9 +321,7 @@ export default {
       handleLogout,
       getInitial,
       loading,
-      primaryColor,
-      avatarUrl,
-      userId
+      avatarUrl
     };
   },
 };
@@ -392,26 +331,59 @@ export default {
   border: 1px solid #ca111f;
 }
 
-.avatar-circle {
+.avatar-container {
+  position: relative;
   width: clamp(80px, 25vw, 100px);
   height: clamp(80px, 25vw, 100px);
   border-radius: 50%;
   overflow: hidden;
   display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+  display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
   background-color: #f8f9fa;
+  transition: filter 0.3s ease;
 }
 
-.avatar-circle img {
+.avatar-container .border-custom {
+  border: 1px solid #ca111f;
+}
+
+.avatar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  /* QUAN TRỌNG: giữ tỷ lệ, cắt vừa khung */
-  object-position: center;
-  display: block;
+  border-radius: 50%;
+  background-color: rgba(86, 86, 86, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
 }
+
+.avatar-container:hover .avatar-overlay {
+  opacity: 1;
+}
+
+.avatar-container:hover .avatar-circle {
+  filter: brightness(0.7);
+}
+
 
 .fade-in {
   animation: fadeIn 0.4s ease-in-out;
@@ -440,14 +412,20 @@ li.list-group-item {
 }
 
 @media (max-width: 768px) {
-  .avatar-circle {
+  .avatar-container {
     max-width: 100px;
+    max-height: 100px;
+  }
+
+  .avatar-circle {
     font-size: 28px;
   }
 }
+
 @media (min-width: 768px) {
   .border-md-start {
-    border-top: none !important; /* Xoá border-top khi desktop */
+    border-top: none !important;
+    /* Xoá border-top khi desktop */
     border-left: 1px solid #dee2e6 !important;
   }
 }
