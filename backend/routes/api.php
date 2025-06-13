@@ -143,11 +143,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::post('/admin/toppings',[AdminToppingController::class,'store']);
 });
 
-//admin combo
-Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
-
-
-
 Route::resource('/payment', PaymentController::class);
 // routes/api.php
 Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
@@ -155,7 +150,11 @@ Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 
 
 
-/**admin*/
+/**combo*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
-Route::post('/admin/combo/create', [ComboController::class, 'createCombosByAdmin']);
+Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
+Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
+Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
+Route::patch('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
+Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);

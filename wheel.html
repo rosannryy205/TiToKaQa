@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vòng Quay May Mắn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --main-color: #f85032;
+            --secondary-color: #f9d423;
+            --text-color: #ffffff;
+            --dark-red: #d93a1e;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--main-color);
+            color: var(--text-color);
+        }
+
+        .navbar {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .main-content {
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 20px auto;
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #f9d423 0% 10%, #d93a1e 10% 20%,
+                #f9d423 20% 30%, #d93a1e 30% 40%,
+                #f9d423 40% 50%, #d93a1e 50% 60%,
+                #f9d423 60% 70%, #d93a1e 70% 80%,
+                #f9d423 80% 90%, #d93a1e 90% 100%
+            );
+            border: 10px solid #f9d423;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            position: relative;
+            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+            overflow: hidden;
+        }
+
+        #wheel::before {
+            content: '';
+            position: absolute;
+            width: 95%;
+            height: 95%;
+            top: 2.5%;
+            left: 2.5%;
+            border: 5px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+
+        .wheel-slice {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+        .wheel-slice .text {
+            transform: rotate(-90deg) translateX(80px); /* Adjust position */
+            display: block;
+            text-align: center;
+            width: 150px;
+        }
+
+        #spin-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: var(--dark-red);
+            border: 8px solid var(--secondary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--text-color);
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: background-color 0.2s;
+        }
+        
+        #spin-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 40px solid var(--secondary-color);
+            z-index: 20;
+        }
+
+        .promo-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .promo-item h4 {
+            color: var(--secondary-color);
+        }
+
+        .footer {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .wheel-container {
+                width: 300px;
+                height: 300px;
+            }
+            #spin-btn {
+                width: 80px;
+                height: 80px;
+                font-size: 24px;
+            }
+            .wheel-slice .text {
+                 transform: rotate(-90deg) translateX(60px);
+                 font-size: 12px;
+            }
+            .main-content h1 {
+                font-size: 2rem;
+            }
+             .pointer {
+                top: -15px;
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-bottom: 30px solid var(--secondary-color);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">Lucky Spin</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Trang Chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Thể Lệ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Giải Thưởng</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Liên Hệ</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-content">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-uppercase">Vòng Quay May Mắn</h1>
+            <p class="lead">Thử vận may của bạn để nhận những phần quà hấp dẫn!</p>
+        </div>
+
+        <div class="row align-items-center">
+            <div class="col-lg-3 d-none d-lg-block">
+                <div class="promo-item">
+                    <img src="https://via.placeholder.com/80?text=Gift+1" class="mb-3 rounded-circle" alt="Promo 1">
+                    <h4>Giảm Giá Sốc</h4>
+                    <p>Cơ hội nhận voucher giảm giá lên đến 50% cho mọi đơn hàng.</p>
+                </div>
+                <div class="promo-item">
+                    <img src="https://via.placeholder.com/80?text=Gift+2" class="mb-3 rounded-circle" alt="Promo 2">
+                    <h4>Miễn Phí Vận Chuyển</h4>
+                    <p>Quay để nhận ngay mã Freeship cho đơn hàng của bạn.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="wheel-container">
+                    <div class="pointer"></div>
+                    <div id="wheel"></div>
+                    <div id="spin-btn">QUAY</div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 d-none d-lg-block">
+                 <div class="promo-item">
+                    <img src="https://via.placeholder.com/80?text=Gift+3" class="mb-3 rounded-circle" alt="Promo 3">
+                    <h4>Quà Tặng Đặc Biệt</h4>
+                    <p>Những phần quà bí mật đang chờ đợi người chơi may mắn nhất.</p>
+                </div>
+                 <div class="promo-item">
+                     <img src="https://via.placeholder.com/80?text=Rule" class="mb-3 rounded-circle" alt="Promo 4">
+                    <h4>Thể Lệ Chương Trình</h4>
+                    <p>Mỗi khách hàng có một lượt quay duy nhất trong ngày. Chúc bạn may mắn!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer text-center">
+        <div class="container">
+            <p>&copy; 2025 Công ty TNHH ABC. Mọi quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const wheel = document.getElementById('wheel');
+            const spinBtn = document.getElementById('spin-btn');
+
+            const slices = [
+                { text: "Không trúng", color: "#d93a1e" },
+                { text: "Giảm 10%", color: "#f9d423" },
+                { text: "Giảm trúng", color: "#d93a1e" }, // Assuming this means a win
+                { text: "Không trúng", color: "#f9d423" },
+                { text: "Freeship", color: "#d93a1e" },
+                { text: "Freeship", color: "#f9d423" },
+                { text: "Giảm trúng", color: "#d93a1e" }, // Assuming this means a win
+                { text: "Giảm 50K", color: "#f9d423" },
+                { text: "Không trúng", color: "#d93a1e" },
+                { text: "Không trúng", color: "#f9d423" }
+            ];
+
+            const sliceCount = slices.length;
+            const sliceAngle = 360 / sliceCount;
+            let currentRotation = 0;
+            let isSpinning = false;
+            
+            // Generate slices dynamically
+            slices.forEach((slice, i) => {
+                const sliceEl = document.createElement('div');
+                sliceEl.className = 'wheel-slice';
+                
+                const textEl = document.createElement('span');
+                textEl.className = 'text';
+                textEl.textContent = slice.text;
+
+                // Adjust text color based on background for better contrast
+                if (slice.color === "#f9d423") {
+                    textEl.style.color = "#d93a1e";
+                } else {
+                     textEl.style.color = "#ffffff";
+                }
+
+                sliceEl.appendChild(textEl);
+                sliceEl.style.transform = `rotate(${sliceAngle * i}deg)`;
+                wheel.appendChild(sliceEl);
+            });
+
+
+            spinBtn.addEventListener('click', () => {
+                if (isSpinning) return;
+                isSpinning = true;
+
+                // Calculate a random degree to stop at
+                const randomSpins = Math.floor(Math.random() * 5) + 5; // Spin at least 5 times
+                const randomStopAngle = Math.floor(Math.random() * 360);
+                const totalRotation = (randomSpins * 360) + randomStopAngle;
+
+                // Apply rotation
+                currentRotation += totalRotation;
+                wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+                // Wait for the spin to finish
+                setTimeout(() => {
+                    isSpinning = false;
+                    const finalRotation = currentRotation % 360;
+                    
+                    // The pointer is at the top (0 degrees), but we calculate from 0 at the right.
+                    // So we adjust by 90 degrees. The first slice starts at angle 0.
+                    const pointerAngle = (360 - finalRotation + 90) % 360; 
+                    const winningSliceIndex = Math.floor(pointerAngle / sliceAngle);
+                    const winningSlice = slices[winningSliceIndex];
+
+                    alert(`Chúc mừng! Bạn đã trúng: ${winningSlice.text}`);
+
+                }, 5000); // Must match the transition duration in CSS
+            });
+        });
+    </script>
+</body>
+</html>
