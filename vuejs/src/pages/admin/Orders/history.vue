@@ -71,6 +71,13 @@
         </p>
         <p><strong>Bàn:</strong> {{ selectedOrder.areaTable }}</p>
         <p><strong>Loại đơn:</strong> {{ selectedOrder.orderType }}</p>
+
+        <!--Trạng thái thanh toán -->
+        <p><strong>Trạng thái thanh toán:</strong> {{ selectedOrder.paymentStatus }}</p>
+
+        <!--Phương thức thanh toán -->
+        <p><strong>Phương thức thanh toán:</strong> {{ selectedOrder.paymentMethod }}</p>
+
         <p><strong>Trạng thái:</strong>
           <a-select :value="selectedOrder.status" style="width: 160px"
             @change="handleStatusChange(selectedOrder.id, $event)">
@@ -100,6 +107,7 @@
         </a-list>
       </div>
     </a-modal>
+
   </div>
 </template>
 
@@ -119,7 +127,7 @@ const fetchOrders = async () => {
     const response = await axios.get(`http://127.0.0.1:8000/api/get_all_orders`);
     const apiOrders = response.data.orders;
 
-    console.log('ssss'+apiOrders);
+    console.log('ssss' + apiOrders);
 
 
     orders.value = apiOrders.map(order => {
@@ -130,10 +138,12 @@ const fetchOrders = async () => {
           phone: order.guest_phone,
         },
         orderDate: order.order_time,
-        areaTable: order.tables?.map(t => `Bàn ${t.table_number}`).join(', ') || 'Mang về',
+        areaTable: order.tables?.map(t => `Bàn ${t.table_number}`).join(', ') || 'Not found',
         orderType: order.tables?.length > 0 ? 'Đặt bàn' : 'Mang về',
         totalAmount: parseFloat(order.total_price),
         status: order.order_status,
+        paymentMethod: order.payment?.payment_method || 'Chưa cập nhật',
+        paymentStatus: order.payment?.payment_status || 'Chưa cập nhật',
         items: order.details.map(detail => ({
           name: detail.food_name || `Món #${detail.food_id}`,
           quantity: detail.quantity,
@@ -180,8 +190,8 @@ const handleStatusChange = async (orderId, newStatus) => {
 
   const currentStatus = order.status;
 
-  // Không cho cập nhật từ trạng thái đã hủy hoặc giao thất bại
-  if (currentStatus === 'Đã hủy' || currentStatus === 'Giao thất bại' || currentStatus === 'Giao thành công') {
+  // Không cho cập nhật từ trạng thái đã hủy hoặc giao thất bại hoặc giao thành công
+  if (['Đã hủy', 'Giao thất bại', 'Giao thành công'].includes(currentStatus)) {
     message.warning('Không thể cập nhật trạng thái.');
     return;
   }
@@ -192,30 +202,21 @@ const handleStatusChange = async (orderId, newStatus) => {
     return;
   }
 
-  // Logic kiểm soát cập nhật trạng thái:
-
-  // 1. Nếu đang giao hàng, cho phép nhảy lên giao thành công hoặc giao thất bại
+  // Logic kiểm soát cập nhật trạng thái
   if (currentStatus === 'Đang giao hàng') {
-    if (newStatus === 'Giao thành công' || newStatus === 'Giao thất bại') {
-      // Cho phép
-    } else if (statusOrder[newStatus] !== statusOrder[currentStatus]) {
-      // Nếu không phải 2 trạng thái trên mà cố nhảy khác thì lỗi
+    if (!['Giao thành công', 'Giao thất bại'].includes(newStatus)) {
       message.warning('Chỉ có thể cập nhật trạng thái thành công hoặc thất bại khi đang giao hàng.');
       return;
     }
   } else {
-    // 2. Nếu đang ở chờ xác nhận hoặc đã xác nhận thì có thể hủy
     if (newStatus === 'Đã hủy') {
-      if (currentStatus !== 'Chờ xác nhận' && currentStatus !== 'Đã xác nhận') {
+      if (!['Chờ xác nhận', 'Đã xác nhận'].includes(currentStatus)) {
         message.warning('Chỉ có thể hủy đơn khi đơn ở trạng thái chờ xác nhận hoặc đã xác nhận.');
         return;
       }
-    } else {
-      // 3. Không được nhảy bậc (bỏ qua trạng thái bằng nhau)
-      if (statusOrder[newStatus] !== statusOrder[currentStatus] + 1) {
-        message.warning('Không thể nhảy trạng thái không theo thứ tự.');
-        return;
-      }
+    } else if (statusOrder[newStatus] !== statusOrder[currentStatus] + 1) {
+      message.warning('Không thể nhảy trạng thái không theo thứ tự.');
+      return;
     }
   }
 
@@ -225,7 +226,6 @@ const handleStatusChange = async (orderId, newStatus) => {
     });
 
     if (response.data.success) {
-      // Cập nhật trạng thái trong orders và selectedOrder
       const index = orders.value.findIndex(order => order.id === orderId);
       if (index !== -1) {
         orders.value[index].status = newStatus;
@@ -234,6 +234,13 @@ const handleStatusChange = async (orderId, newStatus) => {
         selectedOrder.value.status = newStatus;
       }
       message.success('Cập nhật trạng thái thành công');
+      if (['Giao thành công', 'Giao thất bại', 'Đã hủy'].includes(newStatus)) {
+        await fetchOrders();
+        const updatedOrder = orders.value.find(order => order.id === orderId);
+        if (updatedOrder) {
+          selectedOrder.value = { ...updatedOrder };
+        }
+      }
     } else {
       message.error('Cập nhật trạng thái thất bại');
     }
@@ -242,6 +249,7 @@ const handleStatusChange = async (orderId, newStatus) => {
     message.error('Có lỗi xảy ra khi cập nhật trạng thái');
   }
 };
+
 
 
 
@@ -258,21 +266,43 @@ const isDetailModalVisible = ref(false);
 const selectedOrder = ref(null);
 
 const columns = [
-  { title: 'STT', key: 'stt', width: 50, fixed: 'center' },
-  { title: 'Mã ĐH', dataIndex: 'id', key: 'orderId', width: 70, fixed: 'center', sorter: (a, b) => a.id.localeCompare(b.id) },
-  { title: 'Bàn số', dataIndex: 'areaTable', key: 'areaTable', width: 80 },
-  { title: 'Thông tin KH', key: 'customerInfo', width: 150 },
+  { title: 'STT', key: 'stt', width: 50, fixed: 'center', align: 'center' },
+  { title: 'Mã ĐH', dataIndex: 'id', key: 'orderId', width: 70, fixed: 'center', sorter: (a, b) => a.id.localeCompare(b.id), align: 'center' },
+  { title: 'Bàn số', dataIndex: 'areaTable', key: 'areaTable', width: 80, align: 'center' },
+  { title: 'Thông tin KH', key: 'customerInfo', width: 150, align: 'center' },
   {
-    title: 'Loại đơn', dataIndex: 'orderType', key: 'orderType', width: 80,
+    title: 'Loại đơn', dataIndex: 'orderType', key: 'orderType', width: 80, align: 'center',
     filters: [
       { text: 'Đặt bàn', value: 'Đặt bàn' },
       { text: 'Mang về', value: 'Mang về' },
     ],
     onFilter: (value, record) => record.orderType.includes(value),
   },
-  { title: 'Tổng tiền', dataIndex: 'totalAmount', key: 'totalAmount', width: 100, sorter: (a, b) => a.totalAmount - b.totalAmount, align: 'right' },
   {
-    title: 'Trạng thái', dataIndex: 'status', key: 'status', width: 120, fixed: 'right',
+    title: 'Trạng thái TT', dataIndex: 'paymentStatus', key: 'paymentStatus', width: 130, align: 'center',
+    filters: [
+      { text: 'Chưa thanh toán', value: 'Chưa thanh toán' },
+      { text: 'Đã thanh toán', value: 'Đã thanh toán' },
+      { text: 'Thanh toán thất bại', value: 'Thanh toán thất bại' },
+    ],
+    onFilter: (value, record) => record.paymentStatus.includes(value),
+  },
+  {
+    title: 'Phương thức TT', dataIndex: 'paymentMethod', key: 'paymentMethod', width: 130, align: 'center',
+    filters: [
+      { text: 'COD', value: 'COD' },
+      { text: 'VNPAY', value: 'VNPAY' },
+      { text: 'MOMO', value: 'MOMO' },
+    ],
+    onFilter: (value, record) => record.paymentMethod.includes(value),
+  },
+  {
+    title: 'Tổng tiền', dataIndex: 'totalAmount', key: 'totalAmount', width: 100,
+    sorter: (a, b) => a.totalAmount - b.totalAmount,
+    align: 'center',
+  },
+  {
+    title: 'Trạng thái', dataIndex: 'status', key: 'status', width: 120, fixed: 'right', align: 'center',
     filters: [
       { text: 'Chờ xác nhận', value: 'Chờ xác nhận' },
       { text: 'Đã xác nhận', value: 'Đã xác nhận' },
@@ -286,6 +316,7 @@ const columns = [
   },
   { title: 'Hành động', key: 'action', width: 200, fixed: 'right', align: 'center' },
 ];
+
 
 // Cấu hình phân trang
 const pagination = reactive({
