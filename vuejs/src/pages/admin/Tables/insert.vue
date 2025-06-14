@@ -5,7 +5,7 @@
     </div>
   </div>
 
-  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" v-if="hasPermission('create_table')">
     <h3 class="text-danger fw-bold mb-2 mb-md-0">Thêm đơn đặt bàn</h3>
     <div>
       <a href="#" class="btn btn-outline-secondary rounded-0" @click="$router.back()">
@@ -87,6 +87,7 @@
                     class="form-control rounded"
                     placeholder="Số lượng người"
                     v-model="guest_count"
+                    @change="findTable"
                   />
                 </div>
               </div>
@@ -503,6 +504,7 @@ import { Cart } from '@/stores/cart'
 import vSelect from 'vue-select'
 import { FoodList } from '@/stores/food'
 import { watch } from 'vue'
+import { Permission } from '@/stores/permission'
 
 export default {
   components: {
@@ -537,6 +539,15 @@ export default {
       spicyLevel,
       toppingList,
     } = FoodList.setup()
+    const userId = ref(null)
+    const userString = localStorage.getItem('user')
+    if (userString) {
+      const user = JSON.parse(userString)
+      if (user && user.id !== undefined) {
+        userId.value = user.id
+      }
+    }
+    const { hasPermission, permissions } = Permission(userId)
 
     const isLoading = ref(false)
     const today = new Date().toISOString().split('T')[0]
@@ -544,7 +555,6 @@ export default {
     const note = ref('')
     const availableTables = ref([])
     const table_id = ref(null)
-    const datetime = localStorage.getItem('selectedDate')
     const date = ref('')
     const time = ref('')
     const user_id = ref(null)
@@ -650,15 +660,25 @@ export default {
 
     // hàm tìm bàn
     const findTable = async () => {
-      if ((date.value && time.value) || guest_count.value) {
+      if (date.value && time.value && guest_count.value) {
         try {
           isLoading.value = true
+          const datetime = localStorage.getItem('selectedDate') || new Date(`${date.value}T${time.value}:00`)
+          const selectedDateTime = formatDateTime(datetime)
+          const reservedFrom = new Date(selectedDateTime)
+          const reservedTo = reservedFrom.getTime() + 2 * 60 * 60 * 1000
+
+          const reserved_from = formatDateTime(reservedFrom)
+          const reserved_to = formatDateTime(reservedTo)
+
           const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
-            reserved_from: formatDateTime(datetime),
-            guest_count: guest_count.value,
+            reserved_from: reserved_from,
+            reserved_to: reserved_to,
+            number_of_guests: guest_count.value,
           })
 
           availableTables.value = res.data.tables || []
+          localStorage.removeItem('selectedDate')
         } catch (error) {
           toast.error('Lỗi khi lấy danh sách bàn có thể đặt')
           console.error('Lỗi:', error)
@@ -667,7 +687,6 @@ export default {
         }
       }
     }
-
     const getChairCount = (seats) => {
       if (seats <= 2) return 1
       if (seats <= 4) return 2
@@ -770,7 +789,7 @@ export default {
           guest_email: guest_email.value,
           guest_count: guest_count.value,
           note: note.value,
-          reserved_from: formatDateTime(datetime),
+          reserved_from: `${date.value} ${time.value}`,
           deposit_amount: 100000,
           total_price: totalPrice.value + 100000,
           table_ids: selectedTableIds.value,
@@ -806,8 +825,8 @@ export default {
       }
     })
     onMounted(() => {
-      date.value = formatDate(datetime)
-      time.value = formatTime(datetime)
+      time.value = formatTime(localStorage.getItem('selectedDate')) || ''
+      date.value = formatDate(localStorage.getItem('selectedDate')) || ''
       getAllUser()
       selectguest.value = 'guest'
       findTable()
@@ -838,7 +857,6 @@ export default {
       getChairCount,
       formatDate,
       formatTime,
-      datetime,
       reservation,
       guest_email,
       user_id,
@@ -884,6 +902,8 @@ export default {
       onFoodSearch,
       handleAddToCartClick,
       clearCart,
+      hasPermission,
+      userId
     }
   },
 }

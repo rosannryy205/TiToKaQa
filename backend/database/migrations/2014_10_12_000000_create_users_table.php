@@ -26,7 +26,6 @@ return new class extends Migration
             $table->string('rank')->default('Thường');
             $table->integer('verify_code')->nullable();
             $table->timestamp('verify_expiry')->nullable()->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->enum('role', ['user', 'admin']) -> default('user');
             $table->timestamps();
             $table->softDeletes();
         });

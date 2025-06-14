@@ -21,10 +21,13 @@ const collapsed = ref(false)
 const toggleSidebar = () => {
   collapsed.value = !collapsed.value
 }
+
+
 </script>
 
 <style scoped>
 .admin-layout {
-  min-height: 100vh;
+  min-height: 30vh;
+  overflow-y: auto;
 }
 </style>

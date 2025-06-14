@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('view_booking')">
   <h4 class="pb-2">Đơn hiện thời</h4>
   <div class="tab-content">
     <div class="tab-pane active" id="all-content" role="tabpanel" aria-labelledby="tab-all">
