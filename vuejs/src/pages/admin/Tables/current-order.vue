@@ -117,7 +117,8 @@
           <div class="status-update-section pt-1">
             <select v-model="order.order_status" class="status-dropdown"
               @change="updateStatusOrder(order.id, order.order_status)">
-              <option value="Đã xác nhận" :disabled="!canSelectStatusOrder(order.order_status, 'Đã xác nhận')">Đã xác nhận
+              <option value="Đã xác nhận" :disabled="!canSelectStatusOrder(order.order_status, 'Đã xác nhận')">Đã xác
+                nhận
               </option>
               <option value="Đang xử lý" :disabled="!canSelectStatusOrder(order.order_status, 'Đang xử lý')">Đang xử lý
               </option>
@@ -181,7 +182,7 @@ export default {
     const getOrderTakeAway = async () => {
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/get_all_orders')
-        orderTakeAway.value=res.data.orders.filter(order => order.type_order === 'takeaway');
+        orderTakeAway.value = res.data.orders.filter(order => order.type_order === 'takeaway');
       } catch (error) {
         console.log(error)
       }
@@ -290,10 +291,23 @@ export default {
     }
 
     onMounted(() => {
-      getOrderOfTable()
-      setInterval(updateTimers, 1000)
-      getOrderTakeAway()
+      axios.get('http://127.0.0.1:8000/api/payments/vnpay-return', {
+        params: new URLSearchParams(window.location.search)
+      })
+        .then(() => {
+          toast.success('Cập nhật thành công !')
+        })
+        .catch(() => {
+          toast.error('Thanh toán thất bại hoặc có lỗi !')
+        })
+        .finally(() => {
+          getOrderOfTable()
+          setInterval(updateTimers, 1000)
+          getOrderTakeAway()
+        })
     })
+
+
 
     return {
       orderOfTable,

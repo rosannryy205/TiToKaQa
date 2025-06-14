@@ -14,6 +14,7 @@ use App\Mail\VerifyCodeMail;
 use Exception;
 use Svg\Tag\Rect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 use function Laravel\Prompts\error;
 
@@ -383,8 +384,8 @@ class UserController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        //
-        return response()->json($request->user());
+            $user = User::findOrFail($id);
+            return response()->json($user);
     }
 
     /**
@@ -398,9 +399,9 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request, string $id)
     {
-        $user = $request->user();
+        $user = User::findOrFail($id);
 
         $request->validate([
             'fullname' => 'nullable|string|max:255',
@@ -423,7 +424,7 @@ class UserController extends Controller
                 }
                 $user->avatar = $path;
             }
-            $user->save();
+            $user->update();
 
             return response()->json([
                 'message' => 'Thông tin và ảnh đại diện đã được cập nhật thành công.',
