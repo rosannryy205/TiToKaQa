@@ -21,6 +21,7 @@
           <a-select-option :value="10">10</a-select-option>
           <a-select-option :value="20">20</a-select-option>
           <a-select-option :value="50">50</a-select-option>
+          <a-select-option :value="100">100</a-select-option>
         </a-select>
       </a-col>
       <a-col :xs="24" :sm="12" :md="8" :lg="6">
@@ -32,8 +33,9 @@
         </a-select>
       </a-col>
       <a-col :xs="24" :sm="24" :md="8" :lg="12">
-        <a-input-search v-model:value="searchText" placeholder="Tìm theo Mã ĐH, Tên KH, SĐT..." allow-clear
-          @search="handleSearch" @change="e => { if (e.target.value === '') handleSearch('') }" />
+        <a-input-search v-model:value="searchText" placeholder="Tìm kiếm theo tên KH, SĐT" allowClear
+          enter-button="Tìm" />
+
       </a-col>
     </a-row>
 
@@ -71,16 +73,20 @@
         </p>
         <p><strong>Bàn:</strong> {{ selectedOrder.areaTable }}</p>
         <p><strong>Loại đơn:</strong> {{ selectedOrder.orderType }}</p>
+
+        <!--Trạng thái thanh toán -->
+        <p><strong>Trạng thái thanh toán:</strong> {{ selectedOrder.paymentStatus }}</p>
+
+        <!--Phương thức thanh toán -->
+        <p><strong>Phương thức thanh toán:</strong> {{ selectedOrder.paymentMethod }}</p>
+
         <p><strong>Trạng thái:</strong>
           <a-select :value="selectedOrder.status" style="width: 160px"
             @change="handleStatusChange(selectedOrder.id, $event)">
-            <a-select-option value="Chờ xác nhận">Chờ xác nhận</a-select-option>
-            <a-select-option value="Đã xác nhận">Đã xác nhận</a-select-option>
-            <a-select-option value="Đang xử lý">Đang xử lý</a-select-option>
-            <a-select-option value="Đang giao hàng">Đang giao hàng</a-select-option>
-            <a-select-option value="Giao thành công">Giao thành công</a-select-option>
-            <a-select-option value="Giao thất bại">Giao thất bại</a-select-option>
-            <a-select-option value="Đã hủy">Đã hủy</a-select-option>
+            <a-select-option v-for="status in allowedStatuses" :key="status" :value="status"
+              :disabled="isStatusDisabled(status)">
+              {{ status }}
+            </a-select-option>
           </a-select>
         </p>
 
@@ -91,20 +97,38 @@
             <a-list-item>
               <a-list-item-meta :description="`Số lượng: ${item.quantity} - Đơn giá: ${formatCurrency(item.price)}`">
                 <template #title>
-                  {{ item.name }}
+                  <div>{{ item.name }}</div>
+
+                  <ul v-if="item.toppings.length" style="margin: 0; padding-left: 16px;">
+                    <li v-for="(topping, index) in item.toppings" :key="index">
+                      {{ topping.name }}<span v-if="topping.price"> - {{ formatCurrency(topping.price) }}</span>
+                    </li>
+                  </ul>
                 </template>
               </a-list-item-meta>
-              <div>Thành tiền: {{ formatCurrency(item.quantity * item.price) }}</div>
             </a-list-item>
           </template>
         </a-list>
+
+        <!-- Chỉ hiển thị tổng thành tiền một lần bên dưới -->
+        <div style="text-align: right; font-weight: bold; margin-top: 16px;">
+          <div v-show="selectedOrder.reduce_money">
+            Voucher: {{ formatCurrency(selectedOrder.reduce_money) }}
+          </div>
+          <div>
+            Thành tiền: {{ formatCurrency(selectedOrder.totalAmount) }}
+          </div>
+        </div>
+
+
       </div>
     </a-modal>
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, reactive, watch } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
 import { message } from 'ant-design-vue';
@@ -113,16 +137,17 @@ import { message } from 'ant-design-vue';
 
 
 const orders = ref([]);
+const ordersRaw = ref([]);
+
 
 const fetchOrders = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/api/get_all_orders`);
     const apiOrders = response.data.orders;
 
-    console.log('ssss'+apiOrders);
+    const fillterOrder = apiOrders.filter(order => order.type_status !== 'takeaway');
 
-
-    orders.value = apiOrders.map(order => {
+    orders.value = fillterOrder.map(order => {
       return {
         id: order.id.toString(),
         customerInfo: {
@@ -130,10 +155,13 @@ const fetchOrders = async () => {
           phone: order.guest_phone,
         },
         orderDate: order.order_time,
-        areaTable: order.tables?.map(t => `Bàn ${t.table_number}`).join(', ') || 'Mang về',
+        areaTable: order.tables?.map(t => `Bàn ${t.table_number}`).join(', ') || 'Not found',
         orderType: order.tables?.length > 0 ? 'Đặt bàn' : 'Mang về',
         totalAmount: parseFloat(order.total_price),
         status: order.order_status,
+        reduce_money: parseFloat(order.money_reduce) || 0,
+        paymentMethod: order.payment?.payment_method || 'Chưa cập nhật',
+        paymentStatus: order.payment?.payment_status || 'Chưa cập nhật',
         items: order.details.map(detail => ({
           name: detail.food_name || `Món #${detail.food_id}`,
           quantity: detail.quantity,
@@ -145,6 +173,9 @@ const fetchOrders = async () => {
         })),
       };
     });
+
+    ordersRaw.value = [...orders.value];
+
 
     pagination.total = orders.value.length;
 
@@ -174,14 +205,20 @@ const statusOrder = {
   'Đã hủy': 6
 };
 
+const isStatusDisabled = (status) => {
+  const currentLevel = statusOrder[selectedOrder.value.status]; // trạng thái hiện tại của đơn
+  const optionLevel = statusOrder[status];                      // trạng thái đang xét (option trong dropdown)
+  return optionLevel < currentLevel;
+};
+
 const handleStatusChange = async (orderId, newStatus) => {
   const order = orders.value.find(order => order.id === orderId);
   if (!order) return;
 
   const currentStatus = order.status;
 
-  // Không cho cập nhật từ trạng thái đã hủy hoặc giao thất bại
-  if (currentStatus === 'Đã hủy' || currentStatus === 'Giao thất bại' || currentStatus === 'Giao thành công') {
+  // Không cho cập nhật từ trạng thái đã hủy hoặc giao thất bại hoặc giao thành công
+  if (['Đã hủy', 'Giao thất bại', 'Giao thành công'].includes(currentStatus)) {
     message.warning('Không thể cập nhật trạng thái.');
     return;
   }
@@ -192,30 +229,21 @@ const handleStatusChange = async (orderId, newStatus) => {
     return;
   }
 
-  // Logic kiểm soát cập nhật trạng thái:
-
-  // 1. Nếu đang giao hàng, cho phép nhảy lên giao thành công hoặc giao thất bại
+  // Logic kiểm soát cập nhật trạng thái
   if (currentStatus === 'Đang giao hàng') {
-    if (newStatus === 'Giao thành công' || newStatus === 'Giao thất bại') {
-      // Cho phép
-    } else if (statusOrder[newStatus] !== statusOrder[currentStatus]) {
-      // Nếu không phải 2 trạng thái trên mà cố nhảy khác thì lỗi
+    if (!['Giao thành công', 'Giao thất bại'].includes(newStatus)) {
       message.warning('Chỉ có thể cập nhật trạng thái thành công hoặc thất bại khi đang giao hàng.');
       return;
     }
   } else {
-    // 2. Nếu đang ở chờ xác nhận hoặc đã xác nhận thì có thể hủy
     if (newStatus === 'Đã hủy') {
-      if (currentStatus !== 'Chờ xác nhận' && currentStatus !== 'Đã xác nhận') {
+      if (!['Chờ xác nhận', 'Đã xác nhận'].includes(currentStatus)) {
         message.warning('Chỉ có thể hủy đơn khi đơn ở trạng thái chờ xác nhận hoặc đã xác nhận.');
         return;
       }
-    } else {
-      // 3. Không được nhảy bậc (bỏ qua trạng thái bằng nhau)
-      if (statusOrder[newStatus] !== statusOrder[currentStatus] + 1) {
-        message.warning('Không thể nhảy trạng thái không theo thứ tự.');
-        return;
-      }
+    } else if (currentStatus !== 'Đang giao hàng' && statusOrder[newStatus] !== statusOrder[currentStatus] + 1) {
+      message.warning('Không thể nhảy trạng thái không theo thứ tự.');
+      return;
     }
   }
 
@@ -225,7 +253,6 @@ const handleStatusChange = async (orderId, newStatus) => {
     });
 
     if (response.data.success) {
-      // Cập nhật trạng thái trong orders và selectedOrder
       const index = orders.value.findIndex(order => order.id === orderId);
       if (index !== -1) {
         orders.value[index].status = newStatus;
@@ -234,6 +261,13 @@ const handleStatusChange = async (orderId, newStatus) => {
         selectedOrder.value.status = newStatus;
       }
       message.success('Cập nhật trạng thái thành công');
+      if (['Giao thành công', 'Giao thất bại', 'Đã hủy'].includes(newStatus)) {
+        await fetchOrders();
+        const updatedOrder = orders.value.find(order => order.id === orderId);
+        if (updatedOrder) {
+          selectedOrder.value = { ...updatedOrder };
+        }
+      }
     } else {
       message.error('Cập nhật trạng thái thất bại');
     }
@@ -249,30 +283,58 @@ const handleStatusChange = async (orderId, newStatus) => {
 
 
 
+
 const activeStatusTab = ref('Tất cả'); // Trạng thái đang được chọn trên tab
 const selectedOrderType = ref('Tất cả'); // Loại đơn hàng đang được chọn
 const searchText = ref('');
+
+watch(searchText, () => {
+  pagination.current = 1; // reset trang về đầu
+});
+
 
 // Modal state
 const isDetailModalVisible = ref(false);
 const selectedOrder = ref(null);
 
 const columns = [
-  { title: 'STT', key: 'stt', width: 50, fixed: 'center' },
-  { title: 'Mã ĐH', dataIndex: 'id', key: 'orderId', width: 70, fixed: 'center', sorter: (a, b) => a.id.localeCompare(b.id) },
-  { title: 'Bàn số', dataIndex: 'areaTable', key: 'areaTable', width: 80 },
-  { title: 'Thông tin KH', key: 'customerInfo', width: 150 },
+  { title: 'STT', key: 'stt', width: 50, fixed: 'center', align: 'center' },
+  { title: 'Mã ĐH', dataIndex: 'id', key: 'orderId', width: 70, fixed: 'center', sorter: (a, b) => a.id.localeCompare(b.id), align: 'center' },
+  { title: 'Bàn số', dataIndex: 'areaTable', key: 'areaTable', width: 80, align: 'center' },
+  { title: 'Thông tin KH', key: 'customerInfo', width: 150, align: 'center' },
   {
-    title: 'Loại đơn', dataIndex: 'orderType', key: 'orderType', width: 80,
+    title: 'Loại đơn', dataIndex: 'orderType', key: 'orderType', width: 80, align: 'center',
     filters: [
       { text: 'Đặt bàn', value: 'Đặt bàn' },
       { text: 'Mang về', value: 'Mang về' },
     ],
     onFilter: (value, record) => record.orderType.includes(value),
   },
-  { title: 'Tổng tiền', dataIndex: 'totalAmount', key: 'totalAmount', width: 100, sorter: (a, b) => a.totalAmount - b.totalAmount, align: 'right' },
   {
-    title: 'Trạng thái', dataIndex: 'status', key: 'status', width: 120, fixed: 'right',
+    title: 'Trạng thái TT', dataIndex: 'paymentStatus', key: 'paymentStatus', width: 130, align: 'center',
+    filters: [
+      { text: 'Chưa thanh toán', value: 'Chưa thanh toán' },
+      { text: 'Đã thanh toán', value: 'Đã thanh toán' },
+      { text: 'Thanh toán thất bại', value: 'Thanh toán thất bại' },
+    ],
+    onFilter: (value, record) => record.paymentStatus.includes(value),
+  },
+  {
+    title: 'Phương thức TT', dataIndex: 'paymentMethod', key: 'paymentMethod', width: 130, align: 'center',
+    filters: [
+      { text: 'COD', value: 'COD' },
+      { text: 'VNPAY', value: 'VNPAY' },
+      { text: 'MOMO', value: 'MOMO' },
+    ],
+    onFilter: (value, record) => record.paymentMethod.includes(value),
+  },
+  {
+    title: 'Tổng tiền', dataIndex: 'totalAmount', key: 'totalAmount', width: 100,
+    sorter: (a, b) => a.totalAmount - b.totalAmount,
+    align: 'center',
+  },
+  {
+    title: 'Trạng thái', dataIndex: 'status', key: 'status', width: 120, fixed: 'right', align: 'center',
     filters: [
       { text: 'Chờ xác nhận', value: 'Chờ xác nhận' },
       { text: 'Đã xác nhận', value: 'Đã xác nhận' },
@@ -287,18 +349,20 @@ const columns = [
   { title: 'Hành động', key: 'action', width: 200, fixed: 'right', align: 'center' },
 ];
 
+
 // Cấu hình phân trang
 const pagination = reactive({
   current: 1,
-  pageSize: 10,
+  pageSize: 5,
   total: orders.value.length,
   showSizeChanger: false, // Đã có selector riêng
-  showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`,
+  showTotal: (total, range) => `Hiển thị ${range[0]} đến ${range[1]} trên tổng ${total} đơn hàng`,
+
 });
 
 // Dữ liệu được lọc dựa trên các điều kiện
 const filteredData = computed(() => {
-  let tempData = [...orders.value];
+  let tempData = [...ordersRaw.value];
 
   // Lọc theo trạng thái từ Tabs
   if (activeStatusTab.value !== 'Tất cả') {
@@ -312,13 +376,15 @@ const filteredData = computed(() => {
 
   // Lọc theo tìm kiếm (Mã ĐH, Tên KH, SĐT)
   if (searchText.value) {
-    const lowerSearchText = searchText.value.toLowerCase();
+    const lowerSearchText = searchText.value.trim().toLowerCase();
     tempData = tempData.filter(order =>
-      order.id.toLowerCase().includes(lowerSearchText) ||
-      order.customerInfo.name.toLowerCase().includes(lowerSearchText) ||
-      order.customerInfo.phone.includes(lowerSearchText) // SĐT thường không phân biệt hoa thường
+      order.customerInfo.name?.toLowerCase().includes(lowerSearchText) ||
+      order.customerInfo.phone?.includes(searchText.value.trim())
     );
   }
+
+
+
 
   // Cập nhật tổng số mục cho phân trang sau khi lọc
   // Dùng setTimeout để tránh lỗi lặp vô hạn khi computed property cập nhật reactive property
@@ -342,6 +408,7 @@ const paginatedData = computed(() => {
 });
 
 
+
 // Hàm xử lý
 const handleStatusTabChange = (key) => {
   activeStatusTab.value = key;
@@ -353,22 +420,17 @@ const handleOrderTypeChange = (value) => {
   pagination.current = 1;
 };
 
-const handleSearch = (value) => {
-  searchText.value = value;
-  pagination.current = 1;
-}
 
 const handlePageSizeChange = (size) => {
   pagination.pageSize = size;
   pagination.current = 1;
 };
 
-const handleTableChange = (pager, filters, sorter) => {
-  pagination.current = pager.current;
-  pagination.pageSize = pager.pageSize;
-  // Logic sắp xếp có thể được thêm ở đây nếu bạn muốn sắp xếp dữ liệu gốc (orders.value)
-  // Hoặc để a-table tự sắp xếp dữ liệu trên trang hiện tại (filteredData)
+const handleTableChange = (paginationInfo) => {
+  pagination.current = paginationInfo.current;
+  pagination.pageSize = paginationInfo.pageSize;
 };
+
 
 const getStatusColor = (status) => {
   switch (status) {

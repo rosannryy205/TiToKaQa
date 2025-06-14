@@ -6,7 +6,7 @@
   </div>
 
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-    <h3 class="text-danger fw-bold mb-2 mb-md-0">Thêm đơn đặt bàn</h3>
+    <h3 class="text-danger fw-bold mb-2 mb-md-0">Thêm đơn hàng</h3>
     <div>
       <a class="btn btn-outline-secondary rounded-0" @click="$router.back()">
         <i class="bi bi-arrow-counterclockwise"></i> Quay lại
@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <form class="row mt-2" @submit.prevent="reservation">
+  <form class="row mt-2">
     <div class="col-12">
       <div class="card rounded-0 border-0 shadow mb-4">
         <div class="card-body">
@@ -23,14 +23,8 @@
               <label for="name" class="form-label fs-5">
                 Thông tin khách hàng <span class="text-danger">*</span>
               </label>
-              <!-- <v-select
-                v-model="selectguest"
-                :options="guest"
-                label="usernameEmail"
-                placeholder="Chọn khách hàng"
-                :clearable="true"
-                class="form-control rounded"
-              /> -->
+              <v-select v-model="selectguest" :options="guest" label="usernameEmail" placeholder="Chọn khách hàng"
+                :clearable="true" class="form-control rounded" />
               <div class="mt-2">
                 <label for="name" class="form-label">
                   Tên khách hàng <span class="text-danger">*</span>
@@ -234,17 +228,20 @@
                     <hr />
                     <h6 class="mb-3">Phương thức thanh toán</h6>
                     <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
-                      <button class="btn btn-payment active">
+                      <button type="button" class="btn btn-payment" :class="{ active: paymentMethod === 'COD' }"
+                        @click="paymentMethod = 'COD'">
                         <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
                         <br />
                         Tiền mặt
                       </button>
-                      <button class="btn btn-payment">
+                      <button type="button" class="btn btn-payment" :class="{ active: paymentMethod === 'MOMO' }"
+                        @click="paymentMethod = 'MOMO'">
                         <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
                         <br />
                         MoMo
                       </button>
-                      <button class="btn btn-payment">
+                      <button type="button" class="btn btn-payment" :class="{ active: paymentMethod === 'VNPAY' }"
+                        @click="paymentMethod = 'VNPAY'">
                         <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
                         <br />
                         QR code
@@ -257,8 +254,9 @@
                         Quay lại
                       </button>
                       <div class="modal-footer border-0">
-                        <button class="btn btn-danger1 w-100 fw-bold" type="submit" @click="check_out">
-                          🛒 Thêm vào đơn hàng
+                        <button class="btn btn-danger1 flex-fill me-sm-2 mb-2 mb-sm-0 p-2" type="submit"
+                          @click.prevent="check_out">
+                          🛒 Thanh toán đơn hàng
                         </button>
                       </div>
                     </div>
@@ -273,400 +271,6 @@
   </form>
 </template>
 
-<!-- <script>
-import axios from 'axios'
-import { ref, computed, onMounted } from 'vue'
-import { toast } from 'vue3-toastify'
-import { Info } from '@/stores/info-order-reservation'
-import { Cart } from '@/stores/cart'
-import vSelect from 'vue-select'
-import { FoodList } from '@/stores/food'
-import { watch } from 'vue'
-
-export default {
-  components: {
-    'v-select': vSelect,
-  },
-  setup() {
-    const { info, getInfo, formatDate, formatTime, formatDateTime } = Info.setup()
-    const {
-      cartItems,
-      finalTotal,
-      loadCart,
-      totalPriceItem,
-      totalPrice,
-      saveCart,
-      addToCart,
-      quantity,
-      increaseQuantity,
-      decreaseQuantity,
-      removeItem,
-      increaseQuantity2,
-      decreaseQuantity1,
-      clearCart,
-    } = Cart()
-    const {
-      foods,
-      getFoodByCategory,
-      openModal,
-      formatNumber,
-      getImageUrl,
-      flatCategoryList,
-      foodDetail,
-      spicyLevel,
-      toppingList,
-    } = FoodList.setup()
-
-    const isLoading = ref(false)
-    const today = new Date().toISOString().split('T')[0]
-    const timeOptions = ref([])
-    const note = ref('')
-    const availableTables = ref([])
-    const table_id = ref(null)
-    const datetime = localStorage.getItem('selectedDate')
-    const date = ref('')
-    const time = ref('')
-    const user_id = ref(null)
-    const guest_name = ref('')
-    const guest_phone = ref('')
-    const guest_count = ref(null)
-    const guest_email = ref('')
-    const selectedTableIds = ref([])
-    const guest = ref([])
-    const selectguest = ref(null)
-    const selectfood = ref(null)
-    const searchFoodTerm = ref('')
-
-    const onFoodSearch = (event) => {
-      searchFoodTerm.value = event.target.value
-      currentPage.value.foods = 1 // reset về trang đầu tiên khi tìm kiếm mới
-    }
-    const currentPage = ref({
-      tables: 1,
-      foods: 1,
-    })
-
-    // số item trên mỗi trang
-    const itemsPerPageTables = 10
-    const itemsPerPageFoods = 16
-
-    // lấy danh sách bàn đã phân trang
-    const paginatedTables = computed(() => {
-      const start = (currentPage.value.tables - 1) * itemsPerPageTables
-      return availableTables.value.slice(start, start + itemsPerPageTables)
-    })
-
-    // lấy danh sách món ăn đã phân trang
-    const paginatedFoods = computed(() => {
-      const filtered = foods.value.filter((food) =>
-        food.name.toLowerCase().includes(searchFoodTerm.value.toLowerCase()),
-      )
-      const start = (currentPage.value.foods - 1) * itemsPerPageFoods
-      return filtered.slice(start, start + itemsPerPageFoods)
-    })
-
-    // tính tổng số trang cho bàn
-    const totalPagesTables = computed(() =>
-      Math.ceil(availableTables.value.length / itemsPerPageTables),
-    )
-    // tính tổng số trang cho món ăn
-    const totalPagesFoods = computed(() => {
-      const filtered = foods.value.filter((food) =>
-        food.name.toLowerCase().includes(searchFoodTerm.value.toLowerCase()),
-      )
-      return Math.ceil(filtered.length / itemsPerPageFoods)
-    })
-
-    // hàm chuyển trang
-    const goToPage = (page, key) => {
-      if (
-        page >= 1 &&
-        page <= (key === 'tables' ? totalPagesTables.value : totalPagesFoods.value)
-      ) {
-        currentPage.value[key] = page
-      }
-    }
-
-    const handleGuestSelection = () => {
-      if (selectguest.value && selectguest.value.id !== 'guest') {
-        guest_name.value = selectguest.value.username || selectguest.value.fullname
-        guest_phone.value = selectguest.value.phone
-        guest_email.value = selectguest.value.email
-      } else {
-        guest_name.value = ''
-        guest_phone.value = ''
-        guest_email.value = ''
-      }
-    }
-
-    // hàm lấy tất cả người dùng
-    const getAllUser = async () => {
-      try {
-        const res = await axios.get('http://127.0.0.1:8000/api/user')
-
-        const guestDefaultOption = {
-          id: 'guest',
-          usernameEmail: 'Khách lẻ',
-          guest_name: '',
-          guest_phone: '',
-          guest_email: '',
-        }
-
-        guest.value = [
-          guestDefaultOption, //"Khách lẻ" ở đầu mảng
-          ...res.data.map((g) => ({
-            ...g,
-            usernameEmail: `${g.username} - ${g.email}`,
-          })),
-        ]
-
-        selectguest.value = guestDefaultOption
-        handleGuestSelection()
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách người dùng:', error)
-      }
-    }
-
-    // hàm tìm bàn
-    const findTable = async () => {
-      if ((date.value && time.value) || guest_count.value) {
-        try {
-          isLoading.value = true
-          const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
-            reserved_from: formatDateTime(datetime),
-            guest_count: guest_count.value,
-          })
-
-          availableTables.value = res.data.tables || []
-        } catch (error) {
-          toast.error('Lỗi khi lấy danh sách bàn có thể đặt')
-          console.error('Lỗi:', error)
-        } finally {
-          isLoading.value = false
-        }
-      }
-    }
-
-    const getChairCount = (seats) => {
-      if (seats <= 2) return 1
-      if (seats <= 4) return 2
-      return 3
-    }
-
-    const filteredTimeOptions = computed(() => {
-      if (!date.value) {
-        return timeOptions.value
-      }
-
-      const selectedDate = new Date(date.value)
-      const now = new Date()
-
-      if (selectedDate.toDateString() === now.toDateString()) {
-        return timeOptions.value.filter((timeStr) => {
-          const [hours, minutes] = timeStr.split(':').map(Number)
-          const timeDate = new Date(selectedDate)
-          timeDate.setHours(hours, minutes, 0)
-
-          return timeDate > now
-        })
-      }
-
-      return timeOptions.value
-    })
-
-    const handleAddToCartClick = () => {
-      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-
-      let allSelectedToppings = []
-
-      if (selectedSpicy) {
-        allSelectedToppings.push({
-          id: selectedSpicy.id,
-          name: selectedSpicy.name,
-          price: selectedSpicy.price,
-          food_toppings_id: selectedSpicy.pivot?.id || null,
-          is_spicy_level: true,
-        })
-      }
-
-      const selectedToppingIds = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked'),
-      ).map((el) => parseInt(el.value))
-
-      const normalToppings = toppingList.value
-        .filter((topping) => selectedToppingIds.includes(topping.id))
-        .map((topping) => ({
-          id: topping.id,
-          name: topping.name,
-          price: topping.price,
-          food_toppings_id: topping.pivot?.id || null,
-          is_spicy_level: false,
-        }))
-
-      allSelectedToppings = [...allSelectedToppings, ...normalToppings]
-
-      addToCart(foodDetail.value, quantity.value, allSelectedToppings)
-    }
-
-    // hàm thêm/bỏ chọn bàn
-    const toggleTable = (id) => {
-      const alreadySelected = selectedTableIds.value.includes(id)
-
-      let tempSelected = alreadySelected
-        ? selectedTableIds.value.filter((tid) => tid !== id)
-        : [...selectedTableIds.value, id]
-
-      const numbers = availableTables.value
-        .filter((table) => tempSelected.includes(table.id))
-        .map((table) => table.table_number)
-        .sort((a, b) => a - b)
-
-      let consecutive = true
-      for (let i = 1; i < numbers.length; i++) {
-        if (numbers[i] !== numbers[i - 1] + 1) {
-          consecutive = false
-          break
-        }
-      }
-      if (!consecutive && tempSelected.length > 1) {
-        toast.error('Vui lòng chọn các bàn có số liền kề nhau!')
-        return
-      }
-
-      selectedTableIds.value = tempSelected
-    }
-
-    // hàm đặt bàn
-    const reservation = async () => {
-      isLoading.value = true
-
-      try {
-        await axios.post('http://127.0.0.1:8000/api/reservation', {
-          user_id: selectguest.value.id === 'guest' ? null : selectguest.value.id,
-          guest_name: guest_name.value,
-          guest_phone: guest_phone.value,
-          guest_email: guest_email.value,
-          guest_count: guest_count.value,
-          note: note.value,
-          reserved_from: formatDateTime(datetime),
-          deposit_amount: 100000,
-          total_price: totalPrice.value + 100000,
-          table_ids: selectedTableIds.value,
-          order_detail: cartItems.value.map((item) => ({
-            food_id: item.id,
-            combo_id: null,
-            quantity: item.quantity,
-            price: item.price,
-            type: item.type,
-            toppings: item.toppings.map((t) => ({
-              food_toppings_id: t.food_toppings_id,
-              price: t.price,
-            })),
-          })),
-        })
-
-        toast.success('Đặt bàn thành công!')
-        clearCart()
-      } catch (error) {
-        console.error('Lỗi khi đặt bàn:', error)
-        toast.error('Đặt bàn thất bại, vui lòng thử lại!')
-      } finally {
-        isLoading.value = false
-      }
-    }
-
-    watch(selectguest, handleGuestSelection)
-    watch(selectfood, (newValue) => {
-      if (newValue === null) {
-        searchFoodTerm.value = ''
-      } else {
-        searchFoodTerm.value = newValue.name || ''
-      }
-    })
-    onMounted(() => {
-      date.value = formatDate(datetime)
-      time.value = formatTime(datetime)
-      getAllUser()
-      selectguest.value = 'guest'
-      findTable()
-      loadCart()
-      for (let hour = 1; hour <= 21; hour++) {
-        let hourStr = hour < 10 ? '0' + hour : '' + hour
-        timeOptions.value.push(hourStr + ':00')
-        if (hour !== 20) {
-          timeOptions.value.push(hourStr + ':30')
-        }
-      }
-    })
-
-    return {
-      time,
-      today,
-      timeOptions,
-      note,
-      table_id,
-      date,
-      isLoading,
-      info,
-      getInfo,
-      formatDateTime,
-      findTable,
-      availableTables,
-      filteredTimeOptions,
-      getChairCount,
-      formatDate,
-      formatTime,
-      datetime,
-      reservation,
-      guest_email,
-      user_id,
-      selectguest,
-      guest_phone,
-      guest_name,
-      guest_count,
-      toggleTable,
-      selectedTableIds,
-      guest,
-
-      currentPage,
-      paginatedTables,
-      goToPage,
-      foods,
-      formatNumber,
-      getImageUrl,
-      getFoodByCategory,
-      openModal,
-      spicyLevel,
-      toppingList,
-      flatCategoryList,
-      foodDetail,
-      addToCart,
-      quantity,
-      decreaseQuantity,
-      increaseQuantity,
-      decreaseQuantity1,
-      increaseQuantity2,
-      cartItems,
-      loadCart,
-      totalPriceItem,
-      totalPrice,
-      finalTotal,
-      saveCart,
-      removeItem,
-      paginatedFoods,
-      totalPagesTables,
-      totalPagesFoods,
-      handleGuestSelection,
-      selectfood,
-      searchFoodTerm,
-      onFoodSearch,
-      handleAddToCartClick,
-      clearCart,
-    }
-  },
-}
-</script> -->
 <script>
 import axios from 'axios'
 import { ref, computed, onMounted, watch } from 'vue'
@@ -696,6 +300,7 @@ export default {
       increaseQuantity2,
       decreaseQuantity1,
       clearCart,
+      cartKey,
     } = Cart()
 
     const {
@@ -716,8 +321,11 @@ export default {
     const searchFoodTerm = ref('')
     const currentPage = ref({ foods: 1 })
     const itemsPerPageFoods = 16
+    const user_id = ref(null)
     const guest_name = ref('')
     const note = ref('')
+    const selectguest = ref(null)
+    const guest = ref([])
 
     const paginatedFoods = computed(() => {
       const filtered = foods.value.filter((food) =>
@@ -728,6 +336,42 @@ export default {
     })
 
 
+    const handleGuestSelection = () => {
+      if (selectguest.value && selectguest.value.id !== 'guest') {
+        guest_name.value = selectguest.value.username || selectguest.value.fullname
+      } else {
+        guest_name.value = ''
+      }
+    }
+
+    const getAllUser = async () => {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/api/user')
+
+        const guestDefaultOption = {
+          id: 'guest',
+          usernameEmail: 'Khách lẻ',
+          guest_name: '',
+        }
+
+        guest.value = [
+          guestDefaultOption, //"Khách lẻ" ở đầu mảng
+          ...res.data.user.map((g) => ({
+            ...g,
+            usernameEmail: `${g.username} - ${g.email}`,
+          })),
+        ]
+
+        selectguest.value = guestDefaultOption
+        handleGuestSelection()
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách người dùng:', error)
+      }
+    }
+
+
+    const paymentMethod = ref('')
+    const current_order_id = ref(null)
     const check_out = async () => {
       isLoading.value = true
       try {
@@ -736,9 +380,17 @@ export default {
           alert('Vui lòng nhập đầy đủ thông tin khách hàng!')
           return
         }
+        if (cartItems.value.length === 0) {
+          toast.error('Giỏ hàng trống! Vui lòng thêm món ăn.')
+          return
+        }
+        if (!paymentMethod.value) {
+          toast.error('Vui lòng chọn phương thức thanh toán.')
+          return;
+        }
 
         const orderData = {
-          user_id: null,
+          user_id: selectguest.value.id === 'guest' ? null : selectguest.value.id,
           guest_name: guest_name.value,
           note: note.value || '',
           total_price: totalPrice.value,
@@ -754,21 +406,74 @@ export default {
             })),
           })),
         }
+        const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/ordertakecaway', orderData)
+        if (orderCreationResponse.data && orderCreationResponse.data.order_id) {
+          current_order_id.value = orderCreationResponse.data.order_id
+          toast.success('Đơn hàng đã được tạo thành công!')
+        } else {
+          toast.error('Lỗi: Không nhận được order_id từ server.')
+          isLoading.value = false
+          return
+        }
+        if (paymentMethod.value === 'VNPAY') {
+          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+            order_id: current_order_id.value,
+            amount: totalPrice.value,
+            return_url: 'http://localhost:5173/admin/tables/current-order',
+          })
+          if (paymentRes.data.payment_url) {
+            localStorage.setItem('payment_method', paymentMethod.value)
+            localStorage.removeItem(cartKey.value)
+            window.location.href = paymentRes.data.payment_url
+          } else {
+            toast.error('Không tạo được link thanh toán VNPAY.')
+          }
+          clearCart();
+          guest_name.value = '';
+          note.value = '';
+          router.push('/admin/tables/current-order');
+          return
+        }
+        if (paymentMethod.value === 'MOMO') {
+          toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          // TODO: Thêm logic gọi API MoMo khởi tạo tại đây
+          // await axios.post('http://127.0.0.1:8000/api/payments/momo-init', {
+          //   order_id: current_order_id.value,
+          //   amount: totalPrice.value,
+          // });
+          // Sau khi tạo order và ghi nhận payment pending cho MoMo (hoặc redirect), thì chuyển trang
+          localStorage.setItem('payment_method', paymentMethod.value);
+          localStorage.removeItem(cartKey.value);
+          // clearCart();
+          // guest_name.value = '';
+          // note.value = '';
+          // router.push('/admin/current-order');
+          return;
+        }
+        if (paymentMethod.value === 'COD') {
+          await new Promise((resolve) => setTimeout(resolve, 300))
+          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+            order_id: current_order_id.value,
+            amount_paid: totalPrice.value,
+            payment_type: 'Thanh toán toàn bộ',
+          })
 
-        await axios.post('http://127.0.0.1:8000/api/ordertakecaway', orderData)
+          localStorage.setItem('payment_method', paymentMethod.value)
+          localStorage.removeItem(cartKey.value)
+          toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
+          clearCart();
+          guest_name.value = '';
+          note.value = '';
+          router.push('/admin/tables/current-order');
+        }
 
-        toast.success('Đặt hàng thành công!')
-        clearCart()
-        guest_name.value = ''
-        note.value = ''
       } catch (error) {
         console.error('Lỗi khi gửi đơn hàng:', error)
-        toast.error('Đặt hàng thất bại, vui lòng thử lại!')
+        toast.error('Đặt hàng thất bại, vui lòng thử lại!' + error.response.data.message)
       } finally {
         isLoading.value = false
       }
     }
-
 
 
     const totalPagesFoods = computed(() => {
@@ -824,12 +529,16 @@ export default {
       addToCart(foodDetail.value, quantity.value, allSelectedToppings)
     }
 
+    watch(selectguest, handleGuestSelection)
+
     watch(selectfood, (newValue) => {
       searchFoodTerm.value = newValue?.name || ''
     })
 
     onMounted(() => {
       loadCart()
+      getAllUser()
+      selectguest.value = 'guest'
     })
 
     return {
@@ -849,6 +558,7 @@ export default {
       decreaseQuantity1,
       increaseQuantity2,
       cartItems,
+      cartKey,
       loadCart,
       totalPriceItem,
       totalPrice,
@@ -860,6 +570,9 @@ export default {
       isLoading,
       guest_name,
       note,
+      selectguest,
+      guest,
+      user_id,
 
       paginatedFoods,
       totalPagesFoods,
@@ -869,6 +582,9 @@ export default {
       searchFoodTerm,
       onFoodSearch,
       handleAddToCartClick,
+      handleGuestSelection,
+
+      paymentMethod,
     }
   },
 }

@@ -7,12 +7,7 @@
     </button>
 
     <span class="vd">Tìm kiếm</span>
-    <input
-      type="text"
-      class="custom-input"
-      style="max-width: 200px"
-      placeholder="Tìm kiếm"
-    />
+    <input type="text" class="custom-input" style="max-width: 200px" placeholder="Tìm kiếm" />
 
     <span class="vd">Lọc</span>
     <select class="custom-select" style="max-width: 250px">
@@ -118,29 +113,18 @@
         </div>
         <div class="modal-body">
           <label for="toppingName" class="form-label label">Tên topping <span class="text-danger">*</span></label>
-          <input
-            type="text"
-            id="toppingName"
-            class="custom-input mb-3"
-            placeholder="Nhập tên"
-            required
-          />
+          <input type="text" id="toppingName" class="custom-input mb-3" placeholder="Nhập tên" required />
 
           <label for="category" class="form-label label">Danh mục <span class="text-danger">*</span></label>
           <select id="category" class="custom-select mb-3" required>
             <option selected disabled>Chọn danh mục</option>
             <option>Danh mục 1</option>
             <option>Danh mục 2</option>
+            <video src=""></video>
           </select>
 
           <label for="price" class="form-label label">Giá</label>
-          <input
-            type="number"
-            id="price"
-            class="custom-input mb-3"
-            placeholder="Nhập giá"
-            required
-          />
+          <input type="number" id="price" class="custom-input mb-3" placeholder="Nhập giá" required />
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Đóng</button>
@@ -155,10 +139,35 @@
 import { useMenu } from '@/stores/use-menu';
 import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
+import { toast } from "vue3-toastify";
 export default {
   setup() {
     useMenu().onSelectedKeys(['admin-roles'])
-  },
+    const topping = ref([]);
+    console.log("Token:", localStorage.getItem('token'));
+    const showAllTopping = async () => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/admin/toppings`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          }
+        });
+        topping.value = res.data;
+        console.log("Lấy topping: ", topping.value)
+
+
+      } catch (error) {
+        console.error("Không lấy được topping", error);
+        toast.error("Không thể tải topping.");
+      }
+    }
+    onMounted(async () => {
+      await showAllTopping()
+    })
+    return {
+      topping
+    }
+  }
 }
 </script>
 

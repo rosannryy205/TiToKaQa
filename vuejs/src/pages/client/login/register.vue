@@ -7,14 +7,14 @@
       <!-- Bước 1: Form đăng ký -->
       <form v-if="step === 1" @submit.prevent="handleSendCode">
         <div class="mb-3">
-          <small class="text-danger" :style="{ visibility: errors.email ? 'visible' : 'hidden' }">{{ errors.email || ' '
+          <!-- <small class="text-danger" :style="{ visibility: errors.email ? 'visible' : 'hidden' }">{{ errors.email || ' '
             }}</small>
           <small class="text-danger" :style="{ visibility: errors.username ? 'visible' : 'hidden' }">{{ errors.username
             || ' ' }}</small>
           <small class="text-danger" :style="{ visibility: errors.password ? 'visible' : 'hidden' }">{{ errors.password
             || ' ' }}</small>
           <small class="text-danger" :style="{ visibility: errors.password_confirmation ? 'visible' : 'hidden' }">{{
-            errors.password_confirmation || ' ' }}</small>
+            errors.password_confirmation || ' ' }}</small> -->
           <input type="email" v-model="form.email" class="form-control" placeholder="Nhập địa chỉ email" required />
         </div>
 
@@ -68,7 +68,6 @@
         </div>
 
         <div class="mb-2 text-muted">Thời gian còn lại: {{ countdownText }}</div>
-        <div class="text-danger mb-2" v-if="errorVerifyCode">{{ errorVerifyCode }}</div>
 
         <button type="submit" class="btn btn-black w-100" :disabled="loadingVerify">
           <span v-if="loadingVerify" class="spinner-border spinner-border-sm me-2"></span>
@@ -85,6 +84,8 @@ import { reactive, ref, watch, onMounted, nextTick } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userAuth';
+import Swal from 'sweetalert2';
+
 
 const router = useRouter()
 
@@ -132,52 +133,72 @@ const clearErrors = () => {
 
 // Hàm gửi code xác minh
 const handleSendCode = async () => {
-  clearErrors()
-  loading.value = true
+  clearErrors();
+  loading.value = true;
+
   try {
-    const res = await axios.post('http://127.0.0.1:8000/api/register/send-code', form)
+    const res = await axios.post('http://127.0.0.1:8000/api/register/send-code', form);
 
     if (res.status === 200 && res.data?.message?.includes('Mã xác minh')) {
-      alert(res.data.message || 'Mã xác minh đã được gửi')
-      localStorage.setItem('verify_email', form.email)
-      step.value = 2
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: res.data.message || 'Mã xác minh đã được gửi',
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+      });
 
-      // Countdown và focus...
-      countdown.value = 300
-      updateCountdownText()
-      if (countdownInterval) clearInterval(countdownInterval)
+      localStorage.setItem('verify_email', form.email);
+      step.value = 2;
+
+      // Bắt đầu đếm ngược
+      countdown.value = 300;
+      updateCountdownText();
+      if (countdownInterval) clearInterval(countdownInterval);
       countdownInterval = setInterval(() => {
         if (countdown.value > 0) {
-          countdown.value--
-          updateCountdownText()
+          countdown.value--;
+          updateCountdownText();
         } else {
-          clearInterval(countdownInterval)
+          clearInterval(countdownInterval);
         }
-      }, 1000)
+      }, 1000);
 
-      await nextTick()
-      otpInputs.value[0]?.focus()
+      await nextTick();
+      otpInputs.value[0]?.focus();
     } else {
-      throw new Error('Không thể gửi mã xác minh.')
+      throw new Error('Không thể gửi mã xác minh.');
     }
   } catch (err) {
-    if (err.response?.status === 422 && err.response?.data?.errors) {
-      const errorObj = err.response.data.errors
-      for (const key in errorObj) {
-        errors[key] = errorObj[key][0]
-      }
-    } else if (err.response?.data?.message) {
-      alert('Lỗi: ' + err.response.data.message)
-    } else {
-      alert('Có lỗi xảy ra. Vui lòng thử lại.')
-    }
-    console.error('Chi tiết lỗi:', err.response || err)
-  }
-  finally {
-    loading.value = false
-  }
+    let message = 'Có lỗi xảy ra. Vui lòng thử lại.';
 
-}
+    if (err.response?.status === 422 && err.response?.data?.errors) {
+      const errorObj = err.response.data.errors;
+      const firstKey = Object.keys(errorObj)[0];
+      message = errorObj[firstKey][0];
+    } else if (err.response?.data?.message) {
+      message = err.response.data.message;
+    }
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: message,
+      showConfirmButton: false,
+      timer: 5000,
+      timerProgressBar: true,
+    });
+
+    console.error('Chi tiết lỗi:', err.response || err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+
 
 const updateCountdownText = () => {
   const m = Math.floor(countdown.value / 60).toString().padStart(2, '0')
@@ -207,34 +228,49 @@ const onBackspace = (index, event) => {
 const userStore = useUserStore();
 // Gửi xác minh mã
 const handleVerifyCode = async () => {
-  errorVerifyCode.value = ''
-  const code = digits.join('')
+  errorVerifyCode.value = '';
+  const code = digits.join('');
   if (code.length !== 6) {
-    errorVerifyCode.value = 'Mã xác minh phải đủ 6 chữ số'
-    return
+    errorVerifyCode.value = 'Mã xác minh phải đủ 6 chữ số';
+    return;
   }
-  loadingVerify.value = true
+
+  loadingVerify.value = true;
   try {
-    const email = localStorage.getItem('verify_email')
-    const res = await axios.post('http://127.0.0.1:8000/api/register/verify-code', { email, code })
+    const email = localStorage.getItem('verify_email');
+    const res = await axios.post('http://127.0.0.1:8000/api/register/verify-code', { email, code });
 
     userStore.setUser(res.data.user, res.data.token);
 
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Đăng ký thành công!',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
 
-
-    alert('Đăng ký thành công!')
-    if (res.data.user.role === 'quanly' || res.data.user.role === 'nhanvien' || res.data.user.role === 'nhanvienkho') {
-          this.router.push('/admin');
-        } else {
-          this.router.push('/home');
-        }
+    localStorage.removeItem('verify_email');
+    router.push('/');
   } catch (err) {
-    errorVerifyCode.value = err.response?.data?.message || 'Mã xác minh không đúng'
+    errorVerifyCode.value = err.response?.data?.message || 'Mã xác minh không đúng';
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: errorVerifyCode.value,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
   } finally {
     loadingVerify.value = false;
-    localStorage.removeItem('verify_email');
+
   }
-}
+};
+
 </script>
 
 <style scoped>

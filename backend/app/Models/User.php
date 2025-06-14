@@ -33,6 +33,7 @@ class User extends Authenticatable
         'provider_name',
         'provider_token',
         'provider_refresh_token',
+        'status'
 
     ];
 
@@ -58,6 +59,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function orders(){
+        return $this->hasMany(Order::class);
+    }
 
     public function role()
     {
