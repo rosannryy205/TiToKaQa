@@ -249,13 +249,13 @@ const menuItems = [
       {
         key: 'users/list',
         to: '/admin/users/list',
-        label: 'Tất cả người dùng',
+        label: 'Khách hàng',
         icon: AppstoreOutlined,
       },
       {
         key: 'users/list-role',
         to: '/admin/users/list-role',
-        label: 'Vai trò người dùng',
+        label: 'Nhân viên',
         icon: TagsOutlined,
       },
     ],

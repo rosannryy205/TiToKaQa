@@ -2,18 +2,15 @@
   <h2 class="mb-3">Quản lý người dùng</h2>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <button type="button" class="btn btn-danger1" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-      +Thêm người dùng
-    </button>
-    <span class="vd">Tìm kiếm</span>
-    <input type="text" class="form-control rounded" style="max-width: 200px" placeholder="Tìm kiếm" />
-    <span class="vd">Lọc theo vai trò</span>
+    <span class="vd">Tìm kiếm </span>
+    <input type="text" class="form-control rounded" style="max-width: 250px" placeholder="Tìm kiếm theo tên hoặc SĐT" />
+    <!-- <span class="vd">Lọc theo vai trò</span>
     <select class="form-select w-auto rounded" style="max-width: 250px" v-model="selectRole">
       <option value="">Tất cả</option>
       <option value="admin">Admin</option>
       <option value="staff">Nhân viên</option>
       <option value="user">Khách hàng</option>
-    </select>
+    </select> -->
 
     <span class="vd">Hiển thị</span>
     <select class="form-select w-auto rounded">
@@ -46,17 +43,12 @@
           <td>{{ user.phone }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.address }}</td>
-          <td>
-            <select class="form-select">
-              <option :selected="user.role === 'admin'">Admin</option>
-              <option :selected="user.role === 'staff'">Nhân viên</option>
-              <option :selected="user.role === 'user'">Khách hàng</option>
-            </select>
-          </td>
+          <td>{{ user.role === 'user' ? 'Khách hàng' : '' }}</td>
           <td>
             {{ user.status }}
           </td>
           <td class="d-flex justify-content-center gap-2">
+            <button class="btn btn-info">Chi tiết</button>
             <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
               class="btn btn-danger-delete">Khoá</button>
             <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở Khóa</button>
@@ -65,7 +57,7 @@
       </tbody>
     </table>
   </div>
-  <button class="btn btn-danger-delete delete_desktop">Xoá</button>
+  <!-- <button class="btn btn-danger-delete delete_desktop">Xoá</button> -->
 
   <!-- Mobile View -->
   <div class="d-block d-lg-none">
@@ -96,7 +88,7 @@
     </div>
   </div>
 
-  <button class="btn btn-danger-delete delete_mobile">Xoá</button>
+  <!-- <button class="btn btn-danger-delete delete_mobile">Xoá</button> -->
 </template>
 
 <script setup>
@@ -113,7 +105,7 @@ const selectRole = ref('')
 const fecthAllUser = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/api/user`)
-    allUser.value = response.data
+    allUser.value = response.data.filter((u)=> u.role === 'user')
   } catch (error) {
     console.log('Lỗi kìa mày', error)
   }
