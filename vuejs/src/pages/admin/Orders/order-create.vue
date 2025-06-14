@@ -228,17 +228,20 @@
                     <hr />
                     <h6 class="mb-3">Phương thức thanh toán</h6>
                     <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
-                      <button class="btn btn-payment active">
+                      <button type="button" class="btn btn-payment" :class="{ active: paymentMethod === 'COD' }"
+                        @click="paymentMethod = 'COD'">
                         <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
                         <br />
                         Tiền mặt
                       </button>
-                      <button class="btn btn-payment">
+                      <button type="button" class="btn btn-payment" :class="{ active: paymentMethod === 'MOMO' }"
+                        @click="paymentMethod = 'MOMO'">
                         <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
                         <br />
                         MoMo
                       </button>
-                      <button class="btn btn-payment">
+                      <button type="button" class="btn btn-payment" :class="{ active: paymentMethod === 'VNPAY' }"
+                        @click="paymentMethod = 'VNPAY'">
                         <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
                         <br />
                         QR code
@@ -251,7 +254,8 @@
                         Quay lại
                       </button>
                       <div class="modal-footer border-0">
-                        <button class="btn btn-danger1 flex-fill me-sm-2 mb-2 mb-sm-0 p-2" type="submit" @click.prevent="check_out">
+                        <button class="btn btn-danger1 flex-fill me-sm-2 mb-2 mb-sm-0 p-2" type="submit"
+                          @click.prevent="check_out">
                           🛒 Thanh toán đơn hàng
                         </button>
                       </div>
@@ -296,6 +300,7 @@ export default {
       increaseQuantity2,
       decreaseQuantity1,
       clearCart,
+      cartKey,
     } = Cart()
 
     const {
@@ -365,6 +370,8 @@ export default {
     }
 
 
+    const paymentMethod = ref('')
+    const current_order_id = ref(null)
     const check_out = async () => {
       isLoading.value = true
       try {
@@ -372,6 +379,14 @@ export default {
         if (!guest_name.value) {
           alert('Vui lòng nhập đầy đủ thông tin khách hàng!')
           return
+        }
+        if (cartItems.value.length === 0) {
+          toast.error('Giỏ hàng trống! Vui lòng thêm món ăn.')
+          return
+        }
+        if (!paymentMethod.value) {
+          toast.error('Vui lòng chọn phương thức thanh toán.')
+          return;
         }
 
         const orderData = {
@@ -391,23 +406,74 @@ export default {
             })),
           })),
         }
+        const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/ordertakecaway', orderData)
+        if (orderCreationResponse.data && orderCreationResponse.data.order_id) {
+          current_order_id.value = orderCreationResponse.data.order_id
+          toast.success('Đơn hàng đã được tạo thành công!')
+        } else {
+          toast.error('Lỗi: Không nhận được order_id từ server.')
+          isLoading.value = false
+          return
+        }
+        if (paymentMethod.value === 'VNPAY') {
+          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+            order_id: current_order_id.value,
+            amount: totalPrice.value,
+            return_url: 'http://localhost:5173/admin/tables/current-order',
+          })
+          if (paymentRes.data.payment_url) {
+            localStorage.setItem('payment_method', paymentMethod.value)
+            localStorage.removeItem(cartKey.value)
+            window.location.href = paymentRes.data.payment_url
+          } else {
+            toast.error('Không tạo được link thanh toán VNPAY.')
+          }
+          clearCart();
+          guest_name.value = '';
+          note.value = '';
+          router.push('/admin/tables/current-order');
+          return
+        }
+        if (paymentMethod.value === 'MOMO') {
+          toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          // TODO: Thêm logic gọi API MoMo khởi tạo tại đây
+          // await axios.post('http://127.0.0.1:8000/api/payments/momo-init', {
+          //   order_id: current_order_id.value,
+          //   amount: totalPrice.value,
+          // });
+          // Sau khi tạo order và ghi nhận payment pending cho MoMo (hoặc redirect), thì chuyển trang
+          localStorage.setItem('payment_method', paymentMethod.value);
+          localStorage.removeItem(cartKey.value);
+          // clearCart();
+          // guest_name.value = '';
+          // note.value = '';
+          // router.push('/admin/current-order');
+          return;
+        }
+        if (paymentMethod.value === 'COD') {
+          await new Promise((resolve) => setTimeout(resolve, 300))
+          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+            order_id: current_order_id.value,
+            amount_paid: totalPrice.value,
+            payment_type: 'Thanh toán toàn bộ',
+          })
 
-        await axios.post('http://127.0.0.1:8000/api/ordertakecaway', orderData)
+          localStorage.setItem('payment_method', paymentMethod.value)
+          localStorage.removeItem(cartKey.value)
+          toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
+          clearCart();
+          guest_name.value = '';
+          note.value = '';
+          router.push('/admin/tables/current-order');
+        }
 
-        toast.success('Đặt hàng thành công!')
-        clearCart()
-        guest_name.value = ''
-        note.value = ''
       } catch (error) {
         console.error('Lỗi khi gửi đơn hàng:', error)
-        toast.error('Đặt hàng thất bại, vui lòng thử lại!')
+        toast.error('Đặt hàng thất bại, vui lòng thử lại!' + error.response.data.message)
       } finally {
         isLoading.value = false
       }
     }
-
-
-
 
 
     const totalPagesFoods = computed(() => {
@@ -492,6 +558,7 @@ export default {
       decreaseQuantity1,
       increaseQuantity2,
       cartItems,
+      cartKey,
       loadCart,
       totalPriceItem,
       totalPrice,
@@ -515,7 +582,9 @@ export default {
       searchFoodTerm,
       onFoodSearch,
       handleAddToCartClick,
-      handleGuestSelection
+      handleGuestSelection,
+
+      paymentMethod,
     }
   },
 }

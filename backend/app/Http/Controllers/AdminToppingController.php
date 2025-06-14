@@ -10,6 +10,11 @@ class AdminToppingController extends Controller
 {
     public function index(Request $request)
     {
+        $topping = Topping::all();
+        return response()->json($topping);
+    }
+    public function getByCategoryId(Request $request)
+    {
         $limit = $request->input('limit', 10);
         $categoryId = $request->input('categoryId');
 
@@ -20,7 +25,6 @@ class AdminToppingController extends Controller
         }
         return response()->json($query->paginate($limit));
     }
-
 
     public function store(Request $request)
     {

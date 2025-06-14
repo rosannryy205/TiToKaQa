@@ -241,7 +241,7 @@ const handleStatusChange = async (orderId, newStatus) => {
         message.warning('Chỉ có thể hủy đơn khi đơn ở trạng thái chờ xác nhận hoặc đã xác nhận.');
         return;
       }
-    } else if (statusOrder[newStatus] !== statusOrder[currentStatus] + 1) {
+    } else if (currentStatus !== 'Đang giao hàng' && statusOrder[newStatus] !== statusOrder[currentStatus] + 1) {
       message.warning('Không thể nhảy trạng thái không theo thứ tự.');
       return;
     }
