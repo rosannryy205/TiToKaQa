@@ -24,8 +24,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = User::all();
-        return $user;
+        $user = User:: with(
+            'orders',
+        )->get();
+        return response()->json([
+            'user' => $user
+        ]);
     }
 
     public function sendRegisterCode(Request $request)
