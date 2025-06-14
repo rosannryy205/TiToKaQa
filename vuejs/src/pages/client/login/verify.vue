@@ -98,7 +98,8 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'ForgotPasswordForm',
@@ -141,84 +142,161 @@ export default {
       }, 1000)
     },
 
-    async handleSendCode() {
-      this.errorSendCode = ''
-      if (!this.email) {
-        this.errorSendCode = 'Vui lòng nhập địa chỉ email.'
-        return
-      }
+async handleSendCode() {
+  if (!this.email) {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Vui lòng nhập địa chỉ email.',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+    return;
+  }
 
-      this.isLoading = true
-      try {
-        await axios.post('http://127.0.0.1:8000/api/forgot', { email: this.email })
-        this.step = 2
-        this.codeDigits = ['', '', '', '', '', '']
-        this.startCountdown()
+  this.isLoading = true;
+  try {
+    await axios.post('http://127.0.0.1:8000/api/forgot', { email: this.email });
 
-        this.$nextTick(() => {
-          this.$refs.codeInputs[0]?.focus()
-        })
-      } catch (err) {
-        if (err.response?.data?.message) {
-          this.errorSendCode = err.response.data.message
-        } else if (err.response?.status === 404) {
-          this.errorSendCode = 'Email không tồn tại trong hệ thống.'
-        } else {
-          this.errorSendCode = 'Đã xảy ra lỗi. Vui lòng thử lại.'
-        }
-      } finally {
-        this.isLoading = false
-      }
-    },
+    this.step = 2;
+    this.codeDigits = ['', '', '', '', '', ''];
+    this.startCountdown();
 
-    async handleVerifyCode() {
-      this.errorVerifyCode = ''
-      if (this.code.length < 6) {
-        this.errorVerifyCode = 'Vui lòng nhập đầy đủ 6 chữ số.'
-        return
-      }
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Mã xác nhận đã được gửi đến email của bạn.',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
 
-      this.isLoading = true
-      try {
-        await axios.post('http://127.0.0.1:8000/api/verify-code', {
-          email: this.email,
-          code: this.code
-        })
-        this.step = 3
-        clearInterval(this.interval)
-      } catch (err) {
-        this.errorVerifyCode = err.response?.data?.message || 'Mã xác nhận không đúng hoặc đã hết hạn.'
-      } finally {
-        this.isLoading = false
-      }
-    },
+    this.$nextTick(() => {
+      this.$refs.codeInputs[0]?.focus();
+    });
+  } catch (err) {
+    let message = 'Đã xảy ra lỗi. Vui lòng thử lại.';
+    if (err.response?.data?.message) {
+      message = err.response.data.message;
+    } else if (err.response?.status === 404) {
+      message = 'Email không tồn tại trong hệ thống.';
+    }
 
-    async handleResetPassword() {
-      this.errorReset = ''
-      this.isLoading = true
-      try {
-        await axios.post('http://127.0.0.1:8000/api/reset-password', {
-          email: this.email,
-          password: this.newPassword,
-          password_confirmation: this.confirmPassword
-        })
-        this.step = 4
-      } catch (err) {
-        if (err.response && err.response.status === 422) {
-          const errors = err.response.data.errors
-          if (errors) {
-            this.errorReset = Object.values(errors).flat().join(' ')
-          } else {
-            this.errorReset = err.response.data.message || 'Lỗi xác thực dữ liệu.'
-          }
-        } else {
-          this.errorReset = err.response?.data?.message || 'Không thể đặt lại mật khẩu. Vui lòng thử lại.'
-        }
-      } finally {
-        this.isLoading = false,
-        localStorage.removeItem('verify_email');
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: message,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+  } finally {
+    this.isLoading = false;
+  }
+},
+
+async handleVerifyCode() {
+  if (this.code.length < 6) {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Vui lòng nhập đầy đủ 6 chữ số.',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+    return;
+  }
+
+  this.isLoading = true;
+  try {
+    await axios.post('http://127.0.0.1:8000/api/verify-code', {
+      email: this.email,
+      code: this.code
+    });
+
+    this.step = 3;
+    clearInterval(this.interval);
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Mã xác nhận hợp lệ. Vui lòng đặt lại mật khẩu.',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+  } catch (err) {
+    const message = err.response?.data?.message || 'Mã xác nhận không đúng hoặc đã hết hạn.';
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: message,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+  } finally {
+    this.isLoading = false;
+  }
+},
+
+async handleResetPassword() {
+  this.isLoading = true;
+  try {
+    await axios.post('http://127.0.0.1:8000/api/reset-password', {
+      email: this.email,
+      password: this.newPassword,
+      password_confirmation: this.confirmPassword
+    });
+
+    this.step = 4;
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập lại.',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+  } catch (err) {
+    let message = 'Không thể đặt lại mật khẩu. Vui lòng thử lại.';
+    if (err.response?.status === 422) {
+      const errors = err.response.data.errors;
+      if (errors) {
+        message = Object.values(errors).flat().join(' ');
+      } else {
+        message = err.response.data.message || 'Lỗi xác thực dữ liệu.';
       }
-    },
+    } else if (err.response?.data?.message) {
+      message = err.response.data.message;
+    }
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: message,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+  } finally {
+    this.isLoading = false;
+    localStorage.removeItem('verify_email');
+  }
+},
+
 
     focusNext(index) {
       if (this.codeDigits[index].length === 1 && index < 5) {
