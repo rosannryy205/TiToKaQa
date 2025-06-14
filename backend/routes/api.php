@@ -85,10 +85,8 @@ Route::put('/order-history-info/update-address/{id}', [OrderController::class, '
 
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
-    Route::patch('/user', [UserController::class, 'update']);
+    Route::get('/user/{id}', [UserController::class, 'show']);
+    Route::patch('/user-update/{id}', [UserController::class, 'update']);
     // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
 
@@ -177,11 +175,10 @@ Route::get('/admin/foods', [AdminFoodController::class, 'getAllFood']);
 Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 
 
-
-Route::resource('/payment', PaymentController::class);
-// routes/api.php
-Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
-
+//paymentMethod
+Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
+Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
+Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 
 
 
