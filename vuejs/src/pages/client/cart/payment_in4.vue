@@ -296,6 +296,11 @@ export default {
           alert('Vui lòng chọn phương thức thanh toán!')
           return
         }
+        if (!selectedProvince.value || !selectedDistrict.value || !selectedWard.value) {
+          alert('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.');
+          isLoading.value = false;
+          return;
+        }
         const province = provinces.value.find(p => p.ProvinceID === selectedProvince.value)
         const district = districts.value.find(d => d.DistrictID === selectedDistrict.value)
         const ward = wards.value.find(w => w.WardCode === selectedWard.value)
