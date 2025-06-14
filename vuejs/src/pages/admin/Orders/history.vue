@@ -97,13 +97,30 @@
             <a-list-item>
               <a-list-item-meta :description="`Số lượng: ${item.quantity} - Đơn giá: ${formatCurrency(item.price)}`">
                 <template #title>
-                  {{ item.name }}
+                  <div>{{ item.name }}</div>
+
+                  <ul v-if="item.toppings.length" style="margin: 0; padding-left: 16px;">
+                    <li v-for="(topping, index) in item.toppings" :key="index">
+                      {{ topping.name }}<span v-if="topping.price"> - {{ formatCurrency(topping.price) }}</span>
+                    </li>
+                  </ul>
                 </template>
               </a-list-item-meta>
-              <div>Thành tiền: {{ formatCurrency(item.quantity * item.price) }}</div>
             </a-list-item>
           </template>
         </a-list>
+
+        <!-- Chỉ hiển thị tổng thành tiền một lần bên dưới -->
+        <div style="text-align: right; font-weight: bold; margin-top: 16px;">
+          <div v-show="selectedOrder.reduce_money">
+            Voucher: {{ formatCurrency(selectedOrder.reduce_money) }}
+          </div>
+          <div>
+            Thành tiền: {{ formatCurrency(selectedOrder.totalAmount) }}
+          </div>
+        </div>
+
+
       </div>
     </a-modal>
 
@@ -142,6 +159,7 @@ const fetchOrders = async () => {
         orderType: order.tables?.length > 0 ? 'Đặt bàn' : 'Mang về',
         totalAmount: parseFloat(order.total_price),
         status: order.order_status,
+        reduce_money: parseFloat(order.money_reduce) || 0,
         paymentMethod: order.payment?.payment_method || 'Chưa cập nhật',
         paymentStatus: order.payment?.payment_status || 'Chưa cập nhật',
         items: order.details.map(detail => ({
@@ -335,7 +353,7 @@ const columns = [
 // Cấu hình phân trang
 const pagination = reactive({
   current: 1,
-  pageSize: 10,
+  pageSize: 5,
   total: orders.value.length,
   showSizeChanger: false, // Đã có selector riêng
   showTotal: (total, range) => `Hiển thị ${range[0]} đến ${range[1]} trên tổng ${total} đơn hàng`,

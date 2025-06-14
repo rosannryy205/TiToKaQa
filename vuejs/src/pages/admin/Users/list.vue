@@ -38,17 +38,20 @@
       <tbody>
         <tr v-for="user in fillterUsers" :key="user.id">
           <td>{{ user.id }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.fullname }}</td>
-          <td>{{ user.phone }}</td>
+          <td>{{ user.username  }}</td>
+          <td>{{ user.fullname ? user.fullname : 'Chưa cập nhật'  }}</td>
+          <td>{{ user.phone ? user.phone : 'Chưa cập nhật' }}</td>
           <td>{{ user.email }}</td>
-          <td>{{ user.address }}</td>
+          <td>{{ user.address ? user.address : 'Chưa cập nhật' }}</td>
           <td>{{ user.role === 'user' ? 'Khách hàng' : '' }}</td>
           <td>
             {{ user.status }}
           </td>
           <td class="d-flex justify-content-center gap-2">
-            <button class="btn btn-info">Chi tiết</button>
+            <button class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
+              data-bs-target="#userDetailModal">
+              Chi tiết
+            </button>
             <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
               class="btn btn-danger-delete">Khoá</button>
             <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở Khóa</button>
@@ -73,20 +76,104 @@
             <p class="card-text"><strong>SĐT:</strong>{{ user.phone }}</p>
             <p class="card-text"><strong>Email:</strong>{{ user.email }}</p>
             <p class="card-text"><strong>Vai trò: </strong>
-              <select class="form-select w-auto">
-                <option :selected="user.role === 'admin'">Admin</option>
-                <option :selected="user.role === 'staff'">Nhân viên</option>
-                <option :selected="user.role === 'user'">Khách hàng</option>
-              </select>
-            </p>
-            <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
-              class="btn btn-danger-delete">Khoá</button>
-            <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở Khóa</button>
+              <{{ user.role === 'user' ? 'Khách hàng' : '' }} </p>
+                <button class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
+                  data-bs-target="#userDetailModal">
+                  Chi tiết
+                </button>
+                <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
+                  class="btn btn-danger-delete">Khoá</button>
+                <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở
+                  Khóa</button>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Modal Chi tiết người dùng -->
+  <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header text-white" style="background-color: #C92C3C;">
+          <h5 class="modal-title d-flex align-items-center gap-2" id="userDetailModalLabel">
+            <i class="bi bi-person-circle fs-4"></i> Thông tin người dùng
+          </h5>
+        </div>
+
+        <div class="modal-body">
+          <div class="row mb-2">
+            <div class="col-md-6 mb-2">
+              <i class="bi bi-person-fill text-primary"></i>
+              <strong> Username:</strong> {{ selectedUser?.username || 'Chưa cập nhật' }}
+            </div>
+            <div class="col-md-6 mb-2">
+              <i class="bi bi-card-text text-primary"></i>
+              <strong> Họ và tên:</strong> {{ selectedUser?.fullname || 'Chưa cập nhật' }}
+            </div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-md-6 mb-2">
+              <i class="bi bi-telephone-fill text-primary"></i>
+              <strong> Số điện thoại:</strong> {{ selectedUser?.phone || 'Chưa cập nhật' }}
+            </div>
+            <div class="col-md-6 mb-2">
+              <i class="bi bi-envelope-fill text-primary"></i>
+              <strong> Email:</strong> {{ selectedUser?.email || 'Chưa cập nhật' }}
+            </div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-12 mb-2">
+              <i class="bi bi-geo-alt-fill text-primary"></i>
+              <strong> Địa chỉ:</strong> {{ selectedUser?.address || 'Chưa cập nhật' }}
+            </div>
+          </div>
+
+          <div class="row mb-2">
+            <div class="col-md-6 mb-2">
+              <i class="bi bi-person-badge-fill text-primary"></i>
+              <strong> Vai trò:</strong>
+              {{ selectedUser?.role === 'user' ? 'Khách hàng' : selectedUser?.role }}
+            </div>
+            <div class="col-md-6 mb-2">
+              <i class="bi bi-shield-check text-primary"></i>
+              <strong> Trạng thái:</strong> {{ selectedUser?.status }}
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="row text-center">
+            <div class="col-md-4 mb-2">
+              <i class="bi bi-check-circle-fill text-success"></i><br />
+              <strong>Đơn thành công:</strong><br />
+              {{ selectedUser?.success_orders || 0 }}
+            </div>
+            <div class="col-md-4 mb-2">
+              <i class="bi bi-x-circle-fill text-danger"></i><br />
+              <strong>Đơn thất bại:</strong><br />
+              {{ selectedUser?.failed_orders || 0 }}
+            </div>
+            <div class="col-md-4 mb-2">
+              <i class="bi bi-slash-circle-fill text-warning"></i><br />
+              <strong>Đơn đã huỷ:</strong><br />
+              {{ selectedUser?.canceled_orders || 0 }}
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle"></i> Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 
   <!-- <button class="btn btn-danger-delete delete_mobile">Xoá</button> -->
 </template>
@@ -96,16 +183,20 @@ import { useMenu } from '@/stores/use-menu'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { computed } from 'vue'
-
 useMenu().onSelectedKeys(['admin-roles'])
 
+const selectedUser = ref(null);
+
+const openUserModal = (user) => {
+  selectedUser.value = user;
+};
 const allUser = ref([])
 const selectRole = ref('')
 
 const fecthAllUser = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/api/user`)
-    allUser.value = response.data.filter((u)=> u.role === 'user')
+    allUser.value = response.data.user.filter((u) => u.role === 'user')
   } catch (error) {
     console.log('Lỗi kìa mày', error)
   }
@@ -124,8 +215,8 @@ const toggleStatus = async (user) => {
   }
 }
 
-const fillterUsers = computed(()=>{
-  if(!selectRole.value) return allUser.value
+const fillterUsers = computed(() => {
+  if (!selectRole.value) return allUser.value
   return allUser.value.filter(user => user.role === selectRole.value)
 })
 
