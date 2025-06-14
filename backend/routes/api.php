@@ -18,6 +18,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\TableController;
 use App\Models\Combo;
@@ -71,6 +72,15 @@ Route::put('/tables/{id}', [TableController::class, 'updateTable']);
 Route::delete('/tables/{id}', [TableController::class, 'deleteTable']);
 // Route::get('/restore-tables/{id}', [TableController::class, 'restoreTable']);
 Route::post('/insert-table', [TableController::class, 'insertTable']);
+
+
+// role
+Route::get('/role', [RoleController::class, 'getAllRole']);
+Route::get('/role-permission/{id}', [RoleController::class, 'getAllPermission']);
+Route::put('/role-permission-update', [RoleController::class, 'updatePermission']);
+Route::get('/role-permission-user/{id}', [RoleController::class, 'userProfile']);
+
+
 
 
 

@@ -221,8 +221,13 @@ const handleVerifyCode = async () => {
     userStore.setUser(res.data.user, res.data.token);
 
 
+
     alert('Đăng ký thành công!')
-    router.push('/')
+    if (res.data.user.role === 'quanly' || res.data.user.role === 'nhanvien' || res.data.user.role === 'nhanvienkho') {
+          this.router.push('/admin');
+        } else {
+          this.router.push('/home');
+        }
   } catch (err) {
     errorVerifyCode.value = err.response?.data?.message || 'Mã xác minh không đúng'
   } finally {

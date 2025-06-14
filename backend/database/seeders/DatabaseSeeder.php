@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
                 Combo::class,
                 Combo_detail::class,
                 Discount::class,
-                Table::class
+                Table::class,
+                RolePermission::class
             ]
         );
     }

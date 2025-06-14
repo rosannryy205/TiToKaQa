@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('edit_booking')">
   <div class="fw-semibold">Danh sách món</div>
   <div class="mb-3">
     <hr />
