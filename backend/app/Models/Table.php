@@ -16,7 +16,8 @@ class Table extends Model
     protected $fillable = [
         'capacity',
         'table_number',
-        'delete_at'
+        'deleted_at' 
+
     ];
 
     public function orders(){

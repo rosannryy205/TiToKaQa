@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+
+use function Laravel\Prompts\error;
+
 class UserController extends Controller
 {
     /**
@@ -18,8 +22,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = User::all();
-        return $user;
+        $user = User::with(
+            'orders',
+        )->get();
+        return response()->json([
+            'user' => $user
+        ]);
     }
 
     public function sendRegisterCode(Request $request)
@@ -161,6 +169,16 @@ class UserController extends Controller
         }
 
         $user = Auth::user();
+
+
+        if ($user->status === 'Block') {
+            Auth::logout(); // Đăng xuất ngay nếu đã login thành công
+            return response()->json([
+                'message' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.'
+            ], 403);
+        }
+
+
         /** @var \App\Models\User $user */
         $token = $user->createToken('auth')->plainTextToken;
         return response()->json([
@@ -367,8 +385,8 @@ class UserController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        //
-        return response()->json($request->user());
+            $user = User::findOrFail($id);
+            return response()->json($user);
     }
 
     /**
@@ -382,9 +400,9 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request, string $id)
     {
-        $user = $request->user();
+        $user = User::findOrFail($id);
 
         $request->validate([
             'fullname' => 'nullable|string|max:255',
@@ -407,7 +425,7 @@ class UserController extends Controller
                 }
                 $user->avatar = $path;
             }
-            $user->save();
+            $user->update();
 
             return response()->json([
                 'message' => 'Thông tin và ảnh đại diện đã được cập nhật thành công.',

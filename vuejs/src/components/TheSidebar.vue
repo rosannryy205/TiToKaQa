@@ -312,7 +312,7 @@ const menuItems = [
         to: '/admin/tables/current-order',
         label: 'Đơn hiện thời',
         icon: FieldTimeOutlined,
-        permission: 'view_current_order',
+        permission: 'view_order',
       },
       {
         key: '/admin/order-create',

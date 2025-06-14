@@ -41,7 +41,7 @@
                   Cài đặt tài khoản
                 </a-menu-item>
                 <a-menu-divider />
-                <a-menu-item key="logout" style="color: red;">
+                <a-menu-item @click="handleLogout" key="logout" style="color: red;">
                   <template #icon>
                     <LogoutOutlined />
                   </template>
@@ -69,10 +69,32 @@ import {
   SettingOutlined,
   IdcardOutlined,
 } from '@ant-design/icons-vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
   collapsed: Boolean,
 });
+
+const handleLogout = async () => {
+  const confirmResult = await Swal.fire({
+    title: 'Đăng xuất khỏi hệ thống?',
+    text: 'Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Đăng xuất',
+    cancelButtonText: 'Huỷ bỏ',
+    confirmButtonColor: '#e3342f',
+    cancelButtonColor: '#6c757d',
+    reverseButtons: true,
+    focusCancel: true,
+  });
+  if (confirmResult.isConfirmed) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  }
+};
+
 
 const emit = defineEmits(['toggle-collapse']);
 </script>

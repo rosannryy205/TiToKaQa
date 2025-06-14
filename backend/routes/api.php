@@ -95,10 +95,8 @@ Route::put('/order-history-info/update-address/{id}', [OrderController::class, '
 
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
-    Route::patch('/user', [UserController::class, 'update']);
+    Route::get('/user/{id}', [UserController::class, 'show']);
+    Route::patch('/user-update/{id}', [UserController::class, 'update']);
     // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
 
@@ -165,10 +163,13 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 
 //admin
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::get('/admin/foods', [AdminFoodController::class, 'index']);
+    Route::get('/admin/manage/foods', [AdminFoodController::class, 'index']);
     Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
     Route::post('/admin/foods', [AdminFoodController::class, 'store']);
+    Route::get('/admin/foods/search', [FoodController::class, 'search']);
     Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
+    Route::post('/admin/foods/delete-multiple', [AdminFoodController::class, 'deleteMultiple']);
+    Route::put('admin/food/{id}/status', [AdminFoodController::class, 'updateStatus']);
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
     Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
@@ -184,11 +185,10 @@ Route::get('/admin/foods', [AdminFoodController::class, 'getAllFood']);
 Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 
 
-
-Route::resource('/payment', PaymentController::class);
-// routes/api.php
-Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
-
+//paymentMethod
+Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
+Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
+Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 
 
 
@@ -198,5 +198,5 @@ Route::get('/admin/categories', [CategoryController::class, 'getAllCategories'])
 Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
-Route::patch('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
+Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
 Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);
