@@ -8,7 +8,7 @@ class Food_topping extends Pivot
 {
     protected $table = 'food_toppings';
 
-    public function topping()
+    public function toppings()
 {
     return $this->belongsTo(Topping::class, 'topping_id');
 }

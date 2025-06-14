@@ -38,8 +38,8 @@
       <tbody>
         <tr v-for="user in fillterUsers" :key="user.id">
           <td>{{ user.id }}</td>
-          <td>{{ user.username  }}</td>
-          <td>{{ user.fullname ? user.fullname : 'Chưa cập nhật'  }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.fullname ? user.fullname : 'Chưa cập nhật' }}</td>
           <td>{{ user.phone ? user.phone : 'Chưa cập nhật' }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.address ? user.address : 'Chưa cập nhật' }}</td>
@@ -195,12 +195,40 @@ const selectRole = ref('')
 
 const fecthAllUser = async () => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/user`)
-    allUser.value = response.data.user.filter((u) => u.role === 'user')
+    const response = await axios.get(`http://127.0.0.1:8000/api/user`);
+    const users = response.data.user;
+
+    for (const user of users) {
+      if (user.role === 'user') {
+        const orders = user.orders || [];
+
+        const success_orders = orders.filter(o => o.order_status === 'Giao thành công').length;
+        const failed_orders = orders.filter(o => o.order_status === 'Giao thất bại').length;
+        const canceled_orders = orders.filter(o => o.order_status === 'Đã hủy').length;
+
+        user.success_orders = success_orders;
+        user.failed_orders = failed_orders;
+        user.canceled_orders = canceled_orders;
+
+        if (failed_orders >= 5 && user.status !== 'Block') {
+          try {
+            await axios.put(`http://127.0.0.1:8000/api/update/${user.id}`, {
+              status: 'Block'
+            });
+            user.status = 'Block';
+          } catch (error) {
+            console.error(`Lỗi khi block user ${user.id}`, error);
+          }
+        }
+      }
+    }
+
+    allUser.value = users.filter((u) => u.role === 'user');
   } catch (error) {
-    console.log('Lỗi kìa mày', error)
+    console.log('Lỗi kìa mày', error);
   }
-}
+};
+
 
 const toggleStatus = async (user) => {
   const newStatus = user.status === 'Active' ? 'Block' : 'Active'

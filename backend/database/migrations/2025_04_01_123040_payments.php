@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payments', function (Blueprint $table){
+        Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->decimal('amount_paid', 10, 2);
-            $table->enum('payment_method', ['Thanh toán COD', 'Thanh toán VNPAY', 'Thanh toán MOMO']);
-            $table->enum('payment_status', ['Chưa thanh toán', 'Đã thanh toán']);
-            $table->timestamp('payment_time')->nullable();
-            $table->enum('payment_type', ['Thanh toán tiền cọc', 'Thanh toán toàn bộ']);
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            $table->string('vnpay_txn_ref')->nullable()->comment('Mã tham chiếu giao dịch duy nhất của VNPAY');
+            $table->string('transaction_id')->nullable()->comment('ID giao dịch của VNPAY hoặc MoMo');
+            $table->string('bank_code')->nullable()->comment('Mã ngân hàng được sử dụng để thanh toán (VNPAY)');
+            $table->string('card_type')->nullable()->comment('Loại thẻ được sử dụng để thanh toán (VNPAY)');
+            $table->decimal('amount_paid', 10, 2);
+            $table->enum('payment_method', ['COD', 'VNPAY', 'MOMO']);
+            $table->enum('payment_status', ['Đang chờ xử lý', 'Đã thanh toán', 'Thanh toán thất bại', 'Đã hoàn tiền']);
+            $table->timestamp('payment_time')->nullable();
+            $table->enum('payment_type', ['Tiền cọc', 'Thanh toán toàn bộ']);
             $table->timestamps();
         });
     }
