@@ -21,6 +21,7 @@
           <a-select-option :value="10">10</a-select-option>
           <a-select-option :value="20">20</a-select-option>
           <a-select-option :value="50">50</a-select-option>
+          <a-select-option :value="100">100</a-select-option>
         </a-select>
       </a-col>
       <a-col :xs="24" :sm="12" :md="8" :lg="6">
@@ -32,8 +33,9 @@
         </a-select>
       </a-col>
       <a-col :xs="24" :sm="24" :md="8" :lg="12">
-        <a-input-search v-model:value="searchText" placeholder="Tìm theo Mã ĐH, Tên KH, SĐT..." allow-clear
-          @search="handleSearch" @change="e => { if (e.target.value === '') handleSearch('') }" />
+        <a-input-search v-model:value="searchText" placeholder="Tìm kiếm theo tên KH, SĐT" allowClear
+          enter-button="Tìm" />
+
       </a-col>
     </a-row>
 
@@ -81,13 +83,10 @@
         <p><strong>Trạng thái:</strong>
           <a-select :value="selectedOrder.status" style="width: 160px"
             @change="handleStatusChange(selectedOrder.id, $event)">
-            <a-select-option value="Chờ xác nhận">Chờ xác nhận</a-select-option>
-            <a-select-option value="Đã xác nhận">Đã xác nhận</a-select-option>
-            <a-select-option value="Đang xử lý">Đang xử lý</a-select-option>
-            <a-select-option value="Đang giao hàng">Đang giao hàng</a-select-option>
-            <a-select-option value="Giao thành công">Giao thành công</a-select-option>
-            <a-select-option value="Giao thất bại">Giao thất bại</a-select-option>
-            <a-select-option value="Đã hủy">Đã hủy</a-select-option>
+            <a-select-option v-for="status in allowedStatuses" :key="status" :value="status"
+              :disabled="isStatusDisabled(status)">
+              {{ status }}
+            </a-select-option>
           </a-select>
         </p>
 
@@ -112,7 +111,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, reactive, watch } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
 import { message } from 'ant-design-vue';
@@ -121,16 +120,17 @@ import { message } from 'ant-design-vue';
 
 
 const orders = ref([]);
+const ordersRaw = ref([]);
+
 
 const fetchOrders = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/api/get_all_orders`);
     const apiOrders = response.data.orders;
 
-    console.log('ssss' + apiOrders);
+    const fillterOrder = apiOrders.filter(order => order.type_status !== 'takeaway');
 
-
-    orders.value = apiOrders.map(order => {
+    orders.value = fillterOrder.map(order => {
       return {
         id: order.id.toString(),
         customerInfo: {
@@ -155,6 +155,9 @@ const fetchOrders = async () => {
         })),
       };
     });
+
+    ordersRaw.value = [...orders.value];
+
 
     pagination.total = orders.value.length;
 
@@ -182,6 +185,12 @@ const statusOrder = {
   'Giao thành công': 5,
   'Giao thất bại': 5,  // cùng bậc với giao thành công
   'Đã hủy': 6
+};
+
+const isStatusDisabled = (status) => {
+  const currentLevel = statusOrder[selectedOrder.value.status]; // trạng thái hiện tại của đơn
+  const optionLevel = statusOrder[status];                      // trạng thái đang xét (option trong dropdown)
+  return optionLevel < currentLevel;
 };
 
 const handleStatusChange = async (orderId, newStatus) => {
@@ -261,6 +270,11 @@ const activeStatusTab = ref('Tất cả'); // Trạng thái đang được chọ
 const selectedOrderType = ref('Tất cả'); // Loại đơn hàng đang được chọn
 const searchText = ref('');
 
+watch(searchText, () => {
+  pagination.current = 1; // reset trang về đầu
+});
+
+
 // Modal state
 const isDetailModalVisible = ref(false);
 const selectedOrder = ref(null);
@@ -324,12 +338,13 @@ const pagination = reactive({
   pageSize: 10,
   total: orders.value.length,
   showSizeChanger: false, // Đã có selector riêng
-  showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`,
+  showTotal: (total, range) => `Hiển thị ${range[0]} đến ${range[1]} trên tổng ${total} đơn hàng`,
+
 });
 
 // Dữ liệu được lọc dựa trên các điều kiện
 const filteredData = computed(() => {
-  let tempData = [...orders.value];
+  let tempData = [...ordersRaw.value];
 
   // Lọc theo trạng thái từ Tabs
   if (activeStatusTab.value !== 'Tất cả') {
@@ -343,13 +358,15 @@ const filteredData = computed(() => {
 
   // Lọc theo tìm kiếm (Mã ĐH, Tên KH, SĐT)
   if (searchText.value) {
-    const lowerSearchText = searchText.value.toLowerCase();
+    const lowerSearchText = searchText.value.trim().toLowerCase();
     tempData = tempData.filter(order =>
-      order.id.toLowerCase().includes(lowerSearchText) ||
-      order.customerInfo.name.toLowerCase().includes(lowerSearchText) ||
-      order.customerInfo.phone.includes(lowerSearchText) // SĐT thường không phân biệt hoa thường
+      order.customerInfo.name?.toLowerCase().includes(lowerSearchText) ||
+      order.customerInfo.phone?.includes(searchText.value.trim())
     );
   }
+
+
+
 
   // Cập nhật tổng số mục cho phân trang sau khi lọc
   // Dùng setTimeout để tránh lỗi lặp vô hạn khi computed property cập nhật reactive property
@@ -373,6 +390,7 @@ const paginatedData = computed(() => {
 });
 
 
+
 // Hàm xử lý
 const handleStatusTabChange = (key) => {
   activeStatusTab.value = key;
@@ -384,22 +402,17 @@ const handleOrderTypeChange = (value) => {
   pagination.current = 1;
 };
 
-const handleSearch = (value) => {
-  searchText.value = value;
-  pagination.current = 1;
-}
 
 const handlePageSizeChange = (size) => {
   pagination.pageSize = size;
   pagination.current = 1;
 };
 
-const handleTableChange = (pager, filters, sorter) => {
-  pagination.current = pager.current;
-  pagination.pageSize = pager.pageSize;
-  // Logic sắp xếp có thể được thêm ở đây nếu bạn muốn sắp xếp dữ liệu gốc (orders.value)
-  // Hoặc để a-table tự sắp xếp dữ liệu trên trang hiện tại (filteredData)
+const handleTableChange = (paginationInfo) => {
+  pagination.current = paginationInfo.current;
+  pagination.pageSize = paginationInfo.pageSize;
 };
+
 
 const getStatusColor = (status) => {
   switch (status) {
