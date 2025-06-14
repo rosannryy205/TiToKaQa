@@ -94,7 +94,8 @@ export default {
         this.loginData.password = '';
 
         // Điều hướng
-        if (response.data.user.role === 'admin') {
+        if (response.data.user.role === 'quanly' || response.data.user.role === 'nhanvien' || response.data.user.role === 'nhanvienkho') {
+
           this.router.push('/admin');
         } else {
           this.router.push('/home');

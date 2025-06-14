@@ -1,14 +1,17 @@
 <template>
-  <div class="d-flex justify-content-between mb-2">
+    <div v-if="isLoading" class="isLoading-overlay">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">Đang tải...</span>
+      </div>
+    </div>
+  <div class="d-flex justify-content-between mb-2" v-if="hasPermission('view_booking')">
     <h4>Lịch đặt bàn</h4>
-    <router-link :to="{ name: 'insert-reservation-admin' }" class="btn btn-outline-danger">
+    <router-link :to="{ name: 'insert-reservation-admin' }" class="btn btn-outline-danger" v-if="hasPermission('create_booking')">
       + Thêm đơn đặt bàn
     </router-link>
   </div>
 
   <FullCalendar :options="calendarOptions" />
-
-
   <transition name="popup-fade">
     <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
       <div class="event-detail-popup" @click.stop>
@@ -87,7 +90,7 @@
               <i class="bi bi-card-list"></i>
               <span>Trạng thái đơn:
                 <select v-model="info.order_status" class="p-1 border rounded-0"
-                  @change="updateStatus(info.id, info.order_status)">
+                  @change="updateStatus(info.id, info.order_status)" :disabled="!hasPermission('edit_booking')">
                   <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
                     Chờ xác nhận
                   </option>
@@ -138,7 +141,7 @@
             </div>
           </div>
         </div>
-        <div class="popup-actions">
+        <div class="popup-actions" v-if="hasPermission('edit_booking')">
           <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
           <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
         </div>
@@ -148,7 +151,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -160,10 +163,22 @@ import { onMounted } from 'vue'
 import axios from 'axios'
 import { Info } from '@/stores/info-order-reservation'
 import { toast } from 'vue3-toastify'
-import { useRouter } from 'vue-router' // Import useRouter
+import { useRouter } from 'vue-router'
+import { Permission } from '@/stores/permission'
+
+const userId = ref(null)
+    const userString = localStorage.getItem('user')
+    if (userString) {
+      const user = JSON.parse(userString)
+      if (user && user.id !== undefined) {
+        userId.value = user.id
+      }
+    }
+    const { hasPermission, permissions } = Permission(userId)
 
 const { formatDate, formatTime, formatNumber, info, getInfo } = Info.setup()
 const router = useRouter()
+const isLoading = ref(false)
 
 const tables = ref([])
 const getTable = async () => {
@@ -299,6 +314,11 @@ onMounted(async () => {
   // console.log(calendarOptions.value.events)
   // console.log(calendarOptions.value.resources)
 })
+
+watch(permissions, (newPermissions) => {
+  getTable()
+  getOrderOfTable()
+}, { immediate: true })
 
 const calendarOptions = ref({
   plugins: [
@@ -534,6 +554,18 @@ a {
 
 .fc-theme-standard .fc-scrollgrid {
   border: none;
+}
+.isLoading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(148, 142, 142, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .fc .fc-toolbar-title {

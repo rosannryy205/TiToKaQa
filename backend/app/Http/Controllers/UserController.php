@@ -6,17 +6,11 @@ use App;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
-use App\Mail\VerifyCodeMail;
 use Exception;
-use Svg\Tag\Rect;
 use Illuminate\Support\Facades\Storage;
-
-use function Laravel\Prompts\error;
-
 class UserController extends Controller
 {
     /**
@@ -78,7 +72,7 @@ class UserController extends Controller
             'password' => bcrypt($request->password),
             'address' => $request->address ?? '',
             'fullname' => $request->fullname ?? '',
-            'role' => 'user'
+
         ];
 
 
@@ -117,8 +111,8 @@ class UserController extends Controller
         }
 
         // Tạo user và đăng nhập
-        $user = User::create(array_merge($cached['data'], ['role' => 'user']));
-
+        $user = User::create(array_merge($cached['data']));
+        $user->assignRole('khachhang');
         Auth::login($user);
         $token = $user->createToken('auth')->plainTextToken;
 
@@ -133,7 +127,7 @@ class UserController extends Controller
                 'id' => $user->id,
                 'username' => $user->username,
                 'email' => $user->email,
-                'role' => $user->role,
+                'role' => $user->getRoleNames()->first()
             ],
             'token' => $token,
         ]);
@@ -176,7 +170,7 @@ class UserController extends Controller
                 'username' => $user->username,
                 'email' => $user->email,
                 'phone' => $user->phone,
-                'role' => $user->role
+                'role' => $user->getRoleNames()->first()
             ],
             'token' => $token
         ]);
