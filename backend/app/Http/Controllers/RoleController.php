@@ -52,7 +52,7 @@ class RoleController extends Controller
     {
         $request->validate([
             'role_id' => 'required|exists:roles,id',
-            'permissions' => 'required|array',
+            'permissions' => 'nullable|array',
         ]);
         $role = Role::find($request->role_id);
         $validPermissions = Permission::whereIn('name', $request->permissions)->pluck('name')->toArray();
@@ -61,4 +61,28 @@ class RoleController extends Controller
 
         return response()->json(['message' => 'Cập nhật quyền thành công']);
     }
+
+    public function createRoleWithPermissions(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|unique:roles,name',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string|exists:permissions,name',
+        ]);
+
+        $role = Role::create([
+            'name' => $request->name,
+        ]);
+
+        if ($request->has('permissions')) {
+            $role->syncPermissions($request->permissions);
+        }
+
+        return response()->json([
+            'message' => 'Tạo vai trò và gán quyền thành công',
+            'role' => $role,
+            'permissions' => $role->permissions->pluck('name'),
+        ]);
+    }
+
 }
