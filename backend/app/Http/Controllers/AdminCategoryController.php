@@ -201,6 +201,17 @@ class AdminCategoryController extends Controller
     {
         $category = Category::findOrFail($id);
 
+        // Tìm danh mục mặc định
+        $defaultCategory = Category::where('default', 1)->first();
+
+        if (!$defaultCategory) {
+            return response()->json(['message' => 'Không tìm thấy danh mục mặc định'], 404);
+        }
+
+        if ($category->id == $defaultCategory->id) {
+            return response()->json(['message' => 'Không thể xoá danh mục mặc định'], 400);
+        }
+
         // Nếu là danh mục cha, cập nhật parent_id của con thành null
         if ($category->children()->count() > 0) {
             foreach ($category->children as $child) {
@@ -209,10 +220,17 @@ class AdminCategoryController extends Controller
             }
         }
 
-        $category->delete(); // soft delete danh mục cha
+        // Cập nhật các món ăn thuộc danh mục bị xoá sang danh mục mặc định
+        \App\Models\Food::where('category_id', $category->id)->update([
+            'category_id' => $defaultCategory->id
+        ]);
 
-        return response()->json(['message' => 'Đã xoá danh mục cha và cập nhật danh mục con']);
+        // Xoá mềm danh mục
+        $category->delete();
+
+        return response()->json(['message' => 'Đã xoá danh mục và chuyển món ăn sang danh mục mặc định']);
     }
+
 
 
     public function deleteMultiple(Request $request)

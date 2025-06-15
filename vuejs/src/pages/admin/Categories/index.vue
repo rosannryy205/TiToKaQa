@@ -2,7 +2,7 @@
   <h3 class="title">Quản lý danh mục</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <router-link :to="{ name: 'insert-category' }" class="btn btn-add">+ Thêm danh mục</router-link>
+    <router-link :to="{ name: 'insert-food-category' }" class="btn btn-add">+ Thêm danh mục</router-link>
 
     <span class="vd">Tìm kiếm</span>
     <input type="text" v-model="searchKeyword" class="custom-input" placeholder="Tìm danh mục..." />
@@ -51,7 +51,7 @@
 
             <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
             <td class="d-flex justify-content-center gap-2 flex-wrap">
-              <router-link :to="{ name: 'update-category', params: { id: item.id } }" class="btn btn-outline btn-sm">
+              <router-link :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-outline btn-sm">
                 Sửa
               </router-link>
               <button class="btn btn-danger-delete btn-sm" @click="handleDelete(item.id)">Xoá</button>
@@ -71,7 +71,7 @@
 
             <td>{{ item.name }}</td>
             <td class="d-flex justify-content-center gap-2 flex-wrap">
-              <router-link :to="{ name: 'update-category', params: { id: child.id } }" class="btn btn-outline btn-sm">
+              <router-link :to="{ name: 'update-food-category', params: { id: child.id } }" class="btn btn-outline btn-sm">
                 Sửa
               </router-link>
               <button class="btn btn-danger-delete btn-sm" @click="handleDelete(child.id)">Xoá</button>
@@ -98,8 +98,8 @@
     </ul>
   </nav>
 
-  <div class="mt-2 d-flex justify-content-end">
-    <button class="btn btn-danger-delete" @click="handleDeleteSelected" :disabled="selectedIds.length === 0">
+  <div class="mt-2 d-flex justify-content-start">
+    <button class="btn btn-danger-delete delete_desktop" @click="handleDeleteSelected" :disabled="selectedIds.length === 0">
       Xoá đã chọn ({{ selectedIds.length }})
     </button>
   </div>
@@ -144,6 +144,7 @@ export default {
     const selectedParent = ref('')
     const searchKeyword = ref('')
     const selectedIds = ref([])
+    const isLoading = ref(true) 
 
 
     const fetchCategories = async () => {
@@ -404,6 +405,70 @@ export default {
 .btn-outline:hover {
   background-color: #eee;
   color: #333;
+}
+.btn-add {
+  background: none;
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+}
+
+.btn-add:hover {
+  background-color: #c92c3c;
+  color: #fff;
+}
+
+.btn-update {
+  background: none;
+  color: #ab9c00;
+  border: 1px solid #ab9c00;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+}
+
+.btn-update:hover {
+  background-color: #ab9c00;
+  color: #fff;
+}
+
+.btn-outline {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 4px 10px;
+  border-radius: 4px;
+  color: #555;
+}
+
+.btn-outline:hover {
+  background-color: #eee;
+  color: #333;
+}
+
+.btn-clean {
+  background-color: transparent !important;
+  border: 1px solid #c92c3c;
+  color: #c92c3c;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+}
+
+.btn-clean:hover {
+  background-color: #c92c3c !important;
+  color: white !important;
+}
+
+.btn-delete {
+  border-color: #c92c3c !important;
+  color: #c92c3c !important;
+}
+
+.btn-delete:hover {
+  background-color: #c92c3c !important;
+  color: white !important;
 }
 
 @media (max-width: 768px) {

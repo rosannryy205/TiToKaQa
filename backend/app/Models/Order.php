@@ -26,6 +26,7 @@ class Order extends Model
         'guest_address',
         'order_time',
         'order_status',
+        'type_order',
 
     ];
     public function details()
@@ -36,11 +37,14 @@ class Order extends Model
     public function tables()
     {
         return $this->belongsToMany(Table::class, 'reservation_tables')
-                    ->withPivot('reserved_from', 'reserved_to');
+            ->withPivot('reserved_from', 'reserved_to');
     }
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'order_id');
+    }
 }
