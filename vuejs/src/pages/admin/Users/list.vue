@@ -1,5 +1,7 @@
 <template>
-  <h2 class="mb-3">Quản lý người dùng</h2>
+  <h2 class="mb-3">
+    {{ isEmployee ? 'Danh sách nhân viên' : 'Danh sách khách hàng' }}
+  </h2>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
     <span class="vd">Tìm kiếm </span>
@@ -36,14 +38,18 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in fillterUsers" :key="user.id">
+        <tr v-for="user in allUser" :key="user.id">
           <td>{{ user.id }}</td>
           <td>{{ user.username }}</td>
           <td>{{ user.fullname ? user.fullname : 'Chưa cập nhật' }}</td>
           <td>{{ user.phone ? user.phone : 'Chưa cập nhật' }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.address ? user.address : 'Chưa cập nhật' }}</td>
-          <td>{{ user.role === 'user' ? 'Khách hàng' : '' }}</td>
+          <td>
+            <span v-if="user.roles?.some(r => r.name === 'khachhang')">Khách hàng</span>
+            <span v-else>Nhân viên</span>
+          </td>
+
           <td>
             {{ user.status }}
           </td>
@@ -71,20 +77,20 @@
           1
         </div>
         <div class="col-9">
-          <div class="card-body" v-for="user in fillterUsers" :key="user.id">
+          <div class="card-body" v-for="user in allUser" :key="user.id">
             <h5 class="card-title">{{ user.fullname }}</h5>
             <p class="card-text"><strong>SĐT:</strong>{{ user.phone }}</p>
             <p class="card-text"><strong>Email:</strong>{{ user.email }}</p>
             <p class="card-text"><strong>Vai trò: </strong>
-              <{{ user.role === 'user' ? 'Khách hàng' : '' }} </p>
-                <button class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
-                  data-bs-target="#userDetailModal">
-                  Chi tiết
-                </button>
-                <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
-                  class="btn btn-danger-delete">Khoá</button>
-                <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở
-                  Khóa</button>
+              {{ user.role === 'user' ? 'Khách hàng' : '' }} </p>
+            <button class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
+              data-bs-target="#userDetailModal">
+              Chi tiết
+            </button>
+            <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
+              class="btn btn-danger-delete">Khoá</button>
+            <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở
+              Khóa</button>
           </div>
         </div>
       </div>
@@ -182,7 +188,10 @@
 import { useMenu } from '@/stores/use-menu'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
+import { useRoute } from 'vue-router'
 import { computed } from 'vue'
+import { watch } from 'vue'
+
 useMenu().onSelectedKeys(['admin-roles'])
 
 const selectedUser = ref(null);
@@ -191,43 +200,61 @@ const openUserModal = (user) => {
   selectedUser.value = user;
 };
 const allUser = ref([])
-const selectRole = ref('')
-
+// const selectRole = ref('')
+const route = useRoute()
+const isEmployee = computed(() => {
+  return route.name && String(route.name).includes('employee')
+})
 const fecthAllUser = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/api/user`);
-    const users = response.data.user;
+    const usersData = response.data.user;
 
-    for (const user of users) {
-      if (user.role === 'user') {
-        const orders = user.orders || [];
+    const result = [];
 
-        const success_orders = orders.filter(o => o.order_status === 'Giao thành công').length;
-        const failed_orders = orders.filter(o => o.order_status === 'Giao thất bại').length;
-        const canceled_orders = orders.filter(o => o.order_status === 'Đã hủy').length;
+    for (const item of usersData) {
+      const user = item.user;
+      const roles = item.roles;
 
-        user.success_orders = success_orders;
-        user.failed_orders = failed_orders;
-        user.canceled_orders = canceled_orders;
+      const isCustomer = roles.includes('khachhang');
+      const isEmployeeUser = roles.some(role => ['quanly', 'nhanvien', 'nhanvienkho'].includes(role));
 
-        if (failed_orders >= 5 && user.status !== 'Block') {
-          try {
-            await axios.put(`http://127.0.0.1:8000/api/update/${user.id}`, {
-              status: 'Block'
-            });
-            user.status = 'Block';
-          } catch (error) {
-            console.error(`Lỗi khi block user ${user.id}`, error);
+      if ((isEmployee.value && isEmployeeUser) || (!isEmployee.value && isCustomer)) {
+
+        if (isCustomer) {
+          const orders = user.orders || [];
+
+          const success_orders = orders.filter(o => o.order_status === 'Giao thành công').length;
+          const failed_orders = orders.filter(o => o.order_status === 'Giao thất bại').length;
+          const canceled_orders = orders.filter(o => o.order_status === 'Đã hủy').length;
+
+          user.success_orders = success_orders;
+          user.failed_orders = failed_orders;
+          user.canceled_orders = canceled_orders;
+
+          if (failed_orders >= 5 && user.status !== 'Block') {
+            try {
+              await axios.put(`http://127.0.0.1:8000/api/update/${user.id}`, {
+                status: 'Block'
+              });
+              user.status = 'Block';
+            } catch (error) {
+              console.error(`Lỗi khi block user ${user.id}`, error);
+            }
           }
         }
+
+        result.push(user);
       }
     }
+    allUser.value = result;
 
-    allUser.value = users.filter((u) => u.role === 'user');
   } catch (error) {
-    console.log('Lỗi kìa mày', error);
+    console.log('Lỗi khi fetch user:', error);
   }
 };
+
+
 
 
 const toggleStatus = async (user) => {
@@ -243,14 +270,22 @@ const toggleStatus = async (user) => {
   }
 }
 
-const fillterUsers = computed(() => {
-  if (!selectRole.value) return allUser.value
-  return allUser.value.filter(user => user.role === selectRole.value)
-})
+// const fillterUsers = computed(() => {
+//   if (!selectRole.value) return allUser.value
+//   return allUser.value.filter(user => user.role === selectRole.value)
+// })
 
-onMounted(() => {
-  fecthAllUser()
-})
+watch(route, async (newRoute, oldRoute) => {
+  if (
+    (newRoute.name && String(newRoute.name).includes('employee')) ||
+    (newRoute.name && String(newRoute.name).includes('customer'))
+  ) {
+    await fecthAllUser();
+  }
+}, {
+  deep: true,
+  immediate: true
+});
 </script>
 
 

@@ -1,7 +1,8 @@
 <template v-if="hasPermission('view_role')">
-  <div class="d-flex justify-content-between mb-2">
+  <div class="d-flex justify-content-between">
     <h3>Danh sách vai trò</h3>
-    <button type="button" class="btn btn-add" v-if="hasPermission('create_role')">+Thêm vai trò</button>
+    <router-link :to="'/admin/users/list-role-insert'" class="btn btn-add pt-2"
+      v-if="hasPermission('create_role')">+Thêm vai trò</router-link>
   </div>
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap w-25">
     <span class="vd">Tìm kiếm vai trò</span>
@@ -23,7 +24,8 @@
           <td>{{ index + 1 }}</td>
           <td><router-link :to="`/admin/users/list-role-detail/${item.id}`">{{ item.display_name }}</router-link></td>
           <td class="d-flex justify-content-center gap-2">
-            <router-link :to="`/admin/users/list-role-edit/${item.id}`" class="btn btn-outline" v-if="hasPermission('edit_role')">Sửa</router-link>
+            <router-link :to="`/admin/users/list-role-edit/${item.id}`" class="btn btn-outline"
+              v-if="hasPermission('edit_role')">Sửa</router-link>
             <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_role')">Xoá</button>
           </td>
         </tr>

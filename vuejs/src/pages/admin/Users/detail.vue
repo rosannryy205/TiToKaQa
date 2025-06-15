@@ -1,27 +1,48 @@
 <template>
   <div class="container mt-5">
     <div class="permission-manager-wrapper">
-      <h3 v-if="!isedit">Chi tiết vai trò</h3>
-      <h3 v-else>Chỉnh sửa quyền vai trò</h3>
 
-      <div class="d-flex justify-content-end mb-3" v-if="isedit && hasPermission('edit_role')">
-        <button @click="savePermissions" class="btn btn-outline-success me-2" :disabled="loading">
+
+      <h3 v-if="isinsert">Thêm vai trò</h3>
+      <h3 v-else-if="isedit">Chỉnh sửa quyền vai trò</h3>
+      <h3 v-else>Chi tiết vai trò</h3>
+
+      <div class="d-flex justify-content-end mb-3 flex-wrap" v-if="isedit && hasPermission('edit_role')">
+        <button @click="savePermissions" class="btn btn-outline-success me-2 mb-2 mb-md-0" :disabled="loading">
           <span v-if="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
           <span v-else>Lưu Quyền</span>
         </button>
-        <button @click="resetPermissions" class="btn btn-outline-warning me-2" :disabled="loading || !originalData">
+        <button @click="resetPermissions" class="btn btn-outline-warning me-2 mb-2 mb-md-0"
+          :disabled="loading || !originalData">
           Đặt lại
         </button>
-        <button @click="$router.back()" class="btn btn-outline-dark" :disabled="loading || !originalData">
-          Quay về
-        </button>
+
       </div>
-      <div class="d-flex justify-content-end mb-3" v-else>
-        <button @click="$router.back()" class="btn btn-outline-dark" :disabled="loading || !originalData">
-          Quay về
-        </button>
+      <div class="d-flex justify-content-between align-items-end" v-if="isinsert">
+        <div class="col-md-6">
+          <div class="">
+            <label for="name" class="form-label">
+              Tên vai trò
+            </label>
+            <input type="text" class="form-control rounded" id="name" required v-model="roleName" />
+            <div class="text-muted mb-1" style="font-size: 0.9rem;">
+              <span class="text-danger">* Vai trò phải là không dấu, không cách</span>
+            </div>
+          </div>
+          <button @click="savePermissions" class="btn btn-outline-success">
+            Lưu vai trò
+          </button>
+
+        </div>
+        <div>
+          <button @click="$router.back()" class="btn btn-outline-secondary">
+            Quay về
+          </button>
+        </div>
       </div>
-      <div class="table-responsive mt-3 permission-manager">
+
+
+      <div class="mt-3 permission-manager">
         <table class="table table-borderless table-hover">
           <thead class="table-light">
             <tr>
@@ -45,57 +66,75 @@
             </tr>
             <template v-else>
               <tr v-for="(moduleDisplayName, moduleKey) in moduleMap" :key="moduleKey">
-                <td>{{ moduleDisplayName }}</td>
-                <td>
+                <td data-label="Quyền">{{ moduleDisplayName }}</td>
+                <td data-label="Xem">
                   <div class="checkbox-container">
                     <input class="checkbox-input" type="checkbox" :id="`view-${moduleKey}-${currentRoleId}`"
-                      v-model="currentRoleAbilities[moduleKey].view" @change="handleAbilityChange(moduleKey)" :disabled="!isedit || !hasPermission('edit_role')" />
+                      v-model="currentRoleAbilities[moduleKey].view" @change="handleAbilityChange(moduleKey)" :disabled="(isedit && !hasPermission('edit_role')) ||
+                        (isinsert && !hasPermission('create_role')) ||
+                        (!isedit && !isinsert)
+                        " />
                     <label class="checkbox" :for="`view-${moduleKey}-${currentRoleId}`"> <span
                         class="line line1"></span>
                       <span class="line line2"></span>
                     </label>
                   </div>
                 </td>
-                <td v-if="moduleKey !== 'dashboard'">
+                <td v-if="moduleKey !== 'dashboard'" data-label="Thêm">
                   <div class="checkbox-container">
                     <input class="checkbox-input" type="checkbox" :id="`create-${moduleKey}-${currentRoleId}`"
-                      v-model="currentRoleAbilities[moduleKey].create" @change="handleAbilityChange(moduleKey)" :disabled="!isedit || !hasPermission('edit_role')" />
+                      v-model="currentRoleAbilities[moduleKey].create" @change="handleAbilityChange(moduleKey)
+                        " :disabled="(isedit && !hasPermission('edit_role')) ||
+                        (isinsert && !hasPermission('create_role')) ||
+                        (!isedit && !isinsert)
+                        " />
                     <label class="checkbox" :for="`create-${moduleKey}-${currentRoleId}`"> <span
                         class="line line1"></span>
                       <span class="line line2"></span>
                     </label>
                   </div>
                 </td>
-                <td v-else></td>
+                <td v-else data-label="Thêm"></td>
 
-                <td v-if="moduleKey !== 'dashboard' && moduleKey !== 'order'">
+                <td v-if="moduleKey !== 'dashboard' && moduleKey !== 'order'" data-label="Sửa">
                   <div class="checkbox-container">
                     <input class="checkbox-input" type="checkbox" :id="`edit-${moduleKey}-${currentRoleId}`"
-                      v-model="currentRoleAbilities[moduleKey].edit" @change="handleAbilityChange(moduleKey)" :disabled="!isedit || !hasPermission('edit_role')" />
+                      v-model="currentRoleAbilities[moduleKey].edit" @change="handleAbilityChange(moduleKey)" :disabled="(isedit && !hasPermission('edit_role')) ||
+                        (isinsert && !hasPermission('insert_role')) ||
+                        (!isedit && !isinsert)
+                        " />
                     <label class="checkbox" :for="`edit-${moduleKey}-${currentRoleId}`"> <span
                         class="line line1"></span>
                       <span class="line line2"></span>
                     </label>
                   </div>
                 </td>
-                <td v-else></td>
+                <td v-else data-label="Sửa"></td>
 
                 <td
-                  v-if="moduleKey !== 'dashboard' && moduleKey !== 'order' && moduleKey !== 'booking' && moduleKey !== 'employee' && moduleKey !== 'customer'">
+                  v-if="moduleKey !== 'dashboard' && moduleKey !== 'order' && moduleKey !== 'booking' && moduleKey !== 'employee' && moduleKey !== 'customer'"
+                  data-label="Xoá">
                   <div class="checkbox-container">
                     <input class="checkbox-input" type="checkbox" :id="`delete-${moduleKey}-${currentRoleId}`"
-                      v-model="currentRoleAbilities[moduleKey].delete" @change="handleAbilityChange(moduleKey)" :disabled="!isedit || !hasPermission('edit_role')" />
+                      v-model="currentRoleAbilities[moduleKey].delete" @change="handleAbilityChange(moduleKey)"
+                      :disabled="(isedit && !hasPermission('edit_role')) ||
+                        (isinsert && !hasPermission('create_role')) ||
+                        (!isedit && !isinsert)
+                        " />
                     <label class="checkbox" :for="`delete-${moduleKey}-${currentRoleId}`"> <span
                         class="line line1"></span>
                       <span class="line line2"></span>
                     </label>
                   </div>
                 </td>
-                <td v-else></td>
-                <td>
+                <td v-else data-label="Xoá"></td>
+                <td data-label="Toàn quyền">
                   <div class="checkbox-container">
                     <input class="checkbox-input" type="checkbox" :id="`all-${moduleKey}-${currentRoleId}`"
-                      v-model="currentRoleAbilities[moduleKey].all" @change="toggleAllAbilities(moduleKey)" :disabled="!isedit || !hasPermission('edit_role')" />
+                      v-model="currentRoleAbilities[moduleKey].all" @change="toggleAllAbilities(moduleKey)" :disabled="(isedit && !hasPermission('edit_role')) ||
+                        (isinsert && !hasPermission('create_role')) ||
+                        (!isedit && !isinsert)
+                        " />
                     <label class="checkbox" :for="`all-${moduleKey}-${currentRoleId}`"> <span class="line line1"></span>
                       <span class="line line2"></span>
                     </label>
@@ -105,7 +144,6 @@
             </template>
           </tbody>
         </table>
-
       </div>
     </div>
   </div>
@@ -116,7 +154,7 @@ import axios from 'axios';
 import { onMounted } from 'vue';
 import { computed } from 'vue';
 import { ref, watch, nextTick } from 'vue';
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router';
 import { toast } from 'vue3-toastify';
 import { Permission } from '@/stores/permission'
 
@@ -130,10 +168,15 @@ export default {
     const statusMessage = ref('');
     const statusType = ref('');
     const route = useRoute();
+    const roleName = ref('');
+    const router = useRouter();
     const isedit = computed(() => {
-    return route.name && String(route.name).includes('edit')
-  })
-  const userId = ref(null)
+      return route.name && String(route.name).includes('edit')
+    })
+    const isinsert = computed(() => {
+      return route.name && String(route.name).includes('insert')
+    })
+    const userId = ref(null)
     const userString = localStorage.getItem('user')
     if (userString) {
       const user = JSON.parse(userString)
@@ -141,7 +184,7 @@ export default {
         userId.value = user.id
       }
     }
-      const { hasPermission, permissions } = Permission(userId)
+    const { hasPermission, permissions } = Permission(userId)
 
     //key -> tên hiển thị
     const moduleMap = {
@@ -268,6 +311,7 @@ export default {
       loading.value = true;
       try {
         const permissionsToSave = [];
+
         for (const moduleKey in moduleMap) {
           const abilities = currentRoleAbilities.value[moduleKey];
           for (const actionKey of actionKeys) {
@@ -277,24 +321,39 @@ export default {
           }
         }
 
-        const payload = {
-          role_id: currentRoleId.value,
-          permissions: permissionsToSave,
-        };
+        if (isinsert.value) {
+          if (!roleName.value.trim()) {
+            toast.error('Vui lòng nhập tên vai trò.');
+            loading.value = false;
+            return;
+          }
 
-        await axios.put('http://127.0.0.1:8000/api/role-permission-update', payload);
+          await axios.post('http://127.0.0.1:8000/api/role-permission-create', {
+            name: roleName.value,
+            permissions: permissionsToSave,
+          });
 
-        localStorage.setItem('toastMessage', 'Lưu quyền thành công!');
-        window.location.reload();
+          toast.success('Thêm vai trò thành công!');
+          router.back();
+        } else if (isedit.value) {
+          const payload = {
+            role_id: currentRoleId.value,
+            permissions: permissionsToSave,
+          };
 
-        await fetchPermissions(currentRoleId.value);
+          await axios.put('http://127.0.0.1:8000/api/role-permission-update', payload);
+
+          localStorage.setItem('toastMessage', 'Cập nhật quyền thành công!');
+          window.location.reload();
+        }
       } catch (error) {
-        console.error('Lỗi khi lưu quyền:', error);
-        toast.error('Lỗi khi lưu quyền');
+        console.error('Lỗi khi lưu vai trò/quyền:', error);
+        toast.error('Lỗi khi lưu vai trò/quyền');
       } finally {
         loading.value = false;
       }
     };
+
 
     const resetPermissions = () => {
       if (confirm('Bạn có chắc chắn muốn đặt lại tất cả quyền về trạng thái ban đầu (dựa trên dữ liệu tải lần cuối)?')) {
@@ -345,7 +404,9 @@ export default {
       originalData,
       isedit,
       hasPermission,
-      userId
+      userId,
+      isinsert,
+      roleName
     };
   },
 };
