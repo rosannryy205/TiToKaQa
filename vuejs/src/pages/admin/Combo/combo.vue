@@ -1,10 +1,10 @@
 <template>
-  <h3 class="title">Quản lý danh mục</h3>
+  <h3 class="title">Quản Lý Combo</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
     <router-link :to="{ name: 'insert-combo' }" class="btn btn-add"> + Thêm Combo </router-link>
 
-    <input type="text" class="clean-input" placeholder="Tìm kiếm" aria-label="Tìm kiếm" />
+    <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
 
     <select class="custom-select" style="max-width: 80px">
       <option selected>5</option>
@@ -24,7 +24,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in combo" :key="index">
+        <tr v-for="(item, index) in filteredCombos" :key="index">
           <td class="d-none d-sm-table-cell"><input type="checkbox" /></td>
           <td>
             <img :src="`/img/food/${item.image}`" :alt="item.name" class="me-2 img_thumbnail" />
@@ -62,8 +62,6 @@
     </table>
   </div>
 
-  <button class="btn btn-clean btn-delete">Xoá</button>
-
   <!--modal-->
   <div
     class="modal fade"
@@ -75,17 +73,8 @@
     <div class="modal-dialog modal-dialog-scrollable modal-xl">
       <div class="modal-content shadow-sm rounded-3">
         <div class="modal-header bg-light">
-          <h5 class="modal-title fw-semibold text-danger" id="menuModalLabel">
-            Chi tiết combo
-          </h5>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          >
-            &times;
-          </button>
+          <h5 class="modal-title fw-semibold text-danger" id="menuModalLabel">Chi tiết combo</h5>
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">&times;</button>
         </div>
 
         <div class="modal-body">
@@ -125,8 +114,8 @@
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td colspan="4" class="text-end fw-semibold">Tổng giá combo: </td>
-                    <td class="fw-bold text-danger"> {{ formatNumber(comboTotal) }} đ</td>
+                    <td colspan="4" class="text-end fw-semibold">Tổng giá combo:</td>
+                    <td class="fw-bold text-danger">{{ formatNumber(comboTotal) }} đ</td>
                   </tr>
                 </tfoot>
               </table>
@@ -143,20 +132,19 @@
       </div>
     </div>
   </div>
-
-
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import numeral from 'numeral'
-import { useMenu } from '@/stores/use-menu'
 import { toast } from 'vue3-toastify'
+import { useMenu } from '@/stores/use-menu'
 
 useMenu().onSelectedKeys(['admin-roles'])
 
 const combo = ref([])
+const searchQuery = ref('')
 const selectedCombo = ref(null)
 
 function formatNumber(value) {
@@ -178,34 +166,38 @@ const comboTotal = computed(() => {
   )
 })
 
+const filteredCombos = computed(() => {
+  const keyword = searchQuery.value.trim().toLowerCase()
+  if (!keyword) return combo.value
+  return combo.value.filter((p) =>
+    p.name?.toLowerCase().includes(keyword)
+  )
+})
+
 async function fetchCombos() {
   try {
     const res = await axios.get('http://127.0.0.1:8000/api/admin/combos')
     combo.value = res.data
   } catch (error) {
-    console.log(error)
+    console.error(error)
   }
 }
 
 async function deleteCombo(comboId) {
-    try {
-      if (!confirm("Bạn có chắc muốn xóa combo này?")) return;
-      if (!comboId) {
-        console.log("Không tìm thấy Id Combo !");
-        return
-      }
-      await axios.delete(`http://127.0.0.1:8000/api/admin/combos/delete/${comboId}'`)
-      toast.success("Đã xóa combo thành công !")
-      combo.value = combo.value.filter(combo => combo.id !== comboId);
-    } catch (error) {
-      console.log(error);
-      toast.warning("Lỗi khi xóa combo: " + error.message);
-    }
+  try {
+    if (!confirm('Bạn có chắc muốn xóa combo này?')) return
+    await axios.delete(`http://127.0.0.1:8000/api/admin/combos/delete/${comboId}`)
+    combo.value = combo.value.filter((c) => c.id !== comboId)
+    toast.success('Đã xóa combo thành công!')
+  } catch (error) {
+    console.error(error)
+    toast.warning('Lỗi khi xóa combo: ' + error.message)
+  }
 }
+
 onMounted(() => {
   fetchCombos()
 })
-
 </script>
 
 <style scoped>

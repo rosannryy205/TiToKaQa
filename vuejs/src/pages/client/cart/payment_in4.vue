@@ -278,6 +278,10 @@ export default {
       loadCart,
       discountShipAmount,
     } = Discounts()
+    onMounted(async () => {
+  await getAllDiscount({ source: 'system' })  
+  // console.log('Danh sách voucher hệ thống:', discounts.value)
+})
 
     const {
       cartItems,
@@ -545,7 +549,6 @@ export default {
       selectedDiscount,
       removeDiscountCode,
       showMoreDiscounts,
-      getAllDiscount,
       handleDiscountInput,
       applyDiscountCode,
       discountFoodAmount,
