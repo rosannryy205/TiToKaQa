@@ -85,8 +85,14 @@ const admin = [
         meta: { requiresAdmin: true },
       },
       {
-        path: "users/list",
-        name: "users-list",
+        path: "users/list-customer",
+        name: "users-list-customer",
+        component: () => import("../pages/admin/Users/list.vue"),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: "users/list-employee",
+        name: "users-list-employee",
         component: () => import("../pages/admin/Users/list.vue"),
         meta: { requiresAdmin: true },
       },
@@ -105,6 +111,12 @@ const admin = [
       {
         path: "users/list-role-edit/:id",
         name: "users-list-role-edit",
+        component: () => import("../pages/admin/Users/detail.vue"),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: "users/list-role-insert",
+        name: "users-list-role-insert",
         component: () => import("../pages/admin/Users/detail.vue"),
         meta: { requiresAdmin: true },
       },
