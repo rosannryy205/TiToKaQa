@@ -37,20 +37,37 @@
             </div>
           </div>
 
-          <!-- <div class="bg-light rounded-3 p-3 text-center mb-3">
-            <div class="fw-bold">POP MART MEMBER</div>
-            <div class="d-flex justify-content-around mt-2">
-              <div>
-                <div class="fw-bold fs-5">50</div>
-                <div class="text-muted small">Điểm</div>
-              </div>
-              <div>
-                <div class="fw-bold fs-5">0</div>
-                <div class="text-muted small">Coupons</div>
-              </div>
-            </div>
-            <button class="btn btn-outline-dark btn-sm mt-3 rounded-pill px-4">Rewards</button>
-          </div> -->
+          <div class="bg-light rounded-3 p-3 text-center mb-3">
+    <div style="color: #c92c3c;" class="fw-bold">Thành Viên TITOKAQA <img class="logo-member" src="/public/img/logomember.png" alt="logo"></div>
+
+    <div class="d-flex justify-content-around mt-3">
+      <!--point-->
+      <div class="d-flex flex-column align-items-center">
+        <div class="fw-medium">{{ form.rank_points }} Điểm</div>
+      </div>
+
+      <!--rank-->
+      <div class="d-flex flex-column align-items-center">
+        <div class="d-flex align-items-center gap-1">
+          <div class="fw-medium" :style="{ color: rankColor }">
+            {{ form.rank }}
+          </div>
+          <img :src="rankImage" alt="gif-rank" class="gif-rank" />
+        </div>
+      </div>
+    </div>
+
+    <!--đổixu-->
+    <router-link to="/coins-reward" >
+    <button
+      class="btn btn-outline-dark btn-sm mt-3 rounded-pill px-4 d-flex align-items-center justify-content-center gap-1 mx-auto fw-bold"
+    >
+      Đổi xu {{ form.usable_points }}
+      <img class="coins-gif" src="/public/img/item/coins.gif" alt="coins-gif" />
+    </button>
+  </router-link>
+  </div>
+
 
           <ul class="list-group list-group-flush">
             <router-link to="/update-user" class="text-decoration-none text-dark">
@@ -211,6 +228,9 @@ export default {
           form.value.phone = currentUserData.phone || "";
           form.value.address = currentUserData.address || "";
           form.value.username = currentUserData.username || "";
+          form.value.rank_points = currentUserData.rank_points || "";
+          form.value.usable_points = currentUserData.usable_points || "";
+          form.value.rank = currentUserData.rank || "";
 
           let avatarPath = data.avatar_url || currentUserData.avatar;
 
@@ -306,8 +326,28 @@ export default {
       if (username?.trim()) return username.trim().charAt(0).toUpperCase();
       return "?";
     };
-
     const loading = ref(true);
+    //=========================
+    // RANK AND PONTS
+    //=========================
+    const rankImage = computed(() => {
+  if (form.value.rank_points >= 3000) {
+    return '/public/img/item/rank-diamond.gif'
+  } else if (form.value.rank_points >= 1000) {
+    return '/public/img/item/rank-gold.gif'
+  } else {
+    return '/public/img/item/rank-silver.gif'
+  }
+})
+const rankColor = computed(() => {
+  if (form.value.rank_points >= 3000) {
+    return '#00d0f0' // diamond
+  } else if (form.value.rank_points >= 1000) {
+    return '#f5f500' // gold
+  } else {
+    return '#9a9a9a' // silver
+  }
+})
 
     onMounted(() => {
       personally();
@@ -321,7 +361,10 @@ export default {
       handleLogout,
       getInitial,
       loading,
-      avatarUrl
+      avatarUrl,
+      //rank
+      rankColor,
+      rankImage
     };
   },
 };
@@ -425,8 +468,25 @@ li.list-group-item {
 @media (min-width: 768px) {
   .border-md-start {
     border-top: none !important;
-    /* Xoá border-top khi desktop */
     border-left: 1px solid #dee2e6 !important;
   }
 }
+
+/**rank gif */
+.gif-rank{
+  width: 40px;
+  height:40px;
+}
+#app > div > div.container.mt-5.fade-in > div > div.col-12.col-md-4.col-lg-3.mb-4.mb-md-0 > div > div.bg-light.rounded-3.p-3.text-center.mb-3 > div.d-flex.justify-content-around.mt-3 > div:nth-child(1) > div.fw-medium{
+  padding: 9px;
+}
+/**coins gif */
+.coins-gif{
+  width: 35px;
+  height:35px;
+}
+.logo-member{
+  width: 25px;
+}
+
 </style>

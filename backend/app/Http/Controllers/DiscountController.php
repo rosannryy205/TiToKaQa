@@ -7,11 +7,15 @@ use Illuminate\Http\Request;
 
 class DiscountController extends Controller
 {
-    public function getAllDiscounts()
+    public function getAllDiscounts(Request $request)
     {
         try {
-            $discounts = Discount::all();
-            return response()->json($discounts);
+            $query = Discount::query();
+           
+            if ($request->has('source')) {
+                $query->where('source', $request->get('source'));
+            }
+            return response()->json($query->get());
         } catch (\Throwable $e) {
             return response()->json(['mess' => 'Lỗi khi lấy chi tiết món ăn', 'error' => $e->getMessage()], 500);
         }

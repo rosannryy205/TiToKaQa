@@ -22,8 +22,9 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('fullname')->nullable();
             $table->enum('status', ['active', 'inactive']) -> default('active');
-            $table->integer('point')->default(500);
-            $table->string('rank')->default('Thường');
+            $table->integer('rank_points')->default(500);
+            $table->integer('usable_points')->default(0);
+            $table->string('rank')->default('Bạc');
             $table->integer('verify_code')->nullable();
             $table->timestamp('verify_expiry')->nullable()->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->enum('role', ['user', 'admin']) -> default('user');
