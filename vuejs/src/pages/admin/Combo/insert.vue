@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('create_combo')">
   <div class="d-flex justify-content-between">
     <h3 class="text-danger fw-bold">Thêm Combo</h3>
     <div>
@@ -13,21 +13,11 @@
         <div class="card-body">
           <div class="row">
             <div class="col mb-3">
-              <label for="name" class="form-label"
-                >Tên Combo <span class="text-danger">*</span></label
-              >
-              <input
-                v-model="comboName"
-                type="text"
-                class="form-control rounded-0"
-                id="comboName"
-                required
-              />
+              <label for="name" class="form-label">Tên Combo <span class="text-danger">*</span></label>
+              <input v-model="comboName" type="text" class="form-control rounded-0" id="comboName" required />
             </div>
             <div class="col mb-3">
-              <label for="category" class="form-label"
-                >Trạng thái <span class="text-danger">*</span></label
-              >
+              <label for="category" class="form-label">Trạng thái <span class="text-danger">*</span></label>
               <div class="input-group">
                 <select class="form-select rounded-0" id="category" v-model="status" required>
                   <option disabled value="">Chọn trạng thái cho món ăn</option>
@@ -39,13 +29,11 @@
           </div>
           <div class="mb-3">
             <label for="description" class="form-label">Mô tả</label>
-            <textarea class="form-control rounded-0" id="description" rows="3"
-            v-model="description"></textarea>
+            <textarea class="form-control rounded-0" id="description" rows="3" v-model="description"></textarea>
           </div>
 
           <div class="mb-3">
-            <div style="max-height: 200px; overflow-y: auto;"
-            class="table-responsive d-none d-lg-block" >
+            <div style="max-height: 200px ; overflow-y: auto;" class="table-responsive d-none d-lg-block">
               <table class="table table-bordered">
                 <thead class="table-light">
                   <tr>
@@ -61,31 +49,19 @@
                       <input type="checkbox" v-model="food.checked" />
                     </td>
                     <td>
-                      <img
-                        :src="`/img/food/${food.image}`"
-                        :alt="food.name"
-                        class="me-2 img_thumbnail"
-                      />
+                      <img :src="`/img/food/${food.image}`" :alt="food.name" class="me-2 img_thumbnail" />
                       {{ food.name }}
                     </td>
                     <td>{{ formatNumber(food.price) }} VNĐ</td>
                     <td>
                       <div class="qty-control px-2 py-1">
-                        <button
-                          type="button"
-                          class="btn-sm"
-                          @click="decreaseQuantity(food)"
-                          style="background-color: #fff"
-                        >
+                        <button type="button" class="btn-sm" @click="decreaseQuantity(food)"
+                          style="background-color: #fff">
                           -
                         </button>
                         <span>{{ food.quantity }}</span>
-                        <button
-                          type="button"
-                          class="btn-sm"
-                          @click="increaseQuantity(food)"
-                          style="background-color: #fff"
-                        >
+                        <button type="button" class="btn-sm" @click="increaseQuantity(food)"
+                          style="background-color: #fff">
                           +
                         </button>
                       </div>
@@ -114,25 +90,13 @@
               <label for="price" class="form-label">
                 Giá bán <span class="text-danger">*</span>
               </label>
-              <input
-                v-model="salePrice"
-                type="number"
-                class="form-control rounded-0"
-                id="price"
-                min="0"
-                required
-              />
+              <input v-model="salePrice" type="number" class="form-control rounded-0" id="price" min="0" required />
             </div>
 
             <div class="col mb-3">
               <label for="originPrice" class="form-label"> Giá gốc </label>
-              <input
-                :value="originPriceFormatted"
-                type="text"
-                class="form-control rounded-0"
-                id="originPriceFormatted"
-                disabled
-              />
+              <input :value="originPriceFormatted" type="text" class="form-control rounded-0" id="originPriceFormatted"
+                disabled />
             </div>
           </div>
         </div>
@@ -140,14 +104,8 @@
       <div class="card rounded-0 border-0 shadow">
         <div class="card-body">
           <div class="mb-3">
-            <label for="image" class="form-label"
-              >Ảnh Combo <span class="text-danger">*</span></label
-            >
-            <input 
-            class="form-control rounded-0" 
-            type="file" 
-            id="image" 
-            @change="handleImage"/>
+            <label for="image" class="form-label">Ảnh Combo <span class="text-danger">*</span></label>
+            <input class="form-control rounded-0" type="file" id="image" @change="handleImage" />
             <div class="mb-3 p-2 text-center">
               <img :src="imagePreview" v-if="imagePreview" class="w-50" />
             </div>
@@ -156,26 +114,13 @@
       </div>
     </div>
   </form>
-  <button type="button" class="btn btn-danger-save"
-  @click="createCombosByAdmin"
-  >+ Thêm Combo</button>
-  <div
-    class="modal fade"
-    id="menuModal"
-    tabindex="-1"
-    aria-labelledby="menuModalLabel"
-    aria-hidden="true"
-  >
+  <button type="button" class="btn btn-danger-save" @click="createCombosByAdmin">+ Thêm Combo</button>
+  <div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-xl">
       <div class="modal-content shadow-sm rounded-3">
         <div class="modal-header">
           <h5 class="modal-title fw-semibold" id="menuModalLabel">Danh sách món</h5>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          >
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close">
             &times;
           </button>
         </div>
@@ -211,13 +156,8 @@
               <tbody id="menuList">
                 <tr v-for="food in filteredCombos" :key="food.id" :value="food.name">
                   <td>
-                    <input
-                      type="checkbox"
-                      class="form-check-input menu-checkbox"
-                      :value="food.id"
-                      @change="toggleSelect(food)"
-                      :checked="isSelected(food.id)"
-                    />
+                    <input type="checkbox" class="form-check-input menu-checkbox" :value="food.id"
+                      @change="toggleSelect(food)" :checked="isSelected(food.id)" />
                   </td>
                   <td class="text-start">{{ food.name }}</td>
                   <td>{{ formatNumber(food.price) }} VND</td>
@@ -245,10 +185,22 @@ import numeral from 'numeral'
 import { FoodList } from '@/stores/food.js'
 import { Modal } from 'bootstrap'
 import { toast } from 'vue3-toastify'
+import { Permission } from '@/stores/permission'
 
 const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
 
 const formatNumber = (value) => numeral(value).format('0,0')
+
+
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
 
 // ============================
 // FETCH DATA
@@ -445,6 +397,7 @@ onMounted(() => {
 })
 </script>
 
+
 <style>
 .themsp {
   width: 200px;
@@ -471,6 +424,7 @@ onMounted(() => {
   background-color: #c92c3c;
   color: #fff;
 }
+
 .btn-danger-save {
   background: none;
   color: #1d54bc;
@@ -488,13 +442,16 @@ onMounted(() => {
   background-color: #1d54bc;
   color: #fff;
 }
+
 .form-select:focus {
   border-color: #c92c3c;
   box-shadow: none;
 }
-#menuModal > div > div > div.modal-header > button {
+
+#menuModal>div>div>div.modal-header>button {
   background-color: #fff !important;
 }
+
 #menuModal .modal-header .btn-outline-secondary {
   border: none !important;
   background: none !important;

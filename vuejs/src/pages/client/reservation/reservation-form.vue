@@ -117,7 +117,7 @@
             <div class="mb-3">
               <label class="form-label fw-bold">Phương thức thanh toán</label>
               <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY"
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="VNPAY"
                 v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
@@ -125,7 +125,7 @@
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO"
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
                 v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
@@ -133,7 +133,7 @@
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="cod" value="Thanh toán COD"
+              <input class="form-check-input" type="radio" name="payment" id="cod" value="COD"
                 v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="cod">
                 <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
@@ -239,10 +239,10 @@ export default {
     };
 
     const paymentMethod = ref('')
-    const check_payment = async () => {
+    const check_payment = async (orderId) => {
       try {
         if (!paymentMethod.value) {
-          alert('Vui lòng chọn phương thức thanh toán!')
+          toast.error('Vui lòng chọn phương thức thanh toán!')
           return
         }
         const orderData = {
@@ -273,38 +273,50 @@ export default {
         if (orderData.discount_id) {
           await axios.post("http://localhost:8000/api/discounts/use", {
             discount_id: orderData.discount_id,
+            order_id: orderId,
           });
         }
         localStorage.setItem("payment_method", paymentMethod.value);
         const cartKey = `cart_${userId}_reservation_${orderId}`;
         localStorage.removeItem(cartKey);
 
-        if (paymentMethod.value === "Thanh toán VNPAY" || paymentMethod.value === "Thanh toán MOMO") {
-          const paymentRes = await axios.post("http://127.0.0.1:8000/api/payment", {
-            order_id: orderId,
-            amount: finalTotal.value,
-          });
-          if (paymentRes.data.payment_url) {
-            window.location.href = paymentRes.data.payment_url;
+        if (paymentMethod.value === 'VNPAY') {
+          if (!orderId || finalTotal.value <= 0) {
+            toast.error('Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.');
             return;
-          } else {
-            alert("Không tạo được link thanh toán.");
           }
-
-        }
-        if (paymentMethod.value === "Thanh toán COD") {
-          await new Promise((resolve) => setTimeout(resolve, 300));
-          await axios.post("http://127.0.0.1:8000/api/vnpay-return", {
+          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
             order_id: orderId,
-            amount_paid: finalTotal.value,
-            payment_method: "Thanh toán COD",
-            payment_status: "Chưa thanh toán",
-            payment_type: "Thanh toán toàn bộ",
-          });
-          alert("Đặt hàng thành công!");
+            amount: finalTotal.value  + 100000,
+          })
+          if (paymentRes.data && paymentRes.data.payment_url) {
+            localStorage.setItem('payment_method', paymentMethod.value)
+            localStorage.removeItem(cartKey)
+            window.location.href = paymentRes.data.payment_url
+          } else {
+            toast.error('Không tạo được link thanh toán VNPAY.')
+          }
+          return
         }
-
-        router.push("/payment-result");
+        if (paymentMethod.value === 'MOMO') {
+          toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          localStorage.setItem('payment_method', paymentMethod.value);
+          localStorage.removeItem(cartKey);
+          // router.push('/payment-result');
+          return
+        }
+        if (paymentMethod.value === 'COD') {
+          await new Promise((resolve) => setTimeout(resolve, 300))
+          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+            order_id: orderId,
+            amount_paid: finalTotal.value  + 100000,
+            payment_type: 'Thanh toán toàn bộ',
+          })
+          localStorage.setItem('payment_method', paymentMethod.value)
+          localStorage.removeItem(cartKey)
+          toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
+          router.push('/payment-result');
+        }
       } catch (error) {
         toast.error("Có lỗi xảy ra!");
         console.error("Lỗi xảy ra:", error.message);
@@ -315,7 +327,7 @@ export default {
       isLoading.value = true
       try {
         console.log('✅ form gửi đi:', form.value)
-        await check_payment()
+        await check_payment(orderId)
         console.log('✅ check_out đã được gọi xong')
       } catch (error) {
         console.error('❌ Lỗi khi gọi check_out:', error)

@@ -196,7 +196,7 @@
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="Thanh toán VNPAY"
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="VNPAY"
                 v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
@@ -204,7 +204,7 @@
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="momo" value="Thanh toán MOMO"
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
                 v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
@@ -212,7 +212,7 @@
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="cod" value="Thanh toán COD"
+              <input class="form-check-input" type="radio" name="payment" id="cod" value="COD"
                 v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="cod">
                 <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
@@ -240,6 +240,7 @@ import dayjs from 'dayjs'
 import { RouterLink, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useShippingStore } from '@/stores/shippingStore'
+import { toast } from 'vue3-toastify'
 const shippingStore = useShippingStore()
 const { shippingFee } = storeToRefs(shippingStore)
 
@@ -254,8 +255,6 @@ export default {
   },
   setup() {
     const router = useRouter()
-
-    const user1 = ref(null)
 
     const note = ref('')
     const { user, form } = User.setup()
@@ -294,23 +293,80 @@ export default {
 
     const paymentMethod = ref('')
 
-    const check_out = async () => {
+    const check_out = async (orderId) => {
       try {
         if (!paymentMethod.value) {
-          alert('Vui lòng chọn phương thức thanh toán!')
+          toast.error('Vui lòng chọn phương thức thanh toán.')
           return
+        }
+
+        if (paymentMethod.value === 'VNPAY') {
+          if (!orderId || finalTotal.value <= 0) {
+            toast.error('Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.');
+            return;
+          }
+          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+            order_id: orderId,
+            amount: finalTotal.value,
+          })
+          if (paymentRes.data && paymentRes.data.payment_url) {
+            localStorage.setItem('payment_method', paymentMethod.value)
+            localStorage.removeItem(cartKey.value)
+            window.location.href = paymentRes.data.payment_url
+          } else {
+            toast.error('Không tạo được link thanh toán VNPAY.')
+          }
+          return
+        }
+        if (paymentMethod.value === 'MOMO') {
+          toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          localStorage.setItem('payment_method', paymentMethod.value);
+          localStorage.removeItem(cartKey.value);
+          return
+        }
+        if (paymentMethod.value === 'COD') {
+          await new Promise((resolve) => setTimeout(resolve, 300))
+          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+            order_id: orderId,
+            amount_paid: finalTotal.value,
+            payment_type: 'Thanh toán toàn bộ',
+          })
+          localStorage.setItem('payment_method', paymentMethod.value)
+          localStorage.removeItem(cartKey.value)
+          toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
+          router.push('/payment-result');
+        }
+
+      } catch (error) {
+        console.error('Lỗi khi xử lý thanh toán:', error)
+        if (error.response && error.response.data && error.response.data.message) {
+          toast.error('Thanh toán thất bại: ' + error.response.data.message)
+        } else {
+          toast.error('Thanh toán thất bại, vui lòng thử lại! Lỗi mạng hoặc server không phản hồi.');
+        }
+      }
+    }
+
+    const submitOrder = async () => {
+      isLoading.value = true
+      try {
+
+        if (!selectedProvince.value || !selectedDistrict.value || !selectedWard.value) {
+          alert('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.');
+          isLoading.value = false;
+          return;
         }
         const province = provinces.value.find(p => p.ProvinceID === selectedProvince.value)
         const district = districts.value.find(d => d.DistrictID === selectedDistrict.value)
         const ward = wards.value.find(w => w.WardCode === selectedWard.value)
+        const fullAddress = `${form.value.address}, ${ward?.WardName || '', ''}, ${district?.DistrictName || ''}, ${province?.ProvinceName || ''}`
 
-        const fullAddress = `${form.value.address}, ${ward?.WardName || ''}, ${district?.DistrictName || ''}, ${province?.ProvinceName || ''}`
-
-        if (!fullAddress) {
-          alert('Không lấy được vị trí của địa chỉ bạn đã nhập.')
-          isLoading.value = false
-          return
+        if (!fullAddress || cartItems.value.length === 0) {
+          toast.error('Vui lòng nhập đầy đủ thông tin địa chỉ và thêm món ăn vào giỏ hàng.');
+          isLoading.value = false;
+          return;
         }
+
         const orderData = {
           user_id: user.value ? user.value.id : null,
           guest_name: form.value.fullname,
@@ -335,72 +391,34 @@ export default {
         }
 
         const response = await axios.post('http://127.0.0.1:8000/api/order', orderData)
-        if (orderData.discount_id) {
-          await axios.post('http://localhost:8000/api/discounts/use', {
-            discount_id: orderData.discount_id,
-          })
-        }
-        if (response && response.data) {
-          const { status, order_id } = response.data
-          if (!status || !order_id) {
-            alert('Đặt hàng thất bại!')
-            return
+
+        if (response && response.data && response.data.status && response.data.order_id) {
+          const order_id = response.data.order_id;
+          toast.success('Đơn hàng đã được tạo thành công!');
+
+          if (orderData.discount_id) {
+            await axios.post('http://127.0.0.1:8000/api/discounts/use', {
+              discount_id: orderData.discount_id,
+              order_id: order_id
+            });
           }
-          localStorage.setItem('order_id', order_id)
+          await check_out(order_id);
         } else {
-          alert('Không nhận được dữ liệu từ server.')
-          return
+          toast.error('Không nhận được ID đơn hàng từ server hoặc tạo đơn hàng thất bại.');
         }
 
-        if (
-          paymentMethod.value === 'Thanh toán VNPAY' ||
-          paymentMethod.value === 'Thanh toán MOMO'
-        ) {
-          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payment', {
-            order_id: localStorage.getItem('order_id'),
-            amount: finalTotal.value,
-          })
-          if (paymentRes.data.payment_url) {
-            localStorage.setItem('payment_method', paymentMethod.value)
-            localStorage.removeItem(cartKey.value)
-            window.location.href = paymentRes.data.payment_url
-          } else {
-            alert('Không tạo được link thanh toán.')
-          }
-          return
-        }
-        if (paymentMethod.value === 'Thanh toán COD') {
-          await new Promise((resolve) => setTimeout(resolve, 300))
-          await axios.post('http://127.0.0.1:8000/api/vnpay-return', {
-            order_id: localStorage.getItem('order_id'),
-            amount_paid: finalTotal.value,
-            payment_method: 'Thanh toán COD',
-            payment_status: 'Chưa thanh toán',
-            payment_type: 'Thanh toán toàn bộ',
-          })
-          alert('Đặt hàng thành công!')
-          localStorage.setItem('payment_method', paymentMethod.value)
-          localStorage.removeItem(cartKey.value)
-          router.push('/payment-result')
-        }
       } catch (error) {
-        console.error('Lỗi xảy ra:', error.message)
-        alert('Lỗi khi gửi đơn hàng. Vui lòng thử lại!')
-      }
-    }
-
-    const submitOrder = async () => {
-      isLoading.value = true
-      try {
-        console.log('✅ form gửi đi:', form.value)
-        await check_out()
-        console.log('✅ check_out đã được gọi xong')
-      } catch (error) {
-        console.error('❌ Lỗi khi gọi check_out:', error)
+        console.error('Lỗi khi gửi đơn hàng hoặc xử lý thanh toán:', error);
+        if (error.response && error.response.data && error.response.data.message) {
+          toast.error('Đặt hàng thất bại: ' + error.response.data.message);
+        } else {
+          toast.error('Đặt hàng thất bại, vui lòng thử lại! Lỗi mạng hoặc server không phản hồi.');
+        }
       } finally {
         isLoading.value = false
       }
     }
+
     const today = dayjs().format('YYYY-MM-DD')
     const removeDiscountCode = () => {
       selectedDiscount.value = null
@@ -514,10 +532,10 @@ export default {
       }
     }
     const hasShippingFee = computed(() => shippingFee.value > 0)
-
     onMounted(() => {
       fetchProvinces()
       loadCart()
+
     })
     watch([selectedDistrict, selectedWard, selectedService], () => {
       if (selectedDistrict.value && selectedWard.value && selectedService.value) {

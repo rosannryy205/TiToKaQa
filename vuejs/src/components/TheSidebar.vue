@@ -11,7 +11,7 @@
       </div>
 
       <div class="menu-items">
-        <template v-for="item in menuItems" :key="item.key">
+        <template v-for="item in filteredMenuItems" :key="item.key">
           <router-link
             v-if="!item.children"
             :to="item.to"
@@ -63,27 +63,41 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { Permission } from '@/stores/permission'
+
+const userId = ref(null);
+const userString = localStorage.getItem('user');
+if (userString) {
+  const user = JSON.parse(userString);
+  if (user && user.id !== undefined) {
+    userId.value = user.id;
+  }
+}
+
+
+const { hasPermission, permissions } = Permission(userId);
+
 import {
   DashboardOutlined,
   AppstoreOutlined,
   ShoppingOutlined,
-  ClusterOutlined,
+  FieldTimeOutlined,
   OrderedListOutlined,
   TagsOutlined,
-  HistoryOutlined,
+  GoldOutlined,
   TeamOutlined,
+  FileAddOutlined,
+  HistoryOutlined,
+  UnorderedListOutlined,
   TableOutlined,
-  DownOutlined, // Thêm icon cho mũi tên xổ xuống
-  UpOutlined, // Thêm icon cho mũi tên xổ lên
 } from '@ant-design/icons-vue'
 
-const logoUrl = ref('/logonew.png')
 const sidebarOpen = ref(false)
 const showToggleIcon = ref(true)
 const isMobile = ref(false)
-const activeSubMenu = ref(null) // State để quản lý sub-menu đang mở
+const activeSubMenu = ref(null)
 
 const route = useRoute()
 
@@ -93,7 +107,7 @@ const toggleSidebar = () => {
     showToggleIcon.value = false
     setTimeout(() => {
       showToggleIcon.value = true
-    }, 300) // Delay khớp với transition CSS
+    }, 300)
   } else {
     sidebarOpen.value = true
     showToggleIcon.value = false
@@ -115,40 +129,58 @@ const checkMobile = () => {
   showToggleIcon.value = true
 }
 
-// Function để mở/đóng sub-menu
 const toggleSubMenu = (key) => {
   activeSubMenu.value = activeSubMenu.value === key ? null : key
 }
 
-// Function kiểm tra xem có sub-menu nào đang active không để làm nổi bật mục cha
 const isParentActive = (children) => {
   return children.some(child => route.path === child.to);
 }
 
-onMounted(() => {
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
-  // Mở sub-menu nếu đường dẫn hiện tại khớp với một trong các sub-menu
-  menuItems.forEach(item => {
-    if (item.children && isParentActive(item.children)) {
-      activeSubMenu.value = item.key;
-    }
-  });
+const filterMenuByPermissions = (menuItems) => {
+  return menuItems
+    .map((item) => {
+      if (item.children) {
+        const filteredChildren = item.children.filter((child) =>
+          hasPermission(child.permission)
+        )
+        if (filteredChildren.length > 0 && (!item.permission || hasPermission(item.permission))) {
+          return { ...item, children: filteredChildren }
+        }
+        return null
+      } else if (hasPermission(item.permission)) {
+        return item
+      }
+      return null
+    })
+    .filter(Boolean)
+}
+
+const filteredMenuItems = computed(() => {
+  return filterMenuByPermissions(menuItems)
 })
 
-watch(route, () => {
-  closeSidebarIfMobile()
-  // Đóng tất cả sub-menu khi chuyển route nếu không có sub-menu nào active
-  let foundActiveSubMenu = false;
-  menuItems.forEach(item => {
-    if (item.children && isParentActive(item.children)) {
-      activeSubMenu.value = item.key;
-      foundActiveSubMenu = true;
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile);
+
+  watch(filteredMenuItems, (newItems) => {
+    let foundActiveSubMenu = false;
+    newItems.forEach(item => {
+      if (item.children && isParentActive(item.children)) {
+        activeSubMenu.value = item.key;
+        foundActiveSubMenu = true;
+      }
+    });
+    if (!foundActiveSubMenu) {
+      activeSubMenu.value = null;
     }
-  });
-  if (!foundActiveSubMenu) {
-    activeSubMenu.value = null; // Đóng tất cả nếu không có sub-menu nào active
-  }
+  }, { immediate: true });
+
+  watch(route, () => {
+    closeSidebarIfMobile()
+  }, { immediate: true })
 })
 
 
@@ -156,50 +188,109 @@ const menuItems = [
   {
     key: '/admin/dashboard',
     to: '/admin/dashboard',
-    label: 'Tổng quan',
+    label: 'Thống kê',
     icon: DashboardOutlined,
+    permission: 'view_dashboard',
   },
   {
-    key: 'products-management', // Key cho mục cha
-    label: 'Quản lý sản phẩm',
-    icon: ShoppingOutlined,
-    children: [
-      {
-        key: '/admin/products',
-        to: '/admin/products',
-        label: 'Món ăn',
-        icon: AppstoreOutlined, // Bạn có thể dùng icon khác cho sub-menu
-      },
-      {
-        key: '/admin/options',
-        to: '/admin/options',
-        label: 'Topping',
-        icon: TagsOutlined,
-      },
-      {
-        key: '/admin/products/combo',
-        to: '/admin/products/combo',
-        label: 'Combo',
-        icon: AppstoreOutlined,
-      },
-    ],
-  },
-  {
-    key: 'categories-management', // Key cho mục cha
-    label: 'Quản lý danh mục',
-    icon: ClusterOutlined,
+    key: 'categories-management',
+    label: 'Danh mục',
+    icon: UnorderedListOutlined,
+    permission: 'view_category', // Quyền để xem mục Danh mục cha
     children: [
       {
         key: '/admin/categories',
         to: '/admin/categories',
         label: 'Danh mục món ăn',
         icon: AppstoreOutlined,
+        permission: 'view_category',
+      },
+      {
+        key: '/admin/insert-food-category', // Đổi key/to cho rõ ràng
+        to: '/admin/insert-food-category',
+        label: 'Thêm DM món ăn',
+        icon: FileAddOutlined,
+        permission: 'create_category',
       },
       {
         key: '/admin/options/category-options',
         to: '/admin/options/category-options',
         label: 'Danh mục topping',
-        icon: TagsOutlined,
+        icon: AppstoreOutlined,
+        permission: 'view_topping', // Quyền xem topping category
+      },
+      {
+        key: '/admin/insert-topping-category', // Đổi key/to cho rõ ràng
+        to: '/admin/insert-topping-category',
+        label: 'Thêm DM topping',
+        icon: FileAddOutlined,
+        permission: 'create_topping', // Quyền tạo topping category
+      },
+    ],
+  },
+  {
+    key: 'products-management',
+    label: 'Món ăn',
+    icon: ShoppingOutlined,
+    permission: 'view_food',
+    children: [
+      {
+        key: '/admin/products',
+        to: '/admin/products',
+        label: 'Danh sách món ăn',
+        icon: UnorderedListOutlined,
+        permission: 'view_food',
+      },
+      {
+        key: '/admin/insert-food',
+        to: '/admin/insert-food',
+        label: 'Thêm món ăn',
+        icon: FileAddOutlined,
+        permission: 'create_food',
+      },
+    ],
+  },
+  {
+    key: 'combo-management',
+    label: 'Combo',
+    icon: AppstoreOutlined,
+    permission: 'view_combo',
+    children: [
+      {
+        key: '/admin/products/combo',
+        to: '/admin/products/combo',
+        label: 'Danh sách combo',
+        icon: UnorderedListOutlined,
+        permission: 'view_combo',
+      },
+      {
+        key: '/admin/insert-combo',
+        to: '/admin/insert-combo',
+        label: 'Thêm combo',
+        icon: FileAddOutlined,
+        permission: 'create_combo',
+      },
+    ],
+  },
+  {
+    key: 'topping-management',
+    label: 'Topping',
+    icon: GoldOutlined,
+    permission: 'view_topping',
+    children: [
+      {
+        key: '/admin/options',
+        to: '/admin/options',
+        label: 'Danh sách topping',
+        icon: UnorderedListOutlined,
+        permission: 'view_topping',
+      },
+      {
+        key: '/admin/insert-topping', // Đổi key/to cho rõ ràng
+        to: '/admin/insert-topping',
+        label: 'Thêm topping',
+        icon: FileAddOutlined,
+        permission: 'create_topping',
       },
     ],
   },
@@ -207,62 +298,123 @@ const menuItems = [
     key: 'order-management',
     label: 'Đơn hàng',
     icon: HistoryOutlined,
-     children: [
+    permission: 'view_order',
+    children: [
       {
         key: '/admin/orders/history',
         to: '/admin/orders/history',
         label: 'Danh sách đơn hàng',
         icon: AppstoreOutlined,
+        permission: 'view_order',
+      },
+      {
+        key: '/admin/tables/current-order', // Đã thêm /admin/
+        to: '/admin/tables/current-order',
+        label: 'Đơn hiện thời',
+        icon: FieldTimeOutlined,
+        permission: 'view_order',
       },
       {
         key: '/admin/order-create',
         to: '/admin/order-create',
-        label: 'Quản lý đơn hàng',
-        icon: TagsOutlined,
+        label: 'Thêm đơn hàng',
+        icon: FileAddOutlined,
+        permission: 'create_order',
       },
-    ]
+    ],
   },
   {
-    key: 'tables-reservation-management', // Key cho mục cha
+    key: 'tables-reservation-management',
     label: 'Bàn và đặt chỗ',
-    icon: ClusterOutlined,
+    icon: TableOutlined,
+    permission: 'view_table',
     children: [
       {
         key: '/admin/tables',
         to: '/admin/tables',
         label: 'Danh sách bàn',
         icon: AppstoreOutlined,
+        permission: 'view_table',
       },
       {
-        key: 'tables/booking-schedules',
+        key: '/admin/tables/booking-schedule', // Đã thêm /admin/
         to: '/admin/tables/booking-schedule',
         label: 'Lịch đặt bàn',
-        icon: TagsOutlined,
+        icon: OrderedListOutlined,
+        permission: 'view_booking',
       },
       {
-        key: 'tables/current-order',
-        to: '/admin/tables/current-order',
-        label: 'Đơn hiện thời',
-        icon: TagsOutlined,
+        key: '/admin/insert-reservation', // Đã thêm /admin/
+        to: '/admin/insert-reservation',
+        label: 'Thêm đơn đặt bàn',
+        icon: FileAddOutlined,
+        permission: 'create_booking',
       },
     ],
   },
   {
-    key: 'users-management', // Key cho mục cha
-    label: 'Quản lý người dùng',
-    icon: ClusterOutlined,
+    key: 'role-management', // Thay đổi key để rõ ràng hơn
+    label: 'Vai trò',
+    icon: TeamOutlined,
+    permission: 'view_role', // Quyền xem vai trò
     children: [
       {
-        key: 'users/list',
-        to: '/admin/users/list',
-        label: 'Tất cả người dùng',
-        icon: AppstoreOutlined,
+        key: '/admin/users/list-role', // Đổi key/to để phù hợp với vai trò
+        to: '/admin/users/list-role',
+        label: 'Danh sách vai trò',
+        icon: UnorderedListOutlined,
+        permission: 'view_role',
       },
       {
-        key: 'users/list-role',
-        to: '/admin/users/list-role',
-        label: 'Vai trò người dùng',
+        key: '/admin/roles/insert', // Đổi key/to để phù hợp với vai trò
+        to: '/admin/roles/insert',
+        label: 'Thêm vai trò',
         icon: TagsOutlined,
+        permission: 'create_role',
+      },
+    ],
+  },
+  {
+    key: 'employee-management', // Thay đổi key để rõ ràng hơn
+    label: 'Nhân viên',
+    icon: TeamOutlined,
+    permission: 'view_employee', // Quyền xem nhân viên
+    children: [
+      {
+        key: '/admin/users/list', // Đổi key/to để phù hợp
+        to: '/admin/users/list',
+        label: 'Danh sách nhân viên',
+        icon: UnorderedListOutlined,
+        permission: 'view_employee',
+      },
+      {
+        key: '/admin/employees/insert', // Đổi key/to để phù hợp
+        to: '/admin/employees/insert',
+        label: 'Thêm nhân viên',
+        icon: FileAddOutlined,
+        permission: 'create_employee',
+      },
+    ],
+  },
+  {
+    key: 'customer-management',
+    label: 'Khách hàng',
+    icon: TeamOutlined,
+    permission: 'view_customer', // Quyền xem khách hàng
+    children: [
+      {
+        key: '/admin/users/list', // Đổi key/to để phù hợp
+        to: '/admin/users/list',
+        label: 'Danh sách khách hàng',
+        icon: UnorderedListOutlined,
+        permission: 'view_customer',
+      },
+      {
+        key: '/admin/customers/insert', // Thêm mục để tạo khách hàng
+        to: '/admin/customers/insert',
+        label: 'Thêm khách hàng',
+        icon: FileAddOutlined,
+        permission: 'create_customer',
       },
     ],
   },
