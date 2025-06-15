@@ -263,3 +263,40 @@ onMounted(() => {
   fetchCategories()
 })
 </script>
+<style>
+.btn-danger-delete {
+  background: none;
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.btn-danger-delete:hover {
+  background-color: #c92c3c;
+  color: #fff;
+}
+
+.btn-danger-save {
+  background: none;
+  color: #1d54bc;
+  border: 1px solid #1d54bc;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.btn-danger-save:hover {
+  background-color: #1d54bc;
+  color: #fff;
+}
+</style>

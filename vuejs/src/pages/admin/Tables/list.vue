@@ -1,176 +1,202 @@
 <template>
-  <div v-if="isLoading" class="isLoading-overlay">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">Đang tải...</span>
-    </div>
-  </div>
-  <div class="main-layout">
-    <div class="main-content">
-      <h2>Danh sách bàn</h2>
-      <div class="table-filter-box">
-        <div>
-          <input type="date" class="form-control rounded" v-model="date" :min="today" @change="getTable" />
-        </div>
-
-        <div class="filter-status-select">
-          <select class="form-control rounded" v-model="filterStatus" @change="getTable">
-            <option value="">Tất cả bàn</option>
-            <option value="Bàn trống">Bàn trống</option>
-            <option value="Đã đặt trước">Đã đặt trước</option>
-            <option value="Đang phục vụ">Đang phục vụ</option>
-          </select>
-        </div>
-
-        <div class="table-status-box">
-          <strong>Trạng thái:</strong>
-          <div class="status-item"><span class="status-dot billed"></span>Đã đặt trước</div>
-          <div class="status-item"><span class="status-dot reservation"></span>Đang phục vụ</div>
-          <div class="status-item"><span class="status-dot vacant"></span>Bàn trống</div>
-        </div>
-        <button class="btn btn-outline-danger" @click="toggleSidebar">Thêm Bàn Mới</button>
+  <div>
+    <!-- Hiển thị lớp phủ loading chung của component -->
+    <div v-if="isLoading  || isLoadingPermissions" class="isLoading-overlay">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">Đang tải...</span>
       </div>
+    </div>
 
-      <hr />
-      <div class="col-md-12 form-section mt-2" style="background-color: #ffff; min-height: 500px">
-        <draggable :list="displayTables" item-key="id" tag="div" class="table-container" :animation="150"
-          @add="onTableAddedFromSidebar" group="tables">
-          <template #item="{ element: ban }">
-            <div class="table-block" :class="{ 'rotated-layout': ban.isRotated }">
-              <div class="table-content-wrapper" :class="{ 'rotated-visual': ban.isRotated }">
-                <div class="chairs top-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                  <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n" :class="[
-                    {
-                      chair_billed: ban.current_day_status === 'Đã đặt trước',
-                      'billed-text': ban.current_day_status === 'Đã đặt trước',
-                      chair_reservation: ban.current_day_status === 'Đang phục vụ',
-                      'reservation-text': ban.current_day_status === 'Đang phục vụ',
-                    },
-                  ]"></div>
-                </div>
-                <div @click="loadTable(ban.id)" :class="[
-                  selectedTableId == ban.id ? 'table-rect1' : 'table-rect',
-                  {
-                    medium: getChairCount(ban.capacity) === 2,
-                    large: getChairCount(ban.capacity) === 3,
-                    billed: ban.current_day_status === 'Đã đặt trước',
-                    'billed-text': ban.current_day_status === 'Đã đặt trước',
-                    reservation: ban.current_day_status === 'Đang phục vụ',
-                    'reservation-text': ban.current_day_status === 'Đang phục vụ',
-                  },
-                ]">
-                  B{{ ban.table_number }}
-                </div>
-                <div class="chairs bottom-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                  <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n" :class="[
-                    {
-                      chair_billed: ban.current_day_status === 'Đã đặt trước',
-                      'billed-text': ban.current_day_status === 'Đã đặt trước',
-                      chair_reservation: ban.current_day_status === 'Đang phục vụ',
-                      'reservation-text': ban.current_day_status === 'Đang phục vụ',
-                    },
-                  ]"></div>
-                </div>
-              </div>
-              <button v-if="ban.has_booking_history == false" class="rotate-btn" @click="deleteTable(ban.id)">
-                <i class="bi bi-trash3-fill"></i>
-              </button>
+    <div class="main-layout">
+      <div class="main-content">
+        <h2>Danh sách bàn</h2>
+        <!-- Chỉ hiển thị nội dung nếu người dùng có quyền view_table và permissions đã tải xong -->
+        <template v-if="hasPermission('view_table')">
+          <div class="table-filter-box">
+            <div>
+              <input type="date" class="form-control rounded" v-model="date" :min="today" @change="getTable" />
             </div>
-          </template>
-        </draggable>
-        <div class="d-flex justify-content-center mt-3 w-100">
-          <nav>
-            <ul class="pagination">
-              <li class="page-item" :class="{ disabled: currentPage.tables === 1 }">
-                <button type="button" class="page-link" @click="goToPage(currentPage.tables - 1)">
-                  «
-                </button>
-              </li>
 
-              <li v-for="page in totalPagesTables" :key="page" class="page-item"
-                :class="{ active: currentPage.tables === page }">
-                <button type="button" class="page-link" @click="goToPage(page)">
-                  {{ page }}
-                </button>
-              </li>
+            <div class="filter-status-select">
+              <select class="form-control rounded" v-model="filterStatus" @change="getTable">
+                <option value="">Tất cả bàn</option>
+                <option value="Bàn trống">Bàn trống</option>
+                <option value="Đã đặt trước">Đã đặt trước</option>
+                <option value="Đang phục vụ">Đang phục vụ</option>
+              </select>
+            </div>
 
-              <li class="page-item" :class="{ disabled: currentPage.tables === totalPagesTables }">
-                <button type="button" class="page-link" @click="goToPage(currentPage.tables + 1)">
-                  »
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
+            <div class="table-status-box">
+              <strong>Trạng thái:</strong>
+              <div class="status-item"><span class="status-dot billed"></span>Đã đặt trước</div>
+              <div class="status-item"><span class="status-dot reservation"></span>Đang phục vụ</div>
+              <div class="status-item"><span class="status-dot vacant"></span>Bàn trống</div>
+            </div>
+            <!-- Chỉ hiển thị nút "Thêm Bàn Mới" nếu người dùng có quyền create_table -->
+            <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">Thêm Bàn
+              Mới</button>
+          </div>
+
+          <hr />
+          <div class="col-md-12 form-section mt-2" style="background-color: #ffff; min-height: 500px">
+            <draggable :list="displayTables" item-key="id" tag="div" class="table-container" :animation="150"
+              @add="onTableAddedFromSidebar" group="tables">
+              <template #item="{ element: ban }">
+                <div class="table-block" :class="{ 'rotated-layout': ban.isRotated }">
+                  <div class="table-content-wrapper" :class="{ 'rotated-visual': ban.isRotated }">
+                    <div class="chairs top-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+                      <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n" :class="[
+                        {
+                          chair_billed: ban.current_day_status === 'Đã đặt trước',
+                          'billed-text': ban.current_day_status === 'Đã đặt trước',
+                          chair_reservation: ban.current_day_status === 'Đang phục vụ',
+                          'reservation-text': ban.current_day_status === 'Đang phục vụ',
+                        },
+                      ]"></div>
+                    </div>
+                    <div @click="hasPermission('edit_table') ? loadTable(ban.id) : null" :class="[
+                      selectedTableId == ban.id ? 'table-rect1' : 'table-rect',
+                      {
+                        medium: getChairCount(ban.capacity) === 2,
+                        large: getChairCount(ban.capacity) === 3,
+                        billed: ban.current_day_status === 'Đã đặt trước',
+                        'billed-text': ban.current_day_status === 'Đã đặt trước',
+                        reservation: ban.current_day_status === 'Đang phục vụ',
+                        'reservation-text': ban.current_day_status === 'Đang phục vụ',
+                      },
+                    ]">
+                      B{{ ban.table_number }}
+                    </div>
+                    <div class="chairs bottom-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+                      <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n" :class="[
+                        {
+                          chair_billed: ban.current_day_status === 'Đã đặt trước',
+                          'billed-text': ban.current_day_status === 'Đã đặt trước',
+                          chair_reservation: ban.current_day_status === 'Đang phục vụ',
+                          'reservation-text': ban.current_day_status === 'Đang phục vụ',
+                        },
+                      ]"></div>
+                    </div>
+                  </div>
+                  <button v-if="ban.has_booking_history == false && hasPermission('delete_table')" class="rotate-btn"
+                    @click="deleteTable(ban.id)">
+                    <i class="bi bi-trash3-fill"></i>
+                  </button>
+                </div>
+              </template>
+            </draggable>
+            <div class="d-flex justify-content-center mt-3 w-100">
+              <nav>
+                <ul class="pagination">
+                  <li class="page-item" :class="{ disabled: currentPage.tables === 1 }">
+                    <button type="button" class="page-link" @click="goToPage(currentPage.tables - 1)">
+                      «
+                    </button>
+                  </li>
+
+                  <li v-for="page in totalPagesTables" :key="page" class="page-item"
+                    :class="{ active: currentPage.tables === page }">
+                    <button type="button" class="page-link" @click="goToPage(page)">
+                      {{ page }}
+                    </button>
+                  </li>
+
+                  <li class="page-item" :class="{ disabled: currentPage.tables === totalPagesTables }">
+                    <button type="button" class="page-link" @click="goToPage(currentPage.tables + 1)">
+                      »
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </template>
       </div>
-    </div>
 
-    <transition name="slide-fade">
-      <div v-if="isSidebarOpen" class="add-table-sidebar">
-        <h5>Thêm Bàn Mới</h5>
-        <button class="close-sidebar-btn"  @click="selectedTableId = null; toggleSidebar()" >X</button>
-        <form @submit.prevent="addNewTable(selectedTableId)">
-          <div class="mb-3">
-            <label for="newTableNumber" class="form-label">Số bàn:</label>
-            <input type="text" class="form-control rounded" id="newTableNumber" v-model="table_number" required
-              @input="updateNewTablePreview" />
-          </div>
-          <div class="mb-3">
-            <label for="newTableCapacity" class="form-label">Số ghế:</label>
-            <select class="form-select rounded" id="newTableCapacity" v-model="capacity"
-              @change="updateNewTablePreview">
-              <option selected value="2">2</option>
-              <option value="4">4</option>
-              <option value="6">6</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-outline-danger w-100 mb-3" v-if="selectedTableId">
-            Sửa Bàn
-          </button>
-          <button type="submit" class="btn btn-outline-danger w-100 mb-3" v-else>Thêm Bàn</button>
-        </form>
+      <transition name="slide-fade">
+        <!-- Chỉ hiển thị sidebar nếu người dùng có quyền tạo hoặc sửa bàn -->
+        <div v-if="isSidebarOpen && (hasPermission('create_table') || hasPermission('edit_table'))"
+          class="add-table-sidebar">
+          <h5>{{ selectedTableId ? 'Sửa Bàn' : 'Thêm Bàn Mới' }}</h5>
+          <button class="close-sidebar-btn" @click="selectedTableId = null; toggleSidebar()">X</button>
+          <form @submit.prevent="addNewTable(selectedTableId)">
+            <div class="mb-3">
+              <label for="newTableNumber" class="form-label">Số bàn:</label>
+              <input type="text" class="form-control rounded" id="newTableNumber" v-model="table_number" required
+                @input="updateNewTablePreview" />
+            </div>
+            <div class="mb-3">
+              <label for="newTableCapacity" class="form-label">Số ghế:</label>
+              <select class="form-select rounded" id="newTableCapacity" v-model="capacity"
+                @change="updateNewTablePreview">
+                <option selected value="2">2</option>
+                <option value="4">4</option>
+                <option value="6">6</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-outline-danger w-100 mb-3"
+              v-if="selectedTableId && hasPermission('edit_table')">
+              Sửa Bàn
+            </button>
+            <button type="submit" class="btn btn-outline-danger w-100 mb-3"
+              v-else-if="!selectedTableId && hasPermission('create_table')">Thêm Bàn</button>
+          </form>
 
-        <hr />
-        <div class="new-table-preview-area">
-          <draggable v-model="newTablesQueue" item-key="id" tag="div" class="new-table-draggable-container"
-            :animation="150" group="tables" @end="onNewTableDragEnd">
-            <template #item="{ element: newBan }">
-              <div class="table-block draggable-new-table" :class="{ 'rotated-layout': newBan.isRotated }">
-                <div class="table-content-wrapper" :class="{ 'rotated-visual': newBan.isRotated }">
-                  <div class="chairs top-chairs" :class="'ghe-' + getChairCount(newBan.capacity)">
-                    <div class="chair" v-for="n in getChairCount(newBan.capacity)" :key="n"></div>
-                  </div>
-                  <div class="table-rect table-new" :class="{
-                    medium: getChairCount(newBan.capacity) === 2,
-                    large: getChairCount(newBan.capacity) === 3,
-                  }">
-                    Bàn {{ newBan.table_number }}
-                  </div>
-                  <div class="chairs bottom-chairs" :class="'ghe-' + getChairCount(newBan.capacity)">
-                    <div class="chair" v-for="n in getChairCount(newBan.capacity)" :key="'b' + n"></div>
+          <hr />
+          <div class="new-table-preview-area">
+            <draggable v-model="newTablesQueue" item-key="id" tag="div" class="new-table-draggable-container"
+              :animation="150" group="tables" @end="onNewTableDragEnd">
+              <template #item="{ element: newBan }">
+                <div class="table-block draggable-new-table" :class="{ 'rotated-layout': newBan.isRotated }">
+                  <div class="table-content-wrapper" :class="{ 'rotated-visual': newBan.isRotated }">
+                    <div class="chairs top-chairs" :class="'ghe-' + getChairCount(newBan.capacity)">
+                      <div class="chair" v-for="n in getChairCount(newBan.capacity)" :key="n"></div>
+                    </div>
+                    <div class="table-rect table-new" :class="{
+                      medium: getChairCount(newBan.capacity) === 2,
+                      large: getChairCount(newBan.capacity) === 3,
+                    }">
+                      Bàn {{ newBan.table_number }}
+                    </div>
+                    <div class="chairs bottom-chairs" :class="'ghe-' + getChairCount(newBan.capacity)">
+                      <div class="chair" v-for="n in getChairCount(newBan.capacity)" :key="'b' + n"></div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </template>
-          </draggable>
+              </template>
+            </draggable>
+          </div>
         </div>
-      </div>
-    </transition>
+
+      </transition>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
-import { onBeforeUnmount } from 'vue'
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue3-toastify'
 import draggable from 'vuedraggable'
 
+import { Permission } from '@/stores/permission'
+
 export default {
   components: {
-    draggable,
+    draggable
   },
   setup() {
+    const userId = ref(null)
+    const userString = localStorage.getItem('user')
+    if (userString) {
+      const user = JSON.parse(userString)
+      if (user && user.id !== undefined) {
+        userId.value = user.id
+      }
+    }
+
+    const { hasPermission, permissions, isLoadingPermissions } = Permission(userId)
     const allTables = ref([])
     const route = useRoute()
     const orderId = route.params.orderId
@@ -185,29 +211,26 @@ export default {
     const isLoading = ref(false)
 
     const currentPage = ref(1)
-    const isMobileView = ref(window.innerWidth <= 768);
+    const isMobileView = ref(window.innerWidth <= 768)
     const dynamicItemsPerPageTable = computed(() => {
-      return isMobileView.value ? 9 : 14; // 9 item cho mobile, 14 cho desktop
+      return isMobileView.value ? 9 : 14
     })
 
     const updateView = () => {
-      isMobileView.value = window.innerWidth <= 768;
-    };
-
+      isMobileView.value = window.innerWidth <= 768
+    }
 
     const totalPagesTables = computed(() => {
-      return Math.ceil(allTables.value.length / dynamicItemsPerPageTable.value);
-    });
+      return Math.ceil(allTables.value.length / dynamicItemsPerPageTable.value)
+    })
 
     const paginatedTables = computed(() => {
-      const start = (currentPage.value - 1) * dynamicItemsPerPageTable.value;
-      const end = start + dynamicItemsPerPageTable.value;
-      return allTables.value.slice(start, end);
-    });
-
+      const start = (currentPage.value - 1) * dynamicItemsPerPageTable.value
+      const end = start + dynamicItemsPerPageTable.value
+      return allTables.value.slice(start, end)
+    })
 
     const displayTables = computed(() => paginatedTables.value)
-
 
     const resetNewTableForm = () => {
       table_number.value = ''
@@ -216,22 +239,32 @@ export default {
     }
 
     const getTable = async () => {
+      if (!hasPermission('view_table')) {
+        allTables.value = []
+        return
+      }
+
+      isLoading.value = true
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/tables', {
           params: {
             date: date.value,
-            status: filterStatus.value,
-          },
+            status: filterStatus.value
+          }
         })
-        allTables.value = res.data.tables.map((table) => ({ ...table, isRotated: false }))
-        currentPage.value = 1; // Reset về trang 1 khi filter hoặc tải lại bàn
+        allTables.value = res.data.tables.map((table) => ({
+          ...table,
+          isRotated: false
+        }))
+        currentPage.value = 1
       } catch (error) {
         console.error('Lỗi khi tải danh sách bàn:', error)
         toast.error('Lỗi khi tải danh sách bàn.')
+      } finally {
+        isLoading.value = false
       }
     }
 
-    // hàm chuyển trang
     const goToPage = (page) => {
       if (page >= 1 && page <= totalPagesTables.value) {
         currentPage.value = page
@@ -251,10 +284,9 @@ export default {
       }
       try {
         selectedTableId.value = table_id
-
         await axios.put('http://127.0.0.1:8000/api/change-table', {
           id: orderId,
-          table_id: table_id,
+          table_id: table_id
         })
         toast.success('Thay đổi bàn thành công!')
         getTable()
@@ -265,58 +297,73 @@ export default {
     }
 
     const toggleSidebar = () => {
+      if (!isSidebarOpen.value && !(hasPermission('create_table') || hasPermission('edit_table'))) {
+        toast.warn('Bạn không có quyền thêm hoặc sửa bàn.')
+        return
+      }
       isSidebarOpen.value = !isSidebarOpen.value
       if (!isSidebarOpen.value) {
         resetNewTableForm()
+        selectedTableId.value = null
       }
     }
 
     const addNewTable = async (table_id) => {
+      if (!table_id && !hasPermission('create_table')) {
+        toast.error('Bạn không có quyền thêm bàn mới.')
+        return
+      }
+      if (table_id && !hasPermission('edit_table')) {
+        toast.error('Bạn không có quyền sửa bàn này.')
+        return
+      }
+
       if (!table_number.value || !capacity.value || capacity.value <= 0) {
         toast.error('Vui lòng nhập đủ Số bàn và Số ghế hợp lệ.')
         return
       }
+
       try {
+        isLoading.value = true
         if (!table_id) {
-          isLoading.value = true
           await axios.post(`http://127.0.0.1:8000/api/insert-table`, {
             table_number: table_number.value,
-            capacity: capacity.value,
+            capacity: capacity.value
           })
-          await getTable()
-          resetNewTableForm()
-          toggleSidebar()
-          selectedTableId.value = null
-          isLoading.value = false
           toast.success(`Thêm bàn thành công!`)
         } else {
-          isLoading.value = true
           await axios.put(`http://127.0.0.1:8000/api/tables/${table_id}`, {
             table_number: table_number.value,
-            capacity: capacity.value,
+            capacity: capacity.value
           })
-          await getTable()
-          resetNewTableForm()
-          selectedTableId.value = null
-          toggleSidebar()
-          isLoading.value = false
           toast.success(`Sửa bàn thành công!`)
         }
+        await getTable()
+        resetNewTableForm()
+        toggleSidebar()
+        selectedTableId.value = null
       } catch (error) {
-        console.error('Lỗi API khi thêm bàn:', error)
-        if (error.response.status === 422 && error.response.data && error.response.data.errors) {
+        console.error('Lỗi API khi thêm/sửa bàn:', error)
+        if (error.response && error.response.status === 422 && error.response.data.errors) {
           let validationErrors = ''
           for (const field in error.response.data.errors) {
             validationErrors += error.response.data.errors[field].join(' ') + ' '
           }
           toast.error(`Lỗi dữ liệu: ${validationErrors.trim()}`)
+        } else {
+          toast.error('Có lỗi xảy ra trong quá trình thêm/sửa bàn.')
         }
-      }finally{
-          isLoading.value = false
+      } finally {
+        isLoading.value = false
       }
     }
 
-    const onNewTableDragEnd = (event) => {
+    const onNewTableDragEnd = async (event) => {
+      if (!hasPermission('create_table')) {
+        toast.error('Bạn không có quyền thêm bàn mới bằng cách kéo thả.')
+        return
+      }
+
       if (event.from === newTablesQueue.value && event.to === newTablesQueue.value) {
         if (newTablesQueue.value.length === 0 && table_number.value && capacity.value) {
           updateNewTablePreview()
@@ -325,21 +372,27 @@ export default {
     }
 
     const onTableAddedFromSidebar = async (event) => {
-      const addedTableData = allTables.value[event.newIndex] // Sử dụng allTables ở đây
+      if (!hasPermission('create_table')) {
+        toast.error('Bạn không có quyền thêm bàn mới.')
+        allTables.value.splice(event.newIndex, 1)
+        return
+      }
+
+      const addedTableData = allTables.value[event.newIndex]
       if (!addedTableData || !addedTableData.table_number || !addedTableData.capacity) {
-        toast.error(' Vui lòng nhập số bàn và số ghế trước khi thêm bàn.')
-        allTables.value.splice(event.newIndex, 1) // Sử dụng allTables ở đây
+        toast.error('Vui lòng nhập số bàn và số ghế trước khi thêm bàn.')
+        allTables.value.splice(event.newIndex, 1)
         return
       }
 
       try {
+        isLoading.value = true
         const response = await axios.post(`http://127.0.0.1:8000/api/insert-table`, {
           table_number: addedTableData.table_number,
-          capacity: addedTableData.capacity,
+          capacity: addedTableData.capacity
         })
 
         toast.success(`Đã thêm bàn thành công!`)
-
         if (response.data && response.data.id) {
           addedTableData.id = response.data.id
         }
@@ -348,28 +401,45 @@ export default {
         resetNewTableForm()
       } catch (error) {
         console.error('Lỗi API khi thêm bàn:', error)
-        if (error.response.status === 422 && error.response.data && error.response.data.errors) {
+        if (error.response && error.response.status === 422 && error.response.data.errors) {
           let validationErrors = ''
           for (const field in error.response.data.errors) {
             validationErrors += error.response.data.errors[field].join(' ') + ' '
           }
           toast.error(`Lỗi dữ liệu: ${validationErrors.trim()}`)
+        } else {
+          toast.error('Có lỗi xảy ra khi thêm bàn.')
         }
+      } finally {
+        isLoading.value = false
       }
     }
 
     const deleteTable = async (table_id) => {
+      if (!hasPermission('delete_table')) {
+        toast.error('Bạn không có quyền xóa bàn.')
+        return
+      }
+
       try {
+        isLoading.value = true
         await axios.delete(`http://127.0.0.1:8000/api/tables/${table_id}`)
         await getTable()
         toast.success('Xoá bàn thành công')
       } catch (error) {
         console.log('Lỗi ' + error)
         toast.error('Xoá bàn không thành công')
+      } finally {
+        isLoading.value = false
       }
     }
 
     const loadTable = (id) => {
+      if (!hasPermission('edit_table')) {
+        toast.error('Bạn không có quyền sửa bàn.')
+        return
+      }
+
       if (selectedTableId.value === id) {
         selectedTableId.value = null
         toggleSidebar()
@@ -394,7 +464,7 @@ export default {
           id: `temp-${Date.now()}`,
           table_number: table_number.value,
           capacity: parseInt(capacity.value),
-          status: 'Bàn trống',
+          status: 'Bàn trống'
         }
         newTablesQueue.value = [tempTable]
       } else {
@@ -402,42 +472,50 @@ export default {
       }
     }
 
-    onMounted(() => {
-      getTable()
-      window.addEventListener('resize', updateView)
-    })
-    onBeforeUnmount(() => {
-      window.removeEventListener('resize', updateView); // Dọn dẹp listener khi component bị hủy
-    });
+    watch(permissions, (newPermissions) => {
+      if (newPermissions.length > 0 && !isLoadingPermissions.value) {
+        getTable();
+      } else if (newPermissions.length === 0 && !isLoadingPermissions.value) {
+          getTable();
+      }
+    }, { immediate: true });
+
     return {
-      tables: displayTables,
-      getChairCount,
-      getTable,
-      changeTable,
-      selectedTableId,
+      userId,
+      allTables,
+      route,
       orderId,
-      isSidebarOpen,
-      toggleSidebar,
-      newTablesQueue,
-      onNewTableDragEnd,
-      onTableAddedFromSidebar,
-      addNewTable,
+      selectedTableId,
       table_number,
       capacity,
-      updateNewTablePreview,
-      loadTable,
-      deleteTable,
+      isSidebarOpen,
+      newTablesQueue,
       date,
-      today,
       filterStatus,
+      isLoading,
       currentPage,
-      totalPagesTables,
-      goToPage,
-      displayTables,
       isMobileView,
-      isLoading
+      dynamicItemsPerPageTable,
+      totalPagesTables,
+      paginatedTables,
+      displayTables,
+      getTable,
+      goToPage,
+      getChairCount,
+      changeTable,
+      toggleSidebar,
+      addNewTable,
+      onNewTableDragEnd,
+      onTableAddedFromSidebar,
+      deleteTable,
+      loadTable,
+      updateView,
+      resetNewTableForm,
+      updateNewTablePreview,
+      hasPermission,
+      isLoadingPermissions
     }
-  },
+  }
 }
 </script>
 
@@ -533,6 +611,7 @@ h2 {
   padding: 5px;
 
 }
+
 .isLoading-overlay {
   position: fixed;
   top: 0;
@@ -545,6 +624,7 @@ h2 {
   justify-content: center;
   align-items: center;
 }
+
 .table-content-wrapper {
   display: flex;
   flex-direction: column;

@@ -59,7 +59,7 @@
 
     <button
       type="button"
-      class="btn btn-danger1 themsp"
+      class="btn btn-danger-save mt-2"
       @click="updateCategory"
       :disabled="isLoading"
     >

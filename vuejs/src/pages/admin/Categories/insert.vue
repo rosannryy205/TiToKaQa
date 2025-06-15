@@ -2,9 +2,9 @@
   <div class="d-flex justify-content-between">
     <h3 class="text-danger fw-bold">Thêm danh mục</h3>
     <div>
-      <a href="#" class="btn btn-outline-secondary rounded-0">
+      <router-link to="categories" class="btn btn-outline-secondary rounded-0">
         <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-      </a>
+      </router-link>
     </div>
   </div>
 
@@ -56,8 +56,8 @@
     </div>
   </form>
 
-  <button type="button" class="btn btn-danger1 themsp" @click="addCategory">
-    + Thêm
+  <button type="button" class="btn btn-danger-save" @click="addCategory">
+    Thêm danh mục
   </button>
 </template>
 
@@ -77,12 +77,12 @@ export default {
 
     const fetchParents = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/admin/categories/parents', {
+        const res = await axios.get('http://127.0.0.1:8000/api/admin/categories/parents/list', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
         })
-        allParents.value = res.data
+        allParents.value = res.data.data
       } catch (err) {
         showToast('Lỗi khi tải danh mục cha!', 'error')
       }
@@ -140,7 +140,7 @@ export default {
         })
 
       } catch (error) {
-        console.log('Error:', error.response); // 🐞 thêm dòng này
+        console.log('Error:', error.response);
 
         if (error.response && error.response.status === 422) {
           const errors = error.response.data.errors
@@ -180,7 +180,7 @@ export default {
 
     return {
       name, parentId, isDefault, image, previewImage, allParents,
-      handleImageChange, addCategory
+      handleImageChange, addCategory,
     }
   }
 }
@@ -189,5 +189,40 @@ export default {
 <style>
 .themsp {
   width: 200px;
+}
+.btn-danger-delete {
+  background: none;
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.btn-danger-delete:hover {
+  background-color: #c92c3c;
+  color: #fff;
+}
+
+.btn-danger-save {
+  background: none;
+  color: #1d54bc;
+  border: 1px solid #1d54bc;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.btn-danger-save:hover {
+  background-color: #1d54bc;
+  color: #fff;
 }
 </style>
