@@ -106,6 +106,11 @@ const admin = [
         component: () => import("../pages/admin/Categories/insert.vue")
       },
       {
+        path: "update-category/:id",
+        name: "update-category",
+        component: () => import("../pages/admin/Categories/update.vue")
+      },
+      {
         path: 'insert-reservation',
         name: 'insert-reservation-admin',
         component: () => import('../pages/admin/Tables/insert.vue'),

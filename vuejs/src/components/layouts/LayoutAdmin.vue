@@ -21,6 +21,8 @@ const collapsed = ref(false)
 const toggleSidebar = () => {
   collapsed.value = !collapsed.value
 }
+
+
 </script>
 
 <style scoped>

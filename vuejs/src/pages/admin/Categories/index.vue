@@ -2,67 +2,113 @@
   <h3 class="title">Quản lý danh mục</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <router-link :to="{ name: 'insert-category' }" class="btn btn-add">
-      + Thêm danh mục
-    </router-link>
+    <router-link :to="{ name: 'insert-category' }" class="btn btn-add">+ Thêm danh mục</router-link>
+
     <span class="vd">Tìm kiếm</span>
-    <input type="text" class="custom-input" placeholder="Tìm kiếm danh mục" />
+    <input type="text" v-model="searchKeyword" class="custom-input" placeholder="Tìm danh mục..." />
+
     <span class="vd">Lọc</span>
     <select v-model="selectedParent" class="custom-select">
-      <option value="" selected>Lọc theo danh mục cha</option>
-      <option v-for="cate in categories" :key="cate.id" :value="cate.id">{{ cate.name }}</option>
+      <option value="">Tất cả danh mục cha</option>
+      <option v-for="cate in allCategories" :key="cate.id" :value="cate.id">{{ cate.name }}</option>
     </select>
 
+    <span class="vd">Hiển thị</span>
+    <select v-model="perPage" @change="changePerPage" class="custom-select">
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="15">15</option>
+    </select>
   </div>
 
-  <!-- Table Desktop -->
+  <!-- Desktop Table -->
   <div class="table-responsive d-none d-lg-block">
     <table class="table table-bordered rounded">
       <thead class="table-light">
         <tr>
-          <th><input type="checkbox" /></th>
+          <th><input type="checkbox" @change="toggleSelectAll" :checked="isAllSelected" /></th>
           <th>STT</th>
-          <th class="d-none d-md-table-cell">Tên</th>
+          <th>Tên</th>
+          <th>Hình ảnh</th>
           <th>Danh mục cha</th>
           <th>Tuỳ chọn</th>
         </tr>
       </thead>
       <tbody>
+        <tr v-if="categories.length === 0">
+          <td colspan="5" class="text-center text-muted">Không có danh mục nào.</td>
+        </tr>
         <template v-for="(item, index) in categories" :key="item.id">
           <tr>
-            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td>
             <td>{{ index + 1 }}</td>
             <td>{{ item.name }}</td>
-            <td>Không có (Danh mục cha)</td>
+            <td>
+              <img class="me-2 img_thumbnail"
+                :src="item.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + item.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
+                :alt="item.name">
+            </td>
+
+            <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
             <td class="d-flex justify-content-center gap-2 flex-wrap">
-              <button class="btn btn-outline">Sửa</button>
-              <button class="btn btn-danger-delete btn-sm">Xoá</button>
-              <button class="btn btn-outline">Thêm sản phẩm</button>
+              <router-link :to="{ name: 'update-category', params: { id: item.id } }" class="btn btn-outline btn-sm">
+                Sửa
+              </router-link>
+              <button class="btn btn-danger-delete btn-sm" @click="handleDelete(item.id)">Xoá</button>
+
             </td>
           </tr>
-
-          <!-- Nếu có danh mục con -->
           <tr v-for="(child, childIndex) in item.children" :key="child.id">
-            <td><input type="checkbox" /></td>
+            <td><input type="checkbox" :value="child.id" v-model="selectedIds" /></td>
             <td>{{ index + 1 }}.{{ childIndex + 1 }}</td>
+
             <td>{{ child.name }}</td>
+            <td>
+              <img class="me-2 img_thumbnail"
+                :src="child.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + child.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
+                :alt="child.name">
+            </td>
+
             <td>{{ item.name }}</td>
             <td class="d-flex justify-content-center gap-2 flex-wrap">
-              <button class="btn btn-outline">Sửa</button>
-              <button class="btn btn-danger-delete btn-sm">Xoá</button>
-              <button class="btn btn-outline">Thêm sản phẩm</button>
+              <router-link :to="{ name: 'update-category', params: { id: child.id } }" class="btn btn-outline btn-sm">
+                Sửa
+              </router-link>
+              <button class="btn btn-danger-delete btn-sm" @click="handleDelete(child.id)">Xoá</button>
+
             </td>
           </tr>
         </template>
       </tbody>
-
     </table>
   </div>
-  <button class="btn btn-danger-delete delete_desktop">Xoá</button>
+
+  <!-- Pagination -->
+  <nav class="mt-3">
+    <ul class="pagination">
+      <li class="page-item" :class="{ disabled: currentPage === 1 }">
+        <a class="page-link" href="#" @click.prevent="goToPage(currentPage - 1)">«</a>
+      </li>
+      <li class="page-item" v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }">
+        <a class="page-link" href="#" @click.prevent="goToPage(page)">{{ page }}</a>
+      </li>
+      <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+        <a class="page-link" href="#" @click.prevent="goToPage(currentPage + 1)">»</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="mt-2 d-flex justify-content-end">
+    <button class="btn btn-danger-delete" @click="handleDeleteSelected" :disabled="selectedIds.length === 0">
+      Xoá đã chọn ({{ selectedIds.length }})
+    </button>
+  </div>
+
+
 
   <!-- Mobile View -->
   <div class="d-block d-lg-none">
-    <div class="card mb-3" v-for="(item, index) in [1, 2, 3]" :key="index">
+    <div class="card mb-3" v-for="(item, index) in categories" :key="item.id">
       <div class="row g-0 align-items-center">
         <div class="col-3 fs-4 fw-bold ps-4">
           <input type="checkbox" />
@@ -70,58 +116,235 @@
         </div>
         <div class="col-9">
           <div class="card-body">
-            <h5 class="card-title">Chưa phân loại</h5>
-            <p class="card-text"><span class="label">Danh mục cha:</span> </p>
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text"><span class="label">Danh mục cha:</span> Không có</p>
             <button class="btn btn-outline btn-sm">Sửa</button>
             <button class="btn btn-danger-delete btn-sm">Xoá</button>
-            <button class="btn btn-outline btn-sm">Thêm sản phẩm</button>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <button class="btn btn-danger-delete delete_mobile">Xoá</button>
 </template>
 
 <script>
 import axios from 'axios'
-import { useMenu } from '@/stores/use-menu'
-import { ref, onMounted,computed } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
+import { debounce } from 'lodash'
+import Swal from 'sweetalert2'
+
+
 export default {
   setup() {
-
-
-    const selectedParent = ref('')
-
-    const filteredCategories = computed(() => {
-      if (!selectedParent.value) return categories.value
-      return categories.value.filter(c => c.id == selectedParent.value)
-    })
-
-
     const categories = ref([])
+    const allCategories = ref([])
+    const perPage = ref(10)
+    const currentPage = ref(1)
+    const totalPages = ref(1)
+    const selectedParent = ref('')
+    const searchKeyword = ref('')
+    const selectedIds = ref([])
+
 
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/categories')
-        categories.value = response.data
+        const response = await axios.get('http://127.0.0.1:8000/api/admin/categories/list', {
+          params: {
+            per_page: perPage.value,
+            page: currentPage.value,
+            search: searchKeyword.value,
+            parent_id: selectedParent.value
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+
+        let fetchedCategories = response.data.data
+
+        if (selectedParent.value) {
+          const parentItem = fetchedCategories.find(item => item.id == selectedParent.value)
+
+          // Nếu có children thì gán thêm parent_name vào từng child
+          if (parentItem && parentItem.children?.length > 0) {
+            const childrenWithParent = parentItem.children.map(child => ({
+              ...child,
+              parent_name: parentItem.name  // gán tên cha vào
+            }))
+            categories.value = childrenWithParent
+          } else {
+            categories.value = []
+          }
+        } else {
+          // Trường hợp không lọc => dùng nguyên data (cha + children)
+          categories.value = fetchedCategories
+        }
+
+        totalPages.value = response.data.last_page
+        currentPage.value = response.data.current_page
       } catch (error) {
         console.error('Lỗi khi load danh mục:', error)
       }
     }
 
+    const fetchAllParents = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/admin/categories/parents/list', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+        allCategories.value = response.data.data
+      } catch (error) {
+        console.error('Lỗi khi lấy danh mục cha:', error)
+      }
+    }
+
+    const handleDelete = async (id) => {
+      const result = await Swal.fire({
+        title: 'Bạn có chắc chắn?',
+        text: 'Bạn sẽ không thể hoàn tác hành động này!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: 'Xoá',
+        cancelButtonText: 'Huỷ'
+      })
+
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(`http://127.0.0.1:8000/api/admin/categories/${id}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          })
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã xoá thành công!',
+            showConfirmButton: false,
+            timer: 1500
+          })
+
+          fetchCategories()
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi xoá danh mục!',
+            text: error?.response?.data?.message || 'Đã xảy ra lỗi không xác định',
+          })
+        }
+      }
+    }
+    const isAllSelected = computed(() =>
+      categories.value.flatMap(item => [item.id, ...(item.children || []).map(child => child.id)])
+        .every(id => selectedIds.value.includes(id))
+    )
+
+    const toggleSelectAll = () => {
+      const allIds = categories.value.flatMap(item => [item.id, ...(item.children || []).map(child => child.id)])
+      if (isAllSelected.value) {
+        selectedIds.value = []
+      } else {
+        selectedIds.value = allIds
+      }
+    }
+
+    const handleDeleteSelected = async () => {
+      const result = await Swal.fire({
+        title: 'Xác nhận xoá',
+        text: `Bạn có chắc chắn muốn xoá ${selectedIds.value.length} danh mục?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: 'Xoá',
+        cancelButtonText: 'Huỷ'
+      })
+
+      if (result.isConfirmed) {
+        try {
+          await axios.post('http://127.0.0.1:8000/api/admin/categories/delete-multiple', {
+            ids: selectedIds.value
+          }, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+          })
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Đã xoá thành công!',
+            showConfirmButton: false,
+            timer: 1500
+          })
+
+          selectedIds.value = []
+          fetchCategories()
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi xoá danh mục!',
+            text: error?.response?.data?.message || 'Đã xảy ra lỗi không xác định',
+          })
+        }
+      }
+    }
+
+
+    const debounceFetch = debounce(() => {
+      currentPage.value = 1
+      fetchCategories()
+    }, 300)
+
+    const goToPage = (page) => {
+      if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page
+        fetchCategories()
+      }
+    }
+
+    const changePerPage = () => {
+      currentPage.value = 1
+      fetchCategories()
+    }
+
+    watch(selectedParent, () => {
+      currentPage.value = 1
+      fetchCategories()
+    })
+
+    watch(searchKeyword, () => {
+      debounceFetch()
+    })
+
     onMounted(() => {
-      useMenu().onSelectedKeys(['admin-roles'])
+      fetchAllParents()
       fetchCategories()
     })
 
     return {
-      categories
-    }
-  },
-}
-</script>
+      categories,
+      allCategories,
+      perPage,
+      currentPage,
+      totalPages,
+      selectedParent,
+      searchKeyword,
+      selectedIds,
+      isAllSelected,
+      goToPage,
+      changePerPage,
+      handleDelete,
+      toggleSelectAll,
+      handleDeleteSelected
 
+    }
+  }
+}
+
+</script>
 
 
 <style scoped>
@@ -145,32 +368,14 @@ export default {
   font-size: 13px;
   border-radius: 4px;
   outline: none;
-  box-shadow: none !important;
-  transition: border-color 0.3s ease;
 }
 
 .custom-input:focus,
 .custom-select:focus {
   border-color: #999;
-  box-shadow: none;
 }
 
-.btn-add {
-  background: none;
-  color: #c92c3c;
-  border: 1px solid #c92c3c;
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-weight: normal;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.btn-add:hover {
-  background-color: #c92c3c;
-  color: #fff;
-}
-
+.btn-add,
 .btn-danger-delete {
   background: none;
   color: #c92c3c;
@@ -179,9 +384,9 @@ export default {
   border-radius: 4px;
   font-weight: normal;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.btn-add:hover,
 .btn-danger-delete:hover {
   background-color: #c92c3c;
   color: #fff;
@@ -193,9 +398,7 @@ export default {
   padding: 4px 10px;
   border-radius: 4px;
   color: #555;
-  font-weight: normal;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .btn-outline:hover {
@@ -203,33 +406,45 @@ export default {
   color: #333;
 }
 
-.delete_mobile {
-  display: none;
-}
-
 @media (max-width: 768px) {
-  .table-responsive {
-    display: none;
-  }
 
+  .table-responsive,
   .vd {
     display: none;
-  }
-
-  .delete_desktop {
-    display: none;
-  }
-
-  .delete_mobile {
-    display: inline-block;
   }
 
   .custom-input,
   .custom-select {
     width: 100%;
-    max-width: 100%;
     font-size: 14px;
     height: 32px;
+  }
+}
+
+.img_thumbnail {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+@media (max-width: 576px) {
+  .img_thumbnail {
+    width: 36px;
+    height: 36px;
+  }
+
+  .clean-input,
+  .clean-select,
+  .custom-select {
+    width: 100% !important;
+    margin-top: 5px;
+  }
+
+  .btn-outline,
+  .btn-clean {
+    padding: 4px 8px;
+    font-size: 0.8rem;
   }
 }
 </style>

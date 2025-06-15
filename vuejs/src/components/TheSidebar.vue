@@ -65,6 +65,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import {
   DashboardOutlined,
   AppstoreOutlined,
@@ -125,6 +126,8 @@ const isParentActive = (children) => {
   return children.some(child => route.path === child.to);
 }
 
+
+const router = useRouter();
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
@@ -134,7 +137,31 @@ onMounted(() => {
       activeSubMenu.value = item.key;
     }
   });
+
+  try {
+    const userRaw = localStorage.getItem("user");
+    if (!userRaw) {
+      router.push('/home');
+      return;
+    }
+
+    const user = JSON.parse(userRaw);
+
+    // Kiểm tra quyền
+    if (!user.role || user.role.toLowerCase() !== 'admin') {
+      router.push('/home');
+      return;
+    }
+
+    // Bạn có thể dùng user ở đây nếu cần
+    // Ví dụ: const userInfo = ref(user)
+  } catch (e) {
+    console.error("Lỗi khi đọc user từ localStorage:", e);
+    // router.push('/home');
+  }
 })
+
+
 
 watch(route, () => {
   closeSidebarIfMobile()
