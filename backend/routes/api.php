@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminCategoryToppingController;
 use App\Http\Controllers\AdminFoodController;
 use App\Http\Controllers\AdminToppingController;
@@ -155,8 +156,8 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 
 //admin
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    // món ăn
     Route::get('/admin/manage/foods', [AdminFoodController::class, 'index']);
-    Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
     Route::post('/admin/foods', [AdminFoodController::class, 'store']);
     Route::get('/admin/foods/search', [FoodController::class, 'search']);
     Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
@@ -164,9 +165,23 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('admin/food/{id}/status', [AdminFoodController::class, 'updateStatus']);
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
-    Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
-    Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
-    Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
+
+    // danh mục món ăn
+    Route::get('/admin/categories', [AdminCategoryController::class, 'getAllCategories']);
+    Route::get('/admin/categories/parents/list', [AdminCategoryController::class, 'getParents']);
+    Route::get('/admin/categories/list', [AdminCategoryController::class, 'index']);
+    Route::get('/admin/categories/{id}', [AdminCategoryController::class, 'show']);
+    Route::post('/admin/categories', [AdminCategoryController::class, 'store']);
+    Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update']);
+    Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
+    Route::post('/admin/categories/delete-multiple', [AdminCategoryController::class, 'deleteMultiple']);
+
+
+
+
+    // Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
+    // Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
+    // Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
 });
 
 
@@ -187,7 +202,7 @@ Route::post('/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 
 /**combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
-Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
+// Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
