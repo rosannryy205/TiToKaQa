@@ -183,6 +183,7 @@
           <div class="row mb-3">
             <div class="col-12 col-md-8 mb-2 mb-md-0">
               <input
+                v-model="searchQuery"
                 type="text"
                 class="form-control rounded"
                 id="searchInput"
@@ -208,7 +209,7 @@
                 </tr>
               </thead>
               <tbody id="menuList">
-                <tr v-for="food in foods" :key="food.id" :value="food.name">
+                <tr v-for="food in filteredCombos" :key="food.id" :value="food.name">
                   <td>
                     <input
                       type="checkbox"
@@ -249,6 +250,9 @@ const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
 
 const formatNumber = (value) => numeral(value).format('0,0')
 
+// ============================
+// FETCH DATA
+// ============================
 const allFoodsForAdmin = ref([])
 const allCatesForAdmin = ref([])
 
@@ -263,12 +267,12 @@ const fetchAllFoodsForCombo = async () => {
 
 const fetchAllCatesForCombo = async () => {
   try {
-    const res = await axios(`http://127.0.0.1:8000/api/admin/categories`)
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/categories')
     const data = res.data || []
-    data.shift() 
+    data.shift() // Bỏ "Tất cả"
     allCatesForAdmin.value = data
   } catch (error) {
-    console.log('Lỗi lấy danh mục:', error)
+    console.error('Lỗi lấy danh mục:', error)
   }
 }
 
@@ -291,9 +295,17 @@ function handleImage(event) {
 }
 
 // ============================
-// MÓN ĂN ĐƯỢC CHỌN
+// MÓN ĂN ĐƯỢC CHỌN và SEARCH
 // ============================
 const selectedFoods = ref([])
+const searchQuery = ref('');
+
+const filteredCombos = computed(() => {
+      const keyword = searchQuery.value.toLowerCase();
+      return foods.value.filter((p) =>
+        p.name.toLowerCase().includes(keyword)
+      );
+    });
 
 const isSelected = (id) => {
   return selectedFoods.value.some((item) => item.id === id)
@@ -310,16 +322,25 @@ const toggleSelect = (food) => {
 
 const addSelectedFoods = () => {
   const modalEl = document.getElementById('menuModal')
-  const modalInstance = Modal.getInstance(modalEl) || new Modal(modalEl)
-  modalInstance.hide()
-
-  //backdrop lỗi nếu có
-  const backdrop = document.querySelector('.modal-backdrop')
-  if (backdrop) {
-    backdrop.remove()
+  const modalInstance = Modal.getInstance(modalEl)
+  if (modalInstance) {
+    modalInstance.hide()
+  } else {
+    modalEl.classList.remove('show')
+    modalEl.setAttribute('aria-hidden', 'true')
+    modalEl.style.display = 'none'
     document.body.classList.remove('modal-open')
     document.body.style = ''
+    const backdrop = document.querySelector('.modal-backdrop')
+    if (backdrop) backdrop.remove()
   }
+}
+
+const cleanUpBody = () => {
+  document.body.classList.remove('modal-open')
+  document.body.style = ''
+  const backdrop = document.querySelector('.modal-backdrop')
+  if (backdrop) backdrop.remove()
 }
 
 function increaseQuantity(food) {
@@ -327,9 +348,7 @@ function increaseQuantity(food) {
 }
 
 function decreaseQuantity(food) {
-  if (food.quantity > 1) {
-    food.quantity--
-  }
+  if (food.quantity > 1) food.quantity--
 }
 
 function removeFood(id) {
@@ -337,9 +356,8 @@ function removeFood(id) {
     selectedFoods.value = selectedFoods.value.filter((f) => f.id !== id)
   }
 }
-
 // ============================
-// TÍNH GIÁ GỐC
+// GIÁ GỐC & ĐỊNH DẠNG
 // ============================
 const originPrice = computed(() =>
   selectedFoods.value.reduce((sum, food) => {
@@ -348,11 +366,11 @@ const originPrice = computed(() =>
 )
 
 const originPriceFormatted = computed(() =>
-  numeral(originPrice.value).format('0,0')
+  formatNumber(originPrice.value)
 )
 
 // ============================
-// GỬI DỮ LIỆU COMBO
+// VALIDATION & RESET
 // ============================
 const validateBeforeSubmit = () => {
   if (!comboName.value.trim()) return 'Vui lòng nhập tên Combo'
@@ -363,6 +381,19 @@ const validateBeforeSubmit = () => {
   return null
 }
 
+const resetForm = () => {
+  comboName.value = ''
+  salePrice.value = 0
+  status.value = ''
+  description.value = ''
+  selectedImage.value = null
+  imagePreview.value = null
+  selectedFoods.value = []
+}
+
+// ============================
+// SUBMIT COMBO
+// ============================
 const createCombosByAdmin = async () => {
   const errorMsg = validateBeforeSubmit()
   if (errorMsg) {
@@ -393,28 +424,25 @@ const createCombosByAdmin = async () => {
     resetForm()
   } catch (error) {
     if (error.response?.status === 422 && error.response.data.error) {
-      toast.warning("Tên Combo Đã Tồn Tại")
-    console.log(error.response.data.error);
-  } else {
-    alert('Lỗi khác khi tạo combo');
+      toast.warning('Tên Combo đã tồn tại')
+      console.log(error.response.data.error)
+    } else {
+      alert('Lỗi khác khi tạo combo')
+    }
   }
 }
-function resetForm() {
-  comboName.value = ''
-  salePrice.value = 0
-  status.value = ''
-  description.value = ''
-  selectedImage.value = null
-  imagePreview.value = null
-  selectedFoods.value = []
-}
-
+// ============================
+// ON MOUNT
 // ============================
 onMounted(() => {
   fetchAllFoodsForCombo()
   fetchAllCatesForCombo()
+
+  const modalEl = document.getElementById('menuModal')
+  if (modalEl) {
+    modalEl.addEventListener('hidden.bs.modal', cleanUpBody)
+  }
 })
-}
 </script>
 
 <style>

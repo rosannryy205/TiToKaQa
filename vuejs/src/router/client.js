@@ -74,6 +74,12 @@ const client = [
         meta: { title: 'Cập nhật thông tin' },
       },
       {
+        path: 'coins-reward',
+        name: 'coins-reward',
+        component: () => import('../pages/client/user/coins-reward.vue'),
+        meta: { title: 'Trang chủ' },
+      },
+      {
         path: 'order-management',
         name: 'order-management',
         component: () => import('../pages/client/user/order-management.vue'),
