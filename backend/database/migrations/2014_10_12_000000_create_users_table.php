@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->string('address')->nullable();
             $table->string('fullname')->nullable();
-            $table->enum('status', ['active', 'inactive']) -> default('active');
             $table->integer('rank_points')->default(500);
             $table->integer('usable_points')->default(0);
             $table->string('rank')->default('Bạc');
