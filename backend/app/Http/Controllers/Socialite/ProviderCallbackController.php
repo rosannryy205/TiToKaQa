@@ -40,7 +40,7 @@ class ProviderCallbackController extends Controller
                     'avatar' => $socialUser->getAvatar(),
                 ]);
 
-                $user->assignRole('customer');
+                $user->assignRole('khachhang');
             }
 
             $token = $user->createToken('api_token')->plainTextToken;

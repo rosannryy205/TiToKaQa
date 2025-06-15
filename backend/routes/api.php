@@ -79,6 +79,7 @@ Route::post('/insert-table', [TableController::class, 'insertTable']);
 Route::get('/role', [RoleController::class, 'getAllRole']);
 Route::get('/role-permission/{id}', [RoleController::class, 'getAllPermission']);
 Route::put('/role-permission-update', [RoleController::class, 'updatePermission']);
+Route::post('/role-permission-create', [RoleController::class, 'createRoleWithPermissions']);
 Route::get('/role-permission-user/{id}', [RoleController::class, 'userProfile']);
 
 
