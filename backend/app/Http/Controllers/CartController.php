@@ -112,84 +112,85 @@ class CartController extends Controller
 
 
     public function orderTakeAway(Request $request)
-{
-    try {
-        $data = $request->validate(
-            [
-                'user_id' => 'nullable|numeric',
-                'guest_name' => 'required|string|max:255',
-                'note' => 'nullable|string',
-                'order_detail' => 'nullable|array',
-                'total_price' => 'nullable|numeric',
-                'money_reduce' => 'nullable|numeric',
-                'discount_id' => 'nullable|numeric',
-            ],
-            [
-                'guest_name.required' => 'Vui lòng nhập họ tên.',
-            ]
-        );
-
+    {
         try {
-            $order = Order::create([
-                'user_id' => $data['user_id'] ?? null,
-                'guest_name' => $data['guest_name'],
-                'guest_phone' => null,
-                'guest_email' => null,
-                'guest_address' => null,
-                'total_price' => $data['total_price'] ?? 0,
-                'money_reduce' => $data['money_reduce'] ?? 0,
-                'discount_id' => $data['discount_id'] ?? null,
-                'note' => $data['note'] ?? null,
-                'order_status' => "Hoàn thành",
-            ]);
+            $data = $request->validate(
+                [
+                    'user_id' => 'nullable|numeric',
+                    'guest_name' => 'required|string|max:255',
+                    'note' => 'nullable|string',
+                    'order_detail' => 'nullable|array',
+                    'total_price' => 'nullable|numeric',
+                    'money_reduce' => 'nullable|numeric',
+                    'discount_id' => 'nullable|numeric',
+                ],
+                [
+                    'guest_name.required' => 'Vui lòng nhập họ tên.',
+                ]
+            );
 
-            if (!empty($data['order_detail'])) {
-                foreach ($data['order_detail'] as $item) {
-                    $orderDetail = Order_detail::create([
-                        'order_id' => $order->id,
-                        'food_id' => $item['food_id'] ?? null,
-                        'combo_id' => $item['combo_id'] ?? null,
-                        'quantity' => $item['quantity'],
-                        'price' => $item['price'],
-                        'type' => $item['type'],
-                    ]);
+            try {
+                $order = Order::create([
+                    'user_id' => $data['user_id'] ?? null,
+                    'guest_name' => $data['guest_name'],
+                    'guest_phone' => null,
+                    'guest_email' => null,
+                    'guest_address' => null,
+                    'total_price' => $data['total_price'] ?? 0,
+                    'money_reduce' => $data['money_reduce'] ?? 0,
+                    'discount_id' => $data['discount_id'] ?? null,
+                    'note' => $data['note'] ?? null,
+                    'order_status' => "Đã xác nhận",
+                    'type_order' => "takeaway",
+                ]);
 
-                    if (!empty($item['food_id'])) {
-                        $food = Food::find($item['food_id']);
-                        if ($food) {
-                            $food->stock -= $item['quantity'];
-                            $food->quantity_sold += $item['quantity'];
-                            $food->save();
+                if (!empty($data['order_detail'])) {
+                    foreach ($data['order_detail'] as $item) {
+                        $orderDetail = Order_detail::create([
+                            'order_id' => $order->id,
+                            'food_id' => $item['food_id'] ?? null,
+                            'combo_id' => $item['combo_id'] ?? null,
+                            'quantity' => $item['quantity'],
+                            'price' => $item['price'],
+                            'type' => $item['type'],
+                        ]);
+
+                        if (!empty($item['food_id'])) {
+                            $food = Food::find($item['food_id']);
+                            if ($food) {
+                                $food->stock -= $item['quantity'];
+                                $food->quantity_sold += $item['quantity'];
+                                $food->save();
+                            }
                         }
-                    }
 
-                    if (!empty($item['toppings'])) {
-                        foreach ($item['toppings'] as $topping) {
-                            Order_topping::create([
-                                'food_toppings_id' => $topping['food_toppings_id'],
-                                'order_detail_id' => $orderDetail->id,
-                                'price' => $topping['price'],
-                            ]);
+                        if (!empty($item['toppings'])) {
+                            foreach ($item['toppings'] as $topping) {
+                                Order_topping::create([
+                                    'food_toppings_id' => $topping['food_toppings_id'],
+                                    'order_detail_id' => $orderDetail->id,
+                                    'price' => $topping['price'],
+                                ]);
+                            }
                         }
                     }
                 }
-            }
 
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Đặt hàng thành công',
+                    'order_id' => $order->id
+                ], 200);
+            } catch (\Exception $e) {
+                return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
+            }
+        } catch (ValidationException $e) {
             return response()->json([
-                'status' => true,
-                'message' => 'Đặt hàng thành công',
-                'order_id' => $order->id
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json(['status' => false, 'error' => $e->getMessage()], 500);
+                'status' => false,
+                'errors' => $e->errors()
+            ], 422);
         }
-    } catch (ValidationException $e) {
-        return response()->json([
-            'status' => false,
-            'errors' => $e->errors()
-        ], 422);
     }
-}
 
 
     public function get_order_detail(Request $request)
@@ -258,7 +259,8 @@ class CartController extends Controller
         $orders = Order::with([
             'details.foods', // lấy tên món ăn
             'details.toppings.food_toppings.toppings', // lấy tên topping
-            'tables'
+            'tables',
+            'payment'
         ])->orderByDesc('order_time')->get();
 
         if ($orders->isNotEmpty()) {
@@ -267,7 +269,7 @@ class CartController extends Controller
                     return [
                         'id' => $detail->id,
                         'food_id' => $detail->food_id,
-                        'food_name' => $detail->food_name ?? null,
+                        'food_name' => optional($detail->foods)->name,
                         'quantity' => $detail->quantity,
                         'price' => $detail->price,
                         'image' => $detail->foods->image,
@@ -275,7 +277,7 @@ class CartController extends Controller
                         'toppings' => $detail->toppings->map(function ($toppings) {
                             return [
                                 'food_toppings_id' => $toppings->food_toppings_id,
-                                'topping_name' => $toppings->food_toppings->topping->name ?? null,
+                                'topping_name' => $toppings->food_toppings->toppings->name ?? null,
                                 'price' => $toppings->price,
                             ];
                         })
@@ -302,6 +304,7 @@ class CartController extends Controller
                     'check_in_time' => $order->check_in_time,
                     'expiration_time' => $order->expiration_time,
                     'money_reduce' => $order->money_reduce,
+                    'type_order' => $order->type_order,
                     'details' => $details,
                     'tables' => $order->tables->map(function ($table) {
                         return [
@@ -315,6 +318,13 @@ class CartController extends Controller
                             'reserved_to' => $table->pivot->reserved_to,
                         ];
                     }),
+                    'payment' => [
+                        'amount_paid' => $order->payment->amount_paid ?? null,
+                        'payment_method' => $order->payment->payment_method ?? null,
+                        'payment_status' => $order->payment->payment_status ?? null,
+                        'payment_time' => $order->payment->payment_time ?? null,
+                        'payment_type' => $order->payment->payment_type ?? null,
+                    ],
                 ];
             });
 
@@ -337,7 +347,7 @@ class CartController extends Controller
             'order_status' => 'required|string|max:255'
         ]);
 
-        $order = Order::with('details')->find($id);
+        $order = Order::with('details', 'payment')->find($id);
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
@@ -367,6 +377,31 @@ class CartController extends Controller
             $pointService = new PointService();
             $pointService->updateUserPointsWhenOrderCompleted($order);
             //================================
+
+            if ($order->payment) {
+                $payment = $order->payment;
+
+                if ($newStatus === 'Giao thành công') {
+                    $payment->payment_status = 'Đã thanh toán';
+                } elseif (in_array($newStatus, ['Giao thất bại', 'Đã hủy'])) {
+                    $payment->payment_status = 'Thanh toán thất bại';
+
+                    if(in_array($payment->payment_method, ['VNPAY', 'MOMO'])){
+                        $payment->payment_status = 'Đã hoàn tiền';
+                    }
+                }
+                // Nếu là thanh toán online và đơn hàng giao thành công thì luôn đảm bảo đánh dấu là đã thanh toán
+                if (
+                    $newStatus === 'Giao thành công' &&
+                    in_array($payment->payment_method, ['VNPAY', 'MOMO'])
+                ) {
+                    $payment->payment_status = 'Đã thanh toán';
+                }
+
+                $payment->save();
+            }
+
+
 
             DB::commit();
 

@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('edit_combo')">
   <div class="d-flex justify-content-between">
     <h3 class="text-danger fw-bold">Cập nhật Combo</h3>
     <div>
@@ -16,13 +16,8 @@
               <label for="name" class="form-label">
                 Tên Combo <span class="text-danger">*</span>
               </label>
-              <input
-                v-model="selectedCombo.name"
-                type="text"
-                class="form-control rounded-0"
-                id="comboName"
-                required
-              />
+              <input v-model="selectedCombo.name" type="text" class="form-control rounded-0" id="comboName" required />
+              <input v-model="selectedCombo.name" type="text" class="form-control rounded-0" id="comboName" required />
             </div>
             <div class="col mb-3">
               <label for="category" class="form-label">
@@ -39,60 +34,101 @@
           </div>
           <div class="mb-3">
             <label for="description" class="form-label">Mô tả</label>
-            <textarea
-              class="form-control rounded-0"
-              id="description"
-              rows="3"
-              v-model="selectedCombo.description"
-            ></textarea>
+            <textarea class="form-control rounded-0" id="description" rows="3"
+              v-model="selectedCombo.description"></textarea>
+            <textarea class="form-control rounded-0" id="description" rows="3"
+              v-model="selectedCombo.description"></textarea>
           </div>
 
           <div class="mb-3">
-  <div style="max-height: 200px; overflow-y: auto;" class="table-responsive d-none d-lg-block">
-    <!-- Bảng món ăn trong combo -->
-    <table class="table table-bordered">
-      <thead class="table-light">
-        <tr>
-          <th>Chọn</th>
-          <th>Món ăn</th>
-          <th>Giá bán</th>
-          <th>Số lượng</th>
-          <th>Tuỳ chọn</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="food in selectedCombo.foods" :key="food.id">
-          <td><input type="checkbox" v-model="food.checked" /></td>
-          <td>
-            <img
-              :src="`/img/food/${food.image}`"
-              :alt="food.name"
-              class="me-2 img_thumbnail"
-            />
-            {{ food.name }}
-          </td>
-          <td>{{ formatNumber(food.price) }} VNĐ</td>
-          <td>
-            <div class="qty-control px-2 py-1">
-              <button type="button" class="btn-sm" @click="decreaseQuantity(food)" style="background-color: #fff">-</button>
-              <span>{{ food.quantity }}</span>
-              <button type="button" class="btn-sm" @click="increaseQuantity(food)" style="background-color: #fff">+</button>
+            <div style="max-height: 200px; overflow-y: auto;" class="table-responsive d-none d-lg-block">
+              <!-- Bảng món ăn trong combo -->
+              <table class="table table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th>Chọn</th>
+                    <th>Món ăn</th>
+                    <th>Giá bán</th>
+                    <th>Số lượng</th>
+                    <th>Tuỳ chọn</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="food in selectedCombo.foods" :key="food.id">
+                    <td><input type="checkbox" v-model="food.checked" /></td>
+                    <td>
+                      <img :src="`/img/food/${food.image}`" :alt="food.name" class="me-2 img_thumbnail" />
+                      {{ food.name }}
+                    </td>
+                    <td>{{ formatNumber(food.price) }} VNĐ</td>
+                    <td>
+                      <div class="qty-control px-2 py-1">
+                        <button type="button" class="btn-sm" @click="decreaseQuantity(food)"
+                          style="background-color: #fff">-</button>
+                        <span>{{ food.quantity }}</span>
+                        <button type="button" class="btn-sm" @click="increaseQuantity(food)"
+                          style="background-color: #fff">+</button>
+                      </div>
+                    </td>
+                    <td class="d-flex justify-content-center gap-2">
+                      <button class="btn btn-danger-delete" @click.prevent="removeFood(food.id)">Xoá</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </td>
-          <td class="d-flex justify-content-center gap-2">
-            <button class="btn btn-danger-delete" @click.prevent="removeFood(food.id)">Xoá</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="d-flex justify-content-between align-items-center mt-2">
-    <button type="button" class="btn btn-danger-save" data-bs-toggle="modal" data-bs-target="#menuModal">
-      Thêm món
-    </button>
-    <span class="text-danger fw-bold medium">Giá gốc Combo: {{ numeral(originalTotalPrice).format('0,0') }} VNĐ</span>
-  </div>
-</div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <button type="button" class="btn btn-danger-save" data-bs-toggle="modal" data-bs-target="#menuModal">
+                Thêm món
+              </button>
+              <span class="text-danger fw-bold medium">Giá gốc Combo: {{ numeral(originalTotalPrice).format('0,0') }}
+                VNĐ</span>
+            </div>
+          </div>
+            <div style="max-height: 200px; overflow-y: auto;" class="table-responsive d-none d-lg-block">
+              <!-- Bảng món ăn trong combo -->
+              <table class="table table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th>Chọn</th>
+                    <th>Món ăn</th>
+                    <th>Giá bán</th>
+                    <th>Số lượng</th>
+                    <th>Tuỳ chọn</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="food in selectedCombo.foods" :key="food.id">
+                    <td><input type="checkbox" v-model="food.checked" /></td>
+                    <td>
+                      <img :src="`/img/food/${food.image}`" :alt="food.name" class="me-2 img_thumbnail" />
+                      {{ food.name }}
+                    </td>
+                    <td>{{ formatNumber(food.price) }} VNĐ</td>
+                    <td>
+                      <div class="qty-control px-2 py-1">
+                        <button type="button" class="btn-sm" @click="decreaseQuantity(food)"
+                          style="background-color: #fff">-</button>
+                        <span>{{ food.quantity }}</span>
+                        <button type="button" class="btn-sm" @click="increaseQuantity(food)"
+                          style="background-color: #fff">+</button>
+                      </div>
+                    </td>
+                    <td class="d-flex justify-content-center gap-2">
+                      <button class="btn btn-danger-delete" @click.prevent="removeFood(food.id)">Xoá</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <button type="button" class="btn btn-danger-save" data-bs-toggle="modal" data-bs-target="#menuModal">
+                Thêm món
+              </button>
+              <span class="text-danger fw-bold medium">Giá gốc Combo: {{ numeral(originalTotalPrice).format('0,0') }}
+                VNĐ</span>
+            </div>
+          </div>
 
         </div>
       </div>
@@ -103,14 +139,10 @@
           <div class="row">
             <div class="col mb-3">
               <p>Giá combo (ưu đãi) hiện tại: {{ numeral(selectedCombo.price).format('0,0') }} VNĐ</p>
-<input
-  v-model="selectedCombo.price"
-  type="number"
-  class="form-control rounded-0 mt-1"
-  id="price"
-  min="0"
-  required
-/>
+              <input v-model="selectedCombo.price" type="number" class="form-control rounded-0 mt-1" id="price" min="0"
+                required />
+              <input v-model="selectedCombo.price" type="number" class="form-control rounded-0 mt-1" id="price" min="0"
+                required />
 
             </div>
           </div>
@@ -130,35 +162,22 @@
     </div>
   </form>
   <button type="button" class="btn btn-danger-save mt-2" @click="updateCombo">Cập nhật Combo</button>
-  <div
-    class="modal fade"
-    id="menuModal"
-    tabindex="-1"
-    aria-labelledby="menuModalLabel"
-    aria-hidden="true"
-  >
+  <div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
+  <div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-xl">
       <div class="modal-content shadow-sm rounded-3">
         <div class="modal-header">
           <h5 class="modal-title fw-semibold" id="menuModalLabel">Danh sách món</h5>
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          >
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close">
             &times;
           </button>
         </div>
         <div class="modal-body">
           <div class="row mb-3">
             <div class="col-12 col-md-8 mb-2 mb-md-0">
-              <input
-                type="text"
-                class="form-control rounded"
-                id="searchInput"
-                placeholder="Nhập tên món..."
-              />
+              <input type="text" class="form-control rounded" id="searchInput" placeholder="Nhập tên món..." />
+              <input type="text" class="form-control rounded" id="searchInput" placeholder="Nhập tên món..." />
             </div>
             <div class="col-12 col-md-4">
               <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
@@ -181,13 +200,10 @@
               <tbody id="menuList">
                 <tr v-for="food in foods" :key="food.id" :value="food.name">
                   <td>
-                    <input
-                      type="checkbox"
-                      class="form-check-input menu-checkbox"
-                      :value="food.id"
-                      @change="toggleSelect(food)"
-                      :checked="isSelected(food.id)"
-                    />
+                    <input type="checkbox" class="form-check-input menu-checkbox" :value="food.id"
+                      @change="toggleSelect(food)" :checked="isSelected(food.id)" />
+                    <input type="checkbox" class="form-check-input menu-checkbox" :value="food.id"
+                      @change="toggleSelect(food)" :checked="isSelected(food.id)" />
                   </td>
                   <td class="text-start">{{ food.name }}</td>
                   <td>{{ formatNumber(food.price) }} VND</td>
@@ -216,6 +232,7 @@ import { toast } from 'vue3-toastify'
 import { FoodList } from '@/stores/food.js'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
+import { Permission } from '@/stores/permission'
 
 // ================== BIẾN & ROUTE ==================
 const route = useRoute()
@@ -230,6 +247,20 @@ const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
 
 // ================== HÀM XỬ LÝ CHUNG ==================
 const formatNumber = (n) => new Intl.NumberFormat().format(n)
+
+
+
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
+
+
 
 const originalTotalPrice = computed(() => {
   return selectedCombo.value.foods.reduce((sum, food) => {
@@ -360,13 +391,19 @@ async function updateCombo() {
     }))
     formData.append('foods', JSON.stringify(foods))
     for (let [key, value] of formData.entries()) {
-  if (key === 'image' && value instanceof File) {
-    console.log(`${key}: [File] name=${value.name}, size=${value.size}B, type=${value.type}`)
-  } else {
-    console.log(`${key}: ${value}`)
-  }
-}
-    await axios.post(
+      if (key === 'image' && value instanceof File) {
+        console.log(`${key}: [File] name=${value.name}, size=${value.size}B, type=${value.type}`)
+      } else {
+        console.log(`${key}: ${value}`)
+      }
+    }
+      if (key === 'image' && value instanceof File) {
+        console.log(`${key}: [File] name=${value.name}, size=${value.size}B, type=${value.type}`)
+      } else {
+        console.log(`${key}: ${value}`)
+      }
+    }
+    await axios.patch(
       `http://127.0.0.1:8000/api/admin/combos/update/${comboId}`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
@@ -383,6 +420,7 @@ async function updateCombo() {
 onMounted(() => {
   fetchComboById()
 })
+
 </script>
 
 <style>
@@ -411,6 +449,7 @@ onMounted(() => {
   background-color: #c92c3c;
   color: #fff;
 }
+
 .btn-danger-save {
   background: none;
   color: #1d54bc;
@@ -428,13 +467,16 @@ onMounted(() => {
   background-color: #1d54bc;
   color: #fff;
 }
+
 .form-select:focus {
   border-color: #c92c3c;
   box-shadow: none;
 }
-#menuModal > div > div > div.modal-header > button {
+
+#menuModal>div>div>div.modal-header>button {
   background-color: #fff !important;
 }
+
 #menuModal .modal-header .btn-outline-secondary {
   border: none !important;
   background: none !important;
