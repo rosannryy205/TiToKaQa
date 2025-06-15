@@ -1,14 +1,15 @@
-<template>
+<template v-if="hasPermission('view_booking')">
   <h4 class="pb-2">Đơn hiện thời</h4>
+  <router-link to="/admin/order-create">
+    <button class="btn add-order-fixed-btn">
+      + Thêm đơn hàng
+    </button>
+  </router-link>
   <div class="tab-content">
     <div class="tab-pane active" id="all-content" role="tabpanel" aria-labelledby="tab-all">
       <div class="order-cards-grid">
-        <article
-          class="order-card-container"
-          v-for="(order, index) in orderOfTable"
-          :key="order.id"
-          v-show="order.order_status == 'Khách đã đến'"
-        >
+        <article class="order-card-container" v-for="(order, index) in orderOfTable" :key="order.id"
+          v-show="order.order_status == 'Khách đã đến'">
           <header class="order-header">
             <div class="user-info">
               <div class="avatar-placeholder">{{ ++index }}</div>
@@ -16,73 +17,49 @@
                 <h3 class="user-name">{{ order.guest_name }}</h3>
                 <p class="order-details-line">
                   #{{ order.id }}
-                  <span v-if="order.tables"
-                    >/ Bàn: {{ order.tables?.map((t) => `${t.table_number}`).join(', ') }}</span
-                  >
+                  <span v-if="order.tables">/ Bàn: {{order.tables?.map((t) => `${t.table_number}`).join(', ')}}</span>
                 </p>
               </div>
             </div>
           </header>
+
           <div class="date-time-info">
             <div>
               Thời gian tiếp nhận:
-              <strong
-                >{{ formatTime(order.check_in_time ? order.check_in_time : order.order_time) }}h
-              </strong>
+              <strong>{{ formatTime(order.check_in_time ? order.check_in_time : order.order_time) }}h</strong>
             </div>
           </div>
-          <div v-for="food in order.details" :key="food.food_id">
-            <div class="flex-grow-1" >
-              <div class="fw-semibold">{{ food.food_name }}</div>
 
-              <div class="text-muted small" v-if="food.toppings && food.toppings.length">
-                <div v-for="(topping, i) in food.toppings" :key="i">
-                  + {{ topping.topping_name || 'Tên topping không có' }} ({{ formatNumber(topping.price) }} VNĐ)
+          <!-- ✅ Danh sách món ăn có thanh cuộn -->
+          <div class="food-list-scroll">
+            <div v-for="food in order.details" :key="food.food_id" class="food-item">
+              <div class="flex-grow-1">
+                <div class="fw-semibold">{{ food.food_name }}</div>
+
+                <div class="text-muted small" v-if="food.toppings && food.toppings.length">
+                  <div v-for="(topping, i) in food.toppings" :key="i">
+                    + {{ topping.topping_name || 'Tên topping không có' }} ({{ formatNumber(topping.price) }} VNĐ)
+                  </div>
                 </div>
+                <div v-else class="text-muted small">Không có topping</div>
               </div>
-              <div v-else class="text-muted small">Không có topping</div>
             </div>
           </div>
 
           <div class="status-update-section pt-1">
-            <select
-              v-model="order.order_status"
-              class="status-dropdown"
-              @change="updateStatus(order.id, order.order_status)"
-            >
-              <option
-                value="Chờ xác nhận"
-                :disabled="!canSelectStatus(order.order_status, 'Chờ xác nhận')"
-              >
-                Chờ xác nhận
+            <select v-model="order.order_status" class="status-dropdown"
+              @change="updateStatus(order.id, order.order_status)">
+              <option value="Chờ xác nhận" :disabled="!canSelectStatus(order.order_status, 'Chờ xác nhận')">Chờ xác nhận
               </option>
-              <option
-                value="Đã xác nhận"
-                :disabled="!canSelectStatus(order.order_status, 'Đã xác nhận')"
-              >
-                Đã xác nhận
+              <option value="Đã xác nhận" :disabled="!canSelectStatus(order.order_status, 'Đã xác nhận')">Đã xác nhận
               </option>
-              <option
-                value="Đang xử lý"
-                :disabled="!canSelectStatus(order.order_status, 'Đang xử lý')"
-              >
-                Đang xử lý
+              <option value="Đang xử lý" :disabled="!canSelectStatus(order.order_status, 'Đang xử lý')">Đang xử lý
               </option>
-              <option
-                value="Khách đã đến"
-                :disabled="!canSelectStatus(order.order_status, 'Khách đã đến')"
-              >
-                Khách đã đến
+              <option value="Khách đã đến" :disabled="!canSelectStatus(order.order_status, 'Khách đã đến')">Khách đã đến
               </option>
-              <option
-                value="Hoàn thành"
-                :disabled="!canSelectStatus(order.order_status, 'Hoàn thành')"
-              >
-                Hoàn thành
+              <option value="Hoàn thành" :disabled="!canSelectStatus(order.order_status, 'Hoàn thành')">Hoàn thành
               </option>
-              <option value="Đã hủy" :disabled="!canSelectStatus(order.order_status, 'Đã hủy')">
-                Đã hủy
-              </option>
+              <option value="Đã hủy" :disabled="!canSelectStatus(order.order_status, 'Đã hủy')">Đã hủy</option>
             </select>
           </div>
 
@@ -90,47 +67,83 @@
             <div class="total-label">Tổng tiền</div>
             <div class="total-amount">{{ formatNumber(order.total_price) }}VNĐ</div>
           </div>
+
           <hr>
+
           <div class="buttons-section">
             <button class="btn btn-details">Chi tiết</button>
             <button class="btn btn-pay">Thanh toán</button>
           </div>
         </article>
+
+
+
+        <article class="order-card-container" v-for="(order, index) in orderTakeAway" :key="order.id">
+          <header class="order-header">
+            <div class="user-info">
+              <div class="avatar-placeholder">{{ ++index }}</div>
+              <div class="name-order">
+                <h3 class="user-name">{{ order.guest_name }}</h3>
+                <p class="order-details-line">
+                  Mã đơn #{{ order.id }}
+                </p>
+              </div>
+            </div>
+          </header>
+
+          <div class="date-time-info">
+            <div>
+              Thời gian tiếp nhận:
+              <strong>{{ formatTime(order.order_time ? order.order_time : order.check_in_time) }}h</strong>
+            </div>
+          </div>
+
+          <!-- ✅ Danh sách món ăn có thanh cuộn -->
+          <div class="food-list-scroll">
+            <div v-for="food in order.details" :key="food.food_id" class="food-item">
+              <div class="flex-grow-1">
+                <div class="fw-semibold">{{ food.food_name }}</div>
+
+                <div class="text-muted small" v-if="food.toppings && food.toppings.length">
+                  <div v-for="(topping, i) in food.toppings" :key="i">
+                    + {{ topping.topping_name || 'Tên topping không có' }} ({{ formatNumber(topping.price) }} VNĐ)
+                  </div>
+                </div>
+                <div v-else class="text-muted small">Không có topping</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-update-section pt-1">
+            <select v-model="order.order_status" class="status-dropdown"
+              @change="updateStatusOrder(order.id, order.order_status)">
+              <option value="Đã xác nhận" :disabled="!canSelectStatusOrder(order.order_status, 'Đã xác nhận')">Đã xác
+                nhận
+              </option>
+              <option value="Đang xử lý" :disabled="!canSelectStatusOrder(order.order_status, 'Đang xử lý')">Đang xử lý
+              </option>
+              <option value="Hoàn thành" :disabled="!canSelectStatusOrder(order.order_status, 'Hoàn thành')">Hoàn thành
+              </option>
+              <option value="Đã hủy" :disabled="!canSelectStatusOrder(order.order_status, 'Đã hủy')">Đã hủy</option>
+            </select>
+          </div>
+
+          <div class="total-section">
+            <div class="total-label">Tổng tiền</div>
+            <div class="total-amount">{{ formatNumber(order.total_price) }}VNĐ</div>
+          </div>
+        </article>
+
       </div>
     </div>
 
     <div class="tab-pane" id="pending-content" role="tabpanel" aria-labelledby="tab-pending"></div>
-    <div
-      class="tab-pane"
-      id="confirmed-content"
-      role="tabpanel"
-      aria-labelledby="tab-confirmed"
-    ></div>
-    <div
-      class="tab-pane"
-      id="in-progress-content"
-      role="tabpanel"
-      aria-labelledby="tab-in-progress"
-    ></div>
-    <div
-      class="tab-pane"
-      id="delivering-content"
-      role="tabpanel"
-      aria-labelledby="tab-delivering"
-    ></div>
-    <div
-      class="tab-pane"
-      id="completed-content"
-      role="tabpanel"
-      aria-labelledby="tab-completed"
-    ></div>
+    <div class="tab-pane" id="confirmed-content" role="tabpanel" aria-labelledby="tab-confirmed"></div>
+    <div class="tab-pane" id="in-progress-content" role="tabpanel" aria-labelledby="tab-in-progress"></div>
+    <div class="tab-pane" id="delivering-content" role="tabpanel" aria-labelledby="tab-delivering"></div>
+    <div class="tab-pane" id="completed-content" role="tabpanel" aria-labelledby="tab-completed"></div>
     <div class="tab-pane" id="failed-content" role="tabpanel" aria-labelledby="tab-failed"></div>
-    <div
-      class="tab-pane"
-      id="canceled-content"
-      role="tabpanel"
-      aria-labelledby="tab-canceled"
-    ></div>
+    <div class="tab-pane" id="canceled-content" role="tabpanel" aria-labelledby="tab-canceled"></div>
   </div>
 </template>
 
@@ -164,6 +177,58 @@ export default {
         }
       }
     }
+
+    const orderTakeAway = ref([]);
+    const getOrderTakeAway = async () => {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/api/get_all_orders')
+        orderTakeAway.value = res.data.orders.filter(order => order.type_order === 'takeaway');
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    const canSelectStatusOrder = (currentStatus, optionStatus) => {
+      const statusOrder = [
+        'Đã xác nhận',
+        'Đang xử lý',
+        'Hoàn thành',
+        'Đã hủy',
+      ]
+
+      const currentIndex = statusOrder.indexOf(currentStatus)
+      const optionIndex = statusOrder.indexOf(optionStatus)
+
+      if (currentIndex === -1 || optionIndex === -1) return false
+
+      if (optionStatus === currentStatus) return true
+
+      if (currentStatus === 'Hoàn thành' || currentStatus === 'Đã hủy') return false
+
+      if (optionIndex === currentIndex + 1) return true
+
+      if (optionStatus === 'Đã hủy' && currentStatus !== 'Đã hủy') return true
+
+      return false
+    }
+
+    const updateStatusOrder = async (id, status) => {
+      try {
+        if (confirm(`Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}`)) {
+          await axios.put(`http://127.0.0.1:8000/api/update/${id}/status`, {
+            order_status: status,
+          })
+          toast.success('Cập nhật thành công')
+          await getOrderTakeAway()
+        }
+      } catch (error) {
+        toast.error('Có lỗi xảy ra')
+        console.log(error)
+      }
+    }
+
+
+
+
 
     const orderOfTable = ref([])
     const getOrderOfTable = async () => {
@@ -226,9 +291,23 @@ export default {
     }
 
     onMounted(() => {
-      getOrderOfTable()
-      setInterval(updateTimers, 1000)
+      axios.get('http://127.0.0.1:8000/api/payments/vnpay-return', {
+        params: new URLSearchParams(window.location.search)
+      })
+        .then(() => {
+          toast.success('Cập nhật thành công !')
+        })
+        .catch(() => {
+          toast.error('Thanh toán thất bại hoặc có lỗi !')
+        })
+        .finally(() => {
+          getOrderOfTable()
+          setInterval(updateTimers, 1000)
+          getOrderTakeAway()
+        })
     })
+
+
 
     return {
       orderOfTable,
@@ -236,7 +315,10 @@ export default {
       timers,
       formatTime,
       canSelectStatus,
+      canSelectStatusOrder,
       updateStatus,
+      updateStatusOrder,
+      orderTakeAway
     }
   },
 }
@@ -276,6 +358,7 @@ export default {
     align-items: flex-start;
     gap: 15px;
   }
+
   .status-update-section {
     flex-direction: column;
     gap: 10px;
@@ -429,9 +512,11 @@ export default {
   overflow: hidden;
   font-weight: bold;
 }
+
 .item-list {
   border-bottom: #666;
 }
+
 .item-qty {
   flex-shrink: 0;
   margin-left: 10px;
@@ -552,5 +637,37 @@ export default {
 
 .btn-pay:hover {
   background-color: #f03c4e;
+}
+
+.food-list-scroll {
+  max-height: 90px;
+  min-height: 90px;
+  /* Có thể chỉnh: 150px, 250px, hoặc 30vh tuỳ ý */
+  overflow-y: auto;
+  margin-top: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Tuỳ chọn: Tùy chỉnh thanh cuộn trên Chrome/Edge */
+.food-list-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.food-list-scroll::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+.add-order-fixed-btn {
+  position: fixed;
+  top: 70px;
+  right: 10px;
+  z-index: 999;
+  padding: 10px 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #fff;
+  background-color: #c92c3c;
 }
 </style>

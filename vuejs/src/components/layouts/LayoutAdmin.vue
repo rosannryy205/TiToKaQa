@@ -27,6 +27,7 @@ const toggleSidebar = () => {
 
 <style scoped>
 .admin-layout {
-  min-height: 100vh;
+  min-height: 30vh;
+  overflow-y: auto;
 }
 </style>
