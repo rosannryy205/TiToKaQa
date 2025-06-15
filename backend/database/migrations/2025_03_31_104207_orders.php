@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('money_reduce', 10, 2)->nullable();
             $table->string('comment')->nullable();
             $table->timestamp('review_time')->nullable();
+            $table->boolean('points_awarded')->default(false);
             $table->integer('rating')->nullable();
             $table->string('guest_name')->nullable();
             $table->string('guest_phone')->nullable();

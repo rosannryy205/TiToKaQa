@@ -35,15 +35,15 @@ watchEffect(() => {
   }
 })
 
-  const getAllDiscount = async () => {
-    try {
-      const res = await axios.get('http://127.0.0.1:8000/api/discounts')
-      discounts.value = res.data
-    } catch (err) {
-      console.error(err)
-    }
+const getAllDiscount = async (query = {}) => {
+  try {
+    const params = new URLSearchParams(query).toString()
+    const res = await axios.get(`http://127.0.0.1:8000/api/discounts?${params}`)
+    discounts.value = res.data
+  } catch (err) {
+    console.error(err)
   }
-
+}
   const applyDiscountCode = (code) => {
     const selected = discounts.value.find((d) => d.code === code)
     if (!selected) {
@@ -120,6 +120,7 @@ watchEffect(() => {
 
   return {
     discounts,
+    getAllDiscount,
     discountInput,
     selectedDiscount,
     discountId,
@@ -134,5 +135,6 @@ watchEffect(() => {
     totalPriceItem,
     loadCart,
     discountFoodAmount,
-    discountShipAmount  }
+    discountShipAmount  
+  }
 }

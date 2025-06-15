@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div
-      class="custom-sidebar"
-      :class="{ open: sidebarOpen }"
-    >
+    <div class="custom-sidebar" :class="{ open: sidebarOpen }">
       <div class="logo-admin">
         <img src="/img/logonew.png" alt="">
       </div>
@@ -12,13 +9,8 @@
 
       <div class="menu-items">
         <template v-for="item in filteredMenuItems" :key="item.key">
-          <router-link
-            v-if="!item.children"
-            :to="item.to"
-            class="menu-item"
-            :class="{ active: route.path === item.to }"
-            @click="closeSidebarIfMobile"
-          >
+          <router-link v-if="!item.children" :to="item.to" class="menu-item" :class="{ active: route.path === item.to }"
+            @click="closeSidebarIfMobile">
             <component :is="item.icon" class="menu-icon" />
             <span>{{ item.label }}</span>
           </router-link>
@@ -27,17 +19,12 @@
             <div class="menu-item parent-item" @click="toggleSubMenu(item.key)">
               <component :is="item.icon" class="menu-icon" />
               <span>{{ item.label }}</span>
-              <span class="submenu-arrow" :class="{ 'rotated': activeSubMenu === item.key }"><i class="bi bi-caret-right"></i></span>
+              <span class="submenu-arrow" :class="{ 'rotated': activeSubMenu === item.key }"><i
+                  class="bi bi-caret-right"></i></span>
             </div>
             <div v-if="activeSubMenu === item.key" class="submenu-items">
-              <router-link
-                v-for="subItem in item.children"
-                :key="subItem.key"
-                :to="subItem.to"
-                class="submenu-item"
-                :class="{ active: route.path === subItem.to }"
-                @click="closeSidebarIfMobile"
-              >
+              <router-link v-for="subItem in item.children" :key="subItem.key" :to="subItem.to" class="submenu-item"
+                :class="{ active: route.path === subItem.to }" @click="closeSidebarIfMobile">
                 <component :is="subItem.icon" class="submenu-icon" v-if="subItem.icon" />
                 <span>{{ subItem.label }}</span>
               </router-link>
@@ -47,18 +34,10 @@
       </div>
     </div>
 
-    <div
-      class="sidebar-toggle"
-      v-if="!sidebarOpen && showToggleIcon"
-      @click="toggleSidebar"
-    >
+    <div class="sidebar-toggle" v-if="!sidebarOpen && showToggleIcon" @click="toggleSidebar">
       ☰
     </div>
-    <div
-      v-if="sidebarOpen && isMobile"
-      class="overlay"
-      @click="toggleSidebar"
-    ></div>
+    <div v-if="sidebarOpen && isMobile" class="overlay" @click="toggleSidebar"></div>
   </div>
 </template>
 
@@ -381,8 +360,8 @@ const menuItems = [
     permission: 'view_employee', // Quyền xem nhân viên
     children: [
       {
-        key: '/admin/users/list', // Đổi key/to để phù hợp
-        to: '/admin/users/list',
+        key: '/admin/users/list-employee', // Đổi key/to để phù hợp
+        to: '/admin/users/list-employee',
         label: 'Danh sách nhân viên',
         icon: UnorderedListOutlined,
         permission: 'view_employee',
@@ -403,8 +382,8 @@ const menuItems = [
     permission: 'view_customer', // Quyền xem khách hàng
     children: [
       {
-        key: '/admin/users/list', // Đổi key/to để phù hợp
-        to: '/admin/users/list',
+        key: '/admin/users/list-customer', // Đổi key/to để phù hợp
+        to: '/admin/users/list-customer',
         label: 'Danh sách khách hàng',
         icon: UnorderedListOutlined,
         permission: 'view_customer',
@@ -434,18 +413,21 @@ const menuItems = [
   transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
   z-index: 1000;
-  overflow-y: auto; /* Thêm scroll nếu nội dung quá dài */
+  overflow-y: auto;
+  /* Thêm scroll nếu nội dung quá dài */
 }
 
 .custom-sidebar.open {
   transform: translateX(0);
 }
-.logo-admin{
+
+.logo-admin {
   width: 70px;
 }
-.logo-admin img{
+
+.logo-admin img {
   margin: 20px 20px 10px 20px;
-max-width: 100%;
+  max-width: 100%;
 }
 
 .close-button {
@@ -472,7 +454,8 @@ max-width: 100%;
   color: #D9363E;
   text-decoration: none;
   transition: background 0.2s;
-  cursor: pointer; /* Đặt con trỏ thành pointer cho tất cả menu-item */
+  cursor: pointer;
+  /* Đặt con trỏ thành pointer cho tất cả menu-item */
 }
 
 .menu-item:hover {
@@ -524,15 +507,18 @@ max-width: 100%;
 .submenu-items {
   display: flex;
   flex-direction: column;
-  padding-left: 20px; /* Thụt lề cho các mục con */
-  background-color: #f8f8f8; /* Nền nhẹ hơn cho sub-menu */
+  padding-left: 5px;
+  /* Thụt lề cho các mục con */
+  background-color: #f8f8f8;
+  /* Nền nhẹ hơn cho sub-menu */
 }
 
 .submenu-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px 10px 30px; /* Thêm padding để thụt vào thêm */
+  padding: 10px 20px 10px 30px;
+  /* Thêm padding để thụt vào thêm */
   color: #666;
   text-decoration: none;
   transition: background 0.2s;
@@ -551,19 +537,23 @@ max-width: 100%;
 }
 
 .submenu-icon {
-  font-size: 14px; /* Kích thước icon nhỏ hơn cho sub-menu */
+  font-size: 14px;
+  /* Kích thước icon nhỏ hơn cho sub-menu */
 }
 
 .parent-item {
-  position: relative; /* Để đặt mũi tên */
+  position: relative;
+  /* Để đặt mũi tên */
 }
 
 .submenu-arrow {
-  margin-left: auto; /* Đẩy mũi tên về bên phải */
+  margin-left: auto;
+  /* Đẩy mũi tên về bên phải */
   transition: transform 0.2s ease;
 }
 
 .submenu-arrow.rotated {
-  transform: rotate(90deg); /* Xoay mũi tên khi sub-menu mở */
+  transform: rotate(90deg);
+  /* Xoay mũi tên khi sub-menu mở */
 }
 </style>

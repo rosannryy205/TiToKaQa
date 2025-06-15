@@ -30,7 +30,6 @@
             </div>
           </div>
 
-          <!-- ✅ Danh sách món ăn có thanh cuộn -->
           <div class="food-list-scroll">
             <div v-for="food in order.details" :key="food.food_id" class="food-item">
               <div class="flex-grow-1">

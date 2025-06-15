@@ -22,11 +22,17 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = User::with(
-            'orders',
-        )->get();
+        $users = User::with('orders')->get();
+
+        $usersWithRoles = $users->map(function ($user) {
+            return [
+                'user' => $user,
+                'roles' => $user->getRoleNames(),
+            ];
+        });
+
         return response()->json([
-            'user' => $user
+            'user' => $usersWithRoles
         ]);
     }
 
@@ -385,8 +391,8 @@ class UserController extends Controller
      */
     public function show(Request $request, string $id)
     {
-            $user = User::findOrFail($id);
-            return response()->json($user);
+        $user = User::findOrFail($id);
+        return response()->json($user);
     }
 
     /**
