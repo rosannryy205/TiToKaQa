@@ -358,7 +358,7 @@ export default {
           guestDefaultOption, //"Khách lẻ" ở đầu mảng
           ...res.data.user.map((g) => ({
             ...g,
-            usernameEmail: `${g.username} - ${g.email}`,
+            usernameEmail: `${g.user.username} - ${g.user.phone}`,
           })),
         ]
 
