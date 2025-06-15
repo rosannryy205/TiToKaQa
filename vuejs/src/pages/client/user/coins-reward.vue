@@ -1,7 +1,6 @@
 <template>
   <div class="container py-3 position-relative">
     <div class="position-absolute top-0 end-0 mt-3 me-2 d-flex align-items-center user-coins-box">
-      <!-- <img src="/img/food/cb1.webp" alt="avatar" class="user-avatar me-2" /> -->
       <span class="fw-semibold text-dark me-1"> {{ formatCurrency(1500) }}</span>
       <img src="/img/item/coins.gif" class="coins-small" alt="xu" />
     </div>
@@ -63,7 +62,7 @@
               </p>
               <p class="fw-bold mb-2 coins-exchange d-flex align-items-center">
                 {{ formatCurrency(discount.cost) }}
-                <img class="coins ms-1 align-items-center" src="/img/item/coins.gif" alt="coin" />
+                <img class="coins ms-1 align-items-center" src="/img/xubac.png" alt="coin" />
               </p>
               <button class="btn btn-outline-success w-100">
                 Đổi ngay
@@ -141,12 +140,12 @@ onMounted(async () => {
   margin-bottom: 6px;
 }
 .coins-exchange{
-  color: rgb(224, 224, 49) !important;
+  color: rgb(119, 119, 119) !important;
 }
 .coins{
-  width: 30px !important;
-  height: 30px !important;
-  margin: 0px !important;
+  width: 15px !important;
+  height: 15px !important;
+  margin: 6px 5px 5px 5px !important;
 }
 .title-cate-discount,
 .title-discount-hot{

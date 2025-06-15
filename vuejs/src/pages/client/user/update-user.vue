@@ -36,6 +36,7 @@
 
             <div class="ms-md-4 mt-3 mt-md-0 text-center text-md-start">
               <h6 class="fw-bold mb-2">{{ form.fullname || form.username }}</h6>
+
               <a
                 href="#"
                 @click="handleLogout"
@@ -43,42 +44,50 @@
               >
                 <i class="bi bi-box-arrow-right"></i> Đăng xuất
               </a>
-            </div>
-          </div>
 
-          <div class="bg-light rounded-3 p-3 text-center mb-3">
-            <div style="color: #c92c3c" class="fw-bold">
-              Thành Viên TITOKAQA
-              <img class="logo-member" src="/public/img/logomember.png" alt="logo" />
-            </div>
-
-            <div class="d-flex justify-content-around mt-3">
-              <!--point-->
-              <div class="d-flex flex-column align-items-center">
-                <div class="fw-medium">{{ form.rank_points }} Điểm</div>
-              </div>
-
-              <!--rank-->
-              <div class="d-flex flex-column align-items-center">
-                <div class="d-flex align-items-center gap-1">
-                  <div class="fw-medium" :style="{ color: rankColor }">
-                    {{ form.rank }}
-                  </div>
-                  <img :src="rankImage" alt="gif-rank" class="gif-rank" />
-                </div>
-              </div>
-            </div>
-
-            <!--đổixu-->
-            <router-link to="/coins-reward">
               <button
-                class="btn btn-outline-dark btn-sm mt-3 rounded-pill px-4 d-flex align-items-center justify-content-center gap-1 mx-auto fw-bold"
+                class="rounded-pill px-2 py-1 d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2 fw-bold border-0 bg-warning"
+                style="font-size: 12px; line-height: 1; color: white"
               >
-                Đổi xu {{ form.usable_points }}
-                <img class="coins-gif" src="/public/img/item/coins.gif" alt="coins-gif" />
+                <img src="/img/xubac.png" alt="coins" style="width: 15px" />
+                {{ formatNumber(form.usable_points) }} TGold
               </button>
-            </router-link>
+            </div>
           </div>
+          <div class="fw-bold text-danger mb-1 d-flex justify-content-center align-items-center gap-2" style="font-size: 14px;">
+    Thành Viên TITOKAQA
+  </div>
+          <div class="bg-light rounded p-2 text-center mb-3 border border-light-subtle">
+
+
+  <div class="mx-auto" style="max-width: 260px; font-size: 13px;">
+    <!-- Điểm -->
+    <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+      <span class="text-muted">Điểm</span>
+      <span class="fw-thin">{{ form.rank_points }}+</span>
+    </div>
+
+    <!-- Hạng -->
+    <div class="d-flex justify-content-between align-items-center py-1">
+      <span class="text-muted">Hạng</span>
+      <span class="fw-bold d-flex align-items-center gap-1" :style="{ color: rankColor }">
+        {{ form.rank }}
+        <img :src="rankImage" alt="rank-icon" style="height: 16px;" />
+      </span>
+    </div>
+  </div>
+</div>
+<div class="mb-3">
+    <router-link
+      to="/coins-reward"
+      class="text-decoration-none small d-inline-flex align-items-center gap-1 text-dark fw-bold border rounded px-2 py-1"
+      style="font-size: 12px; border-color: #dee2e6;"
+    >
+      Đổi TGold
+    </router-link>
+  </div>
+
+
 
           <ul class="list-group list-group-flush">
             <router-link to="/update-user" class="text-decoration-none text-dark">
@@ -276,6 +285,13 @@ export default {
       }
     })
 
+    //==================
+    // Format point
+    //==================
+    const formatNumber = (value) => {
+      return new Intl.NumberFormat('vi-VN').format(value)
+    }
+
     return {
       form,
       user,
@@ -285,8 +301,10 @@ export default {
       getInitial,
       loading,
       avatarUrl,
+      //rank
       rankColor,
       rankImage,
+      formatNumber,
     }
   },
 }
