@@ -80,6 +80,7 @@ Route::get('/role-permission/{id}', [RoleController::class, 'getAllPermission'])
 Route::put('/role-permission-update', [RoleController::class, 'updatePermission']);
 Route::post('/role-permission-create', [RoleController::class, 'createRoleWithPermissions']);
 Route::get('/role-permission-user/{id}', [RoleController::class, 'userProfile']);
+Route::delete('/delete_role/{id}', [RoleController::class, 'deleteRole']);
 
 
 
@@ -100,6 +101,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/user-update/{id}', [UserController::class, 'update']);
     // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
+
+Route::post('/insert_staff', [UserController::class, 'insertStaff' ]);
 
 
 // đăng ký đăng nhập quên mật khẩu
