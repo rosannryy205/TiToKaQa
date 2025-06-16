@@ -1,7 +1,15 @@
 <template>
-  <h2 class="mb-3">
-    {{ isEmployee ? 'Danh sách nhân viên' : 'Danh sách khách hàng' }}
-  </h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>
+      {{ isEmployee ? 'Danh sách nhân viên' : 'Danh sách khách hàng' }}
+    </h2>
+    <router-link to="/admin/insert_staff">
+      <button v-if="isEmployee" class="btn btn-insert">
+        <i class="bi bi-person-plus-fill"></i> Thêm nhân viên
+      </button>
+    </router-link>
+  </div>
+
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
     <span class="vd">Tìm kiếm </span>
@@ -45,19 +53,16 @@
           <td>{{ user.phone ? user.phone : 'Chưa cập nhật' }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.address ? user.address : 'Chưa cập nhật' }}</td>
-          <td>
-            <span v-if="user.roles?.some(r => r.name === 'khachhang')">Khách hàng</span>
-            <span v-else>Nhân viên</span>
-          </td>
-
+          <td>{{ getRoleName(user.roles) }}</td>
           <td>
             {{ user.status }}
           </td>
           <td class="d-flex justify-content-center gap-2">
-            <button class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
+            <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
               data-bs-target="#userDetailModal">
               Chi tiết
             </button>
+
             <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
               class="btn btn-danger-delete">Khoá</button>
             <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở Khóa</button>
@@ -65,6 +70,11 @@
         </tr>
       </tbody>
     </table>
+    <div>
+      <p>*Mật khẩu là (username)Titokaqa <br>
+        VD: staff1Titokaqa
+      </p>
+    </div>
   </div>
   <!-- <button class="btn btn-danger-delete delete_desktop">Xoá</button> -->
 
@@ -82,11 +92,13 @@
             <p class="card-text"><strong>SĐT:</strong>{{ user.phone }}</p>
             <p class="card-text"><strong>Email:</strong>{{ user.email }}</p>
             <p class="card-text"><strong>Vai trò: </strong>
-              {{ user.role === 'user' ? 'Khách hàng' : '' }} </p>
-            <button class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
+              <td>{{ getRoleName(user.roles) }}</td>
+            </p>
+            <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
               data-bs-target="#userDetailModal">
               Chi tiết
             </button>
+
             <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
               class="btn btn-danger-delete">Khoá</button>
             <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở
@@ -254,6 +266,24 @@ const fecthAllUser = async () => {
   }
 };
 
+const getRoleName = (roles) => {
+  if (!roles || roles.length === 0) return 'Chưa phân quyền'
+
+  const map = {
+    khachhang: 'Khách hàng',
+    quanly: 'Quản lý',
+    nhanvien: 'Nhân viên',
+    nhanvienkho: 'Nhân viên kho',
+  }
+
+  // Nếu roles là mảng object, lấy ra role.name
+  const roleNames = roles.map(role => typeof role === 'object' ? role.name : role)
+
+  return roleNames.map(role => map[role] || role).join(', ')
+}
+
+
+
 
 
 
@@ -300,6 +330,16 @@ watch(route, async (newRoute, oldRoute) => {
 }
 
 .btn-danger-delete:hover {
+  background-color: #a51928;
+  color: white;
+}
+
+.btn-insert {
+  background-color: #C92C3C;
+  color: white;
+}
+
+.btn-insert:hover {
   background-color: #a51928;
   color: white;
 }
