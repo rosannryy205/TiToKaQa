@@ -278,9 +278,9 @@ export default {
       discountShipAmount,
     } = Discounts()
     onMounted(async () => {
-  await getAllDiscount({ source: 'system' })
-  // console.log('Danh sách voucher hệ thống:', discounts.value)
-})
+      await getAllDiscount({ source: 'system' })
+      // console.log('Danh sách voucher hệ thống:', discounts.value)
+    })
 
     const {
       cartItems,
@@ -348,24 +348,37 @@ export default {
     }
 
     const submitOrder = async () => {
-      isLoading.value = true
+      isLoading.value = true;
       try {
-
         if (!selectedProvince.value || !selectedDistrict.value || !selectedWard.value) {
           alert('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.');
           isLoading.value = false;
           return;
         }
-        const province = provinces.value.find(p => p.ProvinceID === selectedProvince.value)
-        const district = districts.value.find(d => d.DistrictID === selectedDistrict.value)
-        const ward = wards.value.find(w => w.WardCode === selectedWard.value)
-        const fullAddress = `${form.value.address}, ${ward?.WardName || '', ''}, ${district?.DistrictName || ''}, ${province?.ProvinceName || ''}`
+
+        const province = provinces.value.find(p => p.ProvinceID === selectedProvince.value);
+        const district = districts.value.find(d => d.DistrictID === selectedDistrict.value);
+        const ward = wards.value.find(w => w.WardCode === selectedWard.value);
+
+        const fullAddress = `${form.value.address}, ${ward?.WardName || ''}, ${district?.DistrictName || ''}, ${province?.ProvinceName || ''}`;
 
         if (!fullAddress || cartItems.value.length === 0) {
           toast.error('Vui lòng nhập đầy đủ thông tin địa chỉ và thêm món ăn vào giỏ hàng.');
           isLoading.value = false;
           return;
         }
+
+        const orderDetails = cartItems.value.map((item) => ({
+          food_id: item.type === 'Combo' ? null : item.id,
+          combo_id: item.type === 'Combo' ? item.id : null,
+          quantity: item.quantity,
+          price: item.price,
+          type: item.type,
+          toppings: item.toppings?.map((t) => ({
+            food_toppings_id: t.food_toppings_id,
+            price: t.price,
+          })) || [],
+        }));
 
         const orderData = {
           user_id: user.value ? user.value.id : null,
@@ -377,31 +390,22 @@ export default {
           total_price: finalTotal.value || 0,
           money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
-          order_detail: cartItems.value.map((item) => ({
-            food_id: item.id,
-            combo_id: null,
-            quantity: item.quantity,
-            price: item.price,
-            type: item.type,
-            toppings: item.toppings.map((t) => ({
-              food_toppings_id: t.food_toppings_id,
-              price: t.price,
-            })),
-          })),
-        }
+          order_detail: orderDetails,
+        };
 
-        const response = await axios.post('http://127.0.0.1:8000/api/order', orderData)
+        const response = await axios.post('http://127.0.0.1:8000/api/order', orderData);
 
-        if (response && response.data && response.data.status && response.data.order_id) {
+        if (response?.data?.status && response.data.order_id) {
           const order_id = response.data.order_id;
           toast.success('Đơn hàng đã được tạo thành công!');
 
           if (orderData.discount_id) {
             await axios.post('http://127.0.0.1:8000/api/discounts/use', {
               discount_id: orderData.discount_id,
-              order_id: order_id
+              order_id: order_id,
             });
           }
+
           await check_out(order_id);
         } else {
           toast.error('Không nhận được ID đơn hàng từ server hoặc tạo đơn hàng thất bại.');
@@ -409,15 +413,16 @@ export default {
 
       } catch (error) {
         console.error('Lỗi khi gửi đơn hàng hoặc xử lý thanh toán:', error);
-        if (error.response && error.response.data && error.response.data.message) {
+        if (error.response?.data?.message) {
           toast.error('Đặt hàng thất bại: ' + error.response.data.message);
         } else {
           toast.error('Đặt hàng thất bại, vui lòng thử lại! Lỗi mạng hoặc server không phản hồi.');
         }
       } finally {
-        isLoading.value = false
+        isLoading.value = false;
       }
-    }
+    };
+
 
     const today = dayjs().format('YYYY-MM-DD')
     const removeDiscountCode = () => {
