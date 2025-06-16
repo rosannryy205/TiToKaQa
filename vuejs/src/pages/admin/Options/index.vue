@@ -2,33 +2,40 @@
   <h3 class="title">Quản lý toppings</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+    <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addToppingModal">
       + Thêm toppings
     </button>
+    <div class="col-12 col-md-6 col-lg-3 fram" style="max-width: 250px;">
+      <v-select v-model="selectTopping" :options="toppings" label="name" placeholder="Nhập tên món ăn" :clearable="true"
+        @input="onToppingSearch" class="uniform-input" />
+    </div>
 
-    <span class="vd">Tìm kiếm</span>
-    <input type="text" class="custom-input" style="max-width: 200px" placeholder="Tìm kiếm" />
-
-    <span class="vd">Lọc</span>
-    <select class="custom-select" style="max-width: 250px">
-      <option selected>Lọc theo danh mục</option>
-      <option>Danh mục 1</option>
-      <option>Danh mục 2</option>
-    </select>
-
-    <span class="vd">Hiển thị</span>
-    <select class="custom-select" style="max-width: 80px">
-      <option selected>5</option>
-      <option>10</option>
-      <option>15</option>
-    </select>
+    <div class="d-flex align-items-center me-2">
+      <span class="vd me-2 text-nowrap">Danh mục</span>
+      <select class="custom-select uniform-input" v-model="selectedCateId">
+        <option selected disabled>Lọc theo danh mục</option>
+        <option v-for="category in category_toppings" :key="category.id" :value="category.id">
+          {{ category.name }}
+        </option>
+      </select>
+    </div>
+    <div class="d-flex align-items-center">
+      <span class="vd me-2 text-nowrap">Hiển thị</span>
+      <select class="custom-select uniform-input" v-model.number="itemsPerPageToppings" style="max-width: 80px;">
+        <option :value="5">5</option>
+        <option :value="10">10</option>
+        <option :value="15">15</option>
+      </select>
+    </div>
   </div>
+
 
   <div class="table-responsive d-none d-lg-block">
     <table class="table table-bordered rounded">
       <thead class="table-light">
         <tr>
           <th><input type="checkbox" /></th>
+          <!-- <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll"/></th> -->
           <th>Tên</th>
           <th>Danh mục</th>
           <th>Giá</th>
@@ -36,24 +43,17 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td><input type="checkbox" /></td>
-          <td>Gà</td>
-          <td>Món thêm</td>
-          <td>25,000 VNĐ</td>
+        <tr v-for="(topping) in paginatedToppings" :key="topping.id">
+          <td><input type="checkbox" :value="topping.id" /></td>
+          <!-- <td><input type="checkbox" :value="topping.id" v-model="selectedToppingIds" /></td> -->
+          <td>{{ topping.name }}</td>
+          <td>{{ topping.category_name }}</td>
+          <td>{{ formatNumber(topping.price) }} VNĐ</td>
           <td class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
-            <button type="button" class="btn btn-outline btn-sm">Sửa</button>
-            <button class="btn btn-danger-delete btn-sm">Xoá</button>
-          </td>
-        </tr>
-        <tr>
-          <td><input type="checkbox" /></td>
-          <td>Cấp 1</td>
-          <td>Cấp độ</td>
-          <td>Miễn phí</td>
-          <td class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
-            <button type="button" class="btn btn-outline btn-sm">Sửa</button>
-            <button class="btn btn-danger-delete btn-sm">Xoá</button>
+            <button type="button" class="btn btn-outline btn-sm" data-bs-toggle="modal"
+              data-bs-target="#updateToppingModal"
+              @click="getToppingById(topping.id); selectedToppingId = topping.id">Sửa</button>
+            <button class="btn btn-danger-delete btn-sm" @click="deletedTopping(topping.id)">Xoá</button>
           </td>
         </tr>
       </tbody>
@@ -65,16 +65,16 @@
   <!-- Mobile View -->
   <div class="d-block d-lg-none">
     <div class="card mb-3">
-      <div class="row g-0 align-items-center">
+      <div class=" row g-0 align-items-center" v-for="(topping, index) in paginatedToppings" :key="topping.id">
         <div class="col-3 d-flex align-items-center gap-2 p-2">
-          <input type="checkbox" />
-          <span>1</span>
+          <input type="checkbox" :value="topping.id" />
+          <span>{{ index + 1 }}</span>
         </div>
         <div class="col-9">
           <div class="card-body p-2">
-            <h5 class="card-title mb-1">Cấp 1</h5>
-            <p class="card-text mb-1"><span class="label">Danh mục:</span> Cấp độ</p>
-            <p class="card-text mb-2"><span class="label">Giá:</span> Miễn phí</p>
+            <h5 class="card-title mb-1">{{ topping.name }}</h5>
+            <p class="card-text mb-1"><span class="label">Danh mục:</span> {{ topping.category_name }}</p>
+            <p class="card-text mb-2"><span class="label">Giá:</span> {{ formatNumber(topping.price) }} VNĐ</p>
             <button class="btn btn-outline btn-sm me-2">Sửa</button>
             <button class="btn btn-danger-delete btn-sm">Xoá</button>
           </div>
@@ -82,8 +82,8 @@
       </div>
     </div>
 
-    <div class="card mb-3">
-      <div class="row g-0 align-items-center">
+    <!-- <div class="card mb-3">
+      <div class="row g-0 align-items-center" >
         <div class="col-3 d-flex align-items-center gap-2 p-2">
           <input type="checkbox" />
           <span>2</span>
@@ -98,37 +98,105 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
+  <div class="d-flex justify-content-center mt-3 w-100">
+    <nav>
+      <ul class="pagination">
+        <li class="page-item" :class="{ disabled: currentPage.toppings === 1 }">
+          <button type="button" class="page-link" @click="goToPage(currentPage.toppings - 1, 'toppings')">
+            «
+          </button>
+        </li>
+
+        <li v-for="page in totalPagesToppings" :key="page" class="page-item"
+          :class="{ active: currentPage.toppings === page }">
+          <button type="button" class="page-link" @click="goToPage(page, 'toppings')">
+            {{ page }}
+          </button>
+        </li>
+
+        <li class="page-item" :class="{ disabled: currentPage.toppings === totalPagesToppings }">
+          <button type="button" class="page-link" @click="goToPage(currentPage.toppings + 1, 'toppings')">
+            »
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
 
   <button class="btn btn-danger-delete delete_mobile">Xoá</button>
 
   <!-- Modal Thêm topping -->
-  <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal fade" id="addToppingModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Thêm Toppings</h5>
+        <div class="modal-header position-relative">
+          <h5 class="modal-title position-absolute top-50 start-50 translate-middle">Thêm Toppings</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <label for="toppingName" class="form-label label">Tên topping <span class="text-danger">*</span></label>
-          <input type="text" id="toppingName" class="custom-input mb-3" placeholder="Nhập tên" required />
+          <div class="mb-3">
+            <label for="name" class="form-label">Tên topping <span class="text-danger">*</span></label>
+            <input type="text" id="name" class="form-control" placeholder="Nhập tên" v-model="formTopping.name"
+              required />
+          </div>
+          <div class="mb-3">
+            <label for="category_id" class="form-label">Danh mục <span class="text-danger">*</span></label>
+            <select id="category_id" class="form-select" v-model.number="formTopping.category_id" required>
+              <option selected disabled>Chọn danh mục</option>
+              <option v-for="category in category_toppings" :key="category.id" :value="category.id">
+                {{ category.name }}</option>
+            </select>
+          </div>
+          <div>
+            <label for="price" class="form-label">Giá <span class="text-danger">*</span></label>
+            <input type="number" id="price" class="form-control" placeholder="Nhập giá"
+              v-model.number="formTopping.price" required />
+          </div>
 
-          <label for="category" class="form-label label">Danh mục <span class="text-danger">*</span></label>
-          <select id="category" class="custom-select mb-3" required>
-            <option selected disabled>Chọn danh mục</option>
-            <option>Danh mục 1</option>
-            <option>Danh mục 2</option>
-            <video src=""></video>
-          </select>
-
-          <label for="price" class="form-label label">Giá</label>
-          <input type="number" id="price" class="custom-input mb-3" placeholder="Nhập giá" required />
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Đóng</button>
-          <button type="button" class="btn btn-add">Thêm</button>
+          <button type="button" class="btn btn-add" @click="addTopping">Thêm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal sửa topping -->
+  <div class="modal fade" id="updateToppingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header position-relative">
+          <h5 class="modal-title position-absolute top-50 start-50 translate-middle">Cập nhật Topping</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="name" class="form-label">Tên topping</label>
+            <input type="text" id="name" class="form-control" placeholder="Nhập tên" v-model="formTopping.name"
+              required />
+          </div>
+          <div class="mb-3">
+            <label for="category_id" class="form-label">Danh mục</label>
+            <select id="category_id" class="form-select" v-model.number="formTopping.category_id" required>
+              <option selected disabled>Chọn danh mục</option>
+              <option v-for="category in category_toppings" :key="category.id" :value="category.id">
+                {{ category.name }}</option>
+            </select>
+          </div>
+          <div>
+            <label for="price" class="form-label">Giá</label>
+            <input type="number" id="price" class="form-control" placeholder="Nhập giá"
+              v-model.number="formTopping.price" required />
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Đóng</button>
+          <button type="button" class="btn btn-add" @click="updateTopping(selectedToppingId)">Cập nhật</button>
         </div>
       </div>
     </div>
@@ -138,22 +206,50 @@
 <script>
 import { useMenu } from '@/stores/use-menu';
 import axios from 'axios';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import numeral from 'numeral'
+
 import { toast } from "vue3-toastify";
 export default {
+  methods: {
+    formatNumber(value) {
+      return numeral(value).format("0,0");
+    },
+    // getImageUrl(image) {
+    //   return `/img/food/${image}`;
+    // },
+  },
   setup() {
     useMenu().onSelectedKeys(['admin-roles'])
-    const topping = ref([]);
-    console.log("Token:", localStorage.getItem('token'));
-    const showAllTopping = async () => {
+    const toppings = ref([]);
+    const category_toppings = ref([]);
+    const selectTopping = ref(null)
+    const searchToppingTerm = ref('')
+    const currentPage = ref({ toppings: 1 })
+    const itemsPerPageToppings = ref(15)
+    const selectedToppingId = ref(null)
+    const formTopping = ref({
+      name: '',
+      price: '',
+      category_id: '',
+    })
+
+    const token = localStorage.getItem('token');
+    const fetchTopping = async () => {
       try {
         const res = await axios.get(`http://127.0.0.1:8000/api/admin/toppings`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           }
         });
-        topping.value = res.data;
-        console.log("Lấy topping: ", topping.value)
+        toppings.value = res.data.map(topping => {
+          const category = category_toppings.value.find(cate => cate.id === topping.category_id);
+          return {
+            ...topping,
+            category_name: category ? category.name : "Chưa phân Loại"
+          }
+        });
+        console.log("Lấy topping: ", toppings.value)
 
 
       } catch (error) {
@@ -161,11 +257,150 @@ export default {
         toast.error("Không thể tải topping.");
       }
     }
-    onMounted(async () => {
-      await showAllTopping()
+
+    const fetchCategoryToppings = async () => {
+      if (!token) return;
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/admin/category_topping`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        category_toppings.value = res.data;
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+        toast.error("Không thể tải danh mục.");
+      }
+    };
+
+    const addTopping = async () => {
+      console.log("Dữ liệu gửi đi:", formTopping.value)
+      console.log("Danh mục:", category_toppings.value)
+
+      try {
+        await axios.post(`http://127.0.0.1:8000/api/admin/toppings`, formTopping.value, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        })
+        toast.success("Thêm topping thành công.");
+        fetchTopping();
+        formTopping.value = { name: '', price: '', category_id: '' };
+      } catch (error) {
+        console.log(error);
+        toast.error("Thêm topping thất bại.");
+      }
+    }
+
+    const getToppingById = async (id) => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/admin/toppingById/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        })
+        formTopping.value = {
+          name: res.data.name,
+          price: res.data.price,
+          category_id: res.data.category_id,
+        };
+      } catch (error) {
+        console.log(error);
+        toast.error("Chưa lấy được topping thất bại.");
+      }
+    }
+
+    const updateTopping = async (id) => {
+      try {
+        await axios.patch(`http://127.0.0.1:8000/api/admin/toppings/${id}`, formTopping.value, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        })
+        toast.success("Cập nhật topping thành công.");
+        fetchTopping();
+      } catch (error) {
+        console.log(error);
+        toast.error("Cập nhật topping thất bại.");
+      }
+    }
+
+
+    const deletedTopping = async (id) => {
+      try {
+        await axios.delete(`http://127.0.0.1:8000/api/admin/toppings/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        })
+        toast.success("Xóa topping thành công.");
+        fetchTopping();
+      } catch (error) {
+        console.log(error);
+        toast.error("Xóa topping thất bại.");
+      }
+    }
+
+    const selectedCateId = ref(null);
+    const filteredToppings = computed(() => {
+      if (!selectedCateId.value)
+        return toppings.value;
+      return toppings.value.filter(t => t.category_id === selectedCateId.value);
+
+    })
+    const paginatedToppings = computed(() => {
+      const limit = Number(itemsPerPageToppings.value) || 1;
+      const filtered = toppings.value.filter((topping) =>
+        topping.name.toLowerCase().includes(searchToppingTerm.value.toLowerCase())
+        && (!selectedCateId.value || topping.category_id === selectedCateId.value)
+      )
+      const start = (currentPage.value.toppings - 1) * limit
+      return filtered.slice(start, start + limit)
+    })
+    const totalPagesToppings = computed(() => {
+      const limit = Number(itemsPerPageToppings.value) || 1;
+      const filtered = toppings.value.filter((topping) => {
+        const matchSearch = topping.name.toLowerCase().includes(searchToppingTerm.value.toLowerCase())
+        const matchCategory = !selectedCateId.value || topping.category_id === selectedCateId.value
+        return matchSearch && matchCategory
+      })
+      return Math.ceil(filtered.length / limit)
+    })
+
+    const goToPage = (page, key) => {
+      if (page >= 1 && page <= totalPagesToppings.value) {
+        currentPage.value[key] = page
+      }
+    }
+    const onToppingSearch = (event) => {
+      searchToppingTerm.value = event.target.value
+      currentPage.value.toppings = 1
+    }
+    watch(selectTopping, (newValue) => {
+      searchToppingTerm.value = newValue?.name || ''
+    })
+    onMounted(() => {
+      fetchCategoryToppings()
+      fetchTopping()
     })
     return {
-      topping
+      toppings,
+      category_toppings,
+
+      selectTopping,
+      selectedCateId,
+      filteredToppings,
+      currentPage,
+      itemsPerPageToppings,
+      goToPage,
+      paginatedToppings,
+      totalPagesToppings,
+      onToppingSearch,
+
+      addTopping,
+      formTopping,
+      getToppingById,
+      selectedToppingId,
+      updateTopping,
+      deletedTopping
     }
   }
 }
@@ -253,7 +488,18 @@ export default {
 .delete_mobile {
   display: none;
 }
-
+.fram{
+  margin-bottom: 13px;
+}
+.uniform-input {
+  height: 33px !important;
+  padding: 6px 12px !important;
+  font-size: 14px;
+  border-radius: 4px;
+}
+.vd {
+  font-weight: 500;
+}
 @media (max-width: 768px) {
   .table-responsive {
     display: none;
