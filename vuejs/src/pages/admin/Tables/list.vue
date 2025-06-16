@@ -1,7 +1,6 @@
 <template>
   <div>
-    <!-- Hiển thị lớp phủ loading chung của component -->
-    <div v-if="isLoading  || isLoadingPermissions" class="isLoading-overlay">
+    <div v-if="isLoading || isLoadingPermissions" class="isLoading-overlay">
       <div class="spinner-border text-danger" role="status">
         <span class="visually-hidden">Đang tải...</span>
       </div>
@@ -10,7 +9,6 @@
     <div class="main-layout">
       <div class="main-content">
         <h2>Danh sách bàn</h2>
-        <!-- Chỉ hiển thị nội dung nếu người dùng có quyền view_table và permissions đã tải xong -->
         <template v-if="hasPermission('view_table')">
           <div class="table-filter-box">
             <div>
@@ -32,7 +30,6 @@
               <div class="status-item"><span class="status-dot reservation"></span>Đang phục vụ</div>
               <div class="status-item"><span class="status-dot vacant"></span>Bàn trống</div>
             </div>
-            <!-- Chỉ hiển thị nút "Thêm Bàn Mới" nếu người dùng có quyền create_table -->
             <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">Thêm Bàn
               Mới</button>
           </div>
@@ -51,6 +48,8 @@
                           'billed-text': ban.current_day_status === 'Đã đặt trước',
                           chair_reservation: ban.current_day_status === 'Đang phục vụ',
                           'reservation-text': ban.current_day_status === 'Đang phục vụ',
+                          chair1: selectedTableId == ban.id
+
                         },
                       ]"></div>
                     </div>
@@ -63,6 +62,7 @@
                         'billed-text': ban.current_day_status === 'Đã đặt trước',
                         reservation: ban.current_day_status === 'Đang phục vụ',
                         'reservation-text': ban.current_day_status === 'Đang phục vụ',
+
                       },
                     ]">
                       B{{ ban.table_number }}
@@ -74,6 +74,7 @@
                           'billed-text': ban.current_day_status === 'Đã đặt trước',
                           chair_reservation: ban.current_day_status === 'Đang phục vụ',
                           'reservation-text': ban.current_day_status === 'Đang phục vụ',
+                          chair1: selectedTableId == ban.id
                         },
                       ]"></div>
                     </div>
@@ -117,25 +118,29 @@
         <!-- Chỉ hiển thị sidebar nếu người dùng có quyền tạo hoặc sửa bàn -->
         <div v-if="isSidebarOpen && (hasPermission('create_table') || hasPermission('edit_table'))"
           class="add-table-sidebar">
-          <h5>{{ selectedTableId ? 'Sửa Bàn' : 'Thêm Bàn Mới' }}</h5>
+          <h5 v-if="!hasBookingHistory">{{ selectedTableId ? 'Sửa Bàn' : 'Thêm Bàn Mới' }}</h5>
+          <h5 v-else>Chi tiết</h5>
+
           <button class="close-sidebar-btn" @click="selectedTableId = null; toggleSidebar()">X</button>
           <form @submit.prevent="addNewTable(selectedTableId)">
             <div class="mb-3">
               <label for="newTableNumber" class="form-label">Số bàn:</label>
-              <input type="text" class="form-control rounded" id="newTableNumber" v-model="table_number" required
-                @input="updateNewTablePreview" />
+
+              <input type="number" class="form-control rounded" id="newTableNumber" v-model.number="table_number"
+                required @input="updateNewTablePreview" :disabled="hasBookingHistory" />
+
             </div>
             <div class="mb-3">
               <label for="newTableCapacity" class="form-label">Số ghế:</label>
               <select class="form-select rounded" id="newTableCapacity" v-model="capacity"
-                @change="updateNewTablePreview">
+                @change="updateNewTablePreview" :disabled="hasBookingHistory">
                 <option selected value="2">2</option>
                 <option value="4">4</option>
                 <option value="6">6</option>
               </select>
             </div>
             <button type="submit" class="btn btn-outline-danger w-100 mb-3"
-              v-if="selectedTableId && hasPermission('edit_table')">
+              v-if="selectedTableId && hasPermission('edit_table') && !hasBookingHistory">
               Sửa Bàn
             </button>
             <button type="submit" class="btn btn-outline-danger w-100 mb-3"
@@ -166,21 +171,173 @@
               </template>
             </draggable>
           </div>
-        </div>
+          <hr>
+          <div style="min-height: 80px; overflow-y: auto;">
+            <div class="border shadow-sm p-2 mb-2 rounded" style="cursor: pointer;" v-for="item in tableOrder"
+              :key="item.order_id">
+              <div class="" @click="getInfoDetail(item.order_id)">
+                <div class="fw-bold text-danger">#{{ item.order_id }}</div>
+                <div class="d-flex justify-content-between">
+                  <div class="text-mute"><i class="bi bi-calendar2-week"></i> {{ formatTime(item.reserved_from) }}</div>
+                  <div class="text-mute"><i class="bi bi-card-checklist"></i> {{ item.order_status }}</div>
+                </div>
+              </div>
 
+            </div>
+          </div>
+        </div>
       </transition>
+    </div>
+  </div>
+
+
+  <div name="popup-fade">
+    <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
+      <div class="event-detail-popup" @click.stop>
+        <div class="popup-header">
+          <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
+          <button class="close-button" @click="closeDetailPopup">&times;</button>
+        </div>
+        <div class="popup-content" v-if="info">
+          <div class="info-item">
+            <div class="info-block">
+              <i class="bi bi-table"></i>Ngày đặt:
+              <span v-for="(t, index) in info.tables" :key="index">
+                {{ formatDate(t.reserved_from)
+                }}<span v-if="index < info.tables.length - 1">, </span>
+              </span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-clock"></i>Giờ đặt:
+              <span v-for="(t, index) in info.tables" :key="index">
+                {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
+                }}<span v-if="index < info.tables.length - 1">, </span>
+              </span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <i class="fa-solid fa-calendar"></i>
+              <span>Bàn số:
+                <span v-for="(t, index) in info.tables" :key="index">
+                  {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
+                </span>
+              </span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-people"></i>
+              <span>Lượng khách:
+                {{ info.guest_count }}
+              </span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <i class="fa-solid fa-user"></i>
+              <span>Khách hàng: {{ info.guest_name }}</span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-telephone"></i>
+              <span>SĐT: {{ info.guest_phone }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <i class="bi bi-envelope"></i>
+              <span>Email: {{ info.guest_email }}</span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-card-heading"></i>
+              <span>Ghi chú: {{ info.note || 'Không có' }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
+            </div>
+            <div class="info-block">
+              <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <span>
+                <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
+              </span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-card-list"></i>
+              <span>Trạng thái đơn:
+                <select v-model="info.order_status" class="p-1 border rounded-0"
+                  @change="updateStatus(info.id, info.order_status)" :disabled="!hasPermission('edit_booking')">
+                  <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
+                    Chờ xác nhận
+                  </option>
+                  <option value="Đã xác nhận" :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
+                    Đã xác nhận
+                  </option>
+                  <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
+                    Đang xử lý
+                  </option>
+                  <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
+                    Khách đã đến
+                  </option>
+                  <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
+                    Hoàn thành
+                  </option>
+                  <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
+                    Đã hủy
+                  </option>
+                </select>
+              </span>
+            </div>
+          </div>
+          <div class="info-item1">
+            <i class="bi bi-journals" style="padding-right: 15px"></i>
+            <span>Các món đã đặt</span>
+            <div class="card-custom" style="max-height: 200px; overflow-y: auto">
+              <div class="row align-items-center border-bottom" v-for="item in info.details" :key="item.id">
+                <div class="col-6 p-2">
+                  <div class="item-name">
+                    {{ item.food_name }}
+                  </div>
+                  <div class="item-details">
+                    <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3">
+                      <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
+                        + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }}
+                        đ)
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-2">{{ item.quantity }}</div>
+                <div class="col-3">
+                  <div class="total-price">
+                    {{ formatNumber(calculateTotalItemPrice(item)) }} VNĐ
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="popup-actions" v-if="hasPermission('edit_booking')">
+          <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
+          <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue3-toastify'
 import draggable from 'vuedraggable'
 
 import { Permission } from '@/stores/permission'
+import { Info } from '@/stores/info-order-reservation'
 
 export default {
   components: {
@@ -195,7 +352,6 @@ export default {
         userId.value = user.id
       }
     }
-
     const { hasPermission, permissions, isLoadingPermissions } = Permission(userId)
     const allTables = ref([])
     const route = useRoute()
@@ -203,26 +359,30 @@ export default {
     const selectedTableId = ref(null)
     const table_number = ref('')
     const capacity = ref(2)
+    const hasBookingHistory = ref(false)
     const isSidebarOpen = ref(false)
     const newTablesQueue = ref([])
     const today = new Date().toISOString().split('T')[0]
     const date = ref(today)
     const filterStatus = ref('')
     const isLoading = ref(false)
-
+    const tableOrder = ref([])
     const currentPage = ref(1)
     const isMobileView = ref(window.innerWidth <= 768)
     const dynamicItemsPerPageTable = computed(() => {
       return isMobileView.value ? 9 : 14
     })
+    const { formatTime, formatDate, formatNumber, info, getInfo } = Info.setup()
 
     const updateView = () => {
       isMobileView.value = window.innerWidth <= 768
     }
 
+
     const totalPagesTables = computed(() => {
       return Math.ceil(allTables.value.length / dynamicItemsPerPageTable.value)
     })
+
 
     const paginatedTables = computed(() => {
       const start = (currentPage.value - 1) * dynamicItemsPerPageTable.value
@@ -230,13 +390,17 @@ export default {
       return allTables.value.slice(start, end)
     })
 
+
     const displayTables = computed(() => paginatedTables.value)
 
     const resetNewTableForm = () => {
       table_number.value = ''
       capacity.value = 2
       newTablesQueue.value = []
+      hasBookingHistory.value = false
+      tableOrder.value = []
     }
+
 
     const getTable = async () => {
       if (!hasPermission('view_table')) {
@@ -254,7 +418,6 @@ export default {
         })
         allTables.value = res.data.tables.map((table) => ({
           ...table,
-          isRotated: false
         }))
         currentPage.value = 1
       } catch (error) {
@@ -265,11 +428,13 @@ export default {
       }
     }
 
+
     const goToPage = (page) => {
       if (page >= 1 && page <= totalPagesTables.value) {
         currentPage.value = page
       }
     }
+
 
     const getChairCount = (seats) => {
       if (seats <= 2) return 1
@@ -296,6 +461,7 @@ export default {
       }
     }
 
+
     const toggleSidebar = () => {
       if (!isSidebarOpen.value && !(hasPermission('create_table') || hasPermission('edit_table'))) {
         toast.warn('Bạn không có quyền thêm hoặc sửa bàn.')
@@ -307,6 +473,7 @@ export default {
         selectedTableId.value = null
       }
     }
+
 
     const addNewTable = async (table_id) => {
       if (!table_id && !hasPermission('create_table')) {
@@ -349,7 +516,7 @@ export default {
           for (const field in error.response.data.errors) {
             validationErrors += error.response.data.errors[field].join(' ') + ' '
           }
-          toast.error(`Lỗi dữ liệu: ${validationErrors.trim()}`)
+          toast.error(`${validationErrors.trim()}`)
         } else {
           toast.error('Có lỗi xảy ra trong quá trình thêm/sửa bàn.')
         }
@@ -357,6 +524,7 @@ export default {
         isLoading.value = false
       }
     }
+
 
     const onNewTableDragEnd = async (event) => {
       if (!hasPermission('create_table')) {
@@ -370,6 +538,7 @@ export default {
         }
       }
     }
+
 
     const onTableAddedFromSidebar = async (event) => {
       if (!hasPermission('create_table')) {
@@ -415,6 +584,7 @@ export default {
       }
     }
 
+
     const deleteTable = async (table_id) => {
       if (!hasPermission('delete_table')) {
         toast.error('Bạn không có quyền xóa bàn.')
@@ -434,13 +604,14 @@ export default {
       }
     }
 
-    const loadTable = (id) => {
+
+    const loadTable = async (id) => {
       if (!hasPermission('edit_table')) {
         toast.error('Bạn không có quyền sửa bàn.')
         return
       }
 
-      if (selectedTableId.value === id) {
+      if (selectedTableId.value === id && isSidebarOpen.value) {
         selectedTableId.value = null
         toggleSidebar()
         resetNewTableForm()
@@ -450,13 +621,19 @@ export default {
           selectedTableId.value = selected.id
           table_number.value = selected.table_number
           capacity.value = selected.capacity
+          hasBookingHistory.value = selected.has_booking_history
           updateNewTablePreview()
+
+          const res = await axios.get(`http://127.0.0.1:8000/api/get-orders-tables/${selected.id}`)
+          tableOrder.value = res.data.data.reservations
           if (!isSidebarOpen.value) {
-            toggleSidebar()
+            toggleSidebar();
           }
+
         }
       }
     }
+
 
     const updateNewTablePreview = () => {
       if (table_number.value && parseInt(capacity.value) > 0) {
@@ -472,11 +649,93 @@ export default {
       }
     }
 
+
+    const showDetailPopup = ref(false)
+
+    const getInfoDetail = async (id) => {
+      await getInfo('order', id)
+      showDetailPopup.value = true
+      toggleSidebar()
+    }
+
+
+    const closeDetailPopup = () => {
+      showDetailPopup.value = false
+    }
+
+
+    const calculateTotalItemPrice = (item) => {
+      const basePrice = item.price * item.quantity
+      const toppingTotal =
+        (item.toppings?.reduce((sum, topping) => sum + Number(topping.price), 0) || 0) * item.quantity
+      return basePrice + toppingTotal
+    }
+
+
+    const updateStatus = async (id, status) => {
+      try {
+        if (confirm(`Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}`)) {
+          await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
+            id: id,
+            order_status: status,
+          })
+          closeDetailPopup()
+          await getTable()
+          toast.success('Cập nhật thành công')
+        }
+      } catch (error) {
+        toast.error('Có lỗi xảy ra')
+        console.log(error)
+      }
+    }
+
+
+    const canSelectStatus = (currentStatus, optionStatus) => {
+      const statusOrder = [
+        'Chờ xác nhận',
+        'Đã xác nhận',
+        'Đang xử lý',
+        'Khách đã đến',
+        'Hoàn thành',
+        'Đã hủy',
+      ]
+
+      const currentIndex = statusOrder.indexOf(currentStatus)
+      const optionIndex = statusOrder.indexOf(optionStatus)
+
+      if (currentIndex === -1 || optionIndex === -1) return false
+
+      if (optionStatus === currentStatus) return true
+
+      if (currentStatus === 'Hoàn thành' || currentStatus === 'Đã hủy') return false
+
+      if (optionIndex === currentIndex + 1) return true
+
+      if (optionStatus === 'Đã hủy' && currentStatus !== 'Đã hủy') return true
+
+      return false
+    }
+
+    // const statusMessage = ref('')
+    // const statusType = ref('')
+    // let timeoutId = null;
+
+
+    // function showStatusMessage(message, type) {
+    //   statusMessage.value = message;
+    //   statusType.value = type;
+    //   if (timeoutId) clearTimeout(timeoutId);
+    //   timeoutId = setTimeout(() => {
+    //     statusMessage.value = '';
+    //     statusType.value = '';
+    //   }, 3000);
+    // }
+
     watch(permissions, (newPermissions) => {
       if (newPermissions.length > 0 && !isLoadingPermissions.value) {
         getTable();
       } else if (newPermissions.length === 0 && !isLoadingPermissions.value) {
-          getTable();
+        getTable();
       }
     }, { immediate: true });
 
@@ -513,14 +772,247 @@ export default {
       resetNewTableForm,
       updateNewTablePreview,
       hasPermission,
-      isLoadingPermissions
+      isLoadingPermissions,
+      tableOrder,
+      today,
+      formatTime,
+      getInfoDetail,
+      showDetailPopup,
+      closeDetailPopup,
+      info,
+      formatNumber,
+      canSelectStatus,
+      updateStatus,
+      formatDate,
+      calculateTotalItemPrice,
+      hasBookingHistory,
+      // showStatusMessage, timeoutId, statusType, statusMessage
     }
   }
 }
 </script>
 
 <style scoped>
-/* --- Base Layout & Main Content --- */
+.card-custom {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 0 20px;
+  margin-top: 5px;
+}
+
+.item-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.total-price {
+  font-size: 14px;
+  text-align: right;
+  color: #c92c3c;
+}
+
+.item-details {
+  font-size: 11px;
+  color: #6c757d;
+}
+
+.ban {
+  background-color: #ffffff;
+  /* border: 1px solid #ffffff; */
+  font-weight: bold;
+  /* border-radius: 5px; */
+}
+
+.title {
+  font-size: 12px;
+  text-align: left;
+  margin-bottom: 2px;
+}
+
+.time-badge {
+  color: #8d8a8a;
+  font-size: small;
+}
+
+/* .status-message {
+  margin-top: 15px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.status-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+} */
+.event-detail-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.event-detail-popup {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 600px;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 20px;
+  background-color: #c92c3c;
+  border-bottom: 1px solid #eee;
+}
+
+.popup-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+}
+
+.event-detail-popup.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+a {
+  text-decoration: none;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.8em;
+  cursor: pointer;
+  color: #ffffff;
+  padding: 0 5px;
+}
+
+.popup-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.info-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  /* khoảng cách giữa 2 cột */
+  font-size: 0.95em;
+  color: #1d1d1d;
+}
+
+.info-block {
+  align-items: center;
+  gap: 8px;
+}
+
+.info-item i {
+  margin-right: 12px;
+  font-size: 1.1em;
+}
+
+.info-item span {
+  flex-grow: 1;
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+  background-color: #f5f5f5;
+}
+
+.popup-actions button {
+  padding: 8px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.edit-button {
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+}
+
+.edit-button:hover {
+  background-color: #c92c3c;
+  color: white;
+}
+
+.delete-button {
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+}
+
+.delete-button:hover {
+  background-color: #c92c3c;
+  color: white;
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  border: none;
+}
+
+.isLoading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(148, 142, 142, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-fade-enter-active,
+.popup-fade-leave-active {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.popup-fade-enter-from,
+.popup-fade-leave-to {
+  transform: translateY(-20px);
+}
+
+.popup-fade-enter-to,
+.popup-fade-leave-from {
+  transform: translateY(0px);
+}
+
 .main-layout {
   display: flex;
   height: 100vh;
@@ -596,6 +1088,7 @@ h2 {
   border: 1px solid #eee;
   border-radius: 8px;
   align-items: start;
+  min-height: 300px;
 }
 
 /* --- Individual Table Block Styles --- */
@@ -640,7 +1133,7 @@ h2 {
 .chairs {
   display: flex;
   justify-content: center;
-  margin: 8px 0;
+  margin: 4px 0;
   width: 100%;
 }
 
@@ -648,6 +1141,14 @@ h2 {
   width: 40px;
   height: 6px;
   background-color: #ddd;
+  border-radius: 3px;
+  margin: 0 4px;
+}
+
+.chair1 {
+  width: 40px;
+  height: 6px;
+  background-color: #007bff;
   border-radius: 3px;
   margin: 0 4px;
 }
@@ -705,11 +1206,14 @@ h2 {
   /* Đã đặt trước */
 }
 
+.chair_billed {
+  background-color: #fcdc7c;
+  /* Đã đặt trước */
+}
+
 .vacant {
   background-color: #f4f4f4;
-  /* Bàn trống */
   border: 5px solid #ddd;
-  /* Đồng bộ border với table-rect */
 }
 
 .reservation {
@@ -727,6 +1231,12 @@ h2 {
   color: #e06c75;
   /* Màu chữ cho trạng thái Đang phục vụ */
 }
+
+.chair_reservation {
+  background-color: #ec988e;
+  /* Đang phục vụ */
+}
+
 
 /* --- Sidebar & Animations --- */
 .add-table-sidebar {

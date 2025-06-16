@@ -231,9 +231,15 @@
       </div>
     </div>
   </div>
-<router-link :to="`/reservation-form/${orderId}`" v-if="orderId">
-  <button class="btn btn-danger1" style="position: fixed; bottom: 0%; right: 0%; width: 90px;">Quay lại</button>
-</router-link>
+
+  <div class="fixed-element d-flex align-items-center justify-content-between px-4" v-if="isReservation && orderId">
+  <div class="scrolling-container">
+    <div class="scrolling-text">
+      ✨ Chọn món cho đơn đặt bàn của bạn! ✨
+    </div>
+  </div>
+  <router-link :to="`/reservation-form/${orderId}`" class="btn-confirm text-decoration-none">Xác nhận chọn xong</router-link>
+</div>
 </template>
 <script>
 import axios from 'axios'
@@ -242,6 +248,7 @@ import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue3-toastify'
+import { computed } from 'vue'
 
 export default {
   name: 'HomePage',
@@ -268,7 +275,9 @@ export default {
 
     const route = useRoute()
     const orderId = route.params.orderId
-
+    const isReservation = computed(() => {
+    return route.name && String(route.name).includes('reservation')
+  })
 
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
@@ -520,12 +529,83 @@ export default {
       increaseQuantity,
       decreaseQuantity,
       quantity,
-      orderId
+      orderId,
+      isReservation
     }
   },
 }
 </script>
 <style scoped>
+.fixed-element {
+  position: fixed;
+  top: 157px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84%;
+  background-color: #cc2c40;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 0 0 20px 20px;
+  padding: 10px 20px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.scrolling-container {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.scrolling-text {
+  display: inline-block;
+  padding-left: 100%;
+  animation: scroll-left 10s linear infinite;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+.btn-confirm {
+  background-color: #fff;
+  color: #cc2c40;
+  font-weight: bold;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.3s;
+}
+
+.btn-confirm:hover {
+  background-color: #f8d7da;
+}
+
+
+.btn-confirm {
+  background-color: #fff;
+  color: #cc2c40;
+  font-weight: bold;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-confirm:hover {
+  background-color: #f8d7da;
+}
+
 .menu-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -533,7 +613,6 @@ export default {
   list-style: none;
   padding: 0;
 }
-
 .menu-item {
   position: relative;
 }

@@ -278,9 +278,9 @@ export default {
       discountShipAmount,
     } = Discounts()
     onMounted(async () => {
-  await getAllDiscount({ source: 'system' })
-  // console.log('Danh sách voucher hệ thống:', discounts.value)
-})
+      await getAllDiscount({ source: 'system' })
+      // console.log('Danh sách voucher hệ thống:', discounts.value)
+    })
 
     const {
       cartItems,
@@ -378,8 +378,8 @@ export default {
           money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
-            food_id: item.id,
-            combo_id: null,
+            food_id: item.type == 'Food' ? item.id : null,
+            combo_id: item.type == 'Combo' ? item.id : null,
             quantity: item.quantity,
             price: item.price,
             type: item.type,
