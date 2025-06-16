@@ -277,6 +277,10 @@ export default {
       loadCart,
       discountShipAmount,
     } = Discounts()
+    onMounted(async () => {
+  await getAllDiscount({ source: 'system' })
+  // console.log('Danh sách voucher hệ thống:', discounts.value)
+})
 
     const {
       cartItems,
@@ -318,7 +322,6 @@ export default {
           toast.info('Chức năng thanh toán MoMo đang được phát triển!');
           localStorage.setItem('payment_method', paymentMethod.value);
           localStorage.removeItem(cartKey.value);
-          // router.push('/payment-result');
           return
         }
         if (paymentMethod.value === 'COD') {
@@ -415,6 +418,7 @@ export default {
         isLoading.value = false
       }
     }
+
     const today = dayjs().format('YYYY-MM-DD')
     const removeDiscountCode = () => {
       selectedDiscount.value = null
@@ -563,7 +567,6 @@ export default {
       selectedDiscount,
       removeDiscountCode,
       showMoreDiscounts,
-      getAllDiscount,
       handleDiscountInput,
       applyDiscountCode,
       discountFoodAmount,

@@ -185,13 +185,13 @@ class PaymentController extends Controller
                 'order_id' => $validated['order_id'],
                 'amount_paid' => $validated['amount_paid'],
                 'payment_method' => 'COD',
-                'payment_status' => 'Đã thanh toán',
+                'payment_status' => 'Đang chờ xử lý',
                 'payment_time' => Carbon::now('Asia/Ho_Chi_Minh'),
                 'payment_type' => $validated['payment_type'] ?? 'Thanh toán toàn bộ',
             ]);
 
             $order = Order::find($validated['order_id']);
-            if ($order && $order->status === 'Pending Payment') {
+            if ($order && $order->status === 'Đang chờ xử lý') {
                 $order->update(['status' => 'Đã thanh toán']);
             }
 

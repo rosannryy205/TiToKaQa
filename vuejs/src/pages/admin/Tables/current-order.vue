@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('view_booking')">
   <h4 class="pb-2">Đơn hiện thời</h4>
   <router-link to="/admin/order-create">
     <button class="btn add-order-fixed-btn">
@@ -30,7 +30,6 @@
             </div>
           </div>
 
-          <!-- ✅ Danh sách món ăn có thanh cuộn -->
           <div class="food-list-scroll">
             <div v-for="food in order.details" :key="food.food_id" class="food-item">
               <div class="flex-grow-1">

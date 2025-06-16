@@ -18,8 +18,8 @@ onMounted(async () => {
 
   try {
     const response = await axios.get(`http://localhost:8000/api/auth/${provider}/callback`, {
-  params: { code },
-})
+      params: { code },
+    })
 
 
     const token = response.data.token
@@ -28,10 +28,19 @@ onMounted(async () => {
     localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(user))
 
-    toast.success("Đăng nhập thành công!")
-    setTimeout(() => {
-      router.push('/').then(() => window.location.reload())
+
+    if (user.role === 'quanly' || user.role === 'nhanvien' || user.role === 'nhanvienkho') {
+      toast.success("Đang chuyển hướng tới trang admin")
+      setTimeout(() => {
+        router.push('/admin')
       }, 1500)
+    } else {
+      toast.success("Đăng nhập thành công!")
+      setTimeout(() => {
+        router.push('/').then(() => window.location.reload())
+      }, 1500)
+    }
+
   } catch (error) {
     const message = error.response?.data?.message || "Đăng nhập thất bại!"
     toast.error(message)
