@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use Exception;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 use function Laravel\Prompts\error;
 
@@ -431,7 +432,7 @@ class UserController extends Controller
                 }
                 $user->avatar = $path;
             }
-            $user->update();
+            $user->save();
 
             return response()->json([
                 'message' => 'Thông tin và ảnh đại diện đã được cập nhật thành công.',
@@ -462,6 +463,70 @@ class UserController extends Controller
             'mess' => 'Complete',
             'user' => $user
         ]);
+    }
+
+    public function insertStaff(Request $request)
+    {
+        try {
+            $data = $request->validate(
+                 [
+                'phone' => 'required|digits:10|unique:users,phone',
+                'fullname' => 'required|string|max:255',
+            ],
+            [
+                'phone.required' => 'Vui lòng nhập số điện thoại',
+                'phone.digits' => 'Số điện thoại phải đủ 10 chữ số',
+                'phone.unique' => 'Số điện thoại đã tồn tại',
+                'fullname.required' => 'Vui lòng nhập họ và tên',
+            ]
+            );
+
+            $user = User::create([
+                'username' => 'temp',
+                'email' => 'temp@gmail.com',
+                'phone' => $data['phone'],
+                'password' => bcrypt('temp'),
+                'fullname' => $data['fullname'],
+            ]);
+
+            $generatedEmail = 'staff' . $user->id . '@gmail.com';
+            $generatedPassword = 'staff' . $user->id . 'Titokaqa';
+            $generatedUsername = 'staff' . $user->id;
+
+            $user->update([
+                'email' => $generatedEmail,
+                'password' => $generatedPassword,
+                'username' => $generatedUsername
+            ]);
+
+            $user->assignRole('quanly');
+
+            $token = $user->createToken('auth')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Thêm người dùng thành công',
+                'user' => [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'fullname' => $user->fullname,
+                    'password_raw' => $generatedPassword,
+                    'role' => $user->getRoleNames()->first()
+                ],
+                'token' => $token
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Đã xảy ra lỗi: ' . $th->getMessage()
+            ], 500);
+        }
     }
 
     /**

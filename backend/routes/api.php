@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminCategoryToppingController;
 use App\Http\Controllers\AdminFoodController;
 use App\Http\Controllers\AdminToppingController;
@@ -80,6 +81,7 @@ Route::get('/role-permission/{id}', [RoleController::class, 'getAllPermission'])
 Route::put('/role-permission-update', [RoleController::class, 'updatePermission']);
 Route::post('/role-permission-create', [RoleController::class, 'createRoleWithPermissions']);
 Route::get('/role-permission-user/{id}', [RoleController::class, 'userProfile']);
+Route::delete('/delete_role/{id}', [RoleController::class, 'deleteRole']);
 
 
 
@@ -100,6 +102,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/user-update/{id}', [UserController::class, 'update']);
     // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
+
+Route::post('/insert_staff', [UserController::class, 'insertStaff' ]);
 
 
 // đăng ký đăng nhập quên mật khẩu
@@ -163,9 +167,9 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 
 
 //admin
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+// Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    // món ăn
     Route::get('/admin/manage/foods', [AdminFoodController::class, 'index']);
-    Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
     Route::post('/admin/foods', [AdminFoodController::class, 'store']);
     Route::get('/admin/foods/search', [FoodController::class, 'search']);
     Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
@@ -173,10 +177,32 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('admin/food/{id}/status', [AdminFoodController::class, 'updateStatus']);
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
-    Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
-    Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
-    Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
-});
+
+
+    // topping
+    Route::resource('/admin/category_topping', AdminCategoryToppingController::class);
+    Route::resource('/admin/toppings', AdminToppingController::class);
+    Route::get('/admin/toppingById/{id}', [AdminToppingController::class,'getToppingById']);
+
+
+    // danh mục món ăn
+    Route::get('/admin/categories', [AdminCategoryController::class, 'getAllCategories']);
+    Route::get('/admin/categories/parents/list', [AdminCategoryController::class, 'getParents']);
+    Route::get('/admin/categories/list', [AdminCategoryController::class, 'index']);
+    Route::get('/admin/categories/{id}', [AdminCategoryController::class, 'show']);
+    Route::post('/admin/categories', [AdminCategoryController::class, 'store']);
+    Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update']);
+    Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
+    Route::post('/admin/categories/delete-multiple', [AdminCategoryController::class, 'deleteMultiple']);
+
+
+
+
+    // Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
+    // Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
+    // Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
+// });
+
 
 
 //adminfood
@@ -197,7 +223,7 @@ Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middlewa
 
 /** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
-Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
+// Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
