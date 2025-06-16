@@ -132,8 +132,7 @@
       </tbody>
     </table>
   </div>
-  <button class="btn btn-danger-delete delete_desktop" @click="deleteSelectedFoods"
-    :disabled="selectedFoods.length === 0">Xoá</button>
+
   <nav class="mt-4">
     <ul class="pagination">
       <li class="page-item" :class="{ disabled: currentPage === 1 }">
@@ -149,7 +148,8 @@
       </li>
     </ul>
   </nav>
-
+  <button class="btn btn-danger-delete delete_desktop" @click="deleteSelectedFoods"
+    :disabled="selectedFoods.length === 0">Xoá đã chọn({{ selectedFoods.length }})</button>
 
 
 

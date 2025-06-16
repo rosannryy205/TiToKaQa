@@ -145,10 +145,15 @@ const admin = [
         meta: { requiresAdmin: true },
       },
       {
-        path: "insert-category",
-        name: "insert-category",
+        path: "insert-food-category",
+        name: "insert-food-category",
         component: () => import("../pages/admin/Categories/insert.vue"),
         meta: { requiresAdmin: true },
+      },
+      {
+        path: "update-food-category/:id",
+        name: "update-food-category",
+        component: () => import("../pages/admin/Categories/update.vue")
       },
       {
         path: 'insert-reservation',
