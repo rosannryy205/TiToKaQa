@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class AdminCategoryToppingController extends Controller
 {
-    public function getAll(){
+    public function index(){
         try {
             $cates = Category_topping::all();
             return response()->json($cates);

@@ -178,6 +178,13 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
 
+
+    // topping
+    Route::resource('/admin/category_topping', AdminCategoryToppingController::class);
+    Route::resource('/admin/toppings', AdminToppingController::class);
+    Route::get('/admin/toppingById/{id}', [AdminToppingController::class,'getToppingById']);
+
+
     // danh mục món ăn
     Route::get('/admin/categories', [AdminCategoryController::class, 'getAllCategories']);
     Route::get('/admin/categories/parents/list', [AdminCategoryController::class, 'getParents']);
@@ -195,6 +202,7 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
     // Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
     // Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
 // });
+
 
 
 //adminfood
