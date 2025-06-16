@@ -190,14 +190,20 @@ async function deleteCombo(comboId) {
     if (!confirm("Bạn có chắc muốn xóa combo này?")) return;
     if (!comboId) {
       console.log("Không tìm thấy Id Combo !");
-      return
+      return;
     }
-    await axios.delete(`http://127.0.0.1:8000/api/admin/combos/delete/${comboId}'`)
-    toast.success("Đã xóa combo thành công !")
+
+    await axios.delete(`http://127.0.0.1:8000/api/admin/combos/delete/${comboId}`);
+    toast.success("Đã xóa combo thành công!");
     combo.value = combo.value.filter(combo => combo.id !== comboId);
   } catch (error) {
     console.log(error);
-    toast.warning("Lỗi khi xóa combo: " + error.message);
+
+    if (error.response && error.response.status === 400) {
+      toast.warning(error.response.data.message || "Combo có đơn hàng không thể xóa.!");
+    } else {
+      toast.warning("Lỗi khi xóa combo: " + error.message);
+    }
   }
 }
 
