@@ -20,6 +20,7 @@ class ProviderCallbackController extends Controller
             $socialUser = Socialite::driver($provider)->stateless()->user();
             $existingUser = User::where('email', $socialUser->getEmail())->first();
 
+
             if ($existingUser) {
                 if (!$existingUser->provider_id || !$existingUser->provider_name) {
                     return response()->json([
@@ -37,10 +38,17 @@ class ProviderCallbackController extends Controller
                     'provider_token' => $socialUser->token,
                     'provider_refresh_token' => $socialUser->refreshToken ?? null,
                     'username' => $socialUser->name ?? $socialUser->email,
-                    'avatar' => $socialUser->getAvatar(),
+                    'avatar' => null,
                 ]);
 
                 $user->assignRole('khachhang');
+            }
+            if (
+                !$user->avatar ||
+                str_contains($user->avatar, 'googleusercontent.com')
+            ) {
+                $user->avatar = $socialUser->getAvatar();
+                $user->save();
             }
 
             $token = $user->createToken('api_token')->plainTextToken;

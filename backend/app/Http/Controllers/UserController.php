@@ -432,7 +432,7 @@ class UserController extends Controller
                 }
                 $user->avatar = $path;
             }
-            $user->update();
+            $user->save();
 
             return response()->json([
                 'message' => 'Thông tin và ảnh đại diện đã được cập nhật thành công.',
