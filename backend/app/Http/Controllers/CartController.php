@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Order_detail;
 use App\Models\Order_topping;
 use App\Models\Reservation_table;
+use App\Services\PointService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -257,7 +258,7 @@ class CartController extends Controller
     {
         $orders = Order::with([
             'details.foods', // lấy tên món ăn
-            'details.toppings.food_toppings.topping', // lấy tên topping
+            'details.toppings.food_toppings.toppings', // lấy tên topping
             'tables',
             'payment'
         ])->orderByDesc('order_time')->get();
@@ -276,7 +277,7 @@ class CartController extends Controller
                         'toppings' => $detail->toppings->map(function ($toppings) {
                             return [
                                 'food_toppings_id' => $toppings->food_toppings_id,
-                                'topping_name' => $toppings->food_toppings->topping->name ?? null,
+                                'topping_name' => $toppings->food_toppings->toppings->name ?? null,
                                 'price' => $toppings->price,
                             ];
                         })
@@ -357,7 +358,6 @@ class CartController extends Controller
 
         DB::beginTransaction();
         try {
-            // Nếu chuyển trạng thái sang "Đã hủy" từ các trạng thái đã trừ stock trước đó
             if ($newStatus === 'Đã hủy' && in_array($oldStatus, ['Chờ xác nhận', 'Đã xác nhận'])) {
                 foreach ($order->details as $detail) {
                     $food = Food::find($detail->food_id);
@@ -371,6 +371,12 @@ class CartController extends Controller
 
             $order->order_status = $newStatus;
             $order->save();
+            //================================
+            // POINT
+            //================================
+            $pointService = new PointService();
+            $pointService->updateUserPointsWhenOrderCompleted($order);
+            //================================
 
             if ($order->payment) {
                 $payment = $order->payment;
@@ -379,12 +385,15 @@ class CartController extends Controller
                     $payment->payment_status = 'Đã thanh toán';
                 } elseif (in_array($newStatus, ['Giao thất bại', 'Đã hủy'])) {
                     $payment->payment_status = 'Thanh toán thất bại';
-                }
 
+                    if(in_array($payment->payment_method, ['VNPAY', 'MOMO'])){
+                        $payment->payment_status = 'Đã hoàn tiền';
+                    }
+                }
                 // Nếu là thanh toán online và đơn hàng giao thành công thì luôn đảm bảo đánh dấu là đã thanh toán
                 if (
                     $newStatus === 'Giao thành công' &&
-                    in_array($payment->payment_method, ['Thanh toán VNPAY', 'Thanh toán MOMO'])
+                    in_array($payment->payment_method, ['VNPAY', 'MOMO'])
                 ) {
                     $payment->payment_status = 'Đã thanh toán';
                 }

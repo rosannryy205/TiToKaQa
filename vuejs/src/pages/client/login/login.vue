@@ -103,14 +103,15 @@ async handleLogin() {
     this.loginData.login = '';
     this.loginData.password = '';
 
-    // Điều hướng
-    if (response.data.user.role === 'admin') {
-      this.router.push('/admin');
-    } else {
-      this.router.push('/home');
-    }
-  } catch (error) {
-    console.error('Lỗi đăng nhập:', error);
+        // Điều hướng
+        if (response.data.user.role === 'quanly' || response.data.user.role === 'nhanvien' || response.data.user.role === 'nhanvienkho') {
+
+          this.router.push('/admin');
+        } else {
+          this.router.push('/home');
+        }
+      } catch (error) {
+        console.error('Lỗi đăng nhập:', error);
 
         if (error.response?.status === 422) {
           const errors = error.response.data.errors;

@@ -35,8 +35,10 @@ export const User = {
           avatar: res.data.avatar
             ? (res.data.avatar.startsWith('http') ? res.data.avatar : `http://127.0.0.1:8000/storage/${res.data.avatar}`)
             : null,
-
-        }
+            rank_points: res.data.rank_points,
+            usable_points: res.data.usable_points,
+            rank: res.data.rank,
+        },
         tempAvatar.value = null;
       } catch (error) {
         console.error('Không lấy được thông tin người dùng', error)

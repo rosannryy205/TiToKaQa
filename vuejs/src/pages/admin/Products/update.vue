@@ -94,7 +94,7 @@
         </div>
       </div>
 
-      <div class="col-12 mb-4 text-center">
+      <div class="col-12 mb-4">
         <button type="submit" class="btn btn-danger-save mt-2" style="width: 200px;">
           Cập nhật món ăn
         </button>
@@ -107,6 +107,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
+import Swal from 'sweetalert2';
 
 const route = useRoute()
 const router = useRouter()
@@ -198,7 +199,10 @@ const updateFood = async () => {
     formData.append('category_id', food.value.category_id)
     formData.append('description', food.value.description)
     formData.append('price', food.value.price)
-    formData.append('sale_price', food.value.sale_price)
+    if (food.value.sale_price !== null && food.value.sale_price !== '') {
+      formData.append('sale_price', food.value.sale_price)
+    }
+
     if (selectedFile) {
       formData.append('image', selectedFile)
     }
