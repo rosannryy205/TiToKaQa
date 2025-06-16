@@ -71,7 +71,7 @@ Route::get('/all-tables', [TableController::class, 'getAllTable']);
 Route::get('/tables/{id}', [TableController::class, 'getTableById']);
 Route::put('/tables/{id}', [TableController::class, 'updateTable']);
 Route::delete('/tables/{id}', [TableController::class, 'deleteTable']);
-// Route::get('/restore-tables/{id}', [TableController::class, 'restoreTable']);
+Route::get('/get-orders-tables/{id}', [TableController::class, 'getAllOrdersByIdTable']);
 Route::post('/insert-table', [TableController::class, 'insertTable']);
 
 
@@ -136,6 +136,7 @@ Route::post('/ghn/service', [ShippingController::class, 'getGHNServices']);
 //getall user
 Route::resource('user', UserController::class);
 Route::put('/update/{id}', [UserController::class, 'updateStatus']);
+Route::post('/assign-role/{user_id}', [UserController::class, 'assignSingleRole']);
 
 
 
