@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Order_detail;
 use App\Models\Order_topping;
 use App\Models\Reservation_table;
+use App\Services\PointService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -357,7 +358,6 @@ class CartController extends Controller
 
         DB::beginTransaction();
         try {
-            // Nếu chuyển trạng thái sang "Đã hủy" từ các trạng thái đã trừ stock trước đó
             if ($newStatus === 'Đã hủy' && in_array($oldStatus, ['Chờ xác nhận', 'Đã xác nhận'])) {
                 foreach ($order->details as $detail) {
                     $food = Food::find($detail->food_id);
@@ -371,6 +371,12 @@ class CartController extends Controller
 
             $order->order_status = $newStatus;
             $order->save();
+            //================================
+            // POINT
+            //================================
+            $pointService = new PointService();
+            $pointService->updateUserPointsWhenOrderCompleted($order);
+            //================================
 
             if ($order->payment) {
                 $payment = $order->payment;

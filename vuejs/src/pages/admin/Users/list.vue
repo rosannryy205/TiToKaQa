@@ -70,7 +70,7 @@
         </tr>
       </tbody>
     </table>
-    <div>
+    <div v-if="isEmployee">
       <p>*Mật khẩu là (username)Titokaqa <br>
         VD: staff1Titokaqa
       </p>
