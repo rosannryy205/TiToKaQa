@@ -237,7 +237,7 @@ import { ref, watch } from 'vue'
 import axios from 'axios'
 import { User } from '@/stores/user'
 import dayjs from 'dayjs'
-import { RouterLink, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useShippingStore } from '@/stores/shippingStore'
 import { toast } from 'vue3-toastify'
@@ -278,9 +278,6 @@ export default {
       discountShipAmount,
     } = Discounts()
     onMounted(async () => {
-      await getAllDiscount({ source: 'system' })
-      // console.log('Danh sách voucher hệ thống:', discounts.value)
-    })
       await getAllDiscount({ source: 'system' })
       // console.log('Danh sách voucher hệ thống:', discounts.value)
     })
@@ -370,18 +367,6 @@ export default {
           isLoading.value = false;
           return;
         }
-
-        const orderDetails = cartItems.value.map((item) => ({
-          food_id: item.type === 'Combo' ? null : item.id,
-          combo_id: item.type === 'Combo' ? item.id : null,
-          quantity: item.quantity,
-          price: item.price,
-          type: item.type,
-          toppings: item.toppings?.map((t) => ({
-            food_toppings_id: t.food_toppings_id,
-            price: t.price,
-          })) || [],
-        }));
 
         const orderData = {
           user_id: user.value ? user.value.id : null,
