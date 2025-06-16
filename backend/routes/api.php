@@ -192,8 +192,10 @@ Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 
 
+/**client user-point_exchange*/
+Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');
 
-/**combo mqua*/
+/** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
@@ -201,3 +203,4 @@ Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
 Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
 Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);
+

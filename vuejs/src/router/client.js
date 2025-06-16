@@ -80,6 +80,12 @@ const client = [
         meta: { title: 'Trang chủ' },
       },
       {
+        path: 'discount-management',
+        name: 'discount-management',
+        component: () => import('../pages/client/user/discount-management.vue'),
+        meta: { title: 'Trang chủ' },
+      },
+      {
         path: 'order-management',
         name: 'order-management',
         component: () => import('../pages/client/user/order-management.vue'),

@@ -378,8 +378,8 @@ export default {
           money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
-            food_id: item.id,
-            combo_id: null,
+            food_id: item.id || null,
+            combo_id: item,
             quantity: item.quantity,
             price: item.price,
             type: item.type,
