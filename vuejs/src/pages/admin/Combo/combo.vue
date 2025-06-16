@@ -5,7 +5,7 @@
     <router-link v-if="hasPermission('create_combo')" :to="{ name: 'insert-combo' }" class="btn btn-add"> + Thêm Combo
     </router-link>
 
-    <input type="text" class="clean-input" placeholder="Tìm kiếm" aria-label="Tìm kiếm" />
+    <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
 
     <select class="custom-select" style="max-width: 80px">
       <option selected>5</option>
@@ -25,7 +25,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in combo" :key="index">
+        <tr v-for="(item, index) in filteredCombos" :key="index">
           <td class="d-none d-sm-table-cell"><input type="checkbox" /></td>
           <td>
             <img :src="`/img/food/${item.image}`" :alt="item.name" class="me-2 img_thumbnail" />
@@ -105,8 +105,8 @@
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td colspan="4" class="text-end fw-semibold">Tổng giá combo: </td>
-                    <td class="fw-bold text-danger"> {{ formatNumber(comboTotal) }} đ</td>
+                    <td colspan="4" class="text-end fw-semibold">Tổng giá combo:</td>
+                    <td class="fw-bold text-danger">{{ formatNumber(comboTotal) }} đ</td>
                   </tr>
                 </tfoot>
               </table>
@@ -123,21 +123,19 @@
       </div>
     </div>
   </div>
-
-
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import numeral from 'numeral'
-import { useMenu } from '@/stores/use-menu'
 import { toast } from 'vue3-toastify'
 import { Permission } from '@/stores/permission'
 
 useMenu().onSelectedKeys(['admin-roles'])
 
 const combo = ref([])
+const searchQuery = ref('')
 const selectedCombo = ref(null)
 
 function formatNumber(value) {
@@ -170,12 +168,20 @@ const comboTotal = computed(() => {
   )
 })
 
+const filteredCombos = computed(() => {
+  const keyword = searchQuery.value.trim().toLowerCase()
+  if (!keyword) return combo.value
+  return combo.value.filter((p) =>
+    p.name?.toLowerCase().includes(keyword)
+  )
+})
+
 async function fetchCombos() {
   try {
     const res = await axios.get('http://127.0.0.1:8000/api/admin/combos')
     combo.value = res.data
   } catch (error) {
-    console.log(error)
+    console.error(error)
   }
 }
 
@@ -194,10 +200,10 @@ async function deleteCombo(comboId) {
     toast.warning("Lỗi khi xóa combo: " + error.message);
   }
 }
+
 onMounted(() => {
   fetchCombos()
 })
-
 </script>
 
 <style scoped>

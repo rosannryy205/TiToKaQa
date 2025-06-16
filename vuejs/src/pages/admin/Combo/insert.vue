@@ -127,7 +127,13 @@
         <div class="modal-body">
           <div class="row mb-3">
             <div class="col-12 col-md-8 mb-2 mb-md-0">
-              <input type="text" class="form-control rounded" id="searchInput" placeholder="Nhập tên món..." />
+              <input
+                v-model="searchQuery"
+                type="text"
+                class="form-control rounded"
+                id="searchInput"
+                placeholder="Nhập tên món..."
+              />
             </div>
             <div class="col-12 col-md-4">
               <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
@@ -148,7 +154,7 @@
                 </tr>
               </thead>
               <tbody id="menuList">
-                <tr v-for="food in foods" :key="food.id" :value="food.name">
+                <tr v-for="food in filteredCombos" :key="food.id" :value="food.name">
                   <td>
                     <input type="checkbox" class="form-check-input menu-checkbox" :value="food.id"
                       @change="toggleSelect(food)" :checked="isSelected(food.id)" />
@@ -241,9 +247,17 @@ function handleImage(event) {
 }
 
 // ============================
-// MÓN ĂN ĐƯỢC CHỌN
+// MÓN ĂN ĐƯỢC CHỌN và SEARCH
 // ============================
 const selectedFoods = ref([])
+const searchQuery = ref('');
+
+const filteredCombos = computed(() => {
+      const keyword = searchQuery.value.toLowerCase();
+      return foods.value.filter((p) =>
+        p.name.toLowerCase().includes(keyword)
+      );
+    });
 
 const isSelected = (id) => {
   return selectedFoods.value.some((item) => item.id === id)
@@ -294,7 +308,6 @@ function removeFood(id) {
     selectedFoods.value = selectedFoods.value.filter((f) => f.id !== id)
   }
 }
-
 // ============================
 // GIÁ GỐC & ĐỊNH DẠNG
 // ============================
@@ -370,7 +383,6 @@ const createCombosByAdmin = async () => {
     }
   }
 }
-
 // ============================
 // ON MOUNT
 // ============================
