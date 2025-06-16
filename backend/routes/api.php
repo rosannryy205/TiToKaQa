@@ -162,9 +162,11 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('admin/food/{id}/status', [AdminFoodController::class, 'updateStatus']);
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
-    Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
-    Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
-    Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
+
+
+    Route::resource('/admin/category_topping', AdminCategoryToppingController::class);
+    Route::resource('/admin/toppings', AdminToppingController::class);
+    Route::get('/admin/toppingById/{id}', [AdminToppingController::class,'getToppingById']);
 });
 
 
