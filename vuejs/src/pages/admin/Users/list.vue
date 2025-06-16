@@ -14,14 +14,6 @@
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
     <span class="vd">Tìm kiếm </span>
     <input type="text" class="form-control rounded" style="max-width: 250px" placeholder="Tìm kiếm theo tên hoặc SĐT" />
-    <!-- <span class="vd">Lọc theo vai trò</span>
-    <select class="form-select w-auto rounded" style="max-width: 250px" v-model="selectRole">
-      <option value="">Tất cả</option>
-      <option value="admin">Admin</option>
-      <option value="staff">Nhân viên</option>
-      <option value="user">Khách hàng</option>
-    </select> -->
-
     <span class="vd">Hiển thị</span>
     <select class="form-select w-auto rounded">
       <option selected>5</option>
@@ -46,14 +38,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in allUser" :key="user.id">
+        <tr v-for="user in filteredUsersComputed" :key="user.id">
           <td>{{ user.id }}</td>
           <td>{{ user.username }}</td>
           <td>{{ user.fullname ? user.fullname : 'Chưa cập nhật' }}</td>
           <td>{{ user.phone ? user.phone : 'Chưa cập nhật' }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.address ? user.address : 'Chưa cập nhật' }}</td>
-          <td>{{ getRoleName(user.roles) }}</td>
+          <td>
+            <select class="form-select rounded" v-model="user.roles[0].name" @change="updateUserRole(user)"
+              :disabled="user.roles[0].name == user_role" v-if="user_role == 'quanly'">
+              <option v-for="item in role" :key="item.id" :value="item.name" v-show="item.name !== 'quanly'">
+                {{ getRoleName(item.name) }}
+              </option>
+            </select>
+            <span v-else>{{ getRoleName(user.roles[0].name) }}</span>
+          </td>
           <td>
             {{ user.status }}
           </td>
@@ -92,7 +92,12 @@
             <p class="card-text"><strong>SĐT:</strong>{{ user.phone }}</p>
             <p class="card-text"><strong>Email:</strong>{{ user.email }}</p>
             <p class="card-text"><strong>Vai trò: </strong>
-              <td>{{ getRoleName(user.roles) }}</td>
+              <td><select class="form-select rounded" v-model="user.roles[0].name" @change="updateUserRole(user)"
+                  v-if="user.roles[0].name !== 'quanly'" :disabled="user.roles[0].name == user_role">
+                  <option v-for="item in role" :key="item.id" :value="item.name">
+                    {{ getRoleName(item.name) }}
+                  </option>
+                </select></td>
             </p>
             <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
               data-bs-target="#userDetailModal">
@@ -197,14 +202,12 @@
 </template>
 
 <script setup>
-import { useMenu } from '@/stores/use-menu'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { watch } from 'vue'
-
-useMenu().onSelectedKeys(['admin-roles'])
+import { toast } from 'vue3-toastify'
 
 const selectedUser = ref(null);
 
@@ -212,7 +215,6 @@ const openUserModal = (user) => {
   selectedUser.value = user;
 };
 const allUser = ref([])
-// const selectRole = ref('')
 const route = useRoute()
 const isEmployee = computed(() => {
   return route.name && String(route.name).includes('employee')
@@ -255,36 +257,26 @@ const fecthAllUser = async () => {
             }
           }
         }
-
-        result.push(user);
+        result.push(user,);
       }
     }
     allUser.value = result;
+    console.log(allUser.value);
 
   } catch (error) {
     console.log('Lỗi khi fetch user:', error);
   }
 };
 
-const getRoleName = (roles) => {
-  if (!roles || roles.length === 0) return 'Chưa phân quyền'
-
-  const map = {
+const getRoleName = (role) => {
+  const roleMap = {
     khachhang: 'Khách hàng',
     quanly: 'Quản lý',
     nhanvien: 'Nhân viên',
     nhanvienkho: 'Nhân viên kho',
   }
-
-  // Nếu roles là mảng object, lấy ra role.name
-  const roleNames = roles.map(role => typeof role === 'object' ? role.name : role)
-
-  return roleNames.map(role => map[role] || role).join(', ')
+  return roleMap[role] || role
 }
-
-
-
-
 
 
 const toggleStatus = async (user) => {
@@ -300,10 +292,41 @@ const toggleStatus = async (user) => {
   }
 }
 
-// const fillterUsers = computed(() => {
-//   if (!selectRole.value) return allUser.value
-//   return allUser.value.filter(user => user.role === selectRole.value)
-// })
+const role = ref([])
+const getAllRole = async () => {
+  const res = await axios.get('http://127.0.0.1:8000/api/role')
+  role.value = res.data
+}
+
+const updateUserRole = async (user) => {
+  try {
+    const newRoleName = user.roles[0].name;
+    await axios.post(`http://127.0.0.1:8000/api/assign-role/${user.id}`, {
+      role: [newRoleName],
+    });
+    toast.success('Cập nhật vai trò thành công')
+  } catch (error) {
+    console.error(error);
+    toast.error('Lỗi')
+
+  }
+};
+
+const userString = JSON.parse(localStorage.getItem('user'));
+
+const user_id = ref(userString.id);
+// console.log(user_id);
+
+
+const user_role = ref(userString.role)
+// console.log(user_role);
+
+const filteredUsersComputed = computed(() => {
+  if (!user_id.value) {
+    return allUser.value;
+  }
+  return allUser.value.filter(user => user.id !== user_id.value && user.roles[0].name !== 'quanly');
+});
 
 watch(route, async (newRoute, oldRoute) => {
   if (
@@ -311,6 +334,7 @@ watch(route, async (newRoute, oldRoute) => {
     (newRoute.name && String(newRoute.name).includes('customer'))
   ) {
     await fecthAllUser();
+    await getAllRole();
   }
 }, {
   deep: true,

@@ -132,7 +132,6 @@ import numeral from 'numeral'
 import { toast } from 'vue3-toastify'
 import { Permission } from '@/stores/permission'
 
-useMenu().onSelectedKeys(['admin-roles'])
 
 const combo = ref([])
 const searchQuery = ref('')

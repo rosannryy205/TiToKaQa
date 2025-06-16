@@ -22,12 +22,13 @@ class TableController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'table_number' => 'required|numeric|unique:tables,table_number',
+                'table_number' => 'required|integer|min:1|unique:tables,table_number',
                 'capacity' => 'required|numeric'
             ], [
                 'table_number.required' => 'Số bàn không được để trống.',
                 'table_number.numeric' => 'Số bàn phải là số.',
                 'table_number.unique' => 'Số bàn đã tồn tại. Vui lòng chọn số khác.',
+                'table_number.min' => 'Số bàn phải là số lớn hơn 0.',
                 'capacity.required' => 'Sức chứa không được để trống.',
                 'capacity.numeric' => 'Sức chứa phải là số.',
             ]);
@@ -65,22 +66,40 @@ class TableController extends Controller
             'status' => true,
             'mess' => 'Lấy bàn thành công',
             'table' => $table
-        ]);
+        ], 200);
     }
 
     //sửa bàn
     public function updateTable(Request $request)
     {
+        $request->validate([
+            'id' => 'required|exists:tables,id',
+            'table_number' => 'required|integer|min:1|unique:tables,table_number,' . $request->id,
+            'capacity' => 'required|integer|min:1',
+        ], [
+            'id.required' => 'ID bàn không được bỏ trống.',
+            'id.exists' => 'Bàn không tồn tại.',
+            'table_number.required' => 'Số bàn không được bỏ trống.',
+            'table_number.integer' => 'Số bàn phải là số nguyên.',
+            'table_number.min' => 'Số bàn phải lớn hơn 0.',
+            'table_number.unique' => 'Số bàn đã tồn tại.',
+            'capacity.required' => 'Sức chứa không được bỏ trống.',
+            'capacity.integer' => 'Sức chứa phải là số nguyên.',
+            'capacity.min' => 'Sức chứa phải lớn hơn 0.',
+        ]);
+
         $table = Table::find($request->id);
         $table->table_number = $request->table_number;
         $table->capacity = $request->capacity;
         $table->save();
+
         return response()->json([
             'status' => true,
             'mess' => 'Sửa bàn thành công',
             'table' => $table
         ]);
     }
+
 
     //xoá bàn
     public function deleteTable(Request $request)
@@ -118,10 +137,10 @@ class TableController extends Controller
 
         $inUseStatuses = ['Khách đã đến'];
         $reservedStatuses = ['Đã xác nhận', 'Đang xử lý'];
-
         $processedTables = [];
 
         foreach ($tables as $table) {
+            $hasReservationHistory = $table->reservations()->exists();
             $table->current_day_status = 'Bàn trống';
             $table->has_booking_history = false;
 
@@ -160,7 +179,39 @@ class TableController extends Controller
 
         return response()->json([
             'tables' => $processedTables,
+            'hasReservationHistory' => $tables->contains(function ($table) {
+                return $table->reservations()->exists();
+            }),
             'date' => $date,
-        ]);
+        ], 200);
+    }
+
+    //lấy tất cả order theo id bàn
+    public function getAllOrdersByIdTable(Request $request)
+    {
+        $table = Table::with([
+            'orders' => function ($query) {
+                $query->whereDate('order_time', Carbon::today());
+            },
+            'orders.tables'
+        ])->find($request->id);
+        $orders = $table->orders;
+        $allReservations = [];
+        foreach ($orders as $order) {
+            if ($order->tables->isNotEmpty()) {
+                $pivot = $order->tables->first()->pivot;
+                $allReservations[] = [
+                    'order_id' => $order->id,
+                    'reserved_from' => $pivot->reserved_from,
+                    'order_status' => $order->order_status,
+                ];
+            }
+        }
+        return response()->json([
+            'message' => 'Đơn hàng của ngày hôm nay cho bàn ID ' . $request->id . ' đã được lấy thành công.',
+            'data' => [
+                'reservations' => $allReservations,
+            ]
+        ], 200);
     }
 }

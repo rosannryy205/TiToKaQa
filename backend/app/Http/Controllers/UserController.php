@@ -536,4 +536,17 @@ class UserController extends Controller
     {
         //
     }
+
+    public function assignSingleRole(Request $request)
+    {
+        $request->validate([
+            'role' => 'required|exists:roles,name',
+        ]);
+
+        $user = User::find($request->user_id);
+        $user->syncRoles([$request->role]);
+
+        return response()->json(['message' => 'Vai trò đã được cập nhật.']);
+    }
+
 }
