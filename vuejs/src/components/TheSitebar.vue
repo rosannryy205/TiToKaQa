@@ -1,4 +1,5 @@
 <template>
+
   <body>
     <div class="wrapper">
       <!-- Nút mở menu trên màn hình nhỏ -->
@@ -111,20 +112,8 @@ export default {
   },
   mounted() {
     window.addEventListener("resize", this.checkScreenSize);
-
-    const userRaw = localStorage.getItem("user");
-    if (!userRaw) {
-      this.$router.push('/home');
-      return;
-    }
-    const user = JSON.parse(userRaw);
-    if (user.role !== 'admin') {
-      this.$router.push('/home');
-      return;
-    }
-    this.user = user;
-    console.log('Admin đã đăng nhập:', this.user);
   },
+
   beforeUnmount() {
     window.removeEventListener("resize", this.checkScreenSize);
   },
