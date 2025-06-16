@@ -145,10 +145,15 @@ const admin = [
         meta: { requiresAdmin: true },
       },
       {
-        path: "insert-category",
-        name: "insert-category",
+        path: "insert-food-category",
+        name: "insert-food-category",
         component: () => import("../pages/admin/Categories/insert.vue"),
         meta: { requiresAdmin: true },
+      },
+      {
+        path: "update-food-category/:id",
+        name: "update-food-category",
+        component: () => import("../pages/admin/Categories/update.vue")
       },
       {
         path: 'insert-reservation',
@@ -172,6 +177,12 @@ const admin = [
         path: 'order-create',
         name: 'order-create',
         component: () => import('../pages/admin/Orders/order-create.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: '/admin/insert_staff',
+        name: 'admin/insert_staff',
+        component: () => import('../pages/admin/Users/insertStaff.vue'),
         meta: { requiresAdmin: true },
       },
     ],

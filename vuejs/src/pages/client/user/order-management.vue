@@ -150,7 +150,7 @@ export default {
 
     const tabs = [
       "Tất cả đơn",
-      "Chờ thanh toán",
+      "Chờ xác nhận",
       "Đang xử lý",
       "Đang giao hàng",
       "Đã giao",
@@ -171,7 +171,7 @@ export default {
 
     const getStatusBadge = (status) => {
       switch (status) {
-        case "Chờ thanh toán":
+        case "Chờ xác nhận":
           return "bg-warning text-dark";
         case "Đã giao":
           return "bg-success";
