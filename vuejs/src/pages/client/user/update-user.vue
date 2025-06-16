@@ -37,46 +37,81 @@
               </a>
 
               <button
-                class="rounded-pill px-2 py-1 d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2 fw-bold border-0 bg-warning"
-                style="font-size: 12px; line-height: 1; color: white">
+                class="rounded-pill px-2 py-1 d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2 fw-bold border-0 bg-warning shadow-sm"
+                style="font-size: 12px; line-height: 1; color: white"
+              >
                 <img src="/img/xubac.png" alt="coins" style="width: 15px" />
-                {{ formatNumber(form.usable_points) }} TGold
+                {{ formatNumber(form.usable_points) }} TCoins
               </button>
             </div>
           </div>
-          <div class="fw-bold text-danger mb-1 d-flex justify-content-center align-items-center gap-2"
-            style="font-size: 14px;">
+          <div
+            class="fw-bold text-danger mb-1 d-flex justify-content-center align-items-center gap-2"
+            style="font-size: 14px"
+          >
             Thành Viên TITOKAQA
           </div>
           <div class="bg-light rounded p-2 text-center mb-3 border border-light-subtle">
-
-
-            <div class="mx-auto" style="max-width: 260px; font-size: 13px;">
-              <!-- Điểm -->
-              <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
-                <span class="text-muted">Điểm</span>
-                <span class="fw-thin">{{ form.rank_points }}+</span>
+            <div class="mx-auto" style="max-width: 260px; font-size: 13px">
+              <div class="d-flex justify-content-between align-items-center py-1">
+                <span class="text-dark">Điểm của bạn: </span>
+                <span class="fw-thin text-danger">{{ formatNumber(form.rank_points) }}</span>
+              </div>
+              <div class="text-muted small fst-italic text-start mt-1">
+                * Tích lũy qua mỗi đơn hàng
               </div>
 
-              <!-- Hạng -->
+              <div class="border-top my-2"></div>
+
               <div class="d-flex justify-content-between align-items-center py-1">
-                <span class="text-muted">Hạng</span>
+                <span class="text-dark">Hạng của bạn: </span>
                 <span class="fw-bold d-flex align-items-center gap-1" :style="{ color: rankColor }">
-                  {{ form.rank }}
-                  <img :src="rankImage" alt="rank-icon" style="height: 16px;" />
+                  {{ formRank }}
+                  <img :src="rankImage" alt="rank-icon" style="height: 16px" />
                 </span>
+              </div>
+
+              <!---->
+              <div class="text-muted small fst-italic text-start mt-1" v-if="nextRank">
+                * Cần thêm
+                <span class="text-danger fw-bold">{{ formatNumber(neededPoints) }}</span> điểm để
+                lên hạng {{ nextRankName }}
+              </div>
+              <div class="text-muted small fst-italic text-start mt-1" v-else>
+                * Bạn đã đạt hạng cao nhất 🎉
+              </div>
+
+              <!---->
+              <div class="progress mt-2" style="height: 20px">
+                <div
+                  class="progress-bar"
+                  role="progressbar"
+                  :style="{ width: rankProgressPercent + '%', backgroundColor: rankColor }"
+                  :aria-valuenow="rankProgressPercent"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  {{ rankProgressPercent }}%
+                </div>
+              </div>
+
+              <!-- 🔸 Mốc điểm -->
+              <div class="mt-3 text-start small text-muted">
+                <div><strong>500+</strong> điểm: Hạng Bạc</div>
+                <div><strong>1000+</strong> điểm: Hạng Vàng</div>
+                <div><strong>3000+</strong> điểm: Kim Cương</div>
               </div>
             </div>
           </div>
           <div class="mb-3">
-            <router-link to="/coins-reward"
+            <router-link
+              to="/coins-reward"
               class="text-decoration-none small d-inline-flex align-items-center gap-1 text-dark fw-bold border rounded px-2 py-1"
-              style="font-size: 12px; border-color: #dee2e6;">
-              Đổi TGold
+              style="font-size: 12px; border-color: #dee2e6"
+            >
+              Đổi TCoins
             </router-link>
           </div>
-
-
 
           <ul class="list-group list-group-flush">
             <router-link to="/update-user" class="text-decoration-none text-dark">
@@ -98,11 +133,20 @@
                 <i class="bi bi-chevron-right text-secondary"></i>
               </li>
             </router-link>
+            <router-link to="/discount-management" class="text-decoration-none text-dark">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-bold">Kho Mã Giảm Giá</div>
+                  <div class="small text-muted">Mã giảm giá của tôi</div>
+                </div>
+                <i class="bi bi-chevron-right text-secondary"></i>
+              </li>
+            </router-link>
           </ul>
         </div>
       </div>
 
-      <!-- Main Content -->
+      <!---->
       <div class="col-12 col-md-8 col-lg-9">
         <h4 class="fw-bold mb-4">Quản lý tài khoản</h4>
 
@@ -139,7 +183,7 @@
               </form>
             </div>
 
-            <!-- Cột phải -->
+            <!---->
             <div class="col-md-5 ps-md-4 pt-4 pt-md-0 border-top border-md-0 border-md-start">
               <ul class="p-0 m-0 list-unstyled">
                 <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
@@ -189,9 +233,7 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
-import { toast } from 'vue3-toastify'
+import { ref, computed } from 'vue'
 import { User } from '@/stores/user'
 
 export default {
@@ -208,25 +250,44 @@ export default {
     } = User.setup()
 
     //=========================
-    // RANK AND PONTS
+    // RANK CONFIG & LOGIC
     //=========================
-    const rankImage = computed(() => {
-      if (form.value.rank_points >= 3000) {
-        return '/public/img/item/rank-diamond.gif'
-      } else if (form.value.rank_points >= 1000) {
-        return '/public/img/item/rank-gold.gif'
-      } else {
-        return '/public/img/item/rank-silver.gif'
-      }
+    const ranks = [
+      { name: 'Bạc', min: 500, color: '#9a9a9a', icon: '/public/img/item/rank-silver.gif' },
+      { name: 'Vàng', min: 1000, color: '#f5f500', icon: '/public/img/item/rank-gold.gif' },
+      { name: 'Kim cương', min: 3000, color: '#00d0f0', icon: '/public/img/item/rank-diamond.gif' },
+    ]
+
+    const currentRank = computed(() => {
+      if (form.value.rank_points < 500) return null
+      return [...ranks].reverse().find((rank) => form.value.rank_points >= rank.min)
     })
-    const rankColor = computed(() => {
-      if (form.value.rank_points >= 3000) {
-        return '#00d0f0' // diamond
-      } else if (form.value.rank_points >= 1000) {
-        return '#f5f500' // gold
-      } else {
-        return '#9a9a9a' // silver
-      }
+
+    const nextRank = computed(() => {
+      if (!currentRank.value) return ranks[0]
+      return ranks.find((rank) => rank.min > form.value.rank_points)
+    })
+
+    const rankImage = computed(() => currentRank.value?.icon || '/public/img/item/padlock.png')
+    const rankColor = computed(() => currentRank.value?.color || '#6c757d')
+    const formRank = computed(() => currentRank.value?.name || 'Chưa có hạng')
+
+    form.value.rank = formRank.value
+
+    const neededPoints = computed(() => {
+      return nextRank.value ? nextRank.value.min - form.value.rank_points : 0
+    })
+
+    const nextRankName = computed(() => {
+      return nextRank.value ? nextRank.value.name : ''
+    })
+
+    const rankProgressPercent = computed(() => {
+      if (!nextRank.value) return 100
+      const currentMin = currentRank.value?.min || 0
+      const total = nextRank.value.min - currentMin
+      const progress = form.value.rank_points - currentMin
+      return Math.min(100, Math.round((progress / total) * 100))
     })
 
     //==================
@@ -245,14 +306,20 @@ export default {
       getInitial,
       loading,
       avatarUrl,
-      //rank
       rankColor,
       rankImage,
       formatNumber,
+      formRank,
+      rankProgressPercent,
+      nextRank,
+      neededPoints,
+      nextRankName,
     }
   },
 }
 </script>
+
+
 <style scoped>
 .border-custom {
   border: 1px solid #ca111f;

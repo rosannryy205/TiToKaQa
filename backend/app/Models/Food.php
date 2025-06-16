@@ -10,14 +10,13 @@ class Food extends Model
     use HasFactory;
     protected $table = "foods";
     protected $fillable = [
-        'name',          // Tên món ăn
-        'price',         // Giá món ăn
-        'sale_price',    // Giá sale
-        'stock',         // Số lượng
-        'category_id',   // ID danh mục
-        'description',   // Mô tả
+        'name',         
+        'price',        
+        'sale_price',   
+        'stock',        
+        'description',   
         'image',
-        'status',         // Hình ảnh
+        'status',        
     ];
 
     public function category()

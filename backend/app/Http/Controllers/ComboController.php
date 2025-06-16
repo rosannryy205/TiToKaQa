@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Combo;
 use App\Models\Combo_detail;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -135,7 +136,6 @@ class ComboController extends Controller
         if (!empty($foodsToRemove)) {
             $combo->foods()->detach($foodsToRemove);
         }
-
         return response()->json(['message' => 'Cập nhật combo thành công']);
     } catch (\Exception $e) {
         return response()->json(['message' => 'Cập nhật combo thất bại', 'error' => $e->getMessage()], 500);
@@ -145,8 +145,14 @@ public function deleteCombosForAdmin($id)
 {
     try {
         $combo = Combo::findOrFail($id);
-
-        // Xóa ảnh khỏi cả 2 thư mục nếu tồn tại
+        $comboUsedInOrders  = DB::table('order_details')
+            ->where('combo_id', $id)
+            ->exists();
+            if ($comboUsedInOrders) {
+                return response()->json([
+                    'message' => 'Không thể xóa combo vì đang được sử dụng trong đơn hàng.'
+                ], 400);
+            }
         if ($combo->image) {
             $laravelImagePath = public_path('img/food/' . $combo->image);
             $vueImagePath = base_path('../vuejs/public/img/food/' . $combo->image);
@@ -167,12 +173,7 @@ public function deleteCombosForAdmin($id)
                 Log::warning("Ảnh Vue không tồn tại: $vueImagePath");
             }
         }
-
-
-        // Xóa quan hệ với foods trong bảng combo_details
-        $combo->foods()->detach(); // Xóa hết các bản ghi liên kết combo với food
-
-        // Xóa combo
+        $combo->foods()->detach();
         $combo->delete();
 
         return response()->json(['message' => 'Xóa combo thành công']);

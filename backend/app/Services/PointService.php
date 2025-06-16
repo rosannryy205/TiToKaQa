@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Discount;
 use App\Models\Order;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class PointService
 {
@@ -28,4 +31,44 @@ class PointService
 
         $order->update(['points_awarded' => true]);
     }
+
+    public function redeemDiscount(User $user, int $discountId){
+        $discount = Discount::find($discountId);
+
+        if(!$discount){
+            return response()->json(['message'=>'Mã giảm giá không tồn tại.', 404]);
+        }
+        $requiredPoints = $discount->cost ?? 0;
+        if($user->usable_points < $requiredPoints){
+            return response()->json(['message'=>'Bạn không đủ TCoin để đổi mã này.'], 404);
+        }
+        $already = DB::table('discount_user')
+        ->where('user_id', $user->id)
+        ->where('discount_id', $discount->id)
+        ->first();
+        if($already){
+            return response()->json(['message'=> 'Bạn đã đổi mã này rồi. Vui lòng kiểm tra kho của bạn.!'],404);
+
+        }
+        DB::beginTransaction();
+        try {
+        $user->decrement('usable_points', $requiredPoints);
+        DB::table('discount_user')->insert([
+            'user_id' => $user->id,
+            'discount_id' => $discount->id,
+            'point_used' => $requiredPoints,
+            'used_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        DB::commit();
+        return response()->json(['message' => 'Đổi mã thành công!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi khi đổi voucher.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+}
 }

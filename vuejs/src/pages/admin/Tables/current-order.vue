@@ -290,21 +290,31 @@ export default {
     }
 
     onMounted(() => {
-      axios.get('http://127.0.0.1:8000/api/payments/vnpay-return', {
-        params: new URLSearchParams(window.location.search)
-      })
-        .then(() => {
-          toast.success('Cập nhật thành công !')
+      const params = new URLSearchParams(window.location.search);
+      const hasVnpParams = params.has('vnp_TransactionStatus') || params.has('vnp_TxnRef');
+
+      axios.get('http://127.0.0.1:8000/api/payments/vnpay-return', { params })
+        .then(res => {
+          if (hasVnpParams) {
+            if (res.data.success) {
+              toast.success('Thanh toán thành công!');
+            } else {
+              toast.error('Thanh toán thất bại hoặc có lỗi!');
+            }
+          }
         })
         .catch(() => {
-          toast.error('Thanh toán thất bại hoặc có lỗi !')
+          if (hasVnpParams) {
+            toast.error('Lỗi xác minh thanh toán!');
+          }
         })
         .finally(() => {
-          getOrderOfTable()
-          setInterval(updateTimers, 1000)
-          getOrderTakeAway()
-        })
-    })
+          getOrderOfTable();
+          getOrderTakeAway();
+          setInterval(updateTimers, 1000);
+        });
+    });
+
 
 
 
