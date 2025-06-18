@@ -175,7 +175,7 @@ const admin = [
       },
       {
         path: 'order-create',
-        name: 'order-create',
+        name: 'admin-order-create',
         component: () => import('../pages/admin/Orders/order-create.vue'),
         meta: { requiresAdmin: true },
       },

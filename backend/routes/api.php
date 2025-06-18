@@ -71,7 +71,7 @@ Route::get('/all-tables', [TableController::class, 'getAllTable']);
 Route::get('/tables/{id}', [TableController::class, 'getTableById']);
 Route::put('/tables/{id}', [TableController::class, 'updateTable']);
 Route::delete('/tables/{id}', [TableController::class, 'deleteTable']);
-// Route::get('/restore-tables/{id}', [TableController::class, 'restoreTable']);
+Route::get('/get-orders-tables/{id}', [TableController::class, 'getAllOrdersByIdTable']);
 Route::post('/insert-table', [TableController::class, 'insertTable']);
 
 
@@ -136,6 +136,7 @@ Route::post('/ghn/service', [ShippingController::class, 'getGHNServices']);
 //getall user
 Route::resource('user', UserController::class);
 Route::put('/update/{id}', [UserController::class, 'updateStatus']);
+Route::post('/assign-role/{user_id}', [UserController::class, 'assignSingleRole']);
 
 
 
@@ -218,8 +219,10 @@ Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 
 
+/**client user-point_exchange*/
+Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');
 
-/**combo mqua*/
+/** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 // Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
@@ -227,3 +230,4 @@ Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
 Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
 Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);
+
