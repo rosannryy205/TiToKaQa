@@ -13,17 +13,12 @@ class AdminToppingController extends Controller
         $topping = Topping::all();
         return response()->json($topping);
     }
-    public function getByCategoryId(Request $request)
+
+    public function getToppingById(Request $request, String $id)
     {
-        $limit = $request->input('limit', 10);
-        $categoryId = $request->input('categoryId');
+        $toppingId = Topping::FindOrFail($id);
 
-        $query = Topping::with('category_topping')->orderBy('id', 'desc');
-
-        if ($categoryId) {
-            $query->where('category_id', $categoryId);
-        }
-        return response()->json($query->paginate($limit));
+        return response()->json($toppingId);
     }
 
     public function store(Request $request)
@@ -52,5 +47,32 @@ class AdminToppingController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()]);
         }
+    }
+    public function update(Request $request, String $id)
+    {
+        try {
+            $topping = Topping::find($id);
+            $topping->name = $request->name;
+            $topping->price = $request->price;
+            $topping->category_id = $request->category_id;
+            $topping->update();
+            return response()->json([
+                'message' => 'Cập nhật món ăn thành công'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
+        }
+    }
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $topping = Topping::find($id);
+        if (!$topping) {
+            return response()->json(['message' => 'Topping không tồn tại.'], 404);
+        }
+        $topping->delete();
+        return response()->json(['message' => 'Xóa topping thành công.'], 200);
     }
 }

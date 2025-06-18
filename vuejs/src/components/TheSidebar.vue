@@ -344,13 +344,13 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_role',
       },
-      {
-        key: '/admin/roles/insert', // Đổi key/to để phù hợp với vai trò
-        to: '/admin/roles/insert',
-        label: 'Thêm vai trò',
-        icon: TagsOutlined,
-        permission: 'create_role',
-      },
+      // {
+      //   key: '/admin/roles/insert', // Đổi key/to để phù hợp với vai trò
+      //   to: '/admin/roles/insert',
+      //   label: 'Thêm vai trò',
+      //   icon: TagsOutlined,
+      //   permission: 'create_role',
+      // },
     ],
   },
   {
@@ -366,13 +366,13 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_employee',
       },
-      {
-        key: '/admin/employees/insert', // Đổi key/to để phù hợp
-        to: '/admin/employees/insert',
-        label: 'Thêm nhân viên',
-        icon: FileAddOutlined,
-        permission: 'create_employee',
-      },
+      // {
+      //   key: '/admin/employees/insert', // Đổi key/to để phù hợp
+      //   to: '/admin/employees/insert',
+      //   label: 'Thêm nhân viên',
+      //   icon: FileAddOutlined,
+      //   permission: 'create_employee',
+      // },
     ],
   },
   {

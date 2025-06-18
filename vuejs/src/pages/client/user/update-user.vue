@@ -1,9 +1,5 @@
 <template>
-  <div
-    v-if="loading"
-    class="d-flex justify-content-center align-items-center"
-    style="min-height: 50vh"
-  >
+  <div v-if="loading" class="d-flex justify-content-center align-items-center" style="min-height: 50vh">
     <div class="spinner-border text-danger" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
@@ -19,9 +15,7 @@
                 <img :src="avatarUrl" alt="Avatar" class="avatar-circle" />
               </template>
               <template v-else>
-                <div
-                  class="avatar-circle border-custom d-flex justify-content-center align-items-center"
-                >
+                <div class="avatar-circle border-custom d-flex justify-content-center align-items-center">
                   {{ getInitial(form?.fullname) || getInitial(form?.username) }}
                 </div>
               </template>
@@ -37,57 +31,87 @@
             <div class="ms-md-4 mt-3 mt-md-0 text-center text-md-start">
               <h6 class="fw-bold mb-2">{{ form.fullname || form.username }}</h6>
 
-              <a
-                href="#"
-                @click="handleLogout"
-                class="list-group-item-action link-danger small d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2"
-              >
+              <a href="#" @click="handleLogout"
+                class="list-group-item-action link-danger small d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2">
                 <i class="bi bi-box-arrow-right"></i> Đăng xuất
               </a>
 
               <button
-                class="rounded-pill px-2 py-1 d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2 fw-bold border-0 bg-warning"
+                class="rounded-pill px-2 py-1 d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2 fw-bold border-0 bg-warning shadow-sm"
                 style="font-size: 12px; line-height: 1; color: white"
               >
                 <img src="/img/xubac.png" alt="coins" style="width: 15px" />
-                {{ formatNumber(form.usable_points) }} TGold
+                {{ formatNumber(form.usable_points) }} TCoins
               </button>
             </div>
           </div>
-          <div class="fw-bold text-danger mb-1 d-flex justify-content-center align-items-center gap-2" style="font-size: 14px;">
-    Thành Viên TITOKAQA
-  </div>
+          <div
+            class="fw-bold text-danger mb-1 d-flex justify-content-center align-items-center gap-2"
+            style="font-size: 14px"
+          >
+            Thành Viên TITOKAQA
+          </div>
           <div class="bg-light rounded p-2 text-center mb-3 border border-light-subtle">
+            <div class="mx-auto" style="max-width: 260px; font-size: 13px">
+              <div class="d-flex justify-content-between align-items-center py-1">
+                <span class="text-dark">Điểm của bạn: </span>
+                <span class="fw-thin text-danger">{{ formatNumber(form.rank_points) }}</span>
+              </div>
+              <div class="text-muted small fst-italic text-start mt-1">
+                * Tích lũy qua mỗi đơn hàng
+              </div>
 
+              <div class="border-top my-2"></div>
 
-  <div class="mx-auto" style="max-width: 260px; font-size: 13px;">
-    <!-- Điểm -->
-    <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
-      <span class="text-muted">Điểm</span>
-      <span class="fw-thin">{{ form.rank_points }}+</span>
-    </div>
+              <div class="d-flex justify-content-between align-items-center py-1">
+                <span class="text-dark">Hạng của bạn: </span>
+                <span class="fw-bold d-flex align-items-center gap-1" :style="{ color: rankColor }">
+                  {{ formRank }}
+                  <img :src="rankImage" alt="rank-icon" style="height: 16px" />
+                </span>
+              </div>
 
-    <!-- Hạng -->
-    <div class="d-flex justify-content-between align-items-center py-1">
-      <span class="text-muted">Hạng</span>
-      <span class="fw-bold d-flex align-items-center gap-1" :style="{ color: rankColor }">
-        {{ form.rank }}
-        <img :src="rankImage" alt="rank-icon" style="height: 16px;" />
-      </span>
-    </div>
-  </div>
-</div>
-<div class="mb-3">
-    <router-link
-      to="/coins-reward"
-      class="text-decoration-none small d-inline-flex align-items-center gap-1 text-dark fw-bold border rounded px-2 py-1"
-      style="font-size: 12px; border-color: #dee2e6;"
-    >
-      Đổi TGold
-    </router-link>
-  </div>
+              <!---->
+              <div class="text-muted small fst-italic text-start mt-1" v-if="nextRank">
+                * Cần thêm
+                <span class="text-danger fw-bold">{{ formatNumber(neededPoints) }}</span> điểm để
+                lên hạng {{ nextRankName }}
+              </div>
+              <div class="text-muted small fst-italic text-start mt-1" v-else>
+                * Bạn đã đạt hạng cao nhất 🎉
+              </div>
 
+              <!---->
+              <div class="progress mt-2" style="height: 20px">
+                <div
+                  class="progress-bar"
+                  role="progressbar"
+                  :style="{ width: rankProgressPercent + '%', backgroundColor: rankColor }"
+                  :aria-valuenow="rankProgressPercent"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  {{ rankProgressPercent }}%
+                </div>
+              </div>
 
+              <!-- 🔸 Mốc điểm -->
+              <div class="mt-3 text-start small text-muted">
+                <div><strong>500+</strong> điểm: Hạng Bạc</div>
+                <div><strong>1000+</strong> điểm: Hạng Vàng</div>
+                <div><strong>3000+</strong> điểm: Kim Cương</div>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <router-link
+              to="/coins-reward"
+              class="text-decoration-none small d-inline-flex align-items-center gap-1 text-dark fw-bold border rounded px-2 py-1"
+              style="font-size: 12px; border-color: #dee2e6"
+            >
+              Đổi TCoins
+            </router-link>
+          </div>
 
           <ul class="list-group list-group-flush">
             <router-link to="/update-user" class="text-decoration-none text-dark">
@@ -109,11 +133,20 @@
                 <i class="bi bi-chevron-right text-secondary"></i>
               </li>
             </router-link>
+            <router-link to="/discount-management" class="text-decoration-none text-dark">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-bold">Kho Mã Giảm Giá</div>
+                  <div class="small text-muted">Mã giảm giá của tôi</div>
+                </div>
+                <i class="bi bi-chevron-right text-secondary"></i>
+              </li>
+            </router-link>
           </ul>
         </div>
       </div>
 
-      <!-- Main Content -->
+      <!---->
       <div class="col-12 col-md-8 col-lg-9">
         <h4 class="fw-bold mb-4">Quản lý tài khoản</h4>
 
@@ -124,57 +157,36 @@
               <form @submit.prevent="handleSubmit">
                 <div class="mb-3">
                   <label class="form-label">Tên người dùng</label>
-                  <input
-                    type="text"
-                    v-model="form.fullname"
-                    class="form-control form-control-lg rounded"
-                    placeholder="Nhập nickname của bạn"
-                    id="fullname"
-                  />
+                  <input type="text" v-model="form.fullname" class="form-control form-control-lg rounded"
+                    placeholder="Nhập nickname của bạn" id="fullname" />
                 </div>
 
                 <div class="mb-3">
                   <label for="phone" class="form-label">Số điện thoại</label>
                   <div class="input-group">
                     <span class="input-group-text">+84</span>
-                    <input
-                      type="text"
-                      v-model="form.phone"
-                      class="form-control form-control-lg rounded"
-                      id="phone"
-                      placeholder="Nhập số điện thoại của bạn"
-                    />
+                    <input type="text" v-model="form.phone" class="form-control form-control-lg rounded" id="phone"
+                      placeholder="Nhập số điện thoại của bạn" />
                   </div>
                 </div>
 
                 <div class="mb-3">
                   <label for="address" class="form-label">Địa chỉ</label>
-                  <input
-                    type="text"
-                    v-model="form.address"
-                    class="form-control form-control-lg rounded"
-                    id="address"
-                    placeholder="Nhập địa chỉ của bạn"
-                  />
+                  <input type="text" v-model="form.address" class="form-control form-control-lg rounded" id="address"
+                    placeholder="Nhập địa chỉ của bạn" />
                 </div>
                 <div class="text-center">
-                  <button
-                    type="submit"
-                    style="background-color: #ca111f"
-                    class="btn text-white w-100"
-                  >
+                  <button type="submit" style="background-color: #ca111f" class="btn text-white w-100">
                     Lưu tài khoản
                   </button>
                 </div>
               </form>
             </div>
 
-            <!-- Cột phải -->
+            <!---->
             <div class="col-md-5 ps-md-4 pt-4 pt-md-0 border-top border-md-0 border-md-start">
               <ul class="p-0 m-0 list-unstyled">
-                <li
-                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
-                >
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
                     <i class="bi bi-envelope"></i>
                     <div>
@@ -182,57 +194,33 @@
                       <div class="small text-muted">Thay đổi địa chỉ email</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger w-100"
-                    style="max-width: 100px"
-                  >
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px">
                     <strong>Cập nhật</strong>
                   </button>
                 </li>
-                <li
-                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
-                >
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      class="bi bi-lock"
-                      viewBox="0 0 16 16"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3"
-                      />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                      class="bi bi-lock" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd"
+                        d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3" />
                     </svg>
                     <div>
                       <div class="fw-bold">Đổi mật khẩu</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger w-100"
-                    style="max-width: 100px"
-                  >
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px">
                     <strong>Cập nhật</strong>
                   </button>
                 </li>
-                <li
-                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
-                >
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
                     <i class="bi bi-trash"></i>
                     <div>
                       <div class="fw-bold">Xóa tài khoản</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger w-100"
-                    style="max-width: 100px"
-                  >
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px">
                     <strong>Xóa</strong>
                   </button>
                 </li>
@@ -245,9 +233,7 @@
   </div>
 </template>
 <script>
-import { ref, onMounted, computed } from 'vue'
-import axios from 'axios'
-import { toast } from 'vue3-toastify'
+import { ref, computed } from 'vue'
 import { User } from '@/stores/user'
 
 export default {
@@ -264,25 +250,44 @@ export default {
     } = User.setup()
 
     //=========================
-    // RANK AND PONTS
+    // RANK CONFIG & LOGIC
     //=========================
-    const rankImage = computed(() => {
-      if (form.value.rank_points >= 3000) {
-        return '/public/img/item/rank-diamond.gif'
-      } else if (form.value.rank_points >= 1000) {
-        return '/public/img/item/rank-gold.gif'
-      } else {
-        return '/public/img/item/rank-silver.gif'
-      }
+    const ranks = [
+      { name: 'Bạc', min: 500, color: '#9a9a9a', icon: '/public/img/item/rank-silver.gif' },
+      { name: 'Vàng', min: 1000, color: '#f5f500', icon: '/public/img/item/rank-gold.gif' },
+      { name: 'Kim cương', min: 3000, color: '#00d0f0', icon: '/public/img/item/rank-diamond.gif' },
+    ]
+
+    const currentRank = computed(() => {
+      if (form.value.rank_points < 500) return null
+      return [...ranks].reverse().find((rank) => form.value.rank_points >= rank.min)
     })
-    const rankColor = computed(() => {
-      if (form.value.rank_points >= 3000) {
-        return '#00d0f0' // diamond
-      } else if (form.value.rank_points >= 1000) {
-        return '#f5f500' // gold
-      } else {
-        return '#9a9a9a' // silver
-      }
+
+    const nextRank = computed(() => {
+      if (!currentRank.value) return ranks[0]
+      return ranks.find((rank) => rank.min > form.value.rank_points)
+    })
+
+    const rankImage = computed(() => currentRank.value?.icon || '/public/img/item/padlock.png')
+    const rankColor = computed(() => currentRank.value?.color || '#6c757d')
+    const formRank = computed(() => currentRank.value?.name || 'Chưa có hạng')
+
+    form.value.rank = formRank.value
+
+    const neededPoints = computed(() => {
+      return nextRank.value ? nextRank.value.min - form.value.rank_points : 0
+    })
+
+    const nextRankName = computed(() => {
+      return nextRank.value ? nextRank.value.name : ''
+    })
+
+    const rankProgressPercent = computed(() => {
+      if (!nextRank.value) return 100
+      const currentMin = currentRank.value?.min || 0
+      const total = nextRank.value.min - currentMin
+      const progress = form.value.rank_points - currentMin
+      return Math.min(100, Math.round((progress / total) * 100))
     })
 
     //==================
@@ -301,14 +306,20 @@ export default {
       getInitial,
       loading,
       avatarUrl,
-      //rank
       rankColor,
       rankImage,
       formatNumber,
+      formRank,
+      rankProgressPercent,
+      nextRank,
+      neededPoints,
+      nextRankName,
     }
   },
 }
 </script>
+
+
 <style scoped>
 .border-custom {
   border: 1px solid #ca111f;
@@ -416,23 +427,17 @@ li.list-group-item {
   width: 40px;
   height: 40px;
 }
-#app
-  > div
-  > div.container.mt-5.fade-in
-  > div
-  > div.col-12.col-md-4.col-lg-3.mb-4.mb-md-0
-  > div
-  > div.bg-light.rounded-3.p-3.text-center.mb-3
-  > div.d-flex.justify-content-around.mt-3
-  > div:nth-child(1)
-  > div.fw-medium {
+
+#app>div>div.container.mt-5.fade-in>div>div.col-12.col-md-4.col-lg-3.mb-4.mb-md-0>div>div.bg-light.rounded-3.p-3.text-center.mb-3>div.d-flex.justify-content-around.mt-3>div:nth-child(1)>div.fw-medium {
   padding: 9px;
 }
+
 /**coins gif */
 .coins-gif {
   width: 35px;
   height: 35px;
 }
+
 .logo-member {
   width: 25px;
 }

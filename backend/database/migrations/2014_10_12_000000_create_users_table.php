@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->string('address')->nullable();
             $table->string('fullname')->nullable();
-            $table->integer('rank_points')->default(500);
+            $table->integer('rank_points')->default(0);
             $table->integer('usable_points')->default(0);
             $table->string('rank')->default('Bạc');
             $table->integer('verify_code')->nullable();
