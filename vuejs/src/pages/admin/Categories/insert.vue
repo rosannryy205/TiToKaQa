@@ -20,7 +20,7 @@
             <div class="mb-3">
               <label class="form-label">Danh mục cha</label>
               <div class="input-group">
-                <select class="form-select rounded-0" v-model="parentId">
+                <select class="form-select rounded-0" v-model="parentId" :disabled="isDefault == 1">
                   <option value="">-- Không --</option>
                   <option v-for="cat in allParents" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                 </select>
@@ -30,8 +30,8 @@
               <label class="form-label">Làm danh mục mặc định</label>
               <div class="input-group">
                 <select class="form-select rounded-0" v-model="isDefault">
-                  <option :value="true">Có</option>
-                  <option :value="false">Không</option>
+                  <option :value="1">Có</option>
+                  <option :value="0">Không</option>
                 </select>
               </div>
             </div>
@@ -64,13 +64,13 @@
 <script>
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 
 export default {
   setup() {
     const name = ref('')
     const parentId = ref('')
-    const isDefault = ref(false)
+    const isDefault = ref(0)
     const image = ref(null)
     const previewImage = ref(null)
     const allParents = ref([])
@@ -173,6 +173,12 @@ export default {
 
     }
 
+    watch(isDefault, (newVal) => {
+      if (parseInt(newVal) === 1) {
+        parentId.value = ''
+      }
+    })
+
 
     onMounted(() => {
       fetchParents()
@@ -190,6 +196,7 @@ export default {
 .themsp {
   width: 200px;
 }
+
 .btn-danger-delete {
   background: none;
   color: #c92c3c;

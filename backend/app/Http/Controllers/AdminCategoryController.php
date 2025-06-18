@@ -24,25 +24,29 @@ class AdminCategoryController extends Controller
             return response()->json(['message' => 'Lỗi khi lấy danh sách danh mục', 'error' => $e->getMessage()], 500);
         }
     }
-
     public function index(Request $request)
     {
-        $query = Category::with('children')
-            ->whereNull('parent_id');
+        $query = Category::query();
 
         if ($request->search) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        if ($request->parent_id) {
-            $query->where('id', $request->parent_id);
+        if ($request->parent_id !== null) {
+            $query->where('parent_id', $request->parent_id);
         }
 
+        // Ưu tiên danh mục cha (parent_id null), sau đó là con, rồi theo id tăng dần
+        $query->orderByRaw('CASE WHEN parent_id IS NULL THEN 0 ELSE 1 END')
+            ->orderBy('parent_id')
+            ->orderBy('id');
+
         $perPage = $request->input('per_page', 10);
-        $categories = $query->orderBy('id', 'desc')->paginate($perPage);
+        $categories = $query->paginate($perPage);
 
         return response()->json($categories);
     }
+
 
 
     // lấy danh mục cha
@@ -212,10 +216,10 @@ class AdminCategoryController extends Controller
             return response()->json(['message' => 'Không thể xoá danh mục mặc định'], 400);
         }
 
-        // Nếu là danh mục cha, cập nhật parent_id của con thành null
+        // Cập nhật các danh mục con về danh mục mặc định
         if ($category->children()->count() > 0) {
             foreach ($category->children as $child) {
-                $child->parent_id = null;
+                $child->parent_id = $defaultCategory->id;
                 $child->save();
             }
         }
@@ -241,11 +245,39 @@ class AdminCategoryController extends Controller
             return response()->json(['message' => 'Danh sách ID không hợp lệ'], 400);
         }
 
-        try {
-            Category::whereIn('id', $ids)->delete(); // hoặc softDelete()
-            return response()->json(['message' => 'Xoá thành công']);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Lỗi khi xoá danh mục'], 500);
+        // Tìm danh mục mặc định
+        $defaultCategory = Category::where('default', 1)->first();
+        if (!$defaultCategory) {
+            return response()->json(['message' => 'Không tìm thấy danh mục mặc định'], 404);
         }
+
+        $deletedCount = 0;
+
+        foreach ($ids as $id) {
+            $category = Category::find($id);
+
+            // Nếu không tìm thấy hoặc là danh mục mặc định thì bỏ qua
+            if (!$category || $category->id == $defaultCategory->id) {
+                continue;
+            }
+
+            // Cập nhật danh mục con về danh mục mặc định
+            Category::where('parent_id', $category->id)->update([
+                'parent_id' => $defaultCategory->id
+            ]);
+
+            // Cập nhật các món ăn về danh mục mặc định
+            \App\Models\Food::where('category_id', $category->id)->update([
+                'category_id' => $defaultCategory->id
+            ]);
+
+            // Xoá mềm danh mục
+            $category->delete();
+            $deletedCount++;
+        }
+
+        return response()->json([
+            'message' => "Đã xoá {$deletedCount} danh mục và chuyển dữ liệu về danh mục mặc định"
+        ]);
     }
 }

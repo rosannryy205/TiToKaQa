@@ -38,47 +38,26 @@
         <tr v-if="categories.length === 0">
           <td colspan="5" class="text-center text-muted">Không có danh mục nào.</td>
         </tr>
-        <template v-for="(item, index) in categories" :key="item.id">
-          <tr>
-            <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td>
-            <td>{{ index + 1 }}</td>
-            <td>{{ item.name }}</td>
-            <td>
-              <img class="me-2 img_thumbnail"
-                :src="item.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + item.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
-                :alt="item.name">
-            </td>
 
-            <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
-            <td class="d-flex justify-content-center gap-2 flex-wrap">
-              <router-link :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-outline btn-sm">
-                Sửa
-              </router-link>
+        <tr v-for="(item, index) in categories" :key="item.id">
+          <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td>
+          <td>{{ index + 1 }}</td>
+          <td>{{ item.name }}</td>
+          <td>
+            <img class="me-2 img_thumbnail"
+              :src="item.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + item.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
+              :alt="item.name">
+          </td>
+          <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
+          <td class="d-flex justify-content-center gap-2 flex-wrap">
+            <router-link :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-outline btn-sm">
+              Sửa
+            </router-link>
+            <div v-if="item.default === 0">
               <button class="btn btn-danger-delete btn-sm" @click="handleDelete(item.id)">Xoá</button>
-
-            </td>
-          </tr>
-          <tr v-for="(child, childIndex) in item.children" :key="child.id">
-            <td><input type="checkbox" :value="child.id" v-model="selectedIds" /></td>
-            <td>{{ index + 1 }}.{{ childIndex + 1 }}</td>
-
-            <td>{{ child.name }}</td>
-            <td>
-              <img class="me-2 img_thumbnail"
-                :src="child.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + child.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
-                :alt="child.name">
-            </td>
-
-            <td>{{ item.name }}</td>
-            <td class="d-flex justify-content-center gap-2 flex-wrap">
-              <router-link :to="{ name: 'update-food-category', params: { id: child.id } }" class="btn btn-outline btn-sm">
-                Sửa
-              </router-link>
-              <button class="btn btn-danger-delete btn-sm" @click="handleDelete(child.id)">Xoá</button>
-
-            </td>
-          </tr>
-        </template>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -99,7 +78,8 @@
   </nav>
 
   <div class="mt-2 d-flex justify-content-start">
-    <button class="btn btn-danger-delete delete_desktop" @click="handleDeleteSelected" :disabled="selectedIds.length === 0">
+    <button class="btn btn-danger-delete delete_desktop" @click="handleDeleteSelected"
+      :disabled="selectedIds.length === 0">
       Xoá đã chọn ({{ selectedIds.length }})
     </button>
   </div>
@@ -144,7 +124,7 @@ export default {
     const selectedParent = ref('')
     const searchKeyword = ref('')
     const selectedIds = ref([])
-    const isLoading = ref(true) 
+    const isLoading = ref(true)
 
 
     const fetchCategories = async () => {
@@ -161,32 +141,34 @@ export default {
           }
         })
 
-        let fetchedCategories = response.data.data
+        const fetched = response.data.data
+        let flatList = []
 
-        if (selectedParent.value) {
-          const parentItem = fetchedCategories.find(item => item.id == selectedParent.value)
+        fetched.forEach(item => {
+          flatList.push({
+            ...item,
+            parent_name: null
+          })
 
-          // Nếu có children thì gán thêm parent_name vào từng child
-          if (parentItem && parentItem.children?.length > 0) {
-            const childrenWithParent = parentItem.children.map(child => ({
-              ...child,
-              parent_name: parentItem.name  // gán tên cha vào
-            }))
-            categories.value = childrenWithParent
-          } else {
-            categories.value = []
+          if (item.children?.length) {
+            item.children.forEach(child => {
+              flatList.push({
+                ...child,
+                parent_name: item.name
+              })
+            })
           }
-        } else {
-          // Trường hợp không lọc => dùng nguyên data (cha + children)
-          categories.value = fetchedCategories
-        }
+        })
 
+        categories.value = flatList
         totalPages.value = response.data.last_page
         currentPage.value = response.data.current_page
+
       } catch (error) {
         console.error('Lỗi khi load danh mục:', error)
       }
     }
+
 
     const fetchAllParents = async () => {
       try {
@@ -406,6 +388,7 @@ export default {
   background-color: #eee;
   color: #333;
 }
+
 .btn-add {
   background: none;
   color: #c92c3c;
