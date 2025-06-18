@@ -1,9 +1,12 @@
 <template>
   <div class="container py-3 position-relative">
+    <!-- Xu người dùng -->
     <div class="position-absolute top-0 end-0 mt-3 me-2 d-flex align-items-center user-coins-box">
-      <span class="fw-semibold text-dark me-1"> {{ formatCurrency(1500) }}</span>
-      <img src="/img/item/coins.gif" class="coins-small" alt="xu" />
+      <span class="fw-semibold text-dark me-1">{{ formatCurrency(1500) }}</span>
+      <img class="coins ms-1" src="/img/xubac.png" alt="coin" />
     </div>
+
+    <!-- Danh mục -->
     <div class="mb-5 pt-5">
       <div class="d-flex align-items-center mb-3">
         <h5 class="fw-bold mb-0 title-cate-discount">Chọn danh mục bạn quan tâm</h5>
@@ -29,45 +32,82 @@
       <div class="d-flex align-items-center mb-2">
         <h5 class="fw-bold mb-0 title-discount-hot">Mã giảm giá nổi bật</h5>
       </div>
-      <p class="text-muted">
-        Những voucher hấp dẫn đang được người dùng lựa chọn nhiều nhất.
-      </p>
+      <p class="text-muted">Những voucher hấp dẫn đang được người dùng lựa chọn nhiều nhất.</p>
 
-      <div class="row gy-4">
-        <div
-          class="col-6 col-md-4 col-lg-3"
-          v-for="discount in discounts"
-          :key="discount.id"
-        >
-          <div class="voucher-card border-0 shadow-sm">
-            <img
-              :src="getImageByType(discount.discount_type)"
-              class="card-img-top rounded-top"
-              :alt="discount.name"
-            />
-            <div class="card-body">
-              <h6
-                class="fw-semibold mb-1 text-truncate"
-                style="max-width: 100%"
-              >
-                Mã: {{ discount.name }}
-              </h6>
-              <p class="text-danger small mb-1">
-                Giảm đến
+      <div class="row g-3">
+        <div class="col-md-6" v-for="discount in discounts" :key="discount.id">
+          <div class="d-flex shadow-sm bg-white rounded overflow-hidden" style="min-height: 110px">
+            <!-- Cột trái -->
+            <div
+              class="text-white d-flex flex-column justify-content-center align-items-center"
+              :style="`background-color: ${discount.discount_type === 'freeship' ? '#00bfa5' : '#f44336'}; width: 30%`"
+            >
+              <img :src="getImageByType(discount.discount_type)" alt="icon" style="width: 60px" />
+              <div class="fw-bold small mt-2 text-center">
+                {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
+              </div>
+            </div>
+            <!-- Cột phải -->
+            <div class="flex-grow-1 px-3 py-2" style="width: 70%">
+              <div class="fw-bold mb-1 text-truncate">Mã: {{ discount.name }}</div>
+              <div class="text-muted small mb-1">
+                Giảm:
                 {{
                   discount.discount_method === 'percent'
                     ? `${discount.discount_value}% (tối đa ${formatCurrency(discount.max_discount_amount)}đ)`
                     : `${formatCurrency(discount.discount_value)}đ`
                 }}
-              </p>
-              <p class="fw-bold mb-2 coins-exchange d-flex align-items-center">
-                {{ formatCurrency(discount.cost) }}
-                <img class="coins ms-1 align-items-center" src="/img/xubac.png" alt="coin" />
-              </p>
-              <button class="btn btn-outline-success w-100">
-                Đổi ngay
-              </button>
+              </div>
+              <div class="d-flex justify-content-between align-items-center text-muted small mb-2">
+                <div>
+                  <i class="bi bi-clock me-1"></i>
+                  {{ discount.expiry || 'Hiệu lực đến cuối tháng' }}
+                </div>
+                <a
+                  href="#"
+                  class="text-primary"
+                  @click.prevent="showConditionModal(discount.condition)"
+                  >Điều kiện</a
+                >
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="fw-bold coins-exchange d-flex align-items-center">
+                  {{ formatCurrency(discount.cost) }}
+                  <img class="coins ms-1" src="/img/xubac.png" alt="coin" />
+                </div>
+                <button class="btn btn-sm">Đổi ngay</button>
+              </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!---->
+    <div
+      class="modal fade"
+      id="voucherConditionModal"
+      tabindex="-1"
+      aria-labelledby="voucherConditionModalLabel"
+      aria-hidden="true"
+      ref="conditionModalRef"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header py-2">
+            <h6 class="modal-title fw-bold" id="voucherConditionModalLabel">Điều kiện voucher</h6>
+            <button
+              type="button"
+              class="btn-close"
+              @click="hideConditionModal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body py-3">
+            <p class="mb-0 small text-muted">
+              {{ selectedVoucherCondition || 'Không có điều kiện cụ thể.' }}
+            </p>
           </div>
         </div>
       </div>
@@ -76,7 +116,8 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import { Modal } from 'bootstrap'
 import { FoodList } from '@/stores/food'
 import { Discounts } from '@/stores/discount'
 
@@ -84,18 +125,32 @@ const { getCategory, categories } = FoodList.setup()
 const { discounts, getAllDiscount } = Discounts()
 
 const getImageByType = (type) => {
-  return type === 'freeship'
-    ? '/img/freeship-icon.png'
-    : '/img/discount-icon.png'
+  return type === 'freeship' ? '/img/freeship-icon.png' : '/img/discount-icon.png'
 }
 const formatCurrency = (num) => {
   if (!num) return '0'
   return Number(num).toLocaleString('vi-VN')
 }
 
+// Modal logic
+const conditionModalRef = ref(null)
+let conditionModalInstance = null
+const selectedVoucherCondition = ref('')
+
+const showConditionModal = (condition) => {
+  selectedVoucherCondition.value = condition
+  conditionModalInstance?.show()
+}
+const hideConditionModal = () => {
+  conditionModalInstance?.hide()
+}
+
 onMounted(async () => {
   await getAllDiscount({ source: 'point_exchange' })
   getCategory
+  if (conditionModalRef.value) {
+    conditionModalInstance = new Modal(conditionModalRef.value)
+  }
 })
 </script>
 
@@ -128,27 +183,27 @@ onMounted(async () => {
   width: auto;
   height: 120px;
   display: block;
-  margin: 0 auto 10px auto; 
+  margin: 0 auto 10px auto;
 }
 
 .voucher-card .card-body {
   padding: 5px;
 }
 
-.voucher-card h6{
+.voucher-card h6 {
   font-size: 14px;
   margin-bottom: 6px;
 }
-.coins-exchange{
+.coins-exchange {
   color: rgb(119, 119, 119) !important;
 }
-.coins{
+.coins {
   width: 15px !important;
   height: 15px !important;
   margin: 6px 5px 5px 5px !important;
 }
 .title-cate-discount,
-.title-discount-hot{
+.title-discount-hot {
   color: #c92c3c;
 }
 @media (max-width: 576px) {
@@ -203,5 +258,12 @@ onMounted(async () => {
     padding: 5px 10px;
   }
 }
-
+.btn-sm {
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+}
+.btn-sm:hover {
+  background-color: #c92c3c;
+  color: white;
+}
 </style>

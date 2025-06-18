@@ -145,7 +145,7 @@ const fetchOrders = async () => {
     const response = await axios.get(`http://127.0.0.1:8000/api/get_all_orders`);
     const apiOrders = response.data.orders;
 
-    const fillterOrder = apiOrders.filter(order => order.type_status !== 'takeaway');
+    const fillterOrder = apiOrders.filter(order => order.type_order !== 'takeaway');
 
     orders.value = fillterOrder.map(order => {
       return {
@@ -241,7 +241,7 @@ const handleStatusChange = async (orderId, newStatus) => {
         message.warning('Chỉ có thể hủy đơn khi đơn ở trạng thái chờ xác nhận hoặc đã xác nhận.');
         return;
       }
-    } else if (currentStatus !== 'Đang giao hàng' && statusOrder[newStatus] !== statusOrder[currentStatus] + 1) {
+    } else if (currentStatus !== 'Đang giao hàng' && !['Giao thành công', 'Giao thất bại'].includes(newStatus) && statusOrder[newStatus] !== statusOrder[currentStatus] + 1) {
       message.warning('Không thể nhảy trạng thái không theo thứ tự.');
       return;
     }

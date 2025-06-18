@@ -51,7 +51,7 @@ export function Cart() {
     return cartItems.value.reduce((sum, item) => {
       const basePrice = Number(item.price) * item.quantity
       const toppingPrice =
-        item.type === 'food'
+        item.type === 'Food'
           ? item.toppings.reduce((tsum, topping) => {
               return tsum + Number(topping.price) * item.quantity
             }, 0)
@@ -61,6 +61,8 @@ export function Cart() {
   })
 
   const addToCart = (foodDetail, quantity, toppings) => {
+    console.log(isAdmin.value);
+
     const newCartItem = {
       id: foodDetail.id,
       name: foodDetail.name,

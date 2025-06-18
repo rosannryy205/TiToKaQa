@@ -266,8 +266,6 @@
       </div>
     </div>
   </div>
-
-
   <router-view></router-view>
 
 </template>
@@ -298,7 +296,7 @@ const handleLogout = async () => {
   showCancelButton: true,
   confirmButtonText: 'Đăng xuất',
   cancelButtonText: 'Huỷ bỏ',
-  confirmButtonColor: '#e3342f',   
+  confirmButtonColor: '#e3342f',
   cancelButtonColor: '#6c757d',
   reverseButtons: true,
   focusCancel: true,

@@ -85,4 +85,27 @@ class RoleController extends Controller
         ]);
     }
 
+    public function deleteRole($id)
+    {
+        $role = Role::find($id);
+
+        if (!$role) {
+            return response()->json([
+                'message' => 'Vai trò không tồn tại'
+            ], 404);
+        }
+
+        $userCount = $role->users()->count();
+
+        if ($userCount > 0) {
+            return response()->json([
+                'message' => 'Không thể xoá. Có ' . $userCount . ' người dùng đang sử dụng vai trò này.'
+            ], 400);
+        }
+
+        $role->delete();
+
+        return response()->json(['message' => 'Xoá vai trò thành công']);
+    }
+
 }

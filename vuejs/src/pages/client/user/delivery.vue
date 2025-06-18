@@ -13,15 +13,21 @@
           0 km
         </div>
       </div>
+      <button class="btn btn-secondary mt-2 ml-2 p-2" @click="goBack">Quay lại</button>
     </div>
+
   </div>
 </template>
+
 <script setup>
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+const goBack = () => {
+  window.history.back()
+}
 
 const isLoading = ref(false)
 const route = useRoute()

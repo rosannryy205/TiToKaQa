@@ -71,7 +71,7 @@ Route::get('/all-tables', [TableController::class, 'getAllTable']);
 Route::get('/tables/{id}', [TableController::class, 'getTableById']);
 Route::put('/tables/{id}', [TableController::class, 'updateTable']);
 Route::delete('/tables/{id}', [TableController::class, 'deleteTable']);
-// Route::get('/restore-tables/{id}', [TableController::class, 'restoreTable']);
+Route::get('/get-orders-tables/{id}', [TableController::class, 'getAllOrdersByIdTable']);
 Route::post('/insert-table', [TableController::class, 'insertTable']);
 
 
@@ -81,6 +81,7 @@ Route::get('/role-permission/{id}', [RoleController::class, 'getAllPermission'])
 Route::put('/role-permission-update', [RoleController::class, 'updatePermission']);
 Route::post('/role-permission-create', [RoleController::class, 'createRoleWithPermissions']);
 Route::get('/role-permission-user/{id}', [RoleController::class, 'userProfile']);
+Route::delete('/delete_role/{id}', [RoleController::class, 'deleteRole']);
 
 
 
@@ -101,6 +102,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/user-update/{id}', [UserController::class, 'update']);
     // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
+
+Route::post('/insert_staff', [UserController::class, 'insertStaff' ]);
 
 
 // đăng ký đăng nhập quên mật khẩu
@@ -133,6 +136,7 @@ Route::post('/ghn/service', [ShippingController::class, 'getGHNServices']);
 //getall user
 Route::resource('user', UserController::class);
 Route::put('/update/{id}', [UserController::class, 'updateStatus']);
+Route::post('/assign-role/{user_id}', [UserController::class, 'assignSingleRole']);
 
 
 
@@ -175,6 +179,13 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
     Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
     Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
 
+
+    // topping
+    Route::resource('/admin/category_topping', AdminCategoryToppingController::class);
+    Route::resource('/admin/toppings', AdminToppingController::class);
+    Route::get('/admin/toppingById/{id}', [AdminToppingController::class,'getToppingById']);
+
+
     // danh mục món ăn
     Route::get('/admin/categories', [AdminCategoryController::class, 'getAllCategories']);
     Route::get('/admin/categories/parents/list', [AdminCategoryController::class, 'getParents']);
@@ -194,6 +205,7 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 // });
 
 
+
 //adminfood
 Route::get('/admin/foods', [AdminFoodController::class, 'getAllFood']);
 
@@ -207,8 +219,10 @@ Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 
 
+/**client user-point_exchange*/
+Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');
 
-/**combo mqua*/
+/** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 // Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
@@ -216,3 +230,4 @@ Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
 Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
 Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);
+
