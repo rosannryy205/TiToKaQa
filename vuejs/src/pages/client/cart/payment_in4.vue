@@ -237,7 +237,7 @@ import { ref, watch } from 'vue'
 import axios from 'axios'
 import { User } from '@/stores/user'
 import dayjs from 'dayjs'
-import { RouterLink, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useShippingStore } from '@/stores/shippingStore'
 import { toast } from 'vue3-toastify'
@@ -368,18 +368,6 @@ export default {
           return;
         }
 
-        const orderDetails = cartItems.value.map((item) => ({
-          food_id: item.type === 'Combo' ? null : item.id,
-          combo_id: item.type === 'Combo' ? item.id : null,
-          quantity: item.quantity,
-          price: item.price,
-          type: item.type,
-          toppings: item.toppings?.map((t) => ({
-            food_toppings_id: t.food_toppings_id,
-            price: t.price,
-          })) || [],
-        }));
-
         const orderData = {
           user_id: user.value ? user.value.id : null,
           guest_name: form.value.fullname,
@@ -390,8 +378,18 @@ export default {
           total_price: finalTotal.value || 0,
           money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
-          order_detail: orderDetails,
-        };
+          order_detail: cartItems.value.map((item) => ({
+            food_id: item.type == 'Food' ? item.id : null,
+            combo_id: item.type == 'Combo' ? item.id : null,
+            quantity: item.quantity,
+            price: item.price,
+            type: item.type,
+            toppings: item.toppings.map((t) => ({
+              food_toppings_id: t.food_toppings_id,
+              price: t.price,
+            })),
+          })),
+        }
 
         const response = await axios.post('http://127.0.0.1:8000/api/order', orderData);
 
