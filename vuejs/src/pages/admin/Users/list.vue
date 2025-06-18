@@ -12,21 +12,25 @@
 
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <span class="vd">Tìm kiếm </span>
-    <input type="text" class="form-control rounded" style="max-width: 250px" placeholder="Tìm kiếm theo tên hoặc SĐT" />
-    <!-- <span class="vd">Lọc theo vai trò</span>
-    <select class="form-select w-auto rounded" style="max-width: 250px" v-model="selectRole">
-      <option value="">Tất cả</option>
-      <option value="admin">Admin</option>
-      <option value="staff">Nhân viên</option>
-      <option value="user">Khách hàng</option>
-    </select> -->
+    <div class="d-flex align-items-center gap-2">
+      <input v-model="searchTerm" type="text" class="form-control rounded" style="max-width: 300px"
+        placeholder="Tìm kiếm" />
+      <button class="search-btn" @click="handleSearch">
+        <i class="bi bi-search"></i>
+      </button>
+
+
+
+    </div>
+
 
     <span class="vd">Hiển thị</span>
-    <select class="form-select w-auto rounded">
-      <option selected>5</option>
-      <option>10</option>
-      <option>15</option>
+    <select v-model.number="pagination.pageSize" class="form-select w-auto rounded">
+      <option :value="5">5</option>
+      <option :value="10">10</option>
+      <option :value="15">15</option>
+      <option :value="30">30</option>
+      <option :value="60">60</option>
     </select>
   </div>
 
@@ -46,7 +50,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in allUser" :key="user.id">
+        <tr v-for="user in paginatedUsers" :key="user.id">
           <td>{{ user.id }}</td>
           <td>{{ user.username }}</td>
           <td>{{ user.fullname ? user.fullname : 'Chưa cập nhật' }}</td>
@@ -70,12 +74,35 @@
         </tr>
       </tbody>
     </table>
+    <div class="d-flex justify-content-end mt-3 me-2">
+      <ul class="pagination pagination-sm">
+        <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
+          <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage - 1)">
+            <i class="bi bi-chevron-left"></i>
+          </a>
+        </li>
+
+        <li class="page-item" v-for="page in visiblePages" :key="page"
+          :class="{ active: pagination.currentPage === page }">
+          <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+        </li>
+
+        <li class="page-item" :class="{ disabled: pagination.currentPage === totalPages }">
+          <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage + 1)">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+
     <div v-if="isEmployee">
       <p>*Mật khẩu là (username)Titokaqa <br>
         VD: staff1Titokaqa
       </p>
     </div>
   </div>
+
   <!-- <button class="btn btn-danger-delete delete_desktop">Xoá</button> -->
 
   <!-- Mobile View -->
@@ -87,12 +114,12 @@
           1
         </div>
         <div class="col-9">
-          <div class="card-body" v-for="user in allUser" :key="user.id">
+          <div class="card-body" v-for="user in paginatedUsers" :key="user.id">
             <h5 class="card-title">{{ user.fullname }}</h5>
             <p class="card-text"><strong>SĐT:</strong>{{ user.phone }}</p>
             <p class="card-text"><strong>Email:</strong>{{ user.email }}</p>
             <p class="card-text"><strong>Vai trò: </strong>
-              <td>{{ getRoleName(user.roles) }}</td>
+              <span>{{ getRoleName(user.roles) }}</span>
             </p>
             <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
               data-bs-target="#userDetailModal">
@@ -198,7 +225,7 @@
 
 <script setup>
 import { useMenu } from '@/stores/use-menu'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
@@ -208,15 +235,38 @@ useMenu().onSelectedKeys(['admin-roles'])
 
 const selectedUser = ref(null);
 
+const pagination = ref({
+  currentPage: 1,
+  pageSize: 5
+});
+
+const allUser = ref([])
+const route = useRoute()
+const searchTerm = ref('');
+
 const openUserModal = (user) => {
   selectedUser.value = user;
 };
-const allUser = ref([])
-// const selectRole = ref('')
-const route = useRoute()
+
+const handleSearch = () => {
+  console.log("Tìm kiếm với:", searchTerm.value);
+  fetchUsers();
+};
+
+const filteredUsers = computed(() => {
+  if (!searchTerm.value) return allUser.value;
+  const keyword = searchTerm.value.toLowerCase();
+  return allUser.value.filter(user =>
+    (user.fullname || '').toLowerCase().includes(keyword) ||
+    (user.username || '').toLowerCase().includes(keyword) ||
+    (user.phone || '').toLowerCase().includes(keyword)
+  );
+});
+
 const isEmployee = computed(() => {
   return route.name && String(route.name).includes('employee')
 })
+
 const fecthAllUser = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/api/user`);
@@ -282,11 +332,6 @@ const getRoleName = (roles) => {
   return roleNames.map(role => map[role] || role).join(', ')
 }
 
-
-
-
-
-
 const toggleStatus = async (user) => {
   const newStatus = user.status === 'Active' ? 'Block' : 'Active'
   try {
@@ -300,10 +345,41 @@ const toggleStatus = async (user) => {
   }
 }
 
-// const fillterUsers = computed(() => {
-//   if (!selectRole.value) return allUser.value
-//   return allUser.value.filter(user => user.role === selectRole.value)
-// })
+const paginatedUsers = computed(() => {
+  const start = (pagination.value.currentPage - 1) * pagination.value.pageSize;
+  const end = start + pagination.value.pageSize;
+  return filteredUsers.value.slice(start, end);
+});
+
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredUsers.value.length / pagination.value.pageSize);
+});
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    pagination.value.currentPage = page;
+  }
+};
+
+const visiblePages = computed(() => {
+  const maxVisible = 5;
+  const total = totalPages.value;
+  const current = pagination.value.currentPage;
+  let start = Math.max(1, current - Math.floor(maxVisible / 2));
+  let end = Math.min(total, start + maxVisible - 1);
+
+  if (end - start < maxVisible - 1) {
+    start = Math.max(1, end - maxVisible + 1);
+  }
+
+  const pages = [];
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
+
 
 watch(route, async (newRoute, oldRoute) => {
   if (
@@ -316,6 +392,7 @@ watch(route, async (newRoute, oldRoute) => {
   deep: true,
   immediate: true
 });
+
 </script>
 
 
@@ -360,5 +437,48 @@ watch(route, async (newRoute, oldRoute) => {
   .delete_mobile {
     display: block;
   }
+}
+
+.pagination .page-link {
+  color: #C92C3C;
+  border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #C92C3C;
+  color: white;
+  border-color: #C92C3C;
+}
+
+.pagination .page-link:hover {
+  background-color: #f8d7da;
+  color: #C92C3C;
+}
+
+.pagination {
+  margin-bottom: 0;
+}
+
+.search-btn {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  font-size: 14px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s ease-in-out;
+  cursor: pointer;
+  height: 40px;
+}
+
+.search-btn:hover {
+  background: linear-gradient(135deg, #0056b3, #004080);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.search-btn:active {
+  transform: scale(0.98);
 }
 </style>
