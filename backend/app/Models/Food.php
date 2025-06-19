@@ -21,11 +21,10 @@ class Food extends Model
         'status',
         'category_id',
     ];
-
     public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
+{
+    return $this->belongsTo(Category::class, 'category_id');
+}
 
     // public function toppings(){
     //     return $this->belongsToMany(Topping::class, 'food_toppings','food_id','topping_id');

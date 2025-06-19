@@ -153,7 +153,7 @@
           <div>
             <label for="price" class="form-label">Giá <span class="text-danger">*</span></label>
             <input type="number" id="price" class="form-control" placeholder="Nhập giá"
-              v-model.number="formTopping.price" required />
+              v-model.number="formTopping.price" min="0" required />
           </div>
 
         </div>
@@ -190,7 +190,7 @@
           <div>
             <label for="price" class="form-label">Giá</label>
             <input type="number" id="price" class="form-control" placeholder="Nhập giá"
-              v-model.number="formTopping.price" required />
+              v-model.number="formTopping.price" min="0" required />
           </div>
 
         </div>
@@ -207,9 +207,10 @@
 import { useMenu } from '@/stores/use-menu';
 import axios from 'axios';
 import { ref, onMounted, computed, watch } from 'vue';
-import numeral from 'numeral'
-
+import numeral from 'numeral';
 import { toast } from "vue3-toastify";
+import Swal from 'sweetalert2';
+
 export default {
   methods: {
     formatNumber(value) {
@@ -272,16 +273,21 @@ export default {
     };
 
     const addTopping = async () => {
-      console.log("Dữ liệu gửi đi:", formTopping.value)
-      console.log("Danh mục:", category_toppings.value)
-
       try {
         await axios.post(`http://127.0.0.1:8000/api/admin/toppings`, formTopping.value, {
           headers: {
             Authorization: `Bearer ${token}`,
           }
         })
-        toast.success("Thêm topping thành công.");
+        // toast.success("Thêm topping thành công.");
+
+        await Swal.fire({
+          title: 'Thêm topping thành công',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
         fetchTopping();
         formTopping.value = { name: '', price: '', category_id: '' };
       } catch (error) {
@@ -315,7 +321,14 @@ export default {
             Authorization: `Bearer ${token}`,
           }
         })
-        toast.success("Cập nhật topping thành công.");
+        // toast.success("Cập nhật topping thành công.");
+        await Swal.fire({
+          title: 'Cập nhật topping thành công',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
         fetchTopping();
       } catch (error) {
         console.log(error);
@@ -331,8 +344,15 @@ export default {
             Authorization: `Bearer ${token}`,
           }
         })
-        toast.success("Xóa topping thành công.");
+        // toast.success("Xóa topping thành công.");
         fetchTopping();
+        await Swal.fire({
+          title: 'Xóa topping thành công',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
       } catch (error) {
         console.log(error);
         toast.error("Xóa topping thất bại.");
@@ -488,18 +508,22 @@ export default {
 .delete_mobile {
   display: none;
 }
-.fram{
+
+.fram {
   margin-bottom: 13px;
 }
+
 .uniform-input {
   height: 33px !important;
   padding: 6px 12px !important;
   font-size: 14px;
   border-radius: 4px;
 }
+
 .vd {
   font-weight: 500;
 }
+
 @media (max-width: 768px) {
   .table-responsive {
     display: none;
