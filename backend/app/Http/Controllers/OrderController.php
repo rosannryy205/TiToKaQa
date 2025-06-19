@@ -21,8 +21,9 @@ Carbon::setLocale('vi');
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Validator as FacadesValidator;
 
 class OrderController extends Controller
 {
@@ -128,6 +129,29 @@ class OrderController extends Controller
     public function reservation(Request $request)
     {
         try {
+            $validator = FacadesValidator::make($request->all(), [
+                'guest_count' => 'required|integer|min:1',
+                'guest_name' => 'required|string',
+                'guest_phone' => 'required|integer',
+                'reserved_from' => 'required|date',
+                'table_ids' => 'required|array|min:1',
+                'table_ids.*' => 'integer|exists:tables,id',
+            ], [
+                'guest_count.required' => 'Vui lòng nhập số khách.',
+                'reserved_from.required' => 'Vui lòng chọn thời gian đặt bàn.',
+                'table_ids.required' => 'Vui lòng chọn ít nhất một bàn.',
+                'table_ids.*.exists' => 'Bàn không tồn tại trong hệ thống.',
+                'guest_name.required' => 'Vui lòng nhập tên.',
+                'guest_phone.required' => 'Vui lòng nhập số điện thoại.',
+
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
 
             $guestName = $request->guest_name ?? null;
             $guestPhone = $request->guest_phone ?? null;
@@ -180,6 +204,7 @@ class OrderController extends Controller
                     'deposit_amount' => $request->deposit_amount ?? null,
                     'total_price' => $request->total_price ?? null,
                     'money_reduce' => $request->money_reduce ?? null,
+                    'order_status' => 'Đã xác nhận',
                 ]);
             } else {
                 $orderTime = Carbon::now();
@@ -447,10 +472,6 @@ class OrderController extends Controller
         }
     }
 
-
-
-
-
     // lấy thông tin theo id đơn hàng hoặc id user
     public function getInfoReservation(Request $request)
     {
@@ -460,6 +481,7 @@ class OrderController extends Controller
         if ($type === 'user') {
             $reservation = Order::with([
                 'details.foods',
+                'details.combos',
                 'details.toppings.food_toppings.toppings',
                 'tables'
             ])->where('user_id', $value)->orderBy('id', 'desc')->first();
@@ -479,24 +501,59 @@ class OrderController extends Controller
         }
 
         $details = $reservation->details->map(function ($detail) {
+            // $foodName = null;
+            // $image = null;
+            $image = null;
+            $item_id = null;
+            $nameKey = null;
+            $nameValue = null;
 
-            return [
+            if ($detail->type === 'food') {
+                $item_id = $detail->food_id;
+                $nameKey = 'food_name';
+                $nameValue = optional($detail->foods)->name;
+                $image = optional($detail->foods)->image;
+            } elseif ($detail->type === 'combo') {
+                $item_id = $detail->combo_id;
+                $nameKey = 'combo_name';
+                $nameValue = optional($detail->combos)->name;
+                $image = optional($detail->combos)->image;
+            }
+
+            // return [
+            //     'id' => $detail->id,
+            //     'food_id' => $detail->food_id,
+            //     'food_name' => $detail->foods->name ?? null,
+            //     'quantity' => $detail->quantity,
+            //     'price' => $detail->price,
+            //     'image' => $detail->foods->image ?? null,
+            //     'type' => $detail->type,
+
+            //     'toppings' => $detail->toppings->map(function ($toppings) {
+            //         return [
+            //             'food_toppings_id' => $toppings->food_toppings_id,
+            //             'topping_name' => $toppings->food_toppings->toppings->name ?? null,
+            //             'price' => $toppings->price
+            //         ];
+            //     })
+            // ];
+            return array_merge([
                 'id' => $detail->id,
-                'food_id' => $detail->food_id,
-                'food_name' => $detail->foods->name ?? null,
+                'item_id' => $item_id,
                 'quantity' => $detail->quantity,
                 'price' => $detail->price,
-                'image' => $detail->foods->image ?? null,
+                'image' => $image,
                 'type' => $detail->type,
-
                 'toppings' => $detail->toppings->map(function ($toppings) {
                     return [
                         'food_toppings_id' => $toppings->food_toppings_id,
-                        'topping_name' => $toppings->food_toppings->toppings->name ?? null,
+                        'topping_name' => optional(optional($toppings->food_toppings)->toppings)->name,
                         'price' => $toppings->price
                     ];
                 })
-            ];
+            ], [
+                $nameKey => $nameValue // thêm key động: 'food_name' hoặc 'combo_name'
+            ]);
         });
 
         $tables = $reservation->tables->map(function ($table) {
@@ -560,19 +617,12 @@ class OrderController extends Controller
     public function cancelOrder(Request $request)
     {
         $order = Order::find($request->id);
-        $reserves = Reservation_table::where('order_id', $request->id)->get();
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
-
         $order->order_status = 'Đã hủy';
         $order->save();
-
-        foreach ($reserves as $reserve) {
-            $reserve->reservation_status = 'Đã hủy';
-            $reserve->save();
-        }
 
         return response()->json(['message' => 'Đơn hàng đã được hủy thành công.']);
     }
@@ -685,6 +735,7 @@ class OrderController extends Controller
         }
     }
 
+    // lấy đơn hiện thời
     public function getCurrentOrder()
     {
         $reservations = Reservation_table::with([
@@ -890,8 +941,6 @@ class OrderController extends Controller
             'message' => 'Đơn hàng đã được cập nhật thành công.'
         ]);
     }
-
-
 
 
     public function autoCancelOrders()
