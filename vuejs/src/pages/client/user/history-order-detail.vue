@@ -65,10 +65,10 @@
         </thead>
         <tbody v-if="info.details && info.details.length">
           <tr v-for="item in info.details" :key="item.id">
-            <td>{{ item.food_id }}</td>
+            <td>{{ item.item_id }}</td>
             <td>
               <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
-              {{ item.food_name }}
+              {{ item.food_name || item.combo_name}}
               <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3 ">
                 <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
                   + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }} đ)

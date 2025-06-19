@@ -17,18 +17,25 @@
           <div class="section-title1">Thông tin đơn hàng của bạn</div>
           <div class="border shadow-sm bg-white p-4 rounded-bottom">
             <div class="mb-3">
+              <label for="" class="form-label">Tên của bạn <b class="text-danger">*</b></label>
               <input type="text" class="form-control rounded border shadow-sm" placeholder="Tên của bạn"
-                v-model="form.fullname" required/>
+                v-model="form.fullname" required />
             </div>
             <div class="mb-3">
-              <input type="email" class="form-control rounded border shadow-sm" placeholder="Email"
-                v-model="form.email" required/>
+              <label for="" class="form-label">Email</label>
+
+              <input type="email" class="form-control rounded border shadow-sm" placeholder="Email" v-model="form.email"
+                required />
             </div>
             <div class="mb-3">
+              <label for="" class="form-label">Số điện thoại <b class="text-danger">*</b></label>
+
               <input type="text" class="form-control rounded border shadow-sm" placeholder="Số điện thoại"
-                v-model="form.phone" required/>
+                v-model="form.phone" required />
             </div>
             <div class="mb-3">
+              <label for="" class="form-label">Ghi chú</label>
+
               <textarea class="form-control rounded border shadow-sm" rows="3" placeholder="Ghi chú"
                 v-model="note"></textarea>
             </div>
@@ -111,35 +118,35 @@
             <hr />
             <div class="d-flex justify-content-between mb-3">
               <strong class="fs-5">Tổng cộng (VAT)</strong>
-              <strong class="text-danger fs-5">{{ formatNumber(finalTotal  + 100000) }} VNĐ</strong>
+              <strong class="text-danger fs-5">{{ formatNumber(finalTotal + 100000) }} VNĐ</strong>
             </div>
 
             <div class="mb-3">
               <label class="form-label fw-bold">Phương thức thanh toán</label>
               <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="VNPAY"
-                v-model="paymentMethod" />
-              <label class="form-check-label d-flex align-items-center" for="vnpay">
-                <span class="me-2">Thanh toán qua VNPAY</span>
-                <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
-                v-model="paymentMethod" />
-              <label class="form-check-label d-flex align-items-center" for="momo">
-                <span class="me-2">Thanh toán qua Momo</span>
-                <img src="/img/momo.png" height="20" width="20" alt="" />
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="cod" value="COD"
-                v-model="paymentMethod" />
-              <label class="form-check-label d-flex align-items-center" for="cod">
-                <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
-                <img src="/img/cod.png" height="30" width="30" alt="" />
-              </label>
-            </div>
+                <input class="form-check-input" type="radio" name="payment" id="vnpay" value="VNPAY"
+                  v-model="paymentMethod" />
+                <label class="form-check-label d-flex align-items-center" for="vnpay">
+                  <span class="me-2">Thanh toán qua VNPAY</span>
+                  <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
+                  v-model="paymentMethod" />
+                <label class="form-check-label d-flex align-items-center" for="momo">
+                  <span class="me-2">Thanh toán qua Momo</span>
+                  <img src="/img/momo.png" height="20" width="20" alt="" />
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="payment" id="cod" value="COD"
+                  v-model="paymentMethod" />
+                <label class="form-check-label d-flex align-items-center" for="cod">
+                  <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
+                  <img src="/img/cod.png" height="30" width="30" alt="" />
+                </label>
+              </div>
             </div>
 
             <button type="submit" class="btn btn-danger1 w-100 mt-3">Thanh toán</button>
@@ -203,32 +210,28 @@ export default {
     const updateCountdown = async () => {
       try {
         expirationTime.value = new Date(info.value.expiration_time);
-
         const now = new Date();
         const diff = expirationTime.value - now;
         if (diff <= 0) {
           clearInterval(countdownInterval);
           minutes.value = 0;
           seconds.value = 0;
-
           await axios.put(
             `http://127.0.0.1:8000/api/order-history-info/cancel/${orderId}`
           );
-          if (localStorage.removeItem(`cart_${userId}_reservation_${orderId}`)) {
-            Swal.fire({
-              icon: "error",
-              text:
-                "Đơn hàng của bạn đã hết thời gian giữ bàn! Vui lòng quay lại đặt đơn hàng khác",
-              confirmButtonText: "Quay lại",
-              confirmButtonColor: "#d32f2f",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                router.push("/reservation");
-              }
-            });
+          localStorage.removeItem(`cart_${userId}_reservation_${orderId}`)
+          Swal.fire({
+            icon: "error",
+            text:
+              "Đơn hàng của bạn đã hết thời gian giữ bàn! Vui lòng quay lại đặt đơn hàng khác",
+            confirmButtonText: "Quay lại",
+            confirmButtonColor: "#d32f2f",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              router.push("/reservation");
+            }
+          });
 
-            return;
-          }
         }
 
         minutes.value = Math.floor((diff / 1000 / 60) % 60);
@@ -252,7 +255,7 @@ export default {
           guest_email: form.value.email,
           note: form.value.note || "",
           deposit_amount: 100000,
-          total_price: finalTotal.value  + 100000,
+          total_price: finalTotal.value + 100000,
           money_reduce: discountFoodAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
@@ -287,7 +290,7 @@ export default {
           }
           const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
             order_id: orderId,
-            amount: finalTotal.value  + 100000,
+            amount: finalTotal.value + 100000,
           })
           if (paymentRes.data && paymentRes.data.payment_url) {
             localStorage.setItem('payment_method', paymentMethod.value)
@@ -309,7 +312,7 @@ export default {
           await new Promise((resolve) => setTimeout(resolve, 300))
           await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
             order_id: orderId,
-            amount_paid: finalTotal.value  + 100000,
+            amount_paid: finalTotal.value + 100000,
             payment_type: 'Thanh toán toàn bộ',
           })
           localStorage.setItem('payment_method', paymentMethod.value)
@@ -318,9 +321,16 @@ export default {
           router.push('/payment-result');
         }
       } catch (error) {
-        toast.error("Có lỗi xảy ra!");
-        console.error("Lỗi xảy ra:", error.message);
-        alert("Lỗi khi gửi đơn hàng. Vui lòng thử lại!");
+        if (error.response && error.response.status === 422 && error.response.data.errors) {
+          let validationErrors = ''
+          for (const field in error.response.data.errors) {
+            validationErrors += error.response.data.errors[field].join(' ') + ' '
+          }
+          toast.error(`${validationErrors.trim()}`)
+        } else {
+          toast.error('Đặt bàn thất bại, vui lòng thử lại!')
+        }
+
       }
     };
     const reservation = async () => {
@@ -328,6 +338,7 @@ export default {
       try {
         console.log('✅ form gửi đi:', form.value)
         await check_payment(orderId)
+
         console.log('✅ check_out đã được gọi xong')
       } catch (error) {
         console.error('❌ Lỗi khi gọi check_out:', error)
