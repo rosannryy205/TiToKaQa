@@ -21,8 +21,9 @@ Carbon::setLocale('vi');
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Validator as FacadesValidator;
 
 class OrderController extends Controller
 {
@@ -128,6 +129,29 @@ class OrderController extends Controller
     public function reservation(Request $request)
     {
         try {
+            $validator = FacadesValidator::make($request->all(), [
+                'guest_count' => 'required|integer|min:1',
+                'guest_name' => 'required|string',
+                'guest_phone' => 'required|integer',
+                'reserved_from' => 'required|date',
+                'table_ids' => 'required|array|min:1',
+                'table_ids.*' => 'integer|exists:tables,id',
+            ], [
+                'guest_count.required' => 'Vui lòng nhập số khách.',
+                'reserved_from.required' => 'Vui lòng chọn thời gian đặt bàn.',
+                'table_ids.required' => 'Vui lòng chọn ít nhất một bàn.',
+                'table_ids.*.exists' => 'Bàn không tồn tại trong hệ thống.',
+                'guest_name.required' => 'Vui lòng nhập tên.',
+                'guest_phone.required' => 'Vui lòng nhập số điện thoại.',
+
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
 
             $guestName = $request->guest_name ?? null;
             $guestPhone = $request->guest_phone ?? null;
@@ -180,6 +204,7 @@ class OrderController extends Controller
                     'deposit_amount' => $request->deposit_amount ?? null,
                     'total_price' => $request->total_price ?? null,
                     'money_reduce' => $request->money_reduce ?? null,
+                    'order_status' => 'Đã xác nhận',
                 ]);
             } else {
                 $orderTime = Carbon::now();
@@ -447,10 +472,6 @@ class OrderController extends Controller
         }
     }
 
-
-
-
-
     // lấy thông tin theo id đơn hàng hoặc id user
     public function getInfoReservation(Request $request)
     {
@@ -596,19 +617,12 @@ class OrderController extends Controller
     public function cancelOrder(Request $request)
     {
         $order = Order::find($request->id);
-        $reserves = Reservation_table::where('order_id', $request->id)->get();
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
-
         $order->order_status = 'Đã hủy';
         $order->save();
-
-        foreach ($reserves as $reserve) {
-            $reserve->reservation_status = 'Đã hủy';
-            $reserve->save();
-        }
 
         return response()->json(['message' => 'Đơn hàng đã được hủy thành công.']);
     }
@@ -721,6 +735,7 @@ class OrderController extends Controller
         }
     }
 
+    // lấy đơn hiện thời
     public function getCurrentOrder()
     {
         $reservations = Reservation_table::with([
@@ -926,8 +941,6 @@ class OrderController extends Controller
             'message' => 'Đơn hàng đã được cập nhật thành công.'
         ]);
     }
-
-
 
 
     public function autoCancelOrders()
