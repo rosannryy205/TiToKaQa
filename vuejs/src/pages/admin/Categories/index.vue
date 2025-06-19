@@ -19,7 +19,16 @@
       <option value="10">10</option>
       <option value="15">15</option>
     </select>
+
+    <span class="vd">Loại danh mục</span>
+    <select v-model="selectedType" class="custom-select">
+      <option value="">Tất cả</option>
+      <option value="food">Món ăn</option>
+      <option value="topping">Topping</option>
+    </select>
+
   </div>
+
 
   <!-- Desktop Table -->
   <div class="table-responsive d-none d-lg-block">
@@ -31,13 +40,15 @@
           <th>Tên</th>
           <th>Hình ảnh</th>
           <th>Danh mục cha</th>
+          <th>Loại</th>
           <th>Tuỳ chọn</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="categories.length === 0">
-          <td colspan="5" class="text-center text-muted">Không có danh mục nào.</td>
+          <td colspan="7" class="text-center align-middle text-muted">Không có danh mục nào.</td>
         </tr>
+
 
         <tr v-for="(item, index) in categories" :key="item.id">
           <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td>
@@ -49,8 +60,12 @@
               :alt="item.name">
           </td>
           <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
-          <td class="d-flex justify-content-center gap-2 flex-wrap">
-            <router-link :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-outline btn-sm">
+          <td>{{ item.type === 'food' ? 'Món ăn' : 'Topping' }}</td>
+
+          <td class="d-flex justify-content-center gap-2 "
+            style="min-height:100px; min-width: 80px; display: flex; align-items: center; justify-content: center;">
+            <router-link v-if="item.id !== 1" :to="{ name: 'update-food-category', params: { id: item.id } }"
+              class="btn btn-outline btn-sm">
               Sửa
             </router-link>
             <div v-if="item.default === 0">
@@ -124,50 +139,46 @@ export default {
     const selectedParent = ref('')
     const searchKeyword = ref('')
     const selectedIds = ref([])
+    const selectedType = ref('')
     const isLoading = ref(true)
 
 
     const fetchCategories = async () => {
       try {
+        const params = {
+          per_page: perPage.value,
+          page: currentPage.value,
+          search: searchKeyword.value,
+          parent_id: selectedParent.value
+        };
+
+        if (selectedType.value) {
+          params.type = selectedType.value;
+        }
+
         const response = await axios.get('http://127.0.0.1:8000/api/admin/categories/list', {
-          params: {
-            per_page: perPage.value,
-            page: currentPage.value,
-            search: searchKeyword.value,
-            parent_id: selectedParent.value
-          },
+          params,
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
-        })
+        });
 
-        const fetched = response.data.data
-        let flatList = []
+        const fetched = response.data.data;
 
-        fetched.forEach(item => {
-          flatList.push({
-            ...item,
-            parent_name: null
-          })
+        const flatList = fetched.map(item => ({
+          ...item,
+          parent_name: item.parent?.name || null // 👈 gán tên danh mục cha nếu có
+        }));
 
-          if (item.children?.length) {
-            item.children.forEach(child => {
-              flatList.push({
-                ...child,
-                parent_name: item.name
-              })
-            })
-          }
-        })
-
-        categories.value = flatList
-        totalPages.value = response.data.last_page
-        currentPage.value = response.data.current_page
+        categories.value = flatList;
+        totalPages.value = response.data.last_page;
+        currentPage.value = response.data.current_page;
 
       } catch (error) {
-        console.error('Lỗi khi load danh mục:', error)
+        console.error('Lỗi khi load danh mục:', error);
       }
-    }
+    };
+
 
 
     const fetchAllParents = async () => {
@@ -307,6 +318,12 @@ export default {
       fetchCategories()
     })
 
+    watch(selectedType, (val) => {
+      console.log('Type được chọn:', val);
+      currentPage.value = 1
+      fetchCategories()
+    })
+
     return {
       categories,
       allCategories,
@@ -317,6 +334,7 @@ export default {
       searchKeyword,
       selectedIds,
       isAllSelected,
+      selectedType,
       goToPage,
       changePerPage,
       handleDelete,
@@ -416,6 +434,8 @@ export default {
   background-color: #ab9c00;
   color: #fff;
 }
+
+
 
 .btn-outline {
   background: none;

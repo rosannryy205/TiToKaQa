@@ -10,7 +10,7 @@
     </div>
 
 
-    <form  class="row mt-2">
+    <form class="row mt-2">
       <div class="col-12 col-md-6">
         <div class="card rounded-0 border-0 shadow mb-4">
           <div class="card-body">
@@ -32,6 +32,14 @@
                 <option :value="0">Không</option>
               </select>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Loại danh mục</label>
+              <select class="form-select rounded-0" v-model="categoryType">
+                <option value="food">Món ăn</option>
+                <option value="topping">Topping</option>
+              </select>
+            </div>
+
           </div>
         </div>
       </div>
@@ -75,6 +83,7 @@ export default {
     const parentId = ref('')
     const isDefault = ref(0)
     const image = ref(null)
+    const categoryType = ref('food')
     const oldImage = ref(null)
     const previewImage = ref(null)
     const allParents = ref([])
@@ -105,6 +114,7 @@ export default {
         isDefault.value = parseInt(cat.default)
         oldImage.value = cat.images
         parentId.value = cat.parent_id ?? ''
+        categoryType.value = cat.type
       } catch (error) {
         showToast('Không thể tải dữ liệu danh mục!', 'error')
       } finally {
@@ -144,6 +154,8 @@ export default {
       if (parentId.value) formData.append('parent_id', parentId.value)
       if (image.value) formData.append('images', image.value)
       formData.append('default', isDefault.value ? 1 : 0)
+      formData.append('type', categoryType.value)
+
 
       try {
         await axios.post(`http://127.0.0.1:8000/api/admin/categories/${categoryId}`, formData, {
@@ -196,8 +208,17 @@ export default {
     })
 
     return {
-      name, parentId, isDefault, image, previewImage, oldImage, allParents, isLoading,
-      handleImageChange, updateCategory
+      name,
+      parentId,
+      isDefault,
+      image,
+      previewImage,
+      oldImage,
+      allParents,
+      isLoading,
+      categoryType,
+      handleImageChange, 
+      updateCategory
     }
   }
 }

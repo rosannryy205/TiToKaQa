@@ -125,6 +125,9 @@
               style="min-width: 60px">
               {{ food.status === 'active' ? 'Ẩn' : 'Hiện' }}
             </button>
+            <button class="btn btn-outline-primary btn-sm" @click="openToppingModal(food)">
+              Topping
+            </button>
 
             <!-- <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#toppingModal">Toppings</button> -->
           </td>
@@ -132,6 +135,67 @@
       </tbody>
     </table>
   </div>
+
+
+  <!-- Modal chọn topping -->
+  <div class="modal fade" id="toppingModal" tabindex="-1" aria-labelledby="toppingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content shadow-sm">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title text-danger text-center" id="toppingModalLabel">
+            Chọn topping cho: {{ selectedFood?.name }}
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div v-if="loadingToppingModal" class="text-center py-5">
+            <div class="spinner-border text-danger" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Đang tải topping...</p>
+          </div>
+          <div v-else>
+            <div v-if="Array.isArray(toppings) && toppings.length === 0">
+              Không có topping để hiển thị.
+            </div>
+
+
+            <div v-else class="table-responsive">
+              <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Chọn</th>
+                    <th>Tên topping</th>
+                    <th>Giá</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="topping in toppings" :key="topping.id">
+                    <td class="text-center">
+                      <input class="form-check-input" type="checkbox" :value="topping.id"
+                        v-model="selectedToppingIds" />
+                    </td>
+                    <td>{{ topping.name }}</td>
+                    <td>{{ formatNumber(topping.price) }} đ</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <button class="btn btn-primary" @click="saveToppings">Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
 
   <nav class="mt-4">
     <ul class="pagination">
@@ -184,7 +248,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-
+import * as bootstrap from 'bootstrap'
 
 const foods = ref([]);
 const currentPage = ref(1);
@@ -193,6 +257,7 @@ const limit = ref(10);
 const selectedCategory = ref('');
 const selectedFoods = ref([]);
 const searchText = ref('');
+
 
 const newFood = ref({
   name: '',
@@ -205,6 +270,9 @@ const newFood = ref({
 });
 
 
+const formatNumber = (number) => {
+  return new Intl.NumberFormat('vi-VN').format(number);
+};
 
 
 
@@ -435,6 +503,108 @@ const toggleStatus = async (food) => {
   }
 }
 
+// topping
+const selectedFood = ref(null); // Món ăn đang chọn
+const toppings = ref([]);       // Toàn bộ topping
+const selectedToppingIds = ref([]); // ID các topping đã được chọn
+const loadingToppingModal = ref(false);
+
+const openToppingModal = async (food) => {
+  selectedFood.value = food;
+  loadingToppingModal.value = true;
+
+  await fetchAllToppings();
+  await fetchSelectedToppings(food.id);
+
+  loadingToppingModal.value = false;
+
+  const modalEl = document.getElementById('toppingModal');
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+};
+
+
+
+// Lấy toàn bộ topping
+const fetchAllToppings = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/topping-food', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      }
+    });
+    toppings.value = res.data.data;
+    console.log('topping:', toppings)
+  } catch (err) {
+    console.error('Lỗi khi lấy topping:', err);
+  }
+};
+
+// Lấy topping đã được chọn của món
+const fetchSelectedToppings = async (foodId) => {
+  try {
+    const res = await axios.get(`http://127.0.0.1:8000/api/admin/food/topping/${foodId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      }
+    });
+
+    // cập nhật danh sách tất cả topping
+    toppings.value = res.data.data
+
+    // cập nhật danh sách topping đã chọn
+    selectedToppingIds.value = res.data.selected_ids;
+
+  } catch (err) {
+    console.error('Lỗi khi lấy topping của món:', err);
+  }
+};
+
+const saveToppings = async () => {
+  try {
+    await axios.post(`http://127.0.0.1:8000/api/admin/food/topping/${selectedFood.value.id}`, {
+      topping_ids: selectedToppingIds.value
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      }
+    });
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Đã lưu topping',
+      toast: true,
+      position: 'top-end',
+      timer: 2000,
+      showConfirmButton: false
+    });
+
+  } catch (err) {
+    console.error('Lỗi khi lưu topping:', err);
+
+    // Lấy thông điệp lỗi chi tiết
+    const errorMessage = err.response?.data?.message || 'Lỗi không xác định';
+    const validationErrors = err.response?.data?.errors;
+
+    let detailMessage = errorMessage;
+
+    // Nếu có lỗi validate, gộp lại
+    if (validationErrors) {
+      detailMessage += '\n' + Object.values(validationErrors).flat().join('\n');
+    }
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi khi lưu topping',
+      text: detailMessage,
+      toast: false,
+      confirmButtonText: 'Đã hiểu'
+    });
+  }
+};
+
+
+
 </script>
 
 
@@ -499,6 +669,37 @@ export default {
   border-color: #c92c3c;
 }
 
+.btn-add,
+.btn-danger-delete {
+  background: none;
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.btn-add:hover,
+.btn-danger-delete:hover {
+  background-color: #c92c3c;
+  color: #fff;
+}
+
+.btn-outline {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 4px 10px;
+  border-radius: 4px;
+  color: #555;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background-color: #eee;
+  color: #333;
+}
+
 .btn-add {
   background: none;
   color: #c92c3c;
@@ -517,7 +718,7 @@ export default {
   background: none;
   color: #ab9c00;
   border: 1px solid #ab9c00;
-  padding: 6px 10px;
+  padding: 7px 10px;
   border-radius: 4px;
   font-weight: normal;
 }

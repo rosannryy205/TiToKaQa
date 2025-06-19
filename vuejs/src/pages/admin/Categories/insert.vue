@@ -27,7 +27,7 @@
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Làm danh mục mặc định</label>
+              <label class="form-label">Đặt làm danh mục mặc định</label>
               <div class="input-group">
                 <select class="form-select rounded-0" v-model="isDefault">
                   <option :value="1">Có</option>
@@ -35,6 +35,16 @@
                 </select>
               </div>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Loại danh mục <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <select class="form-select rounded-0" v-model="categoryType">
+                  <option value="food">Món ăn</option>
+                  <option value="topping">Topping</option>
+                </select>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -74,6 +84,8 @@ export default {
     const image = ref(null)
     const previewImage = ref(null)
     const allParents = ref([])
+    const categoryType = ref('food')
+
 
     const fetchParents = async () => {
       try {
@@ -120,6 +132,7 @@ export default {
       if (image.value) formData.append('images', image.value)
       formData.append('default', isDefault.value ? 1 : 0)
       console.log(formData)
+      formData.append('type', categoryType.value)
 
       try {
         await axios.post('http://127.0.0.1:8000/api/admin/categories', formData, {
@@ -129,15 +142,7 @@ export default {
           }
         })
 
-        Swal.fire({
-          icon: 'success',
-          title: 'Thành công',
-          text: 'Thêm danh mục thành công!',
-          toast: true,
-          timer: 3000,
-          position: 'top-end',
-          showConfirmButton: false,
-        })
+        showToast('Thêm danh mục thành công!')
 
       } catch (error) {
         console.log('Error:', error.response);
@@ -185,8 +190,15 @@ export default {
     })
 
     return {
-      name, parentId, isDefault, image, previewImage, allParents,
-      handleImageChange, addCategory,
+      name,
+      parentId,
+      isDefault,
+      image,
+      previewImage,
+      allParents,
+      categoryType,
+      handleImageChange,
+      addCategory,
     }
   }
 }
