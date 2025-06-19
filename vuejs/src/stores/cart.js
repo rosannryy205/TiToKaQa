@@ -1,6 +1,6 @@
 // src/stores/discount.js
 import axios from 'axios'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { toast } from 'vue3-toastify'
 export function Cart() {
@@ -45,8 +45,6 @@ export function Cart() {
     localStorage.setItem(cartKey.value, JSON.stringify(cartItems.value))
   }
 
-
-
   const totalPrice = computed(() => {
     return cartItems.value.reduce((sum, item) => {
       const basePrice = Number(item.price) * item.quantity
@@ -71,8 +69,8 @@ export function Cart() {
       toppings: toppings,
       quantity: quantity,
       type: foodDetail.type,
+      category_id: foodDetail.category_id
     }
-
       const existingItemIndex = cartItems.value.findIndex(
         (item) =>
           item.id === newCartItem.id &&
@@ -144,7 +142,6 @@ export function Cart() {
   //       : `cart_${userId}`
   //   localStorage.setItem(cartKey, JSON.stringify(cartItems.value))
   // }
-
   onMounted(() => {
     loadCart()
   })

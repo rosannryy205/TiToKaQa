@@ -284,7 +284,7 @@ class AdminFoodController extends Controller
     public function storeToppingForFood(Request $request, Food $food)
     {
         $validated = $request->validate([
-            'topping_ids' => 'required|array',
+            'topping_ids' => 'nullable|array',
             'topping_ids.*' => 'exists:toppings,id',
         ]);
 
