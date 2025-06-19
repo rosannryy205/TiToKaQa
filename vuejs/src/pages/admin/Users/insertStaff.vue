@@ -16,14 +16,15 @@
             <label class="form-label">
               <i class="bi bi-person-fill text-primary me-2"></i>Username
             </label>
-            <input type="text" class="form-control" placeholder="Username tự động được tạo" disabled>
+            <input type="text" class="form-control rounded" placeholder="Username tự động được tạo" disabled>
           </div>
 
           <div class="col-md-6">
             <label class="form-label">
               <i class="bi bi-card-text text-primary me-2"></i>Họ và tên
             </label>
-            <input v-model="form.fullname" type="text" class="form-control" placeholder="Họ và tên nhân viên" required>
+            <input v-model="form.fullname" type="text" class="form-control rounded" placeholder="Họ và tên nhân viên"
+              required>
             <div v-if="errors.fullname" class="text-danger small">{{ errors.fullname }}</div>
           </div>
 
@@ -31,21 +32,21 @@
             <label class="form-label">
               <i class="bi bi-envelope-fill text-primary me-2"></i>Email
             </label>
-            <input type="email" class="form-control" placeholder="Email sẽ tự động được tạo" disabled>
+            <input type="email" class="form-control rounded" placeholder="Email sẽ tự động được tạo" disabled>
           </div>
 
           <div class="col-md-6">
             <label class="form-label">
               <i class="bi bi-lock-fill text-primary me-2"></i>Mật khẩu
             </label>
-            <input type="password" class="form-control" placeholder="Mật khẩu sẽ tự động được tạo" disabled>
+            <input type="password" class="form-control rounded" placeholder="Mật khẩu sẽ tự động được tạo" disabled>
           </div>
 
           <div class="col-md-6">
             <label class="form-label">
               <i class="bi bi-telephone-fill text-primary me-2"></i>Số điện thoại
             </label>
-            <input v-model="form.phone" type="text" class="form-control" placeholder="Số điện thoại nhân viên">
+            <input v-model="form.phone" type="text" class="form-control rounded" placeholder="Số điện thoại nhân viên">
             <div v-if="errors.phone" class="text-danger small">{{ errors.phone }}</div>
           </div>
 

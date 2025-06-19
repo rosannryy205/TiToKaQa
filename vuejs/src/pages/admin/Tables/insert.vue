@@ -810,7 +810,15 @@ export default {
         clearCart()
       } catch (error) {
         console.error('Lỗi khi đặt bàn:', error)
-        toast.error('Đặt bàn thất bại, vui lòng thử lại!')
+        if (error.response && error.response.status === 422 && error.response.data.errors) {
+          let validationErrors = ''
+          for (const field in error.response.data.errors) {
+            validationErrors += error.response.data.errors[field].join(' ') + ' '
+          }
+          toast.error(`${validationErrors.trim()}`)
+        } else {
+          toast.error('Đặt bàn thất bại, vui lòng thử lại!')
+        }
       } finally {
         isLoading.value = false
       }

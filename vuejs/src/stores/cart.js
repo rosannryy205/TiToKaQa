@@ -59,6 +59,8 @@ export function Cart() {
   })
 
   const addToCart = (foodDetail, quantity, toppings) => {
+    console.log(isAdmin.value);
+
     const newCartItem = {
       id: foodDetail.id,
       name: foodDetail.name,

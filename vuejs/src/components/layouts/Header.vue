@@ -177,7 +177,7 @@
             </button>
             <template v-else>
               <div class="mb-2">
-                <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
+                <router-link to="/account/update-user" class="text-decoration-none text-primary-red me-2">
                   <p v-if="user.username" class="mb-0 username-display"><i class="bi bi-person me-2"></i>{{
                     user.username }}</p>
                 </router-link>
@@ -266,8 +266,6 @@
       </div>
     </div>
   </div>
-
-
   <router-view></router-view>
 
 </template>
@@ -298,7 +296,7 @@ const handleLogout = async () => {
   showCancelButton: true,
   confirmButtonText: 'Đăng xuất',
   cancelButtonText: 'Huỷ bỏ',
-  confirmButtonColor: '#e3342f',   
+  confirmButtonColor: '#e3342f',
   cancelButtonColor: '#6c757d',
   reverseButtons: true,
   focusCancel: true,
