@@ -19,9 +19,7 @@
             <div class="flex-grow-1 mb-2">
               <h5 class="mb-1 product-title"><strong>{{ item.name }}</strong></h5>
               <p class="text-muted mb-2">{{ item.spicyLevel }}</p>
-              <p class="text-muted mb-2">
-                Loại: {{ item.type }}
-              </p>
+
               <p class="text-muted mb-2">
                 Topping:
                 <span v-if="item.toppings && item.toppings.length">
@@ -36,13 +34,12 @@
               <p class="text-muted mb-2">Số lượng: {{ item.quantity }}</p>
               <p class="mb-0 "><strong>Giá:</strong>{{ formatNumber(item.price) }} VNĐ</p>
             </div>
-            <div class="text-center me-3 mb-2">
+            <div class="text-center me-5 mb-2">
               <div class="qty-control rounded px-2 py-1 d-inline-flex align-items-center gap-2">
                 <button class="btn btn-sm px-2 py-0" @click="decreaseQuantity(index)">-</button>
                 <span class="qty-box text-center">{{ item.quantity }}</span>
                 <button class="btn btn-sm px-2 py-0" @click="increaseQuantity(index)">+</button>
               </div>
-
             </div>
             <div class="mb-2 price text-end fixed-price-width">
               <strong class="price-text">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>

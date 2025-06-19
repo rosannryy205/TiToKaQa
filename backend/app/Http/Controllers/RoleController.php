@@ -107,4 +107,5 @@ class RoleController extends Controller
 
         return response()->json(['message' => 'Xoá vai trò thành công']);
     }
+
 }

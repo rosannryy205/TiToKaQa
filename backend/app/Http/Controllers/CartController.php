@@ -272,7 +272,7 @@ class CartController extends Controller
                         'food_name' => optional($detail->foods)->name,
                         'quantity' => $detail->quantity,
                         'price' => $detail->price,
-                        'image' => $detail->foods->image,
+                        'image' => optional($detail->foods)->image,
                         'type' => $detail->type,
                         'toppings' => $detail->toppings->map(function ($toppings) {
                             return [

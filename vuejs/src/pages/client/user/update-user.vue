@@ -10,45 +10,26 @@
               <form @submit.prevent="handleSubmit">
                 <div class="mb-3">
                   <label class="form-label">Tên người dùng</label>
-                  <input
-                    type="text"
-                    v-model="form.fullname"
-                    class="form-control form-control-lg rounded"
-                    placeholder="Nhập nickname của bạn"
-                    id="fullname"
-                  />
+                  <input type="text" v-model="form.fullname" class="form-control form-control-lg rounded"
+                    placeholder="Nhập nickname của bạn" id="fullname" />
                 </div>
 
                 <div class="mb-3">
                   <label for="phone" class="form-label">Số điện thoại</label>
                   <div class="input-group">
                     <span class="input-group-text">+84</span>
-                    <input
-                      type="text"
-                      v-model="form.phone"
-                      class="form-control form-control-lg rounded"
-                      id="phone"
-                      placeholder="Nhập số điện thoại của bạn"
-                    />
+                    <input type="text" v-model="form.phone" class="form-control form-control-lg rounded" id="phone"
+                      placeholder="Nhập số điện thoại của bạn" />
                   </div>
                 </div>
 
                 <div class="mb-3">
                   <label for="address" class="form-label">Địa chỉ</label>
-                  <input
-                    type="text"
-                    v-model="form.address"
-                    class="form-control form-control-lg rounded"
-                    id="address"
-                    placeholder="Nhập địa chỉ của bạn"
-                  />
+                  <input type="text" v-model="form.address" class="form-control form-control-lg rounded" id="address"
+                    placeholder="Nhập địa chỉ của bạn" />
                 </div>
                 <div class="text-center">
-                  <button
-                    type="submit"
-                    style="background-color: #ca111f"
-                    class="btn text-white w-100"
-                  >
+                  <button type="submit" style="background-color: #ca111f" class="btn text-white w-100">
                     Lưu tài khoản
                   </button>
                 </div>
@@ -58,9 +39,7 @@
             <!---->
             <div class="col-md-5 ps-md-4 pt-4 pt-md-0 border-top border-md-0 border-md-start">
               <ul class="p-0 m-0 list-unstyled">
-                <li
-                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
-                >
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
                     <i class="bi bi-envelope"></i>
                     <div>
@@ -68,57 +47,33 @@
                       <div class="small text-muted">Thay đổi địa chỉ email</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger w-100"
-                    style="max-width: 100px"
-                  >
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px">
                     <strong>Cập nhật</strong>
                   </button>
                 </li>
-                <li
-                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
-                >
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      class="bi bi-lock"
-                      viewBox="0 0 16 16"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3"
-                      />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                      class="bi bi-lock" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd"
+                        d="M8 0a4 4 0 0 1 4 4v2.05a2.5 2.5 0 0 1 2 2.45v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4M4.5 7A1.5 1.5 0 0 0 3 8.5v5A1.5 1.5 0 0 0 4.5 15h7a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 11.5 7zM8 1a3 3 0 0 0-3 3v2h6V4a3 3 0 0 0-3-3" />
                     </svg>
                     <div>
                       <div class="fw-bold">Đổi mật khẩu</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger w-100"
-                    style="max-width: 100px"
-                  >
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px">
                     <strong>Cập nhật</strong>
                   </button>
                 </li>
-                <li
-                  class="p-3 border rounded d-flex justify-content-between align-items-center mb-3"
-                >
+                <li class="p-3 border rounded d-flex justify-content-between align-items-center mb-3">
                   <div class="d-flex align-items-center gap-3">
                     <i class="bi bi-trash"></i>
                     <div>
                       <div class="fw-bold">Xóa tài khoản</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-danger w-100"
-                    style="max-width: 100px"
-                  >
+                  <button type="button" class="btn btn-sm btn-outline-danger w-100" style="max-width: 100px">
                     <strong>Xóa</strong>
                   </button>
                 </li>
@@ -269,23 +224,17 @@ li.list-group-item {
   width: 40px;
   height: 40px;
 }
-#app
-  > div
-  > div.container.mt-5.fade-in
-  > div
-  > div.col-12.col-md-4.col-lg-3.mb-4.mb-md-0
-  > div
-  > div.bg-light.rounded-3.p-3.text-center.mb-3
-  > div.d-flex.justify-content-around.mt-3
-  > div:nth-child(1)
-  > div.fw-medium {
+
+#app>div>div.container.mt-5.fade-in>div>div.col-12.col-md-4.col-lg-3.mb-4.mb-md-0>div>div.bg-light.rounded-3.p-3.text-center.mb-3>div.d-flex.justify-content-around.mt-3>div:nth-child(1)>div.fw-medium {
   padding: 9px;
 }
+
 /**coins gif */
 .coins-gif {
   width: 35px;
   height: 35px;
 }
+
 .logo-member {
   width: 25px;
 }
