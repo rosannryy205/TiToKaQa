@@ -41,7 +41,8 @@ Route::get('/home/combo/{id}', [ComboController::class, 'getComboById']);
 // home toppings
 Route::get('/home/topping/{id}', [FoodController::class, 'getToppingByFood']);
 // home categories
-Route::get('/home/categories', [CategoryController::class, 'getAllCategories']);
+Route::get('/home/categories', [CategoryController::class, 'getParentCategories']);
+Route::get('/home/all-categories', [CategoryController::class, 'getAllCategories']);
 Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']);
 
 
@@ -186,7 +187,7 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 
 
     // danh mục món ăn
-    Route::get('/admin/categories', [AdminCategoryController::class, 'getAllCategories']);
+    Route::get('/admin/categories', [AdminCategoryController::class, 'getParentCategories']);
     Route::get('/admin/categories/parents/list', [AdminCategoryController::class, 'getParents']);
     Route::get('/admin/categories/list', [AdminCategoryController::class, 'index']);
     Route::get('/admin/categories/{id}', [AdminCategoryController::class, 'show']);
@@ -220,6 +221,7 @@ Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPaymen
 
 /**client user-point_exchange*/
 Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');
+Route::get('/user-vouchers', [DiscountController::class, 'getUserDiscounts'])->middleware('auth:sanctum');
 
 /** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);

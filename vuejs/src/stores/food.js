@@ -9,6 +9,7 @@ export const FoodList = {
     const foods = ref([])
     const combos = ref([])
     const categories = ref([])
+    const allCates = ref([])
     const foodDetail = ref([])
     const toppings = ref([])
     const spicyLevel = ref([])
@@ -37,6 +38,15 @@ export const FoodList = {
         const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`)
         categories.value = res.data
         categories.value.shift()
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    const getAllCategory = async () => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/home/all-categories`)
+        allCates.value = res.data
+        allCates.value.shift()
       } catch (error) {
         console.error(error)
       }
@@ -173,6 +183,9 @@ export const FoodList = {
       getImageUrl,
       flatCategoryList,
       getImageMenuUrl,
+      getCategory,
+      getAllCategory,
+      allCates
     }
   },
 }

@@ -170,6 +170,8 @@
           <div class="row">
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
+              <h5 v-if="false">{{ foodDetail.category_id }}</h5>
+
               <div class="text-center mb-3">
                 <img
                   :src="getImageUrl(foodDetail.image)"
@@ -466,8 +468,8 @@ export default {
             toppings: allSelectedToppings,
             quantity: quantity.value,
             type: foodDetail.value.type,
+            category_id: foodDetail.value.category_id,
         };
-
         let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
         const existingItemIndex = cart.findIndex(
             (item) =>
