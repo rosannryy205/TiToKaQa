@@ -26,26 +26,29 @@ class AdminCategoryController extends Controller
     }
     public function index(Request $request)
     {
-        $query = Category::query();
+        $query = Category::with('parent'); // 👈 Load luôn quan hệ cha
 
         if ($request->search) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        if ($request->parent_id !== null) {
+        if ($request->filled('parent_id')) {
             $query->where('parent_id', $request->parent_id);
         }
 
-        // Ưu tiên danh mục cha (parent_id null), sau đó là con, rồi theo id tăng dần
-        $query->orderByRaw('CASE WHEN parent_id IS NULL THEN 0 ELSE 1 END')
-            ->orderBy('parent_id')
-            ->orderBy('id');
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Sắp xếp mới nhất trước
+        $query->orderByDesc('id');
 
         $perPage = $request->input('per_page', 10);
         $categories = $query->paginate($perPage);
 
         return response()->json($categories);
     }
+
 
 
 
@@ -90,36 +93,51 @@ class AdminCategoryController extends Controller
                 'parent_id' => 'nullable|exists:categories,id',
                 'images' => 'nullable|image|max:2048',
                 'default' => 'required|boolean',
-                // 2MB
+                'type' => 'required|in:food,topping',
+            ], [
+                'name.required' => 'Tên danh mục là bắt buộc.',
+                'name.max' => 'Tên danh mục không được vượt quá 255 ký tự.',
+                'parent_id.exists' => 'Danh mục cha không tồn tại.',
+                'default.required' => 'Trạng thái mặc định là bắt buộc.',
+                'default.boolean' => 'Trạng thái mặc định không hợp lệ.',
+                'images.image' => 'Ảnh phải là tệp hình ảnh.',
+                'images.max' => 'Ảnh không được vượt quá 2MB.',
+                'type.required' => 'Loại danh mục là bắt buộc.',
+                'type.in' => 'Loại danh mục không hợp lệ (chỉ food hoặc topping).',
             ]);
+
+            $imagePath = null;
+
+            if ($request->hasFile('images')) {
+                $image = $request->file('images');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/img/food/imgmenu', $imageName);
+                $imagePath = $imageName;
+            }
+
+            $category = Category::create([
+                'name' => $request->name,
+                'parent_id' => $request->parent_id,
+                'images' => $imagePath,
+                'default' => $request->default,
+                'type' => $request->type,
+            ]);
+
+            return response()->json([
+                'message' => 'Thêm danh mục thành công!',
+                'data' => $category
+            ], 201);
         } catch (ValidationException $e) {
             return response()->json([
-                'message' => 'Dữ liệu không hợp lệ',
+                'message' => 'Dữ liệu không hợp lệ.',
                 'errors' => $e->errors()
             ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi khi thêm danh mục.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $imagePath = null;
-
-        if ($request->hasFile('images')) {
-            $image = $request->file('images');
-            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/img/food/imgmenu', $imageName);
-            $imagePath = $imageName;
-        }
-
-        $category = Category::create([
-            'name' => $request->name,
-            'parent_id' => $request->parent_id,
-            'images' => $imagePath,
-            'default' => $request->default,
-
-        ]);
-
-        return response()->json([
-            'message' => 'Thêm danh mục thành công',
-            'data' => $category
-        ], 201);
     }
     /**
      * Display the specified resource.
@@ -154,47 +172,66 @@ class AdminCategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $category = Category::findOrFail($id);
+        try {
+            $category = Category::findOrFail($id);
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'parent_id' => 'nullable|exists:categories,id|not_in:' . $id, // tránh gán cha là chính nó
-            'default' => 'required|boolean',
-            'images' => 'nullable|image|max:2048', // giới hạn ảnh 2MB
-        ], [
-            'name.required' => 'Tên danh mục là bắt buộc.',
-            'name.max' => 'Tên danh mục không được vượt quá 255 ký tự.',
-            'parent_id.exists' => 'Danh mục cha không tồn tại.',
-            'parent_id.not_in' => 'Không thể chọn chính danh mục này làm danh mục cha.',
-            'default.required' => 'Trạng thái mặc định là bắt buộc.',
-            'default.boolean' => 'Trạng thái mặc định không hợp lệ.',
-            'images.image' => 'Ảnh phải là tệp hình ảnh.',
-            'images.max' => 'Ảnh không được vượt quá 2MB.',
-        ]);
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'parent_id' => 'nullable|exists:categories,id|not_in:' . $id,
+                'default' => 'required|boolean',
+                'images' => 'nullable|image|max:2048',
+                'type' => 'required|in:food,topping',
+            ], [
+                'name.required' => 'Tên danh mục là bắt buộc.',
+                'name.max' => 'Tên danh mục không được vượt quá 255 ký tự.',
+                'parent_id.exists' => 'Danh mục cha không tồn tại.',
+                'parent_id.not_in' => 'Không thể chọn chính danh mục này làm danh mục cha.',
+                'default.required' => 'Trạng thái mặc định là bắt buộc.',
+                'default.boolean' => 'Trạng thái mặc định không hợp lệ.',
+                'images.image' => 'Ảnh phải là tệp hình ảnh.',
+                'images.max' => 'Ảnh không được vượt quá 2MB.',
+                'type.required' => 'Loại danh mục là bắt buộc.',
+                'type.in' => 'Loại danh mục không hợp lệ (chỉ food hoặc topping).',
+            ]);
 
-        $category->name = $request->name;
-        $category->parent_id = $request->parent_id;
-        $category->default = $request->default;
+            $category->name = $request->name;
+            $category->parent_id = $request->parent_id;
+            $category->default = $request->default;
+            $category->type = $request->type;
 
-        // xử lý ảnh nếu có upload mới
-        if ($request->hasFile('images')) {
-            // xóa ảnh cũ nếu có
-            if ($category->images && Storage::exists('public/img/food/imgmenu/' . $category->images)) {
-                Storage::delete('public/img/food/imgmenu/' . $category->images);
+            // Nếu có ảnh mới, xử lý lưu và xóa ảnh cũ
+            if ($request->hasFile('images')) {
+                if ($category->images && Storage::exists('public/img/food/imgmenu/' . $category->images)) {
+                    Storage::delete('public/img/food/imgmenu/' . $category->images);
+                }
+
+                $image = $request->file('images');
+                $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/img/food/imgmenu', $imageName);
+                $category->images = $imageName;
             }
 
-            $image = $request->file('images');
-            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/img/food/imgmenu', $imageName);
-            $category->images = $imageName;
+            $category->save();
+
+            return response()->json([
+                'message' => 'Cập nhật danh mục thành công!',
+                'data' => $category
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Dữ liệu không hợp lệ.',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Danh mục không tồn tại.',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi khi cập nhật danh mục.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $category->save();
-
-        return response()->json([
-            'message' => 'Cập nhật danh mục thành công!',
-            'data' => $category
-        ]);
     }
 
 
