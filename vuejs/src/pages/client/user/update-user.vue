@@ -343,7 +343,6 @@ export default {
       const progress = form.value.rank_points - currentMin
       return Math.min(100, Math.round((progress / total) * 100))
     })
-
     //==================
     // Format point
     //==================
