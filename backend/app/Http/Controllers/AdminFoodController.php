@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Food;
+use App\Models\Topping;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -259,5 +260,37 @@ class AdminFoodController extends Controller
         $food->save();
 
         return response()->json(['message' => 'Cập nhật trạng thái thành công']);
+    }
+
+
+    public function getAlltopping()
+    {
+        $toppings = Topping::select('id', 'name', 'price')->get();
+        return response()->json($toppings);
+    }
+
+    public function getToppingForFood(Food $food)
+    {
+        $allToppings = Topping::select('id', 'name', 'price')->get();
+        $selectedIds = $food->toppings()->pluck('toppings.id'); // lấy danh sách id đã chọn
+
+        return response()->json([
+            'data' => $allToppings,
+            'selected_ids' => $selectedIds,
+        ]);
+    }
+
+    // POST: /api/admin/food/{food}/toppings
+    public function storeToppingForFood(Request $request, Food $food)
+    {
+        $validated = $request->validate([
+            'topping_ids' => 'required|array',
+            'topping_ids.*' => 'exists:toppings,id',
+        ]);
+
+        // Ghi lại topping (xoá cái cũ, thêm cái mới)
+        $food->toppings()->sync($validated['topping_ids']);
+
+        return response()->json(['message' => 'Cập nhật topping thành công']);
     }
 }
