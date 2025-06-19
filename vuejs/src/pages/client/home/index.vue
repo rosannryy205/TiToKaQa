@@ -193,7 +193,7 @@
   </section>
   <!-- modal food -->
   <div class="modal fade" id="productModal">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+ <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
           <button
@@ -205,6 +205,7 @@
           <div class="row">
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
+              <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
                 <img
                   :src="getImageUrl(foodDetail.image)"
@@ -242,7 +243,7 @@
                       <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
                     </div>
                   </div>
-                  <div v-else class="mt-5">
+                  <div v-else class="mt-5 none-topping">
                     <p class="text-center text-muted">Không có topping cho món này.</p>
                   </div>
                 </div>
@@ -483,6 +484,7 @@ export default {
             toppings: allSelectedToppings,
             quantity: quantity.value,
             type: foodDetail.value.type,
+            category_id: foodDetail.value.category_id
         };
 
         let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
