@@ -377,7 +377,7 @@ export default {
       try {
 
         if (!guest_name.value) {
-          alert('Vui lòng nhập đầy đủ thông tin khách hàng!')
+          toast.info('Vui lòng nhập đầy đủ thông tin khách hàng!')
           return
         }
         if (cartItems.value.length === 0) {
@@ -385,7 +385,7 @@ export default {
           return
         }
         if (!paymentMethod.value) {
-          toast.error('Vui lòng chọn phương thức thanh toán.')
+          toast.info('Vui lòng chọn phương thức thanh toán.')
           return;
         }
 

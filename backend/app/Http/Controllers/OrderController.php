@@ -460,6 +460,7 @@ class OrderController extends Controller
         if ($type === 'user') {
             $reservation = Order::with([
                 'details.foods',
+                'details.combos',
                 'details.toppings.food_toppings.toppings',
                 'tables'
             ])->where('user_id', $value)->orderBy('id', 'desc')->first();
@@ -479,24 +480,59 @@ class OrderController extends Controller
         }
 
         $details = $reservation->details->map(function ($detail) {
+            // $foodName = null;
+            // $image = null;
+            $image = null;
+            $item_id = null;
+            $nameKey = null;
+            $nameValue = null;
 
-            return [
+            if ($detail->type === 'food') {
+                $item_id = $detail->food_id;
+                $nameKey = 'food_name';
+                $nameValue = optional($detail->foods)->name;
+                $image = optional($detail->foods)->image;
+            } elseif ($detail->type === 'combo') {
+                $item_id = $detail->combo_id;
+                $nameKey = 'combo_name';
+                $nameValue = optional($detail->combos)->name;
+                $image = optional($detail->combos)->image;
+            }
+
+            // return [
+            //     'id' => $detail->id,
+            //     'food_id' => $detail->food_id,
+            //     'food_name' => $detail->foods->name ?? null,
+            //     'quantity' => $detail->quantity,
+            //     'price' => $detail->price,
+            //     'image' => $detail->foods->image ?? null,
+            //     'type' => $detail->type,
+
+            //     'toppings' => $detail->toppings->map(function ($toppings) {
+            //         return [
+            //             'food_toppings_id' => $toppings->food_toppings_id,
+            //             'topping_name' => $toppings->food_toppings->toppings->name ?? null,
+            //             'price' => $toppings->price
+            //         ];
+            //     })
+            // ];
+            return array_merge([
                 'id' => $detail->id,
-                'food_id' => $detail->food_id,
-                'food_name' => $detail->foods->name ?? null,
+                'item_id' => $item_id,
                 'quantity' => $detail->quantity,
                 'price' => $detail->price,
-                'image' => $detail->foods->image ?? null,
+                'image' => $image,
                 'type' => $detail->type,
-
                 'toppings' => $detail->toppings->map(function ($toppings) {
                     return [
                         'food_toppings_id' => $toppings->food_toppings_id,
-                        'topping_name' => $toppings->food_toppings->toppings->name ?? null,
+                        'topping_name' => optional(optional($toppings->food_toppings)->toppings)->name,
                         'price' => $toppings->price
                     ];
                 })
-            ];
+            ], [
+                $nameKey => $nameValue // thêm key động: 'food_name' hoặc 'combo_name'
+            ]);
         });
 
         $tables = $reservation->tables->map(function ($table) {
