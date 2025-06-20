@@ -67,6 +67,12 @@ const admin = [
         meta: { requiresAdmin: true },
       },
       {
+        path: 'tables/insert-reservation',
+        name: 'insert-reservation-admin',
+        component: () => import('../pages/admin/Tables/insert.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
         path: "orders/orders-detail/:id",
         name: "admin-orders-detail",
         component: () => import("../pages/admin/Orders/orders-detail.vue"),
@@ -102,6 +108,24 @@ const admin = [
         component: () => import("../pages/admin/Users/role.vue"),
         meta: { requiresAdmin: true },
       },
+      {
+        path: "users/list-permission",
+        name: "users-list-permission",
+        component: () => import("../pages/admin/Users/permission.vue"),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: "users/chat",
+        name: "users-list-permission",
+        component: () => import("../pages/admin/Users/chatbot.vue"),
+        meta: { requiresAdmin: true },
+      },
+      // {
+      //   path: "users/chat1",
+      //   name: "users-list-permission",
+      //   component: () => import("../pages/admin/Users/cccc.vue"),
+      //   meta: { requiresAdmin: true },
+      // },
       {
         path: "users/list-role-detail/:id",
         name: "users-list-role-detail",
@@ -155,12 +179,7 @@ const admin = [
         name: "update-food-category",
         component: () => import("../pages/admin/Categories/update.vue")
       },
-      {
-        path: 'insert-reservation',
-        name: 'insert-reservation-admin',
-        component: () => import('../pages/admin/Tables/insert.vue'),
-        meta: { requiresAdmin: true },
-      },
+
       {
         path: 'insert-combo',
         name: 'insert-combo',

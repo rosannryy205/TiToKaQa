@@ -132,7 +132,7 @@ class OrderController extends Controller
             $validator = FacadesValidator::make($request->all(), [
                 'guest_count' => 'required|integer|min:1',
                 'guest_name' => 'required|string',
-                'guest_phone' => 'required|integer',
+                'guest_phone' => 'required|numeric',
                 'reserved_from' => 'required|date',
                 'table_ids' => 'required|array|min:1',
                 'table_ids.*' => 'integer|exists:tables,id',

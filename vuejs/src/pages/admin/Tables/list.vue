@@ -2,15 +2,19 @@
   <div>
     <div v-if="isLoading || isLoadingPermissions" class="isLoading-overlay">
       <div class="spinner-border text-danger" role="status">
-        <span class="visually-hidden">Đang tải...</span>
       </div>
     </div>
 
     <div class="main-layout">
       <div class="main-content">
         <h2>Danh sách bàn</h2>
+
+
         <template v-if="hasPermission('view_table')">
           <div class="table-filter-box">
+            <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">+ Thêm
+              Bàn
+              Mới</button>
             <div>
               <input type="date" class="form-control rounded" v-model="date" :min="today" @change="getTable" />
             </div>
@@ -24,14 +28,23 @@
               </select>
             </div>
 
+            <div class="filter-status-select">
+              <select class="form-control rounded" v-model="itemsPerPageUserSelected" @change="currentPage.tables = 1"
+                style="max-width: 109px;">
+                <option value="14">Hiển thị</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+              </select>
+
+            </div>
             <div class="table-status-box">
               <strong>Trạng thái:</strong>
               <div class="status-item"><span class="status-dot billed"></span>Đã đặt trước</div>
               <div class="status-item"><span class="status-dot reservation"></span>Đang phục vụ</div>
               <div class="status-item"><span class="status-dot vacant"></span>Bàn trống</div>
             </div>
-            <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">Thêm Bàn
-              Mới</button>
+
           </div>
 
           <hr />
@@ -330,14 +343,13 @@
 </template>
 
 <script>
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
-import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import { toast } from 'vue3-toastify'
 import draggable from 'vuedraggable'
-
 import { Permission } from '@/stores/permission'
 import { Info } from '@/stores/info-order-reservation'
+import { useRoute } from 'vue-router'
 
 export default {
   components: {
@@ -354,6 +366,7 @@ export default {
     }
     const { hasPermission, permissions, isLoadingPermissions } = Permission(userId)
     const allTables = ref([])
+    const itemCount = allTables.value.length;
     const route = useRoute()
     const orderId = route.params.orderId
     const selectedTableId = ref(null)
@@ -367,29 +380,51 @@ export default {
     const filterStatus = ref('')
     const isLoading = ref(false)
     const tableOrder = ref([])
-    const currentPage = ref(1)
+    const currentPage = ref({ tables: 1 })
     const isMobileView = ref(window.innerWidth <= 768)
-    const dynamicItemsPerPageTable = computed(() => {
+
+    const itemsPerPageUserSelected = ref(null)
+
+    const dynamicDefaultItemsPerPage = computed(() => {
       return isMobileView.value ? 9 : 14
     })
+
+    const dynamicItemsPerPageTable = computed(() => {
+      return itemsPerPageUserSelected.value != null ? itemsPerPageUserSelected.value : dynamicDefaultItemsPerPage.value
+    })
+
+
     const { formatTime, formatDate, formatNumber, info, getInfo } = Info.setup()
 
     const updateView = () => {
       isMobileView.value = window.innerWidth <= 768
+      if (itemsPerPageUserSelected.value === null) {
+        currentPage.value.tables = 1;
+      }
     }
 
+    onMounted(() => {
+      window.addEventListener('resize', updateView)
+      if (!itemsPerPageUserSelected.value) {
+        itemsPerPageUserSelected.value = dynamicDefaultItemsPerPage.value
+      }
+      getTable()
+    })
+
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', updateView)
+    })
 
     const totalPagesTables = computed(() => {
       return Math.ceil(allTables.value.length / dynamicItemsPerPageTable.value)
     })
 
-
     const paginatedTables = computed(() => {
-      const start = (currentPage.value - 1) * dynamicItemsPerPageTable.value
+      const start = (currentPage.value.tables - 1) * dynamicItemsPerPageTable.value
       const end = start + dynamicItemsPerPageTable.value
       return allTables.value.slice(start, end)
     })
-
 
     const displayTables = computed(() => paginatedTables.value)
 
@@ -400,7 +435,6 @@ export default {
       hasBookingHistory.value = false
       tableOrder.value = []
     }
-
 
     const getTable = async () => {
       if (!hasPermission('view_table')) {
@@ -419,7 +453,9 @@ export default {
         allTables.value = res.data.tables.map((table) => ({
           ...table,
         }))
-        currentPage.value = 1
+
+        currentPage.value.tables = 1
+
       } catch (error) {
         console.error('Lỗi khi tải danh sách bàn:', error)
         toast.error('Lỗi khi tải danh sách bàn.')
@@ -428,13 +464,11 @@ export default {
       }
     }
 
-
     const goToPage = (page) => {
       if (page >= 1 && page <= totalPagesTables.value) {
-        currentPage.value = page
+        currentPage.value.tables = page
       }
     }
-
 
     const getChairCount = (seats) => {
       if (seats <= 2) return 1
@@ -461,7 +495,6 @@ export default {
       }
     }
 
-
     const toggleSidebar = () => {
       if (!isSidebarOpen.value && !(hasPermission('create_table') || hasPermission('edit_table'))) {
         toast.warn('Bạn không có quyền thêm hoặc sửa bàn.')
@@ -473,7 +506,6 @@ export default {
         selectedTableId.value = null
       }
     }
-
 
     const addNewTable = async (table_id) => {
       if (!table_id && !hasPermission('create_table')) {
@@ -525,7 +557,6 @@ export default {
       }
     }
 
-
     const onNewTableDragEnd = async (event) => {
       if (!hasPermission('create_table')) {
         toast.error('Bạn không có quyền thêm bàn mới bằng cách kéo thả.')
@@ -538,7 +569,6 @@ export default {
         }
       }
     }
-
 
     const onTableAddedFromSidebar = async (event) => {
       if (!hasPermission('create_table')) {
@@ -579,11 +609,11 @@ export default {
         } else {
           toast.error('Có lỗi xảy ra khi thêm bàn.')
         }
+        allTables.value.splice(event.newIndex, 1)
       } finally {
         isLoading.value = false
       }
     }
-
 
     const deleteTable = async (table_id) => {
       if (!hasPermission('delete_table')) {
@@ -604,7 +634,6 @@ export default {
       }
     }
 
-
     const loadTable = async (id) => {
       if (!hasPermission('edit_table')) {
         toast.error('Bạn không có quyền sửa bàn.')
@@ -624,16 +653,21 @@ export default {
           hasBookingHistory.value = selected.has_booking_history
           updateNewTablePreview()
 
-          const res = await axios.get(`http://127.0.0.1:8000/api/get-orders-tables/${selected.id}`)
-          tableOrder.value = res.data.data.reservations
+          try {
+            const res = await axios.get(`http://127.0.0.1:8000/api/get-orders-tables/${selected.id}`)
+            tableOrder.value = res.data.data.reservations
+          } catch (error) {
+            console.error('Lỗi khi lấy thông tin đặt bàn:', error)
+            toast.error('Không thể tải thông tin đặt bàn.')
+            tableOrder.value = []
+          }
+
           if (!isSidebarOpen.value) {
             toggleSidebar();
           }
-
         }
       }
     }
-
 
     const updateNewTablePreview = () => {
       if (table_number.value && parseInt(capacity.value) > 0) {
@@ -649,7 +683,6 @@ export default {
       }
     }
 
-
     const showDetailPopup = ref(false)
 
     const getInfoDetail = async (id) => {
@@ -658,11 +691,9 @@ export default {
       toggleSidebar()
     }
 
-
     const closeDetailPopup = () => {
       showDetailPopup.value = false
     }
-
 
     const calculateTotalItemPrice = (item) => {
       const basePrice = item.price * item.quantity
@@ -670,7 +701,6 @@ export default {
         (item.toppings?.reduce((sum, topping) => sum + Number(topping.price), 0) || 0) * item.quantity
       return basePrice + toppingTotal
     }
-
 
     const updateStatus = async (id, status) => {
       try {
@@ -688,7 +718,6 @@ export default {
         console.log(error)
       }
     }
-
 
     const canSelectStatus = (currentStatus, optionStatus) => {
       const statusOrder = [
@@ -716,26 +745,14 @@ export default {
       return false
     }
 
-    // const statusMessage = ref('')
-    // const statusType = ref('')
-    // let timeoutId = null;
-
-
-    // function showStatusMessage(message, type) {
-    //   statusMessage.value = message;
-    //   statusType.value = type;
-    //   if (timeoutId) clearTimeout(timeoutId);
-    //   timeoutId = setTimeout(() => {
-    //     statusMessage.value = '';
-    //     statusType.value = '';
-    //   }, 3000);
-    // }
-
     watch(permissions, (newPermissions) => {
       if (newPermissions.length > 0 && !isLoadingPermissions.value) {
         getTable();
+        console.log(itemCount.value);
+
       } else if (newPermissions.length === 0 && !isLoadingPermissions.value) {
         getTable();
+
       }
     }, { immediate: true });
 
@@ -786,7 +803,9 @@ export default {
       formatDate,
       calculateTotalItemPrice,
       hasBookingHistory,
-      // showStatusMessage, timeoutId, statusType, statusMessage
+      itemsPerPageUserSelected,
+      dynamicDefaultItemsPerPage,
+      itemCount
     }
   }
 }
@@ -974,6 +993,31 @@ a {
   border: 1px solid #c92c3c;
 }
 
+.uniform-input {
+  height: 33px !important;
+  padding: 6px 12px !important;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.custom-input,
+.custom-select {
+  border: 1px solid #bbb;
+  padding: 2px 6px;
+  height: 28px;
+  font-size: 13px;
+  border-radius: 4px;
+  outline: none;
+  box-shadow: none !important;
+  transition: border-color 0.3s ease;
+}
+
+.custom-input:focus,
+.custom-select:focus {
+  border-color: #999;
+  box-shadow: none;
+}
+
 .delete-button:hover {
   background-color: #c92c3c;
   color: white;
@@ -1026,7 +1070,6 @@ a {
 }
 
 h2 {
-  margin-bottom: 1.5rem;
   font-size: 2rem;
 }
 
@@ -1088,7 +1131,7 @@ h2 {
   border: 1px solid #eee;
   border-radius: 8px;
   align-items: start;
-  min-height: 300px;
+  height: 350px;
 }
 
 /* --- Individual Table Block Styles --- */
@@ -1381,6 +1424,8 @@ h2 {
     grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr));
     gap: 15px;
     max-width: 720px;
+    height: 420px;
+
   }
 
   .add-table-sidebar {
@@ -1437,6 +1482,12 @@ h2 {
     font-size: 1.3rem;
   }
 
+  /* .form-control{
+  max-width: 350px;
+}
+.btn{
+  max-width: 350px;
+} */
   .table-filter-box {
     gap: 8px;
   }
@@ -1453,6 +1504,8 @@ h2 {
     gap: 10px;
     padding: 5px;
     max-width: 380px;
+    height: 450px;
+
   }
 
   .table-block {
