@@ -19,7 +19,16 @@
       <option value="10">10</option>
       <option value="15">15</option>
     </select>
+
+    <span class="vd">Loại danh mục</span>
+    <select v-model="selectedType" class="custom-select">
+      <option value="">Tất cả</option>
+      <option value="food">Món ăn</option>
+      <option value="topping">Topping</option>
+    </select>
+
   </div>
+
 
   <!-- Desktop Table -->
   <div class="table-responsive d-none d-lg-block">
@@ -31,54 +40,39 @@
           <th>Tên</th>
           <th>Hình ảnh</th>
           <th>Danh mục cha</th>
+          <th>Loại</th>
           <th>Tuỳ chọn</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="categories.length === 0">
-          <td colspan="5" class="text-center text-muted">Không có danh mục nào.</td>
+          <td colspan="7" class="text-center align-middle text-muted">Không có danh mục nào.</td>
         </tr>
-        <template v-for="(item, index) in categories" :key="item.id">
-          <tr>
-            <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td>
-            <td>{{ index + 1 }}</td>
-            <td>{{ item.name }}</td>
-            <td>
-              <img class="me-2 img_thumbnail"
-                :src="item.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + item.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
-                :alt="item.name">
-            </td>
 
-            <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
-            <td class="d-flex justify-content-center gap-2 flex-wrap">
-              <router-link :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-outline btn-sm">
-                Sửa
-              </router-link>
+
+        <tr v-for="(item, index) in categories" :key="item.id">
+          <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td>
+          <td>{{ index + 1 }}</td>
+          <td>{{ item.name }}</td>
+          <td>
+            <img class="me-2 img_thumbnail"
+              :src="item.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + item.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
+              :alt="item.name">
+          </td>
+          <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
+          <td>{{ item.type === 'food' ? 'Món ăn' : 'Topping' }}</td>
+
+          <td class="d-flex justify-content-center gap-2 "
+            style="min-height:100px; min-width: 80px; display: flex; align-items: center; justify-content: center;">
+            <router-link v-if="item.id !== 1" :to="{ name: 'update-food-category', params: { id: item.id } }"
+              class="btn btn-outline btn-sm">
+              Sửa
+            </router-link>
+            <div v-if="item.default === 0">
               <button class="btn btn-danger-delete btn-sm" @click="handleDelete(item.id)">Xoá</button>
-
-            </td>
-          </tr>
-          <tr v-for="(child, childIndex) in item.children" :key="child.id">
-            <td><input type="checkbox" :value="child.id" v-model="selectedIds" /></td>
-            <td>{{ index + 1 }}.{{ childIndex + 1 }}</td>
-
-            <td>{{ child.name }}</td>
-            <td>
-              <img class="me-2 img_thumbnail"
-                :src="child.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + child.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
-                :alt="child.name">
-            </td>
-
-            <td>{{ item.name }}</td>
-            <td class="d-flex justify-content-center gap-2 flex-wrap">
-              <router-link :to="{ name: 'update-food-category', params: { id: child.id } }" class="btn btn-outline btn-sm">
-                Sửa
-              </router-link>
-              <button class="btn btn-danger-delete btn-sm" @click="handleDelete(child.id)">Xoá</button>
-
-            </td>
-          </tr>
-        </template>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -99,7 +93,8 @@
   </nav>
 
   <div class="mt-2 d-flex justify-content-start">
-    <button class="btn btn-danger-delete delete_desktop" @click="handleDeleteSelected" :disabled="selectedIds.length === 0">
+    <button class="btn btn-danger-delete delete_desktop" @click="handleDeleteSelected"
+      :disabled="selectedIds.length === 0">
       Xoá đã chọn ({{ selectedIds.length }})
     </button>
   </div>
@@ -144,49 +139,47 @@ export default {
     const selectedParent = ref('')
     const searchKeyword = ref('')
     const selectedIds = ref([])
-    const isLoading = ref(true) 
+    const selectedType = ref('')
+    const isLoading = ref(true)
 
 
     const fetchCategories = async () => {
       try {
+        const params = {
+          per_page: perPage.value,
+          page: currentPage.value,
+          search: searchKeyword.value,
+          parent_id: selectedParent.value
+        };
+
+        if (selectedType.value) {
+          params.type = selectedType.value;
+        }
+
         const response = await axios.get('http://127.0.0.1:8000/api/admin/categories/list', {
-          params: {
-            per_page: perPage.value,
-            page: currentPage.value,
-            search: searchKeyword.value,
-            parent_id: selectedParent.value
-          },
+          params,
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
-        })
+        });
 
-        let fetchedCategories = response.data.data
+        const fetched = response.data.data;
 
-        if (selectedParent.value) {
-          const parentItem = fetchedCategories.find(item => item.id == selectedParent.value)
+        const flatList = fetched.map(item => ({
+          ...item,
+          parent_name: item.parent?.name || null // 👈 gán tên danh mục cha nếu có
+        }));
 
-          // Nếu có children thì gán thêm parent_name vào từng child
-          if (parentItem && parentItem.children?.length > 0) {
-            const childrenWithParent = parentItem.children.map(child => ({
-              ...child,
-              parent_name: parentItem.name  // gán tên cha vào
-            }))
-            categories.value = childrenWithParent
-          } else {
-            categories.value = []
-          }
-        } else {
-          // Trường hợp không lọc => dùng nguyên data (cha + children)
-          categories.value = fetchedCategories
-        }
+        categories.value = flatList;
+        totalPages.value = response.data.last_page;
+        currentPage.value = response.data.current_page;
 
-        totalPages.value = response.data.last_page
-        currentPage.value = response.data.current_page
       } catch (error) {
-        console.error('Lỗi khi load danh mục:', error)
+        console.error('Lỗi khi load danh mục:', error);
       }
-    }
+    };
+
+
 
     const fetchAllParents = async () => {
       try {
@@ -325,6 +318,12 @@ export default {
       fetchCategories()
     })
 
+    watch(selectedType, (val) => {
+      console.log('Type được chọn:', val);
+      currentPage.value = 1
+      fetchCategories()
+    })
+
     return {
       categories,
       allCategories,
@@ -335,6 +334,7 @@ export default {
       searchKeyword,
       selectedIds,
       isAllSelected,
+      selectedType,
       goToPage,
       changePerPage,
       handleDelete,
@@ -406,6 +406,7 @@ export default {
   background-color: #eee;
   color: #333;
 }
+
 .btn-add {
   background: none;
   color: #c92c3c;
@@ -433,6 +434,8 @@ export default {
   background-color: #ab9c00;
   color: #fff;
 }
+
+
 
 .btn-outline {
   background: none;

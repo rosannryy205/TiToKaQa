@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table){
             $table->id();
             $table->string('name');
+            $table->enum('type', ['food', 'topping']);
             $table->foreignId('parent_id')->nullable()->references('id')->on('categories');
             $table->string('images')->nullable();
             $table->boolean('default')->default(false);

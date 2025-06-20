@@ -1,3 +1,5 @@
+
+
 const client = [
   {
     path: '/',
@@ -68,48 +70,6 @@ const client = [
         component: () => import('../pages/client/food/index.vue'),
       },
       {
-        path: 'update-user',
-        name: 'update-user',
-        component: () => import('../pages/client/user/update-user.vue'),
-        meta: { title: 'Cập nhật thông tin' },
-      },
-      {
-        path: 'coins-reward',
-        name: 'coins-reward',
-        component: () => import('../pages/client/user/coins-reward.vue'),
-        meta: { title: 'Trang chủ' },
-      },
-      {
-        path: 'discount-management',
-        name: 'discount-management',
-        component: () => import('../pages/client/user/discount-management.vue'),
-        meta: { title: 'Trang chủ' },
-      },
-      {
-        path: 'order-management',
-        name: 'order-management',
-        component: () => import('../pages/client/user/order-management.vue'),
-        meta: { title: 'Quản lý đơn hàng' },
-      },
-      {
-        path: 'history-order',
-        name: 'history-order',
-        component: () => import('../pages/client/user/history-order.vue'),
-        meta: { title: 'Lịch sử đơn hàng' },
-      },
-      {
-        path: 'history-order-detail/:id',
-        name: 'history-order-detail',
-        component: () => import('../pages/client/user/history-order-detail.vue'),
-        meta: { title: 'Chi tiết đơn hàng' },
-      },
-      {
-        path: 'delivery/:id',
-        name: 'delivery',
-        component: () => import('../pages/client/user/delivery.vue'),
-        meta: { title: 'Theo dõi đơn hàng' },
-      },
-      {
         path: 'payment-result',
         name: 'payment-result',
         component: () => import('@/pages/client/cart/payment-result.vue'),
@@ -131,6 +91,56 @@ const client = [
       {
         path: '/verify',
         component: () => import('../pages/client/login/verify.vue'),
+      },
+      {
+        path: 'account',
+        component: () => import('../components/AccountLayout/SidebarAccount.vue'),
+        redirect: { name: 'update-user' },
+        children: [
+          {
+            path: 'update-user',
+            name: 'update-user',
+            component: () => import('../pages/client/user/update-user.vue'),
+            meta: { title: 'Cập nhật thông tin' },
+          },
+          {
+            path: 'coins-reward',
+            name: 'coins-reward',
+            component: () => import('../pages/client/user/coins-reward.vue'),
+            meta: { title: 'Trang chủ' },
+          },
+          {
+            path: 'discount-management',
+            name: 'discount-management',
+            component: () => import('../pages/client/user/discount-management.vue'),
+            meta: { title: 'Trang chủ' },
+          },
+          {
+            path: 'order-management',
+            name: 'order-management',
+            component: () => import('../pages/client/user/order-management.vue'),
+            meta: { title: 'Quản lý đơn hàng' },
+          },
+          {
+            path: 'history-order',
+            name: 'history-order',
+            component: () => import('../pages/client/user/history-order.vue'),
+            meta: { title: 'Lịch sử đơn hàng' },
+          },
+
+        ]
+      },
+      {
+        path: 'history-order-detail/:id',
+        name: 'history-order-detail',
+        component: () => import('../pages/client/user/history-order-detail.vue'),
+        meta: { title: 'Chi tiết đơn hàng' },
+      },
+      {
+        path: 'delivery/:id',
+        name: 'delivery',
+        component: () => import('../pages/client/user/delivery.vue'),
+        meta: { title: 'Theo dõi đơn hàng' },
       },
     ],
   },

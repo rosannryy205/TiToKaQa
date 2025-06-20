@@ -20,21 +20,31 @@
             <div class="mb-3">
               <label class="form-label">Danh mục cha</label>
               <div class="input-group">
-                <select class="form-select rounded-0" v-model="parentId">
+                <select class="form-select rounded-0" v-model="parentId" :disabled="isDefault == 1">
                   <option value="">-- Không --</option>
                   <option v-for="cat in allParents" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                 </select>
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Làm danh mục mặc định</label>
+              <label class="form-label">Đặt làm danh mục mặc định</label>
               <div class="input-group">
                 <select class="form-select rounded-0" v-model="isDefault">
-                  <option :value="true">Có</option>
-                  <option :value="false">Không</option>
+                  <option :value="1">Có</option>
+                  <option :value="0">Không</option>
                 </select>
               </div>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Loại danh mục <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <select class="form-select rounded-0" v-model="categoryType">
+                  <option value="food">Món ăn</option>
+                  <option value="topping">Topping</option>
+                </select>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -64,16 +74,18 @@
 <script>
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 
 export default {
   setup() {
     const name = ref('')
     const parentId = ref('')
-    const isDefault = ref(false)
+    const isDefault = ref(0)
     const image = ref(null)
     const previewImage = ref(null)
     const allParents = ref([])
+    const categoryType = ref('food')
+
 
     const fetchParents = async () => {
       try {
@@ -120,6 +132,7 @@ export default {
       if (image.value) formData.append('images', image.value)
       formData.append('default', isDefault.value ? 1 : 0)
       console.log(formData)
+      formData.append('type', categoryType.value)
 
       try {
         await axios.post('http://127.0.0.1:8000/api/admin/categories', formData, {
@@ -129,15 +142,7 @@ export default {
           }
         })
 
-        Swal.fire({
-          icon: 'success',
-          title: 'Thành công',
-          text: 'Thêm danh mục thành công!',
-          toast: true,
-          timer: 3000,
-          position: 'top-end',
-          showConfirmButton: false,
-        })
+        showToast('Thêm danh mục thành công!')
 
       } catch (error) {
         console.log('Error:', error.response);
@@ -173,14 +178,27 @@ export default {
 
     }
 
+    watch(isDefault, (newVal) => {
+      if (parseInt(newVal) === 1) {
+        parentId.value = ''
+      }
+    })
+
 
     onMounted(() => {
       fetchParents()
     })
 
     return {
-      name, parentId, isDefault, image, previewImage, allParents,
-      handleImageChange, addCategory,
+      name,
+      parentId,
+      isDefault,
+      image,
+      previewImage,
+      allParents,
+      categoryType,
+      handleImageChange,
+      addCategory,
     }
   }
 }
@@ -190,6 +208,7 @@ export default {
 .themsp {
   width: 200px;
 }
+
 .btn-danger-delete {
   background: none;
   color: #c92c3c;
