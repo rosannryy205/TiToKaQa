@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('fullname')->nullable();
             $table->integer('rank_points')->default(0);
             $table->integer('usable_points')->default(0);
-            $table->string('rank')->default('Bạc');
+            $table->string('rank')->default('Chưa có hạng');
             $table->integer('verify_code')->nullable();
             $table->timestamp('verify_expiry')->nullable()->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->enum('status', ['Active', 'Block']) -> default('Active');
