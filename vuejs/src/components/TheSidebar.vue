@@ -184,13 +184,7 @@ const menuItems = [
         icon: AppstoreOutlined,
         permission: 'view_category',
       },
-      {
-        key: '/admin/insert-food-category', // Đổi key/to cho rõ ràng
-        to: '/admin/insert-food-category',
-        label: 'Thêm DM món ăn',
-        icon: FileAddOutlined,
-        permission: 'create_category',
-      },
+
       {
         key: '/admin/options/category-options',
         to: '/admin/options/category-options',
@@ -198,13 +192,7 @@ const menuItems = [
         icon: AppstoreOutlined,
         permission: 'view_topping', // Quyền xem topping category
       },
-      {
-        key: '/admin/insert-topping-category', // Đổi key/to cho rõ ràng
-        to: '/admin/insert-topping-category',
-        label: 'Thêm DM topping',
-        icon: FileAddOutlined,
-        permission: 'create_topping', // Quyền tạo topping category
-      },
+
     ],
   },
   {
@@ -220,13 +208,7 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_food',
       },
-      {
-        key: '/admin/insert-food',
-        to: '/admin/insert-food',
-        label: 'Thêm món ăn',
-        icon: FileAddOutlined,
-        permission: 'create_food',
-      },
+
     ],
   },
   {
@@ -242,13 +224,7 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_combo',
       },
-      {
-        key: '/admin/insert-combo',
-        to: '/admin/insert-combo',
-        label: 'Thêm combo',
-        icon: FileAddOutlined,
-        permission: 'create_combo',
-      },
+
     ],
   },
   {
@@ -264,13 +240,7 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_topping',
       },
-      {
-        key: '/admin/insert-topping', // Đổi key/to cho rõ ràng
-        to: '/admin/insert-topping',
-        label: 'Thêm topping',
-        icon: FileAddOutlined,
-        permission: 'create_topping',
-      },
+
     ],
   },
   {
@@ -323,8 +293,8 @@ const menuItems = [
         permission: 'view_booking',
       },
       {
-        key: '/admin/insert-reservation', // Đã thêm /admin/
-        to: '/admin/insert-reservation',
+        key: '/admin/tables/insert-reservation', // Đã thêm /admin/
+        to: '/admin/tables/insert-reservation',
         label: 'Thêm đơn đặt bàn',
         icon: FileAddOutlined,
         permission: 'create_booking',
@@ -366,13 +336,7 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_employee',
       },
-      // {
-      //   key: '/admin/employees/insert', // Đổi key/to để phù hợp
-      //   to: '/admin/employees/insert',
-      //   label: 'Thêm nhân viên',
-      //   icon: FileAddOutlined,
-      //   permission: 'create_employee',
-      // },
+
     ],
   },
   {
@@ -389,12 +353,13 @@ const menuItems = [
         permission: 'view_customer',
       },
       {
-        key: '/admin/customers/insert', // Thêm mục để tạo khách hàng
-        to: '/admin/customers/insert',
-        label: 'Thêm khách hàng',
-        icon: FileAddOutlined,
-        permission: 'create_customer',
+        key: '/admin/users/chat', // Đổi key/to để phù hợp
+        to: '/admin/users/chat',
+        label: 'Chat',
+        icon: UnorderedListOutlined,
+        permission: 'view_customer',
       },
+
     ],
   },
 ]
