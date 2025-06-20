@@ -1,58 +1,4 @@
 <template>
-  <div v-if="loading" class="d-flex justify-content-center align-items-center" style="min-height: 50vh">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
-
-  <div v-else class="container mt-5 fade-in">
-    <div class="row g-4">
-      <!-- Sidebar -->
-      <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0">
-        <div class="card shadow border-0 h-100 text-center py-4 px-3">
-          <div class="d-flex flex-column flex-md-row align-items-center mb-3">
-            <template v-if="avatarUrl">
-              <img :src="avatarUrl" alt="Avatar" class="avatar-circle" />
-            </template>
-            <template v-else>
-              <div class="avatar-circle border-custom d-flex justify-content-center align-items-center">
-                {{ getInitial(form?.fullname) || getInitial(form?.username) }}
-              </div>
-            </template>
-
-            <div class="ms-md-4 mt-3 mt-md-0 text-center text-md-start">
-              <h6 class="fw-bold mb-2">{{ form.fullname || form.username }}</h6>
-              <a href="#" @click="handleLogout"
-                class="list-group-item-action link-danger small d-flex align-items-center justify-content-center justify-content-md-start gap-1 mt-2">
-                <i class="bi bi-box-arrow-right"></i> Đăng xuất
-              </a>
-            </div>
-          </div>
-
-          <ul class="list-group list-group-flush">
-            <router-link to="/update-user" class="text-decoration-none text-dark">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <div class="fw-bold">Thông tin tài khoản</div>
-                  <div class="small text-muted">Cập nhật thông tin</div>
-                </div>
-                <i class="bi bi-chevron-right text-secondary"></i>
-              </li>
-            </router-link>
-
-            <router-link to="/order-management" class="text-decoration-none text-dark">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <div class="fw-bold text-danger">Quản lý đơn hàng</div>
-                  <div class="small text-muted">Đơn hàng của tôi</div>
-                </div>
-                <i class="bi bi-chevron-right text-secondary"></i>
-              </li>
-            </router-link>
-          </ul>
-        </div>
-      </div>
-
       <!-- Main Content -->
       <div class="col-12 col-md-8 col-lg-9">
         <h4 class="fw-bold mb-4">Đơn hàng của tôi</h4>
@@ -126,8 +72,6 @@
           <p class="text-muted mt-3">Bạn chưa có đơn hàng nào.</p>
         </div>
       </div>
-    </div>
-  </div>
 </template>
 <script>
 import { User } from "@/stores/user";

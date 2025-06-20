@@ -7,41 +7,76 @@
 
   <div class="container-sm py-4">
     <div class="row gx-5">
-      <!-- Customer Info -->
+      <!---->
       <div class="col-md-7">
         <div class="p-4 border rounded shadow-sm bg-white">
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
             <div class="mb-3">
-              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn" />
+              <input
+                v-model="form.fullname"
+                type="text"
+                class="form-control-customer"
+                placeholder="Tên của bạn"
+              />
             </div>
             <div class="mb-3">
-              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn" />
+              <input
+                v-model="form.email"
+                type="email"
+                class="form-control-customer"
+                placeholder="Email của bạn"
+              />
             </div>
             <div class="mb-3">
-              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại" />
+              <input
+                v-model="form.phone"
+                type="text"
+                class="form-control-customer"
+                placeholder="Số điện thoại"
+              />
             </div>
             <div class="mb-3">
-              <select v-model="selectedProvince" @change="fetchDistricts" class="form-control-customer">
+              <select
+                v-model="selectedProvince"
+                @change="fetchDistricts"
+                class="form-control-customer"
+              >
                 <option value="">Chọn tỉnh / thành</option>
-                <option v-for="province in provinces" :key="province.ProvinceID" :value="province.ProvinceID">
+                <option
+                  v-for="province in provinces"
+                  :key="province.ProvinceID"
+                  :value="province.ProvinceID"
+                >
                   {{ province.ProvinceName }}
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <select v-model="selectedDistrict" @change="fetchWards" :disabled="!selectedProvince"
-                class="form-control-customer">
+              <select
+                v-model="selectedDistrict"
+                @change="fetchWards"
+                :disabled="!selectedProvince"
+                class="form-control-customer"
+              >
                 <option value="">Chọn quận / huyện</option>
-                <option v-for="district in districts" :key="district.DistrictID" :value="district.DistrictID">
+                <option
+                  v-for="district in districts"
+                  :key="district.DistrictID"
+                  :value="district.DistrictID"
+                >
                   {{ district.DistrictName }}
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <select v-model="selectedWard" :disabled="!selectedDistrict" class="form-control-customer">
+              <select
+                v-model="selectedWard"
+                :disabled="!selectedDistrict"
+                class="form-control-customer"
+              >
                 <option value="">Chọn phường / xã</option>
                 <option v-for="ward in wards" :key="ward.WardCode" :value="ward.WardCode">
                   {{ ward.WardName }}
@@ -50,10 +85,20 @@
             </div>
 
             <div class="mb-3">
-              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ" />
+              <input
+                v-model="form.address"
+                type="text"
+                class="form-control-customer"
+                placeholder="Địa chỉ"
+              />
             </div>
             <div class="mb-3">
-              <textarea v-model="note" class="form-control-customer" rows="3" placeholder="Ghi chú"></textarea>
+              <textarea
+                v-model="note"
+                class="form-control-customer"
+                rows="3"
+                placeholder="Ghi chú"
+              ></textarea>
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <router-link to="/cart" class="btn btn-outline-secondary">
@@ -74,7 +119,13 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
+              <img
+                :src="getImageUrl(item.image)"
+                alt=""
+                class="me-3 rounded"
+                width="80"
+                height="80"
+              />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>Loại: {{ item.type }}</div>
@@ -102,10 +153,16 @@
           <div class="d-flex justify-content-between mb-2">
             <span>Phí ship</span>{{ formatNumber(shippingFee) }} VNĐ
           </div>
-          <div v-if="discountFoodAmount > 0" class="d-flex justify-content-between mb-2 text-success">
+          <div
+            v-if="discountFoodAmount > 0"
+            class="d-flex justify-content-between mb-2 text-success"
+          >
             <span>Giảm giá sản phẩm</span> -{{ formatNumber(discountFoodAmount) }} VNĐ
           </div>
-          <div v-if="discountShipAmount > 0" class="d-flex justify-content-between mb-2 text-success">
+          <div
+            v-if="discountShipAmount > 0"
+            class="d-flex justify-content-between mb-2 text-success"
+          >
             <span>Giảm giá phí ship</span> -{{ formatNumber(discountShipAmount) }} VNĐ
           </div>
           <div style="color: #c92c3c" class="d-flex justify-content-between mb-2 fw-bold">
@@ -124,49 +181,73 @@
             </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input v-model="discountInput" type="text" id="discount" class="form-control"
-                placeholder="Nhập mã giảm giá..." />
+              <input
+                v-model="discountInput"
+                type="text"
+                id="discount"
+                class="form-control"
+                placeholder="Nhập mã giảm giá..."
+              />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
-          </div>
-
-          <!--chon-->
-          <div class="discount-scroll-wrapper" v-if="isLoggedIn">
+            <div class="discount-scroll-wrapper" v-if="isLoggedIn">
             <div v-for="discount in discountsFiltered" :key="discount.id">
-              <div class="shopee-voucher d-flex align-items-center justify-content-between mb-2" :class="{
-                'disabled-voucher':
-                  totalPrice < discount.min_order_value ||
-                  discount.used >= discount.usage_limit ||
-                  (discount.discount_type === 'freeship' && !hasShippingFee),
-                'freeship-voucher': discount.discount_type === 'freeship',
-              }" @click="
-                totalPrice >= discount.min_order_value &&
-                discount.used < discount.usage_limit &&
-                !(discount.discount_type === 'freeship' && !hasShippingFee) &&
-                (selectedDiscount === discount.code
-                  ? removeDiscountCode()
-                  : applyDiscountCode(discount.code))
-                ">
+              <div
+                class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
+                :class="{
+                  'disabled-voucher':
+                    totalPrice < discount.min_order_value ||
+                    discount.used >= discount.usage_limit ||
+                    (discount.discount_type === 'freeship' && !hasShippingFee) ||
+                    (discount.category_id &&
+                      !cartItems.some((item) =>
+                        getAllChildCategoryIds(discount.category_id).includes(
+                          Number(item.category_id),
+                        ),
+                      )),
+                  'freeship-voucher': discount.discount_type === 'freeship',
+                }"
+                @click="
+                  totalPrice >= discount.min_order_value &&
+                  discount.used < discount.usage_limit &&
+                  !(discount.discount_type === 'freeship' && !hasShippingFee) &&
+                  (selectedDiscount === discount.code
+                    ? removeDiscountCode()
+                    : applyDiscountCode(discount.code))
+                "
+              >
                 <!-- Bên trái -->
                 <div class="voucher-left d-flex align-items-center">
                   <div class="voucher-logo d-flex align-items-center justify-content-center">
                     <!-- Logo theo loại mã -->
-                    <img v-if="discount.discount_type === 'freeship'" src="/img/freeship-icon.png" alt="Freeship"
-                      class="voucher-icon" />
+                    <img
+                      v-if="discount.discount_type === 'freeship'"
+                      src="/img/freeship-icon.png"
+                      alt="Freeship"
+                      class="voucher-icon"
+                    />
                     <img v-else src="/img/discount-icon.png" alt="Discount" class="voucher-icon" />
                   </div>
                   <div class="voucher-info ps-3">
-                    <div class="voucher-title" :class="{ 'freeship-text': discount.discount_type === 'freeship' }">
+                    <div
+                      class="voucher-title"
+                      :class="{ 'freeship-text': discount.discount_type === 'freeship' }"
+                    >
                       {{ discount.name }}
                     </div>
-                    <div class="voucher-title" :class="{ 'freeship-text': discount.discount_type === 'freeship' }">
+                    <div
+                      class="voucher-title"
+                      :class="{ 'freeship-text': discount.discount_type === 'freeship' }"
+                    >
                       Mã {{ discount.code }}
                     </div>
                     <div class="voucher-time">
                       <i class="fa-regular fa-clock me-1"></i>Ngày hết hạn: {{ discount.end_date }}
                     </div>
-                    <div v-if="discount.discount_type === 'freeship' && !hasShippingFee"
-                      class="remind text-danger fw-md">
+                    <div
+                      v-if="discount.discount_type === 'freeship' && !hasShippingFee"
+                      class="remind text-danger fw-md"
+                    >
                       Vui lòng chọn địa chỉ để dùng mã !
                     </div>
 
@@ -178,12 +259,16 @@
 
                 <!-- Bên phải -->
                 <div class="voucher-right text-end">
-                  <div class="voucher-status" :class="{
-                    'text-success': selectedDiscount === discount.code,
-                    'freeship-text': discount.discount_type === 'freeship',
-                    'freeship-border': discount.discount_type === 'freeship',
-                  }">
-                    <span v-if="selectedDiscount === discount.code" class="text-danger">Bỏ dùng❌
+                  <div
+                    class="voucher-status"
+                    :class="{
+                      'text-success': selectedDiscount === discount.code,
+                      'freeship-text': discount.discount_type === 'freeship',
+                      'freeship-border': discount.discount_type === 'freeship',
+                    }"
+                  >
+                    <span v-if="selectedDiscount === discount.code" class="text-danger"
+                      >Bỏ dùng❌
                     </span>
                     <span v-else>Dùng ngay</span>
                   </div>
@@ -191,29 +276,135 @@
               </div>
             </div>
           </div>
+          </div>
 
+          <!--chon-->
+          <div class="discount-scroll-wrapper" v-if="isLoggedIn">
+            <div v-for="discount in userDiscounts" :key="discount.id">
+              <div
+                class="shopee-voucher d-flex align-items-center justify-content-between mb-2"
+                :class="{
+                  'disabled-voucher':
+                    totalPrice < discount.min_order_value ||
+                    discount.used >= discount.usage_limit ||
+                    (discount.discount_type === 'freeship' && !hasShippingFee) ||
+                    (discount.category_id &&
+                      !cartItems.some((item) =>
+                        getAllChildCategoryIds(discount.category_id).includes(
+                          Number(item.category_id),
+                        ),
+                      )),
+                  'freeship-voucher': discount.discount_type === 'freeship',
+                }"
+                @click="
+                  totalPrice >= discount.min_order_value &&
+                  discount.used < discount.usage_limit &&
+                  !(discount.discount_type === 'freeship' && !hasShippingFee) &&
+                  (selectedDiscount === discount.code
+                    ? removeDiscountCode()
+                    : applyDiscountCode(discount.code))
+                "
+              >
+                <!-- Bên trái -->
+                <div class="voucher-left d-flex align-items-center">
+                  <div class="voucher-logo d-flex align-items-center justify-content-center">
+                    <!-- Logo theo loại mã -->
+                    <img
+                      v-if="discount.discount_type === 'freeship'"
+                      src="/img/freeship-icon.png"
+                      alt="Freeship"
+                      class="voucher-icon"
+                    />
+                    <img v-else src="/img/discount-icon.png" alt="Discount" class="voucher-icon" />
+                  </div>
+                  <div class="voucher-info ps-3">
+                    <div
+                      class="voucher-title"
+                      :class="{ 'freeship-text': discount.discount_type === 'freeship' }"
+                    >
+                      {{ discount.name }}
+                    </div>
+                    <div
+                      class="voucher-title"
+                      :class="{ 'freeship-text': discount.discount_type === 'freeship' }"
+                    >
+                      Mã {{ discount.code }}
+                    </div>
+                    <div class="voucher-time">
+                      <i class="fa-regular fa-clock me-1"></i>Ngày hết hạn: {{ discount.end_date }}
+                    </div>
+                    <div
+                      v-if="discount.discount_type === 'freeship' && !hasShippingFee"
+                      class="remind text-danger fw-md"
+                    >
+                      Vui lòng chọn địa chỉ để dùng mã !
+                    </div>
+
+                    <div v-if="totalPrice < discount.min_order_value" class="text-danger small">
+                      Đơn tối thiểu: {{ discount.min_order_value.toLocaleString() }}đ
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bên phải -->
+                <div class="voucher-right text-end">
+                  <div
+                    class="voucher-status"
+                    :class="{
+                      'text-success': selectedDiscount === discount.code,
+                      'freeship-text': discount.discount_type === 'freeship',
+                      'freeship-border': discount.discount_type === 'freeship',
+                    }"
+                  >
+                    <span v-if="selectedDiscount === discount.code" class="text-danger"
+                      >Bỏ dùng❌
+                    </span>
+                    <span v-else>Dùng ngay</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <!-- Payment Methods -->
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="VNPAY"
-                v-model="paymentMethod" />
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="vnpay"
+                value="VNPAY"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
                 <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
-                v-model="paymentMethod" />
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="momo"
+                value="MOMO"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
                 <img src="/img/momo.png" height="20" width="20" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="payment" id="cod" value="COD"
-                v-model="paymentMethod" />
+              <input
+                class="form-check-input"
+                type="radio"
+                name="payment"
+                id="cod"
+                value="COD"
+                v-model="paymentMethod"
+              />
               <label class="form-check-label d-flex align-items-center" for="cod">
                 <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
                 <img src="/img/cod.png" height="30" width="30" alt="" />
@@ -255,7 +446,7 @@ export default {
   },
   setup() {
     const router = useRouter()
-
+    const showAllVoucher = ref(false)
     const note = ref('')
     const { user, form } = User.setup()
 
@@ -276,17 +467,16 @@ export default {
       totalPriceItem,
       loadCart,
       discountShipAmount,
+      getAllChildCategoryIds,
+      fetchUserDiscounts,
+      userDiscounts
     } = Discounts()
     onMounted(async () => {
       await getAllDiscount({ source: 'system' })
-      // console.log('Danh sách voucher hệ thống:', discounts.value)
+      console.log('Danh sách voucher hệ thống:', discounts.value)
     })
 
-    const {
-      cartItems,
-      cartKey,
-
-    } = Cart()
+    const { cartItems, cartKey } = Cart()
 
     const { isLoading } = FoodList.setup()
     const isLoggedIn = computed(() => !!localStorage.getItem('token'))
@@ -302,8 +492,8 @@ export default {
 
         if (paymentMethod.value === 'VNPAY') {
           if (!orderId || finalTotal.value <= 0) {
-            toast.error('Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.');
-            return;
+            toast.error('Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.')
+            return
           }
           const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
             order_id: orderId,
@@ -319,9 +509,9 @@ export default {
           return
         }
         if (paymentMethod.value === 'MOMO') {
-          toast.info('Chức năng thanh toán MoMo đang được phát triển!');
-          localStorage.setItem('payment_method', paymentMethod.value);
-          localStorage.removeItem(cartKey.value);
+          toast.info('Chức năng thanh toán MoMo đang được phát triển!')
+          localStorage.setItem('payment_method', paymentMethod.value)
+          localStorage.removeItem(cartKey.value)
           return
         }
         if (paymentMethod.value === 'COD') {
@@ -334,38 +524,37 @@ export default {
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey.value)
           toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
-          router.push('/payment-result');
+          router.push('/payment-result')
         }
-
       } catch (error) {
         console.error('Lỗi khi xử lý thanh toán:', error)
         if (error.response && error.response.data && error.response.data.message) {
           toast.error('Thanh toán thất bại: ' + error.response.data.message)
         } else {
-          toast.error('Thanh toán thất bại, vui lòng thử lại! Lỗi mạng hoặc server không phản hồi.');
+          toast.error('Thanh toán thất bại, vui lòng thử lại! Lỗi mạng hoặc server không phản hồi.')
         }
       }
     }
 
     const submitOrder = async () => {
-      isLoading.value = true;
+      isLoading.value = true
       try {
         if (!selectedProvince.value || !selectedDistrict.value || !selectedWard.value) {
-          alert('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.');
-          isLoading.value = false;
-          return;
+          alert('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.')
+          isLoading.value = false
+          return
         }
 
-        const province = provinces.value.find(p => p.ProvinceID === selectedProvince.value);
-        const district = districts.value.find(d => d.DistrictID === selectedDistrict.value);
-        const ward = wards.value.find(w => w.WardCode === selectedWard.value);
+        const province = provinces.value.find((p) => p.ProvinceID === selectedProvince.value)
+        const district = districts.value.find((d) => d.DistrictID === selectedDistrict.value)
+        const ward = wards.value.find((w) => w.WardCode === selectedWard.value)
 
-        const fullAddress = `${form.value.address}, ${ward?.WardName || ''}, ${district?.DistrictName || ''}, ${province?.ProvinceName || ''}`;
+        const fullAddress = `${form.value.address}, ${ward?.WardName || ''}, ${district?.DistrictName || ''}, ${province?.ProvinceName || ''}`
 
         if (!fullAddress || cartItems.value.length === 0) {
-          toast.error('Vui lòng nhập đầy đủ thông tin địa chỉ và thêm món ăn vào giỏ hàng.');
-          isLoading.value = false;
-          return;
+          toast.error('Vui lòng nhập đầy đủ thông tin địa chỉ và thêm món ăn vào giỏ hàng.')
+          isLoading.value = false
+          return
         }
 
         const orderData = {
@@ -376,7 +565,8 @@ export default {
           guest_address: fullAddress,
           note: note.value || '',
           total_price: finalTotal.value || 0,
-          money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
+          money_reduce:
+            discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.type == 'Food' ? item.id : null,
@@ -391,36 +581,34 @@ export default {
           })),
         }
 
-        const response = await axios.post('http://127.0.0.1:8000/api/order', orderData);
+        const response = await axios.post('http://127.0.0.1:8000/api/order', orderData)
 
         if (response?.data?.status && response.data.order_id) {
-          const order_id = response.data.order_id;
-          toast.success('Đơn hàng đã được tạo thành công!');
+          const order_id = response.data.order_id
+          toast.success('Đơn hàng đã được tạo thành công!')
 
           if (orderData.discount_id) {
             await axios.post('http://127.0.0.1:8000/api/discounts/use', {
               discount_id: orderData.discount_id,
               order_id: order_id,
-            });
+            })
           }
 
-          await check_out(order_id);
+          await check_out(order_id)
         } else {
-          toast.error('Không nhận được ID đơn hàng từ server hoặc tạo đơn hàng thất bại.');
+          toast.error('Không nhận được ID đơn hàng từ server hoặc tạo đơn hàng thất bại.')
         }
-
       } catch (error) {
-        console.error('Lỗi khi gửi đơn hàng hoặc xử lý thanh toán:', error);
+        console.error('Lỗi khi gửi đơn hàng hoặc xử lý thanh toán:', error)
         if (error.response?.data?.message) {
-          toast.error('Đặt hàng thất bại: ' + error.response.data.message);
+          toast.error('Đặt hàng thất bại: ' + error.response.data.message)
         } else {
-          toast.error('Đặt hàng thất bại, vui lòng thử lại! Lỗi mạng hoặc server không phản hồi.');
+          toast.error('Đặt hàng thất bại, vui lòng thử lại! Lỗi mạng hoặc server không phản hồi.')
         }
       } finally {
-        isLoading.value = false;
+        isLoading.value = false
       }
-    };
-
+    }
 
     const today = dayjs().format('YYYY-MM-DD')
     const removeDiscountCode = () => {
@@ -537,8 +725,8 @@ export default {
     const hasShippingFee = computed(() => shippingFee.value > 0)
     onMounted(() => {
       fetchProvinces()
+      fetchUserDiscounts()
       loadCart()
-
     })
     watch([selectedDistrict, selectedWard, selectedService], () => {
       if (selectedDistrict.value && selectedWard.value && selectedService.value) {
@@ -592,6 +780,9 @@ export default {
       shippingFee,
       discountShipAmount,
       hasShippingFee,
+      getAllChildCategoryIds,
+      userDiscounts,
+      showAllVoucher
     }
   },
 }
@@ -600,7 +791,7 @@ export default {
 <style>
 .isLoading-overlay {
   position: fixed;
-  top: 0;
+  top: 0; 
   left: 0;
   width: 100%;
   height: 100vh;
@@ -623,4 +814,15 @@ export default {
   opacity: 0.6;
   cursor: not-allowed;
 }
+.voucher-icon {
+  width: 32px;
+  height: 32px;
+}
+.modal-backdrop {
+  z-index: 1040;
+}
+.modal {
+  z-index: 1050;
+}
+
 </style>

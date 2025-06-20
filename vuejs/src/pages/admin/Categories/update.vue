@@ -9,13 +9,8 @@
       </div>
     </div>
 
-    <!-- Loading -->
-    <div v-if="isLoading" class="text-center my-4">
-      <div class="spinner-border text-danger" role="status"></div>
-      <p>Đang tải dữ liệu danh mục...</p>
-    </div>
 
-    <form v-else class="row mt-2">
+    <form class="row mt-2">
       <div class="col-12 col-md-6">
         <div class="card rounded-0 border-0 shadow mb-4">
           <div class="card-body">
@@ -25,7 +20,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Danh mục cha</label>
-              <select class="form-select rounded-0" v-model="parentId">
+              <select class="form-select rounded-0" v-model="parentId" :disabled="isDefault == 1">
                 <option value="">-- Không --</option>
                 <option v-for="cat in allParents" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
               </select>
@@ -33,10 +28,18 @@
             <div class="mb-3">
               <label class="form-label">Làm danh mục mặc định</label>
               <select class="form-select rounded-0" v-model="isDefault">
-                <option :value="true">Có</option>
-                <option :value="false">Không</option>
+                <option :value="1">Có</option>
+                <option :value="0">Không</option>
               </select>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Loại danh mục</label>
+              <select class="form-select rounded-0" v-model="categoryType">
+                <option value="food">Món ăn</option>
+                <option value="topping">Topping</option>
+              </select>
+            </div>
+
           </div>
         </div>
       </div>
@@ -49,7 +52,8 @@
               <input class="form-control rounded-0" type="file" @change="handleImageChange">
               <div class="mb-3 p-2 text-center">
                 <img v-if="previewImage" :src="previewImage" class="w-50" />
-                <img v-else-if="oldImage" :src="'http://127.0.0.1:8000/storage/img/food/imgmenu/' + oldImage" class="w-50" />
+                <img v-else-if="oldImage" :src="'http://127.0.0.1:8000/storage/img/food/imgmenu/' + oldImage"
+                  class="w-50" />
               </div>
             </div>
           </div>
@@ -57,12 +61,7 @@
       </div>
     </form>
 
-    <button
-      type="button"
-      class="btn btn-danger-save mt-2"
-      @click="updateCategory"
-      :disabled="isLoading"
-    >
+    <button type="button" class="btn btn-danger-save mt-2" @click="updateCategory" :disabled="isLoading">
       Cập nhật
     </button>
   </div>
@@ -71,7 +70,7 @@
 <script>
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 export default {
@@ -82,8 +81,9 @@ export default {
 
     const name = ref('')
     const parentId = ref('')
-    const isDefault = ref(false)
+    const isDefault = ref(0)
     const image = ref(null)
+    const categoryType = ref('food')
     const oldImage = ref(null)
     const previewImage = ref(null)
     const allParents = ref([])
@@ -111,9 +111,10 @@ export default {
         })
         const cat = res.data.data
         name.value = cat.name
-        isDefault.value = !!cat.default
+        isDefault.value = parseInt(cat.default)
         oldImage.value = cat.images
         parentId.value = cat.parent_id ?? ''
+        categoryType.value = cat.type
       } catch (error) {
         showToast('Không thể tải dữ liệu danh mục!', 'error')
       } finally {
@@ -153,6 +154,8 @@ export default {
       if (parentId.value) formData.append('parent_id', parentId.value)
       if (image.value) formData.append('images', image.value)
       formData.append('default', isDefault.value ? 1 : 0)
+      formData.append('type', categoryType.value)
+
 
       try {
         await axios.post(`http://127.0.0.1:8000/api/admin/categories/${categoryId}`, formData, {
@@ -193,6 +196,11 @@ export default {
         }
       }
     }
+    watch(isDefault, (newVal) => {
+      if (parseInt(newVal) === 1) {
+        parentId.value = ''
+      }
+    })
 
     onMounted(() => {
       fetchParents()
@@ -200,8 +208,17 @@ export default {
     })
 
     return {
-      name, parentId, isDefault, image, previewImage, oldImage, allParents, isLoading,
-      handleImageChange, updateCategory
+      name,
+      parentId,
+      isDefault,
+      image,
+      previewImage,
+      oldImage,
+      allParents,
+      isLoading,
+      categoryType,
+      handleImageChange, 
+      updateCategory
     }
   }
 }
@@ -210,5 +227,41 @@ export default {
 <style>
 .themsp {
   width: 200px;
+}
+
+.btn-danger-delete {
+  background: none;
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.btn-danger-delete:hover {
+  background-color: #c92c3c;
+  color: #fff;
+}
+
+.btn-danger-save {
+  background: none;
+  color: #1d54bc;
+  border: 1px solid #1d54bc;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: normal;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.btn-danger-save:hover {
+  background-color: #1d54bc;
+  color: #fff;
 }
 </style>

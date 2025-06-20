@@ -12,7 +12,7 @@ class Category extends Model
     use SoftDeletes;
     public $timestamps = false;
     protected $table = "categories";
-    protected $fillable = ['name', 'parent_id', 'images', 'default'];
+    protected $fillable = ['name',  'type', 'parent_id', 'images', 'default'];
 
     public function children()
     {
