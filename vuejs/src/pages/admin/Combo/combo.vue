@@ -59,8 +59,70 @@
 
   <button class="btn btn-clean btn-delete" v-if="hasPermission('delete_combo')">Xoá</button>
 
+  <!--modal-->
+  <div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+      <div class="modal-content shadow-sm rounded-3">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-semibold text-danger" id="menuModalLabel">
+            Chi tiết combo
+          </h5>
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close">
+            &times;
+          </button>
+        </div>
 
+        <div class="modal-body">
+          <div v-if="selectedCombo">
+            <div class="mb-4 d-flex flex-column flex-md-row align-items-start gap-3">
+              <img :src="`/img/food/${selectedCombo.image}`" :alt="selectedCombo.name" class="rounded"
+                style="width: 100px; height: 100px; object-fit: cover" />
+              <div>
+                <h4 class="fw-bold mb-1">{{ selectedCombo.name }}</h4>
+                <p class="mb-0 text-muted">Giá combo: {{ formatNumber(selectedCombo.price) }} VNĐ</p>
+              </div>
+            </div>
 
+            <div class="table-responsive">
+              <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>STT</th>
+                    <th>Bao gồm</th>
+                    <th>Số lượng</th>
+                    <th>Giá món</th>
+                    <th>Thành tiền</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(food, index) in selectedCombo.foods" :key="food.id">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ food.name }}</td>
+                    <td>{{ food.pivot.quantity }}</td>
+                    <td>{{ formatNumber(food.price) }} đ</td>
+                    <td>{{ formatNumber(food.pivot.quantity * food.price) }} đ</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4" class="text-end fw-semibold">Tổng giá combo:</td>
+                    <td class="fw-bold text-danger">{{ formatNumber(comboTotal) }} đ</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          <div v-else>
+            <p class="text-muted">Không có dữ liệu combo để hiển thị.</p>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -70,6 +132,7 @@ import numeral from 'numeral'
 import { toast } from 'vue3-toastify'
 import { Permission } from '@/stores/permission'
 
+// useMenu().onSelectedKeys(['admin-roles'])
 
 const combo = ref([])
 const searchQuery = ref('')
@@ -130,12 +193,12 @@ async function deleteCombo(comboId) {
       return;
     }
 
+
     await axios.delete(`http://127.0.0.1:8000/api/admin/combos/delete/${comboId}`);
     toast.success("Đã xóa combo thành công!");
     combo.value = combo.value.filter(combo => combo.id !== comboId);
   } catch (error) {
     console.log(error);
-
     if (error.response && error.response.status === 400) {
       toast.warning(error.response.data.message || "Combo có đơn hàng không thể xóa.!");
     } else {

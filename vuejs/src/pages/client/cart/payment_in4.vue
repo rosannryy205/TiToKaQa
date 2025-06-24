@@ -280,7 +280,7 @@
 
           </div>
 
-      
+
           <!-- Payment Methods -->
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
@@ -469,6 +469,10 @@ export default {
         }
 
         if (paymentMethod.value === 'COD') {
+          if (user.value?.status === 'Block') {
+            toast.error('Tài khoản của bạn đã bị hạn chế. Không thể thanh toán bằng tiền mặt.');
+            return;
+          }
           await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
             order_id: orderId,
             amount_paid: finalTotal.value,
@@ -716,7 +720,7 @@ export default {
 <style>
 .isLoading-overlay {
   position: fixed;
-  top: 0; 
+  top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
