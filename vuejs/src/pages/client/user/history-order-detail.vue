@@ -173,7 +173,7 @@ export default {
       try {
         isLoading.value = true;
         if (confirm('Bạn có chắc muốn huỷ đơn này')) {
-          const status = await axios.put(`http://127.0.0.1:8000/api/order-history-info/cancle/${id}`)
+          const status = await axios.put(`http://127.0.0.1:8000/api/order-history-info/cancel/${id}`)
           if (status) {
             alert('Hủy đơn thành công.')
           }

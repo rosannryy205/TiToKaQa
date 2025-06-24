@@ -215,6 +215,14 @@ const hideConditionModal = () => {
   color: #c92c3c;
   border: 1px solid #c92c3c;
 }
+.btn-save-discount {
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+}
+.btn-save-discount:hover {
+  background-color: #c92c3c;
+  color: white;
+}
 .has-voucher {
   color: #007d00;
   border: 1px solid #007d00;
@@ -224,6 +232,15 @@ const hideConditionModal = () => {
   color: white;
 }
 .voucher-brand-btn.active {
+  background-color: #c92c3c;
+  color: white;
+}
+
+.btn-save-discount {
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+}
+.btn-save-discount:hover {
   background-color: #c92c3c;
   color: white;
 }
