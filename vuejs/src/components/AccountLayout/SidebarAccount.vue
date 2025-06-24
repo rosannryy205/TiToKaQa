@@ -6,7 +6,7 @@
   </div>
 
   <div v-else class="container mt-5 fade-in">
-    <div class="row g-4">
+    <div class="row g-4" >
       <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0">
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
           <div class="d-flex flex-column flex-md-row align-items-center mb-3">
@@ -368,5 +368,8 @@ li.list-group-item {
 }
 .logo-member {
   width: 25px;
+}
+#app > div > div.container.mt-5.fade-in > div > div.col-12.col-md-4.col-lg-3.mb-4.mb-md-0{
+  max-height: 95vh;
 }
 </style>
