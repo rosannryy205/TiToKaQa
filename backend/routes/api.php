@@ -172,6 +172,13 @@ Route::post('/order/{id}/cancel', [OrderController::class, 'handelOrderCancel'])
 Route::get('/order_detail/{id}', [CartController::class, 'get_order_detail']);
 Route::get('/get_all_orders', [CartController::class, 'get_all_orders']);
 Route::put('/update/{id}/status', [CartController::class, 'update_status']);
+Route::middleware('auth:sanctum')->get('/shipper/orders', [OrderController::class, 'getOrdersByShipper']);
+Route::post('/selected_orders', [OrderController::class, 'assignShipper']);
+Route::get('/shipper/{id}/active-orders', [OrderController::class, 'getShipperOrders']);
+Route::post('/shipper/update-location', [UserController::class, 'updateLocation']);
+Route::get('/shipper/{id}/last-location', [UserController::class, 'getLastLocation']);
+
+
 
 
 //discount
@@ -239,11 +246,9 @@ Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
 Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 
-
 /**client user-point_exchange*/
 Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');
 Route::get('/user-vouchers', [DiscountController::class, 'getUserDiscounts'])->middleware('auth:sanctum');
-
 /** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 // Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);

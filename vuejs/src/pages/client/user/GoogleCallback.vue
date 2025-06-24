@@ -68,7 +68,7 @@ onMounted(async () => {
   align-items: center;
 }
 
-/* loader như bạn viết */
+/* loader */
 .loader {
   width: 50px;
   --b: 8px;

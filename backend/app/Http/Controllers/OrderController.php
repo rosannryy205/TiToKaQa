@@ -594,16 +594,54 @@ class OrderController extends Controller
     //huỷ đơn
     public function cancelOrder(Request $request)
     {
-        $order = Order::find($request->id);
+        $order = Order::with(['payment', 'details'])->find($request->id);
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
-        $order->order_status = 'Đã hủy';
-        $order->save();
 
-        return response()->json(['message' => 'Đơn hàng đã được hủy thành công.']);
+        // Chỉ cho phép hủy nếu đang ở trạng thái Chờ xác nhận hoặc Đã xác nhận
+        if (!in_array($order->order_status, ['Chờ xác nhận', 'Đã xác nhận'])) {
+            return response()->json(['message' => 'Chỉ có thể hủy đơn khi đang ở trạng thái chờ xác nhận hoặc đã xác nhận.'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Khôi phục tồn kho
+            foreach ($order->details as $detail) {
+                $food = Food::find($detail->food_id);
+                if ($food) {
+                    $food->stock += $detail->quantity;
+                    $food->quantity_sold -= $detail->quantity;
+                    $food->save();
+                }
+            }
+
+            // Cập nhật trạng thái đơn hàng
+            $order->order_status = 'Đã hủy';
+            $order->save();
+
+            // Cập nhật trạng thái thanh toán nếu có
+            if ($order->payment) {
+                if (in_array($order->payment->payment_method, ['VNPAY', 'MOMO'])) {
+                    $order->payment->payment_status = 'Đã hoàn tiền';
+                } else {
+                    $order->payment->payment_status = 'Thanh toán thất bại';
+                }
+                $order->payment->save();
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Đơn hàng đã được hủy thành công.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi khi hủy đơn hàng.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
 
     //cập nhật địa chỉ
     public function updateAddressForOrder(Request $request, $id)
@@ -1034,4 +1072,139 @@ class OrderController extends Controller
             'data' => $order
         ]);
     }
+
+
+    public function getOrdersByShipper()
+    {
+        $shipper = auth()->user();
+
+        if (!$shipper) {
+            return response()->json([
+                'status' => false,
+                'mess' => 'Chưa xác thực người dùng'
+            ], 401);
+        }
+
+        $orders = Order::with([
+            'details.foods',
+            'details.toppings.food_toppings.toppings',
+            'tables',
+            'payment'
+        ])
+            ->where('shipper_id', $shipper->id)
+            ->whereIn('order_status', ['Bắt đầu giao', 'Đang giao hàng'])
+            ->orderByDesc('order_time')
+            ->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'mess' => 'Không có đơn hàng nào được giao cho bạn'
+            ]);
+        }
+
+        $data = $orders->map(function ($order) {
+            $details = $order->details->map(function ($detail) {
+                return [
+                    'id' => $detail->id,
+                    'food_id' => $detail->food_id,
+                    'food_name' => optional($detail->foods)->name,
+                    'quantity' => $detail->quantity,
+                    'price' => $detail->price,
+                    'image' => optional($detail->foods)->image,
+                    'type' => $detail->type,
+                    'toppings' => $detail->toppings->map(function ($toppings) {
+                        return [
+                            'food_toppings_id' => $toppings->food_toppings_id,
+                            'topping_name' => $toppings->food_toppings->toppings->name ?? null,
+                            'price' => $toppings->price,
+                        ];
+                    })
+                ];
+            });
+
+            return [
+                'id' => $order->id,
+                'user_id' => $order->user_id,
+                'shipper_id' => $order->shipper_id,
+                'discount_id' => $order->discount_id,
+                'order_time' => $order->order_time,
+                'order_status' => $order->order_status,
+                'total_price' => $order->total_price,
+                'comment' => $order->comment,
+                'review_time' => $order->review_time,
+                'rating' => $order->rating,
+                'guest_name' => $order->guest_name,
+                'guest_phone' => $order->guest_phone,
+                'guest_email' => $order->guest_email,
+                'guest_address' => $order->guest_address,
+                'guest_count' => $order->guest_count,
+                'note' => $order->note,
+                'deposit_amount' => $order->deposit_amount,
+                'check_in_time' => $order->check_in_time,
+                'expiration_time' => $order->expiration_time,
+                'money_reduce' => $order->money_reduce,
+                'type_order' => $order->type_order,
+                'details' => $details,
+                'tables' => $order->tables->map(function ($table) {
+                    return [
+                        'table_number' => $table->table_number,
+                        'capacity' => $table->capacity,
+                        'status' => $table->status,
+                        'order_id' => $table->pivot->order_id,
+                        'table_id' => $table->pivot->table_id,
+                        'reservation_status' => $table->pivot->reservation_status,
+                        'reserved_from' => $table->pivot->reserved_from,
+                        'reserved_to' => $table->pivot->reserved_to,
+                    ];
+                }),
+                'payment' => [
+                    'amount_paid' => $order->payment->amount_paid ?? null,
+                    'payment_method' => $order->payment->payment_method ?? null,
+                    'payment_status' => $order->payment->payment_status ?? null,
+                    'payment_time' => $order->payment->payment_time ?? null,
+                    'payment_type' => $order->payment->payment_type ?? null,
+                ],
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'mess' => 'Lấy đơn hàng của shipper thành công',
+            'orders' => $data
+        ]);
+    }
+
+    public function assignShipper(Request $request)
+    {
+        $request->validate([
+            'order_ids' => 'required|array',
+            'shipper_id' => 'required|integer',
+        ]);
+
+        try {
+            Order::whereIn('id', $request->order_ids)->update([
+                'shipper_id' => $request->shipper_id,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Giao đơn hàng thành công'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getShipperOrders($id){
+        $orders = Order::where('shipper_id', $id)
+        ->whereIn('order_status', ['Đang giao hàng', 'Bắt đầu giao'])
+        ->get();
+
+    return response()->json(['orders' => $orders]);
+    }
+
+
 }
