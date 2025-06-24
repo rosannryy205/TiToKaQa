@@ -278,6 +278,7 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import * as bootstrap from 'bootstrap';
 import { toast } from 'vue3-toastify';
 import Swal from 'sweetalert2';
+
 // const { formattedTime, isCounting, startCountdown } = useCountdown(60);
 const auth = useAuthStore();
 //Google
@@ -290,17 +291,17 @@ window.bootstrap = bootstrap;
 //  Đăng xuất
 const handleLogout = async () => {
   const confirmResult = await Swal.fire({
-  title: 'Đăng xuất khỏi hệ thống?',
-  text: 'Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng!',
-  icon: 'warning',
-  showCancelButton: true,
-  confirmButtonText: 'Đăng xuất',
-  cancelButtonText: 'Huỷ bỏ',
-  confirmButtonColor: '#e3342f',
-  cancelButtonColor: '#6c757d',
-  reverseButtons: true,
-  focusCancel: true,
-});
+    title: 'Đăng xuất khỏi hệ thống?',
+    text: 'Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Đăng xuất',
+    cancelButtonText: 'Huỷ bỏ',
+    confirmButtonColor: '#e3342f',
+    cancelButtonColor: '#6c757d',
+    reverseButtons: true,
+    focusCancel: true,
+  });
 
   if (!confirmResult.isConfirmed) {
     return;
@@ -315,6 +316,7 @@ const handleLogout = async () => {
 
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    localStorage.removeItem('conversation_id');
     user.value = null;
     isLoggedIn.value = false;
 

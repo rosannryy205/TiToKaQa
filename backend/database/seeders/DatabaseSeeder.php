@@ -16,7 +16,6 @@ class DatabaseSeeder extends Seeder
             [
                 Category::class,
                 Food::class,
-                Category_toppings::class,
                 Topping::class,
                 Food_toppings::class,
                 Combo::class,

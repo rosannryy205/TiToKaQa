@@ -5,12 +5,12 @@
     </div>
   </div>
 
-  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" v-if="hasPermission('create_table')">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" v-if="hasPermission('create_booking')">
     <h3 class="text-danger fw-bold mb-2 mb-md-0">Thêm đơn đặt bàn</h3>
     <div>
-      <a href="#" class="btn btn-outline-secondary rounded-0" @click="$router.back()">
+      <outton @click="$router.back()" class="btn btn-outline-secondary rounded-0">
         <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-      </a>
+      </outton>
     </div>
   </div>
 
@@ -23,14 +23,8 @@
               <label for="name" class="form-label fs-5">
                 Thông tin khách hàng <span class="text-danger">*</span>
               </label>
-              <v-select
-                v-model="selectguest"
-                :options="guest"
-                label="usernameEmail"
-                placeholder="Chọn khách hàng"
-                :clearable="true"
-                class="form-control rounded"
-              />
+              <v-select v-model="selectguest" :options="guest" label="usernameEmail" placeholder="Chọn khách hàng"
+                :clearable="true" class="form-control rounded" />
               <div class="mt-2">
                 <label for="name" class="form-label">
                   Tên khách hàng <span class="text-danger">*</span>
@@ -41,37 +35,23 @@
                 </label>
                 <input type="text" class="form-control rounded-0" required v-model="guest_phone" />
                 <label for="category" class="form-label">
-                  Email <span class="text-danger">*</span>
+                  Email
                 </label>
                 <input type="text" class="form-control rounded-0" required v-model="guest_email" />
                 <label for="category" class="form-label">
-                  Ghi chú <span class="text-danger">*</span>
+                  Ghi chú
                 </label>
-                <textarea
-                  class="form-control rounded-0"
-                  id="description"
-                  rows="1"
-                  v-model="note"
-                ></textarea>
+                <textarea class="form-control rounded-0" id="description" rows="1" v-model="note"></textarea>
               </div>
             </div>
 
-            <div
-              class="col-12 col-lg-7 mb-3 pt-3 pt-lg-0 mt-3 mt-lg-0"
-              style="border-left: 1px solid #cccc"
-            >
+            <div class="col-12 col-lg-7 mb-3 pt-3 pt-lg-0 mt-3 mt-lg-0" style="border-left: 1px solid #cccc">
               <label for="category" class="form-label">
                 Tìm bàn <span class="text-danger">*</span>
               </label>
               <div class="row mb-3 gx-2 gy-2">
                 <div class="col-12 col-sm-4">
-                  <input
-                    type="date"
-                    class="form-control rounded"
-                    v-model="date"
-                    :min="today"
-                    @change="findTable"
-                  />
+                  <input type="date" class="form-control rounded" v-model="date" :min="today" @change="findTable" />
                 </div>
                 <div class="col-12 col-sm-4">
                   <select class="form-control rounded" v-model="time" @change="findTable">
@@ -82,13 +62,8 @@
                   </select>
                 </div>
                 <div class="col-12 col-sm-4">
-                  <input
-                    type="number"
-                    class="form-control rounded"
-                    placeholder="Số lượng người"
-                    v-model="guest_count"
-                    @change="findTable"
-                  />
+                  <input type="number" class="form-control rounded" placeholder="Số lượng người" v-model="guest_count"
+                    @change="findTable" />
                 </div>
               </div>
               <div class="table-container">
@@ -96,28 +71,21 @@
                   <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
                     <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
                   </div>
-                  <div
-                    @click="toggleTable(ban.id)"
-                    :class="[
-                      selectedTableIds.includes(ban.id) ? 'table-rect1' : 'table-rect',
-                      {
-                        medium: getChairCount(ban.capacity) === 2,
-                        large: getChairCount(ban.capacity) === 3,
-                        billed: ban.status === 'Đã đặt trước',
-                        'billed-text': ban.status === 'Đã đặt trước',
-                        reservation: ban.status === 'Có khách',
-                        'reservation-text': ban.status === 'Có khách',
-                      },
-                    ]"
-                  >
+                  <div @click="toggleTable(ban.id)" :class="[
+                    selectedTableIds.includes(ban.id) ? 'table-rect1' : 'table-rect',
+                    {
+                      medium: getChairCount(ban.capacity) === 2,
+                      large: getChairCount(ban.capacity) === 3,
+                      billed: ban.status === 'Đã đặt trước',
+                      'billed-text': ban.status === 'Đã đặt trước',
+                      reservation: ban.status === 'Có khách',
+                      'reservation-text': ban.status === 'Có khách',
+                    },
+                  ]">
                     Bàn {{ ban.name || ban.id }}
                   </div>
                   <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                    <div
-                      class="chair"
-                      v-for="n in getChairCount(ban.capacity)"
-                      :key="'b' + n"
-                    ></div>
+                    <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n"></div>
                   </div>
                 </div>
               </div>
@@ -130,26 +98,15 @@
                       </button>
                     </li>
 
-                    <li
-                      v-for="page in totalPagesTables"
-                      :key="page"
-                      class="page-item"
-                      :class="{ active: currentPage.tables === page }"
-                    >
+                    <li v-for="page in totalPagesTables" :key="page" class="page-item"
+                      :class="{ active: currentPage.tables === page }">
                       <button type="button" class="page-link" @click="goToPage(page, 'tables')">
                         {{ page }}
                       </button>
                     </li>
 
-                    <li
-                      class="page-item"
-                      :class="{ disabled: currentPage.tables === totalPagesTables }"
-                    >
-                      <button
-                        type="button"
-                        class="page-link"
-                        @click="goToPage(currentPage.tables + 1, 'tables')"
-                      >
+                    <li class="page-item" :class="{ disabled: currentPage.tables === totalPagesTables }">
+                      <button type="button" class="page-link" @click="goToPage(currentPage.tables + 1, 'tables')">
                         »
                       </button>
                     </li>
@@ -165,10 +122,7 @@
             <div class="row">
               <div class="col-12 col-md-6 col-lg-3 mb-3">
                 Lọc theo danh mục:
-                <select
-                  class="form-control rounded"
-                  @change="getFoodByCategory($event.target.value)"
-                >
+                <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
                   <option value="">Tất cả món ăn</option>
                   <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
                     {{ item.indent }}{{ item.name }}
@@ -177,32 +131,16 @@
               </div>
               <div class="col-12 col-md-6 col-lg-3 mb-3">
                 Tìm kiếm theo tên:
-                <v-select
-                  v-model="selectfood"
-                  :options="foods"
-                  label="name"
-                  placeholder="Nhập tên món ăn"
-                  :clearable="true"
-                  @input="onFoodSearch"
-                  class="form-control rounded"
-                />
+                <v-select v-model="selectfood" :options="foods" label="name" placeholder="Nhập tên món ăn"
+                  :clearable="true" @input="onFoodSearch" class="form-control rounded" />
               </div>
               <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
-                <div
-                  class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start"
-                >
+                <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
                   <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
                     <div class="gap-1">
-                      <div
-                        class="d-flex flex-column align-items-center"
-                        @click="openModal(product)"
-                      >
-                        <img
-                          :src="getImageUrl(product.image)"
-                          alt=""
-                          srcset=""
-                          style="width: 60px; height: 60px; object-fit: cover"
-                        />
+                      <div class="d-flex flex-column align-items-center" @click="openModal(product)">
+                        <img :src="getImageUrl(product.image)" alt="" srcset=""
+                          style="width: 60px; height: 60px; object-fit: cover" />
                         <div class="product_name text-center mt-1">{{ product.name }}</div>
                         <strong class="text-danger product_price">
                           {{ formatNumber(product.price) }} VND
@@ -215,35 +153,20 @@
                     <nav>
                       <ul class="pagination">
                         <li class="page-item" :class="{ disabled: currentPage.foods === 1 }">
-                          <button
-                            type="button"
-                            class="page-link"
-                            @click="goToPage(currentPage.foods - 1, 'foods')"
-                          >
+                          <button type="button" class="page-link" @click="goToPage(currentPage.foods - 1, 'foods')">
                             «
                           </button>
                         </li>
 
-                        <li
-                          v-for="page in totalPagesFoods"
-                          :key="page"
-                          class="page-item"
-                          :class="{ active: currentPage.foods === page }"
-                        >
+                        <li v-for="page in totalPagesFoods" :key="page" class="page-item"
+                          :class="{ active: currentPage.foods === page }">
                           <button type="button" class="page-link" @click="goToPage(page, 'foods')">
                             {{ page }}
                           </button>
                         </li>
 
-                        <li
-                          class="page-item"
-                          :class="{ disabled: currentPage.foods === totalPagesFoods }"
-                        >
-                          <button
-                            type="button"
-                            class="page-link"
-                            @click="goToPage(currentPage.foods + 1, 'foods')"
-                          >
+                        <li class="page-item" :class="{ disabled: currentPage.foods === totalPagesFoods }">
+                          <button type="button" class="page-link" @click="goToPage(currentPage.foods + 1, 'foods')">
                             »
                           </button>
                         </li>
@@ -260,16 +183,9 @@
                           <i class="bi bi-bag-plus-fill"></i>
                           Thêm đơn hàng
                         </div>
-                        <div
-                          class="d-flex align-items-center p-2 border rounded shadow-sm"
-                          style="max-width: 500px"
-                        >
-                          <img
-                            :src="getImageUrl(foodDetail.image)"
-                            class="rounded me-3 border"
-                            style="width: 60px; height: 60px; object-fit: cover"
-                            alt="Drink"
-                          />
+                        <div class="d-flex align-items-center p-2 border rounded shadow-sm" style="max-width: 500px">
+                          <img :src="getImageUrl(foodDetail.image)" class="rounded me-3 border"
+                            style="width: 60px; height: 60px; object-fit: cover" alt="Drink" />
                           <div class="flex-grow-1">
                             <div class="text-dark fw-semibold mb-2">{{ foodDetail.name }}</div>
                             <div class="d-flex justify-content-between align-items-center">
@@ -277,19 +193,11 @@
                                 {{ formatNumber(foodDetail.price) }}VNĐ
                               </div>
                               <div class="input-group input-group-sm" style="width: 100px">
-                                <button
-                                  class="btn btn-outline-secondary"
-                                  @click="decreaseQuantity"
-                                  type="button"
-                                >
+                                <button class="btn btn-outline-secondary" @click="decreaseQuantity" type="button">
                                   −
                                 </button>
                                 <span>{{ quantity }}</span>
-                                <button
-                                  class="btn btn-outline-secondary"
-                                  @click="increaseQuantity"
-                                  type="button"
-                                >
+                                <button class="btn btn-outline-secondary" @click="increaseQuantity" type="button">
                                   +
                                 </button>
                               </div>
@@ -298,16 +206,10 @@
                         </div>
                       </div>
                       <form @submit.prevent="handleAddToCartClick">
-                        <div
-                          style="max-height: 400px; overflow-y: auto"
-                          class="pe-3 ps-3"
-                          v-if="toppingList.length"
-                        >
+                        <div style="max-height: 400px; overflow-y: auto" class="pe-3 ps-3" v-if="toppingList.length">
                           <div class="mb-3">
                             <div class="mb-3" v-if="spicyLevel.length">
-                              <label for="spicyLevel" class="form-label fw-bold text-danger"
-                                >🌶 Mức độ cay:</label
-                              >
+                              <label for="spicyLevel" class="form-label fw-bold text-danger">🌶 Mức độ cay:</label>
                               <select class="form-select rounded" id="spicyLevel">
                                 <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
                                   {{ item.name }}
@@ -317,23 +219,13 @@
                           </div>
 
                           <label class="form-label fw-bold text-danger">🧀 Chọn Topping:</label>
-                          <div
-                            v-for="topping in toppingList"
-                            :key="topping.id"
-                            class="d-flex justify-content-between align-items-center mb-2"
-                          >
+                          <div v-for="topping in toppingList" :key="topping.id"
+                            class="d-flex justify-content-between align-items-center mb-2">
                             <label class="d-flex align-items-center text-dark">
-                              <input
-                                type="checkbox"
-                                :value="topping.id"
-                                name="topping[]"
-                                class="me-2"
-                              />
+                              <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                               {{ topping.name }}
                             </label>
-                            <span class="text-muted small"
-                              >{{ formatNumber(topping.price) }} VND</span
-                            >
+                            <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
                           </div>
                         </div>
                         <div v-else class="mt-5">
@@ -353,23 +245,14 @@
                 <div class="col-12 col-lg-4 border p-3 mt-3 mt-lg-0">
                   <div class="d-flex justify-content-between border-bottom mb-3">
                     <h5>Chi tiết</h5>
-                    <a href="#" class="text-danger fw-semibold" @click.prevent="clearCart"
-                      >Xoá tất cả</a
-                    >
+                    <a href="#" class="text-danger fw-semibold" @click.prevent="clearCart">Xoá tất cả</a>
                   </div>
                   <div style="max-height: 200px; overflow-y: auto" class="pe-1">
-                    <div
-                      class="border rounded p-3 mb-3"
-                      style="background-color: #fff"
-                      v-for="(item, index) in cartItems"
-                      :key="index"
-                    >
+                    <div class="border rounded p-3 mb-3" style="background-color: #fff"
+                      v-for="(item, index) in cartItems" :key="index">
                       <div class="d-flex align-items-start border-bottom mb-2 pb-1">
-                        <img
-                          :src="getImageUrl(item.image)"
-                          class="rounded me-2"
-                          style="width: 60px; height: 60px; object-fit: cover"
-                        />
+                        <img :src="getImageUrl(item.image)" class="rounded me-2"
+                          style="width: 60px; height: 60px; object-fit: cover" />
 
                         <div class="flex-grow-1" style="max-height: 200px; overflow-y: auto">
                           <div class="fw-semibold">{{ item.name }}</div>
@@ -381,35 +264,20 @@
                               </div>
                             </div>
                             <div v-else class="text-muted small">Không có topping</div>
-                            <i
-                              class="bi bi-x-circle me-3 mb-2"
-                              style="cursor: pointer"
-                              @click="removeItem(index)"
-                            ></i>
+                            <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
                           </div>
                         </div>
                       </div>
 
                       <div class="d-flex justify-content-between align-items-center">
-                        <div
-                          class="d-flex align-items-center border rounded"
-                          style="background-color: #f8f9fa"
-                        >
-                          <button
-                            type="button"
-                            class="btn border-0 fw-bold bg-white"
-                            style="background-color: transparent"
-                            @click="decreaseQuantity1(index)"
-                          >
+                        <div class="d-flex align-items-center border rounded" style="background-color: #f8f9fa">
+                          <button type="button" class="btn border-0 fw-bold bg-white"
+                            style="background-color: transparent" @click="decreaseQuantity1(index)">
                             −
                           </button>
                           <span class="px-2">{{ item.quantity }}</span>
-                          <button
-                            type="button"
-                            class="btn border-0 fw-bold bg-white"
-                            style="background-color: transparent"
-                            @click="increaseQuantity2(index)"
-                          >
+                          <button type="button" class="btn border-0 fw-bold bg-white"
+                            style="background-color: transparent" @click="increaseQuantity2(index)">
                             +
                           </button>
                         </div>
@@ -427,15 +295,12 @@
                         Tạm tính
                         <span>{{ formatNumber(totalPrice) }} VNĐ</span>
                       </li>
-                      <li
-                        class="list-group-item d-flex justify-content-between align-items-center bg-transparent"
-                      >
+                      <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
                         Phí giữ bàn
                         <span>100,000 VNĐ</span>
                       </li>
                       <li
-                        class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger"
-                      >
+                        class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
                         Tổng thanh toán
                         <span class="text-danger fw-bold">
                           {{ formatNumber(totalPrice + 100000) }} VNĐ
@@ -456,28 +321,18 @@
                         MoMo
                       </button>
                       <button class="btn btn-payment">
-                        <img
-                          src="/img/Logo-VNPAY-QR-1 (1).png"
-                          alt="Qris Icon"
-                          class="payment-icon mb-1"
-                        />
+                        <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
                         <br />
                         QR code
                       </button>
                     </div>
                     <hr />
                     <div class="d-flex flex-column flex-sm-row">
-                      <button
-                        type="button"
-                        @click="$router.back()"
-                        class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2"
-                      >
+                      <button type="button" @click="$router.back()"
+                        class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
                         Quay lại
                       </button>
-                      <button
-                        type="submit"
-                        class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2"
-                      >
+                      <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
                         Đặt bàn
                       </button>
                       <button class="btn btn-outline-danger flex-fill p-2" type="button">
@@ -559,7 +414,7 @@ export default {
     const time = ref('')
     const user_id = ref(null)
     const guest_name = ref('')
-    const guest_phone = ref('')
+    const guest_phone = ref(null)
     const guest_count = ref(null)
     const guest_email = ref('')
     const selectedTableIds = ref([])
@@ -660,9 +515,9 @@ export default {
 
     // hàm tìm bàn
     const findTable = async () => {
-      if (date.value && time.value && guest_count.value) {
-        try {
-          isLoading.value = true
+      isLoading.value = true
+      try {
+        if (date.value && time.value && guest_count.value) {
           const datetime = localStorage.getItem('selectedDate') || new Date(`${date.value}T${time.value}:00`)
           const selectedDateTime = formatDateTime(datetime)
           const reservedFrom = new Date(selectedDateTime)
@@ -676,17 +531,22 @@ export default {
             reserved_to: reserved_to,
             number_of_guests: guest_count.value,
           })
-
-          availableTables.value = res.data.tables || []
-          localStorage.removeItem('selectedDate')
-        } catch (error) {
-          toast.error('Lỗi khi lấy danh sách bàn có thể đặt')
-          console.error('Lỗi:', error)
-        } finally {
-          isLoading.value = false
+          availableTables.value = res.data.tables
+        } else {
+          // ✅ Nếu không có thông tin đặt bàn thì lấy tất cả bàn
+          const res = await axios.get('http://127.0.0.1:8000/api/tables')
+          availableTables.value = res.data.tables
         }
+
+        localStorage.removeItem('selectedDate')
+      } catch (error) {
+        toast.error('Lỗi khi lấy danh sách bàn')
+        console.error('Lỗi:', error)
+      } finally {
+        isLoading.value = false
       }
     }
+
     const getChairCount = (seats) => {
       if (seats <= 2) return 1
       if (seats <= 4) return 2
@@ -833,11 +693,12 @@ export default {
       }
     })
     onMounted(() => {
+      findTable()
+
       time.value = formatTime(localStorage.getItem('selectedDate')) || ''
       date.value = formatDate(localStorage.getItem('selectedDate')) || ''
       getAllUser()
       selectguest.value = 'guest'
-      findTable()
       loadCart()
       for (let hour = 1; hour <= 21; hour++) {
         let hourStr = hour < 10 ? '0' + hour : '' + hour
@@ -961,6 +822,7 @@ export default {
   flex-wrap: wrap;
   gap: 20px;
   margin-top: 20px;
+  justify-content: center;
 }
 
 .table-rect1.medium {
