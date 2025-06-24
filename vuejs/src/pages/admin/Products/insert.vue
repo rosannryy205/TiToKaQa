@@ -112,7 +112,7 @@ const newFood = ref({
   category_id: '',
   description: '',
   image: null,
-  status: ''
+  status: 'active'
 })
 
 // Danh sách danh mục
@@ -151,6 +151,18 @@ const handleImageChange = (e) => {
 // Gửi dữ liệu lên server
 const addFood = async () => {
   try {
+    if (newFood.value.stock < 0) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Số lượng không được âm!',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      })
+      return
+    }
     const formData = new FormData()
     formData.append('name', newFood.value.name)
     formData.append('price', newFood.value.price)

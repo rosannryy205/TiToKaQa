@@ -3,7 +3,7 @@
     <TheSidebar :collapsed="collapsed" @toggleCollapse="toggleSidebar" />
     <div class="main-content flex-grow-1 d-flex flex-column">
       <TheHeader @toggleCollapse="toggleSidebar" />
-      <main class="flex-grow-1 p-3" style="min-height: 800px">
+      <main class="flex-grow-1 p-3" style="min-height: 500px">
         <router-view />
       </main>
       <TheFooter />
@@ -21,8 +21,6 @@ const collapsed = ref(false)
 const toggleSidebar = () => {
   collapsed.value = !collapsed.value
 }
-
-
 </script>
 
 <style scoped>

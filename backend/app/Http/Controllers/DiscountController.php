@@ -12,10 +12,14 @@ class DiscountController extends Controller
     {
         try {
             $query = Discount::query();
-
+            //lay theo source    
             if ($request->has('source')) {
                 $query->where('source', $request->get('source'));
-            }
+            } 
+            //lay theo danh muc    
+            if ($request->has('category_id')) {
+                $query->where('category_id', $request->get('category_id'));
+            }       
             return response()->json($query->get());
         } catch (\Throwable $e) {
             return response()->json(['mess' => 'Lỗi khi lấy mã giảm giá', 'error' => $e->getMessage()], 500);
@@ -48,4 +52,28 @@ class DiscountController extends Controller
         $service = new PointService();
         return $service->redeemDiscount($user, $request->discount_id);
     }
+
+    public function getDiscountByCategory(Request $request)
+{
+    $query = Discount::query();
+
+    if ($request->has('category_id') && $request->category_id !== null) {
+        $query->where('category_id', $request->category_id);
+    }
+    $query->where('source', 'point_exchange'); 
+
+    return response()->json($query->get());
+}
+
+    public function getUserDiscounts(Request $request)
+    {
+        $user = auth()->user();
+        $discounts = $user->discounts()
+        ->withPivot(['point_used', 'exchanged_at', 'expiry_at'])
+        ->get(); 
+        return response()->json($discounts);
+    }
+    
+
+    
 }

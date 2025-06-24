@@ -35,7 +35,8 @@ class User extends Authenticatable
         'provider_name',
         'provider_token',
         'provider_refresh_token',
-        'status'
+        'status',
+        'rank'
 
     ];
 
@@ -62,9 +63,19 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function orders(){
+    public function orders()
+    {
         return $this->hasMany(Order::class);
     }
+    public function discounts()
+{
+    return $this->belongsToMany(Discount::class, 'discount_user', 'user_id', 'discount_id')
+        ->withPivot(['point_used', 'exchanged_at', 'expiry_at'])
+        ->withTimestamps();
+}
+
+
+
 
 
 }
