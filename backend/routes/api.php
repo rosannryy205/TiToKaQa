@@ -6,10 +6,10 @@ use App\Http\Controllers\AdminFoodController;
 use App\Http\Controllers\AdminToppingController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\ChatRealTimeController;
 use App\Http\Controllers\ComboController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
@@ -19,10 +19,11 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\TableController;
-use App\Models\Combo;
+use Illuminate\Http\Request;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 
@@ -86,6 +87,19 @@ Route::delete('/delete_role/{id}', [RoleController::class, 'deleteRole']);
 
 
 
+//permission
+Route::get('/permission', [PermissionController::class, 'getAllPermission']);
+Route::delete('/permission/{id}', [PermissionController::class, 'deletePermission']);
+
+
+
+// message
+Route::get('/messages', [ChatRealTimeController::class, 'getMessages']);
+Route::post('/messages/send', [ChatRealTimeController::class, 'sendMessage']);
+Route::get('/conversations', [ChatRealTimeController::class, 'getConversationToAdmin']);
+Route::put('/assign-conversation-admin/{id}', [ChatRealTimeController::class, 'assignAdmin']);
+Route::put('/mark-read/{id}', [ChatRealTimeController::class, 'markRead']);
+
 
 
 Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
@@ -104,20 +118,21 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
 
-Route::post('/insert_staff', [UserController::class, 'insertStaff' ]);
+Route::post('/insert_staff', [UserController::class, 'insertStaff']);
 
 
 // đăng ký đăng nhập quên mật khẩu
 Route::post('/register/send-code', [UserController::class, 'sendRegisterCode']);
 Route::post('/register/verify-code', [UserController::class, 'verifyRegisterCode']);
 
-Route::post('/login', [UserController::class, 'login']);
+Route::post('/login', [UserController::class, 'login'])->name('login');;
 Route::post('/forgot', [UserController::class, 'forgotPass']);
 Route::post('/verify-code', [UserController::class, 'verifyResetCode']);
 Route::post('/reset-password', [UserController::class, 'ChangePassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
 });
+
 
 // tìm kiếm
 
@@ -170,39 +185,44 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 
 //admin
 // Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    // món ăn
-    Route::get('/admin/manage/foods', [AdminFoodController::class, 'index']);
-    Route::post('/admin/foods', [AdminFoodController::class, 'store']);
-    Route::get('/admin/foods/search', [FoodController::class, 'search']);
-    Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
-    Route::post('/admin/foods/delete-multiple', [AdminFoodController::class, 'deleteMultiple']);
-    Route::put('admin/food/{id}/status', [AdminFoodController::class, 'updateStatus']);
-    Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
-    Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
+// món ăn
+Route::get('/admin/manage/foods', [AdminFoodController::class, 'index']);
+Route::post('/admin/foods', [AdminFoodController::class, 'store']);
+Route::get('/admin/foods/search', [FoodController::class, 'search']);
+Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
+Route::post('/admin/foods/delete-multiple', [AdminFoodController::class, 'deleteMultiple']);
+Route::put('/admin/food/{id}/status', [AdminFoodController::class, 'updateStatus']);
+Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
+Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
+Route::get('/admin/topping-food', [AdminFoodController::class, 'getAlltopping']);
+
+Route::get('/admin/food/topping/{food}', [AdminFoodController::class, 'getToppingForFood']);
+Route::post('/admin/food/topping/{food}', [AdminFoodController::class, 'storeToppingForFood']);
 
 
-    // topping
-    Route::resource('/admin/category_topping', AdminCategoryToppingController::class);
-    Route::resource('/admin/toppings', AdminToppingController::class);
-    Route::get('/admin/toppingById/{id}', [AdminToppingController::class,'getToppingById']);
+// topping
+Route::resource('/admin/category_topping', AdminCategoryToppingController::class);
+Route::resource('/admin/toppings', AdminToppingController::class);
+Route::get('/admin/toppingById/{id}', [AdminToppingController::class, 'getToppingById']);
 
 
-    // danh mục món ăn
-    Route::get('/admin/categories', [AdminCategoryController::class, 'getParentCategories']);
-    Route::get('/admin/categories/parents/list', [AdminCategoryController::class, 'getParents']);
-    Route::get('/admin/categories/list', [AdminCategoryController::class, 'index']);
-    Route::get('/admin/categories/{id}', [AdminCategoryController::class, 'show']);
-    Route::post('/admin/categories', [AdminCategoryController::class, 'store']);
-    Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update']);
-    Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
-    Route::post('/admin/categories/delete-multiple', [AdminCategoryController::class, 'deleteMultiple']);
+// danh mục món ăn
+Route::get('/admin/categories', [AdminCategoryController::class, 'getParentCategories']);
+Route::get('/admin/categories', [AdminCategoryController::class, 'getAllCategories']);
+Route::get('/admin/categories/parents/list', [AdminCategoryController::class, 'getParents']);
+Route::get('/admin/categories/list', [AdminCategoryController::class, 'index']);
+Route::get('/admin/categories/{id}', [AdminCategoryController::class, 'show']);
+Route::post('/admin/categories', [AdminCategoryController::class, 'store']);
+Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update']);
+Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
+Route::post('/admin/categories/delete-multiple', [AdminCategoryController::class, 'deleteMultiple']);
 
 
 
 
-    // Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
-    // Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
-    // Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
+// Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
+// Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
+// Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
 // });
 
 
@@ -230,4 +250,3 @@ Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
 Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
 Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);
-

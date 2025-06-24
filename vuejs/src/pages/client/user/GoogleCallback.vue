@@ -26,7 +26,12 @@ onMounted(async () => {
 
 
     const token = response.data.token
-    const user = response.data.user
+    const user = {
+      ...response.data.user,
+      isGuest: response.data.user.isGuest ?? false
+    }
+
+
 
     localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(user))

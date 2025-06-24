@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia';
-import router from '@/router';
+import { defineStore } from 'pinia'
+import router from '@/router'
 
 export const useUserStore = defineStore('userAuth', {
   state: () => ({
@@ -11,17 +11,20 @@ export const useUserStore = defineStore('userAuth', {
   },
   actions: {
     setUser(user, token) {
-      this.user = user;
-      this.token = token;
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', token);
+      this.user = {
+        ...user,
+        isGuest: user.isGuest ?? false,
+      }
+      this.token = token
+      localStorage.setItem('user', JSON.stringify(user))
+      localStorage.setItem('token', token)
     },
     logout() {
-      this.user = null;
-      this.token = null;
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-      router.push('/login');
-    }
-  }
-});
+      this.user = null
+      this.token = null
+      localStorage.removeItem('user')
+      localStorage.removeItem('token')
+      router.push('/login')
+    },
+  },
+})

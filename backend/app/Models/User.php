@@ -61,7 +61,8 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function orders(){
+    public function orders()
+    {
         return $this->hasMany(Order::class);
     }
     public function discounts()
@@ -71,8 +72,8 @@ class User extends Authenticatable
         ->withTimestamps();
 }
 
-    
-    
-    
+
+
+
 
 }
