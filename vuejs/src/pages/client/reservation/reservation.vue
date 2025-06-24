@@ -44,7 +44,7 @@
               />
             </div>
             <div class="col-md-3">
-              <button type="submit" class="btn btn-danger1 w-100">Tìm bàn</button>
+              <button class="btn btn-danger w-100 fw-bold">Tìm bàn</button>
             </div>
           </div>
         </form>
