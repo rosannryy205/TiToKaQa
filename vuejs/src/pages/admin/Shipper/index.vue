@@ -192,6 +192,7 @@ function statusIcon(status) {
 .order-items-scroll {
   max-height: 200px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 4px;
 }
 

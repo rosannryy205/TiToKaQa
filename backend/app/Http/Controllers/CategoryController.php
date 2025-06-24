@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function getAllCategories()
+    public function getParentCategories()
     {
         try {
             $cates = Category::with('children')->whereNull('parent_id')->get();
@@ -16,6 +16,9 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Lỗi khi lấy danh sách danh mục', 'error' => $e->getMessage()], 500);
         }
     }
-
+        public function getAllCategories()
+{
+    return response()->json(Category::all());
+}
     
 }

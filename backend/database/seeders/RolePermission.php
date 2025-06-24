@@ -31,36 +31,43 @@ class RolePermission extends Seeder
             'delete' => 'Xoá',
         ];
 
-        // Tạo tất cả quyền
         foreach ($modules as $moduleKey => $moduleName) {
             foreach ($actions as $actionKey => $actionName) {
                 Permission::firstOrCreate([
-                    'name' => "{$actionKey}_{$moduleKey}"
+                    'name' => "{$actionKey}_{$moduleKey}",
                 ]);
             }
         }
 
-        // Tạo vai trò
         $manager = Role::firstOrCreate(['name' => 'quanly']);
         $staff = Role::firstOrCreate(['name' => 'nhanvien']);
         $warehouse = Role::firstOrCreate(['name' => 'nhanvienkho']);
         $customer = Role::firstOrCreate(['name' => 'khachhang']);
 
-        // Gán quyền cho từng vai trò
-        $manager->givePermissionTo(Permission::all()); // Toàn quyền
+        $manager->givePermissionTo(Permission::all());
 
         $staff->givePermissionTo([
-            'view_order', 'create_order', 'edit_order',
-            'view_table', 'view_food', 'view_combo',
+            'view_order',
+            'create_order',
+            'edit_order',
+            'view_table',
+            'view_food',
+            'view_combo',
         ]);
 
         $warehouse->givePermissionTo([
-            'view_food', 'view_topping', 'view_combo',
-            'view_category', 'create_food', 'edit_food',
+            'view_food',
+            'view_topping',
+            'view_combo',
+            'view_category',
+            'create_food',
+            'edit_food',
         ]);
 
         $customer->givePermissionTo([
-            'view_food', 'view_combo', 'view_table',
+            'view_food',
+            'view_combo',
+            'view_table',
         ]);
     }
 }

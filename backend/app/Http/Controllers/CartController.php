@@ -8,6 +8,7 @@ use App\Models\Order_detail;
 use App\Models\Order_topping;
 use App\Models\Reservation_table;
 use App\Services\PointService;
+use App\Services\RanksService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -257,8 +258,8 @@ class CartController extends Controller
     public function get_all_orders()
     {
         $orders = Order::with([
-            'details.foods', // lấy tên món ăn
-            'details.toppings.food_toppings.toppings', // lấy tên topping
+            'details.foods.category', 
+            'details.toppings.food_toppings.toppings', 
             'tables',
             'payment'
         ])->orderByDesc('order_time')->get();
@@ -270,6 +271,8 @@ class CartController extends Controller
                         'id' => $detail->id,
                         'food_id' => $detail->food_id,
                         'food_name' => optional($detail->foods)->name,
+                        'category_id' => optional($detail->foods)->category_id,
+                        'category_name' => optional($detail->foods->category)->name ?? null,
                         'quantity' => $detail->quantity,
                         'price' => $detail->price,
                         'image' => optional($detail->foods)->image,
@@ -369,14 +372,19 @@ class CartController extends Controller
                     }
                 }
             }
-
             $order->order_status = $newStatus;
             $order->save();
             //================================
-            // POINT
+            // POINT and RANK
             //================================
+            $user = $order->user;
             $pointService = new PointService();
+            $rankService = new RanksService();
+            
             $pointService->updateUserPointsWhenOrderCompleted($order);
+            $user->refresh();
+            $rankService->updateUserRankByPoints($user);
+           
             //================================
 
             if ($order->payment) {

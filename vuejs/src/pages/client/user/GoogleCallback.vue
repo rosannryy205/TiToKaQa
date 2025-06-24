@@ -1,6 +1,9 @@
 <template>
-  <div class="text-center">Đang xử lý đăng nhập Google...</div>
+  <div class="loader-wrapper">
+    <div class="loader"></div>
+  </div>
 </template>
+
 
 <script setup>
 import { onMounted } from 'vue'
@@ -23,7 +26,12 @@ onMounted(async () => {
 
 
     const token = response.data.token
-    const user = response.data.user
+    const user = {
+      ...response.data.user,
+      isGuest: response.data.user.isGuest ?? false
+    }
+
+
 
     localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(user))
@@ -52,3 +60,33 @@ onMounted(async () => {
   }
 })
 </script>
+<style scoped>
+.loader-wrapper {
+  height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* loader như bạn viết */
+.loader {
+  width: 50px;
+  --b: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000 10%, #f03355) content-box;
+  -webkit-mask:
+    repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
+    radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
+}
+
+@keyframes l4 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+</style>
