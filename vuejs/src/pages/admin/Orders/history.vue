@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('view_order')">
   <div>
     <h2>Lịch sử đơn hàng</h2>
 
@@ -135,6 +135,16 @@ import { message } from 'ant-design-vue';
 // Import các icon nếu cần cho nút hoặc các phần khác
 // import { EyeOutlined, PrinterOutlined } from '@ant-design/icons-vue';
 
+import { Permission } from '@/stores/permission'
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
 
 const orders = ref([]);
 const ordersRaw = ref([]);

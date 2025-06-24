@@ -49,8 +49,14 @@ const admin = [
         meta: { requiresAdmin: true },
       },
       {
-        path: 'tables/:orderId',
-        name: 'admin-tables-list',
+        path: 'tables-change/:orderId',
+        name: 'admin-tables-list-change',
+        component: () => import('../pages/admin/Tables/list.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: 'tables-setup/:orderId',
+        name: 'admin-tables-list-setup',
         component: () => import('../pages/admin/Tables/list.vue'),
         meta: { requiresAdmin: true },
       },
@@ -69,6 +75,12 @@ const admin = [
       {
         path: 'tables/insert-reservation',
         name: 'insert-reservation-admin',
+        component: () => import('../pages/admin/Tables/insert.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: 'tables/insert-reservation/:date',
+        name: 'insert-reservation-admin-date',
         component: () => import('../pages/admin/Tables/insert.vue'),
         meta: { requiresAdmin: true },
       },

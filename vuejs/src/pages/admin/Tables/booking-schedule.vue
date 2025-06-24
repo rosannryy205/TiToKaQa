@@ -38,7 +38,7 @@
             <div class="info-block">
               <i class="bi bi-clock"></i>Giờ đặt:
               <span v-for="(t, index) in info.tables" :key="index">
-                {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
+                {{ formatTime(t.reserved_from) }} - {{ formatTime(t.reserved_to)
                 }}<span v-if="index < info.tables.length - 1">, </span>
               </span>
             </div>
@@ -321,10 +321,12 @@ const handleDateInputChange = () => {
 const handleDateClick = (clickDate) => {
   // const date = formatDateTime(clickDate.dateStr)
   // const date = formatDateTime1(clickDate.dateStr)
-  localStorage.setItem('selectedDate', clickDate.dateStr)
   router.push({
-    name: 'insert-reservation-admin',
-  })
+  name: 'insert-reservation-admin-date',
+  params: { date: clickDate.dateStr} // chỉ lấy YYYY-MM-DD
+})
+
+
 }
 
 onMounted(async () => {
