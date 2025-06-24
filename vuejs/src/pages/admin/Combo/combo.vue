@@ -59,63 +59,7 @@
 
   <button class="btn btn-clean btn-delete" v-if="hasPermission('delete_combo')">Xoá</button>
 
-<!-- Modal chọn topping -->
-<div class="modal fade" id="toppingModal" tabindex="-1" aria-labelledby="toppingModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg">
-    <div class="modal-content shadow-sm rounded-3">
 
-      <!-- Header -->
-      <div class="modal-header bg-light">
-        <h5 class="modal-title fw-semibold text-primary" id="toppingModalLabel">
-          Chọn topping cho: {{ selectedFood?.name }}
-        </h5>
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" @click="closeModal">
-          &times;
-        </button>
-      </div>
-
-      <!-- Body -->
-      <div class="modal-body">
-        <div v-if="toppings.length === 0">
-          <p class="text-muted">Không có topping để chọn.</p>
-        </div>
-        <div v-else class="table-responsive">
-          <table class="table table-bordered align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>#</th>
-                <th>Tên topping</th>
-                <th>Giá</th>
-                <th>Chọn</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(topping, index) in toppings" :key="topping.id">
-                <td>{{ index + 1 }}</td>
-                <td>{{ topping.name }}</td>
-                <td>{{ formatNumber(topping.price) }} đ</td>
-                <td class="text-center">
-                  <input
-                    type="checkbox"
-                    class="form-check-input"
-                    :value="topping.id"
-                    v-model="selectedToppingIds"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="closeModal">Đóng</button>
-        <button type="button" class="btn btn-primary" @click="saveToppings">Lưu</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 </template>
 
