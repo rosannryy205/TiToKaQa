@@ -246,11 +246,9 @@ Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
 Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 
-
 /**client user-point_exchange*/
 Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');
 Route::get('/user-vouchers', [DiscountController::class, 'getUserDiscounts'])->middleware('auth:sanctum');
-
 /** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 // Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);

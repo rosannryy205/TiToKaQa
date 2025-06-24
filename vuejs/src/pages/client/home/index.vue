@@ -4,13 +4,13 @@
     <div class="container text-center">
       <div class="row justify-content-center align-items-stretch">
         <div class="col-4 d-none d-lg-block pt-5 text-start">
-          <div class="title-foods fw-medium fs-5 mt-5">
-            <span>Lẩu và Mỳ cay 7 cấp độ</span>
+          <div class="title-foods fs-5 mt-5">
+            <span class="fw-bold text-dark">Lẩu và Mỳ cay 7 cấp độ</span>
           </div>
           <div class="title-shops d-none d-md-block fw-bold">
-            <span>TITOKAQA</span>
+            <span class="fw-bold">TITOKAQA</span>
           </div>
-          <div class="title-infors fw-normal pe-5">
+          <div class="title-infors fw-normal pe-5 text-dark">
             <span>TITOKAQA là chuỗi nhà hàng thương hiệu ẩm thực Hàn Quốc ra mắt vào năm 2025. Món
               “lẩu”, “mỳ cay” với 7 cung bậc cay đã trở thành cơn sốt đối với giới trẻ lúc bấy giờ.
               TITOKAQA đã trở thành một trong những lựa chọn hàng đầu của giới trẻ Việt Nam khi muốn
@@ -50,7 +50,7 @@
               <nav class="navbar px-0 py-2">
                 <ul class="navbar-nav flex-column w-100">
                   <li v-for="parent in categories" :key="parent.id" class="nav-item dropdown position-relative">
-                    <a @click.prevent="getFoodByCategory(parent.id)" class="nav-link fw-semibold text-start" href="#">
+                    <a @click.prevent="getFoodByCategory(parent.id)" class="nav-link fw-bold text-start" href="#">
                       {{ parent.name }}
                     </a>
 
