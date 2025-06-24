@@ -127,7 +127,6 @@ const client = [
             component: () => import('../pages/client/user/history-order.vue'),
             meta: { title: 'Lịch sử đơn hàng' },
           },
-
         ]
       },
       {
