@@ -51,7 +51,7 @@
               <a
                 @click.prevent="getFoodByCategory(parent.id)"
                 href="#"
-                class="text-decoration-none text-start"
+                class="text-decoration-none text-start text-dark fw-bold"
               >
                 {{ parent.name }}
               </a>
@@ -64,7 +64,7 @@
                   <a
                     @click.prevent="getFoodByCategory(child.id)"
                     href="#"
-                    class="text-decoration-none text-start"
+                    class="text-decoration-none text-start text-dark fw-bold"
                   >
                     🔻{{ child.name }}
                   </a>
@@ -158,7 +158,7 @@
   </section>
   <!-- Modal -->
   <div class="modal fade" id="productModal">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+ <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
           <button
@@ -171,7 +171,6 @@
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
-
               <div class="text-center mb-3">
                 <img
                   :src="getImageUrl(foodDetail.image)"
@@ -209,25 +208,26 @@
                       <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
                     </div>
                   </div>
-                  <div v-else class="mt-5">
+                  <div v-else class="mt-5 none-topping">
                     <p class="text-center text-muted">Không có topping cho món này.</p>
                   </div>
                 </div>
+
                 <!---->
                 <div class="mt-auto">
-
                   <div class="text-center mb-2">
               <div class="qty-control px-2 py-1">
-                <button @click="decreaseQuantity" type="button" class="btn-lg" style="background-color: #fff;">-</button>
+                <button type="button" @click="decreaseQuantity" class="btn-lg" style="background-color: #fff;">-</button>
                 <span>{{ quantity }}</span>
-                <button @click="increaseQuantity" type="button" class="btn-lg" style="background-color: #fff;">+</button>
+                <button type="button" @click="increaseQuantity" class="btn-lg" style="background-color: #fff;">+</button>
               </div>
-
-            </div>   <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+            </div>
+                  <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
 
               </div>
+
           </div>
         </div>
       </div>
