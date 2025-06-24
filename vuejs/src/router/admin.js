@@ -204,6 +204,24 @@ const admin = [
         component: () => import('../pages/admin/Users/insertStaff.vue'),
         meta: { requiresAdmin: true },
       },
+      {
+        path: '/admin/delivery',
+        name: 'admin/delivery',
+        component: () => import('../pages/admin/Shipper/index.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: '/admin/delivery_map/:id',
+        name: 'admin/delivery_map',
+        component: () => import('../pages/admin/Shipper/delivery_map.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: '/admin/select_order',
+        name: 'admin/select_order',
+        component: () => import('../pages/admin/Shipper/select_order.vue'),
+        meta: { requiresAdmin: true },
+      },
     ],
   }
 ]
