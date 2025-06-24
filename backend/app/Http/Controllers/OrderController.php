@@ -129,29 +129,7 @@ class OrderController extends Controller
     public function reservation(Request $request)
     {
         try {
-            $validator = FacadesValidator::make($request->all(), [
-                'guest_count' => 'required|integer|min:1',
-                'guest_name' => 'required|string',
-                'guest_phone' => 'required|numeric',
-                'reserved_from' => 'required|date',
-                'table_ids' => 'required|array|min:1',
-                'table_ids.*' => 'integer|exists:tables,id',
-            ], [
-                'guest_count.required' => 'Vui lòng nhập số khách.',
-                'reserved_from.required' => 'Vui lòng chọn thời gian đặt bàn.',
-                'table_ids.required' => 'Vui lòng chọn ít nhất một bàn.',
-                'table_ids.*.exists' => 'Bàn không tồn tại trong hệ thống.',
-                'guest_name.required' => 'Vui lòng nhập tên.',
-                'guest_phone.required' => 'Vui lòng nhập số điện thoại.',
 
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
 
             $guestName = $request->guest_name ?? null;
             $guestPhone = $request->guest_phone ?? null;
@@ -849,11 +827,22 @@ class OrderController extends Controller
                 'order_id' => 'required|numeric',
                 'table_ids' => 'required|array',
                 'table_ids.*' => 'numeric',
-                'reserved_from' => 'required|date',
+                'reserved_from' => 'nullable|date',
                 'reserved_to' => 'nullable|date',
             ], [
                 'table_ids.required' => 'Bạn chưa xếp bàn cho đơn hàng này.',
             ]);
+
+            if (empty($data['reserved_to'])) {
+                $order = Order::find($data['order_id']);
+                if (!$order) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Không tìm thấy đơn hàng.'
+                    ], 404);
+                }
+                $data['reserved_to'] = $order->reserved_to;
+            }
 
             $createdTables = [];
 
@@ -876,20 +865,11 @@ class OrderController extends Controller
                     'reserved_to' => $data['reserved_to'],
                 ]);
                 $createdTables[] = $reservation;
-
-                Table::where('id', $table_id)->update([
-                    'status' => 'Đã đặt trước'
-                ]);
             }
-
-
-            Order::where('id', $data['order_id'])->update([
-                'reservation_status' => 'Đã xếp bàn'
-            ]);
 
             return response()->json([
                 'status' => true,
-                'message' => 'Xếp bàn thành công và trạng thái bàn đã thay đổi thành "Đã đặt trước".',
+                'message' => 'Xếp bàn thành công',
             ]);
         } catch (ValidationException $th) {
             return response()->json([
@@ -903,6 +883,7 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
 
     public function getAllFoodsWithToppings()
     {

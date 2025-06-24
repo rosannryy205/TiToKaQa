@@ -1,5 +1,14 @@
 <template v-if="hasPermission('edit_booking')">
-  <div class="fw-semibold">Danh sách món</div>
+  <div class="d-flex justify-content-between">
+          <div class="fw-semibold fs-3">Danh sách món</div>
+
+    <div>
+      <button @click="$router.back()" class="btn btn-outline-secondary rounded-0">
+        <i class="bi bi-arrow-counterclockwise"></i> Quay lại
+      </button>
+    </div>
+
+  </div>
   <div class="mb-3">
     <hr />
     <div class="row">

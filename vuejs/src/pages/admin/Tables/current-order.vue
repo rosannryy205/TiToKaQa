@@ -668,15 +668,10 @@ export default {
 }
 
 .add-order-fixed-btn {
-  position: fixed;
-  top: 70px;
-  right: 10px;
-  z-index: 999;
   padding: 10px 16px;
-  font-weight: 600;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  color: #fff;
-  background-color: #c92c3c;
+  border-radius: 5px;
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+  margin-bottom: 10px;
 }
 </style>
