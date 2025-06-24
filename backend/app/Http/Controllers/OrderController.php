@@ -819,12 +819,10 @@ class OrderController extends Controller
                 ];
             });
 
-            // Sắp xếp dữ liệu
             $sortedData = $data->sort(function ($a, $b) {
                 $statusA = $a['order_status'];
                 $statusB = $b['order_status'];
 
-                // Chuyển đổi thời gian thành đối tượng Carbon để so sánh dễ dàng
                 $timeA = ($statusA === 'Khách đã đến' && $a['check_in_time'])
                     ? Carbon::parse($a['check_in_time'])
                     : Carbon::parse($a['order_time']);
@@ -833,16 +831,14 @@ class OrderController extends Controller
                     ? Carbon::parse($b['check_in_time'])
                     : Carbon::parse($b['order_time']);
 
-                // Ưu tiên 'Khách đã đến' và so sánh theo check_in_time
                 if ($statusA === 'Khách đã đến' && $statusB !== 'Khách đã đến') {
-                    return -1; // A ưu tiên hơn B
+                    return -1;
                 } elseif ($statusA !== 'Khách đã đến' && $statusB === 'Khách đã đến') {
-                    return 1; // B ưu tiên hơn A
+                    return 1;
                 } else {
-                    // Cả hai cùng trạng thái 'Khách đã đến' hoặc cả hai không phải 'Khách đã đến'
-                    return $timeA->timestamp - $timeB->timestamp; // Sắp xếp theo thời gian tăng dần
+                    return $timeA->timestamp - $timeB->timestamp;
                 }
-            })->values(); // Đảm bảo các khóa mảng được đặt lại sau khi sắp xếp
+            })->values();
 
             return response()->json([
                 'status' => true,

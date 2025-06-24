@@ -279,7 +279,7 @@ const menuItems = [
     key: 'delivery-management',
     label: 'Giao hàng',
     icon: DeliveredProcedureOutlined,
-    permission: 'view_order',
+    permission: 'view_shipper',
     children: [
       {
         key: '/admin/delivery',
