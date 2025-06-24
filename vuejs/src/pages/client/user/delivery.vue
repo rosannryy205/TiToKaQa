@@ -20,11 +20,13 @@
 </template>
 
 <script setup>
+import '@/stores/animated-marker'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { toast } from 'vue3-toastify'
 const goBack = () => {
   window.history.back()
 }
@@ -98,6 +100,14 @@ onMounted(async () => {
     const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${order_id}`)
     const order = res.data
 
+    const shipperId = order.data.shipper_id
+
+    const res2 = await axios.get(`http://127.0.0.1:8000/api/shipper/${shipperId}/last-location`)
+    shipper.value = {
+      lat: res2.data.lat,
+      lng: res2.data.lng
+    }
+
     console.log(order)
 
     //Lấy địa chỉ khách hàng từ đơn hàng
@@ -137,11 +147,11 @@ onMounted(async () => {
       .bindPopup('<b>👤 Khách hàng</b>')
 
 
-    const { coords: polylineCoords, distance } = await getRoutePolyline(restaurant.value, customer.value)
+    const { coords: polylineCoords, distance } = await getRoutePolyline(shipper.value, customer.value)
 
     if (polylineCoords.length) {
       const routeLine = L.polyline(polylineCoords, {
-        color: '#3b82f6',
+        color: '#C92C3C',
         weight: 6,
         opacity: 0.85,
         smoothFactor: 1
@@ -149,21 +159,14 @@ onMounted(async () => {
 
       map.fitBounds(routeLine.getBounds(), { padding: [20, 20] })
 
-      // Hiển thị độ dài tuyến đường (km) trên bản đồ
-      const midIndex = Math.floor(polylineCoords.length / 2)
-      const midPoint = polylineCoords[midIndex]
       const distanceInKm = (distance / 1000).toFixed(2)
-
       const distanceBox = document.getElementById('distanceBox')
+
       if (distanceBox) {
         distanceBox.textContent = `${distanceInKm} km`
         showDistanceBox.value = true
       }
-    }
 
-
-
-    if (shipper.value) {
       const shipperIcon = L.icon({
         iconUrl: '/shipper.png',
         iconSize: [50, 50],
@@ -171,10 +174,23 @@ onMounted(async () => {
         popupAnchor: [0, -20]
       })
 
-      L.marker([shipper.value.lat, shipper.value.lng], { icon: shipperIcon })
-        .addTo(map)
-        .bindPopup('<b>🛵 Shipper</b>')
+      const animatedMarker = new L.AnimatedMarker(routeLine.getLatLngs(), {
+        icon: shipperIcon,
+        autoStart: true,
+        distance: 80,
+        interval: 150, //150 // 720
+        onEnd: () => {
+          toast.success('Shipper đã đến, bạn hãy xuống lấy hàng')
+        }
+      })
+      map.addLayer(animatedMarker)
     }
+
+
+
+
+
+
 
     // Khắc phục hiển thị sai nếu map chưa render kịp
     setTimeout(() => {
