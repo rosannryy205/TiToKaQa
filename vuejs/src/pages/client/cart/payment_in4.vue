@@ -325,6 +325,10 @@ export default {
           return
         }
         if (paymentMethod.value === 'COD') {
+          if (user.value?.status === 'Block') {
+            toast.error('Tài khoản của bạn đã bị hạn chế. Không thể thanh toán bằng tiền mặt.');
+            return;
+          }
           await new Promise((resolve) => setTimeout(resolve, 300))
           await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
             order_id: orderId,

@@ -156,6 +156,13 @@ Route::post('/order/{id}/cancel', [OrderController::class, 'handelOrderCancel'])
 Route::get('/order_detail/{id}', [CartController::class, 'get_order_detail']);
 Route::get('/get_all_orders', [CartController::class, 'get_all_orders']);
 Route::put('/update/{id}/status', [CartController::class, 'update_status']);
+Route::middleware('auth:sanctum')->get('/shipper/orders', [OrderController::class, 'getOrdersByShipper']);
+Route::post('/selected_orders', [OrderController::class, 'assignShipper']);
+Route::get('/shipper/{id}/active-orders', [OrderController::class, 'getShipperOrders']);
+Route::post('/shipper/update-location', [UserController::class, 'updateLocation']);
+Route::get('/shipper/{id}/last-location', [UserController::class, 'getLastLocation']);
+
+
 
 
 //discount

@@ -155,7 +155,7 @@ const fetchOrders = async () => {
           phone: order.guest_phone,
         },
         orderDate: order.order_time,
-        areaTable: order.tables?.map(t => `Bàn ${t.table_number}`).join(', ') || 'Not found',
+        areaTable: order.tables?.map(t => `Bàn ${t.table_number}`).join(', ') || 'Trống',
         orderType: order.tables?.length > 0 ? 'Đặt bàn' : 'Mang về',
         totalAmount: parseFloat(order.total_price),
         status: order.order_status,
@@ -188,10 +188,11 @@ const allowedStatuses = [
   'Chờ xác nhận',
   'Đã xác nhận',
   'Đang xử lý',
-  'Đang giao hàng',
-  'Giao thành công',
-  'Giao thất bại',
-  'Đã hủy'
+  'Bắt đầu giao',
+  // 'Đang giao hàng',
+  // 'Giao thành công',
+  // 'Giao thất bại',
+  // 'Đã hủy'
 ];
 
 // Quy ước thứ tự trạng thái (để kiểm soát nhảy bậc và lùi)
@@ -199,10 +200,11 @@ const statusOrder = {
   'Chờ xác nhận': 1,
   'Đã xác nhận': 2,
   'Đang xử lý': 3,
-  'Đang giao hàng': 4,
-  'Giao thành công': 5,
-  'Giao thất bại': 5,  // cùng bậc với giao thành công
-  'Đã hủy': 6
+  'Bắt đầu giao': 4,
+  'Đang giao hàng': 5,
+  'Giao thành công': 6,
+  'Giao thất bại': 6,  // cùng bậc với giao thành công
+  'Đã hủy': 7
 };
 
 const isStatusDisabled = (status) => {
@@ -436,7 +438,8 @@ const getStatusColor = (status) => {
   switch (status) {
     case 'Chờ xác nhận': return 'orange';
     case 'Đã xác nhận': return 'blue';
-    case 'Đang xử lý': return 'processing'; // AntD processing có animation
+    case 'Đang xử lý': return 'processing'; // có animation
+    case 'Bắt đầu giao': return 'cyan';
     case 'Đang giao hàng': return 'geekblue';
     case 'Giao thành công': return 'green';
     case 'Giao thất bại': return 'red';
@@ -444,6 +447,7 @@ const getStatusColor = (status) => {
     default: return 'default';
   }
 };
+
 
 const formatCurrency = (value) => {
   if (typeof value !== 'number') return value;

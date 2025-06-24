@@ -25,6 +25,8 @@ class User extends Authenticatable
         'avatar',
         'address',
         'fullname',
+        'last_position_lat',
+        'last_position_lng',
         'verify_code',
         'verify_expiry',
         'role_id',
