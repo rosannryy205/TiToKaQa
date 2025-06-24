@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('view_category')">
   <h3 class="title">Quản lý danh mục</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
@@ -64,12 +64,13 @@
 
           <td class="d-flex justify-content-center gap-2 "
             style="min-height:100px; min-width: 80px; display: flex; align-items: center; justify-content: center;">
-            <router-link v-if="item.id !== 1" :to="{ name: 'update-food-category', params: { id: item.id } }"
-              class="btn btn-outline btn-sm">
+            <router-link v-if="item.id !== 1 || hasPermission('edit_category')"
+              :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-outline btn-sm">
               Sửa
             </router-link>
             <div v-if="item.default === 0">
-              <button class="btn btn-danger-delete btn-sm" @click="handleDelete(item.id)">Xoá</button>
+              <button class="btn btn-danger-delete btn-sm" @click="handleDelete(item.id)"
+                v-if="hasPermission('delete_category')">Xoá</button>
             </div>
           </td>
         </tr>
@@ -127,6 +128,7 @@ import axios from 'axios'
 import { ref, onMounted, watch, computed } from 'vue'
 import { debounce } from 'lodash'
 import Swal from 'sweetalert2'
+import { Permission } from '@/stores/permission'
 
 
 export default {
@@ -141,6 +143,15 @@ export default {
     const selectedIds = ref([])
     const selectedType = ref('')
     const isLoading = ref(true)
+    const userId = ref(null)
+    const userString = localStorage.getItem('user')
+    if (userString) {
+      const user = JSON.parse(userString)
+      if (user && user.id !== undefined) {
+        userId.value = user.id
+      }
+    }
+    const { hasPermission, permissions } = Permission(userId)
 
 
     const fetchCategories = async () => {
@@ -339,7 +350,10 @@ export default {
       changePerPage,
       handleDelete,
       toggleSelectAll,
-      handleDeleteSelected
+      handleDeleteSelected,
+      hasPermission,
+      userString,
+      userId
 
     }
   }

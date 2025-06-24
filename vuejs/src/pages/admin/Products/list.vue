@@ -1,9 +1,9 @@
-<template>
+<template v-if="hasPermission('view_food')">
   <h3 class="title">Quản lý món ăn</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
 
-    <router-link :to="{ name: 'insert-food' }" class="btn btn-add">
+    <router-link :to="{ name: 'insert-food' }" class="btn btn-add" v-if="hasPermission('create_food')">
       + Thêm món ăn
     </router-link>
     <span class="vd">Tìm kiếm</span>
@@ -113,12 +113,12 @@
           <td>{{ food.price.toLocaleString('vi-VN') }} VNĐ</td>
           <td>{{ food.stock }}</td>
           <td class="d-flex gap-2">
-            <router-link :to="{ name: 'update-food', params: { id: food.id } }">
+            <router-link :to="{ name: 'update-food', params: { id: food.id } }" v-if="hasPermission('edit_food')">
               <button type="button" class="btn btn-update ">
                 Sửa
               </button>
             </router-link>
-            <button class="btn btn-clean btn-delete btn-sm" @click="deleteFood(food.id)">Xoá</button>
+            <button class="btn btn-clean btn-delete btn-sm" @click="deleteFood(food.id)" v-if="hasPermission('delete_food')">Xoá</button>
 
             <button @click="toggleStatus(food)" class="btn btn-toggle-status"
               :class="food.status === 'active' ? 'btn-outline-secondary' : 'btn-outline-success'"
@@ -249,7 +249,16 @@ import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import * as bootstrap from 'bootstrap'
-
+import { Permission } from '@/stores/permission'
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
 const foods = ref([]);
 const currentPage = ref(1);
 const lastPage = ref(1);
