@@ -184,15 +184,6 @@ const menuItems = [
         icon: AppstoreOutlined,
         permission: 'view_category',
       },
-
-      {
-        key: '/admin/options/category-options',
-        to: '/admin/options/category-options',
-        label: 'Danh mục topping',
-        icon: AppstoreOutlined,
-        permission: 'view_topping', // Quyền xem topping category
-      },
-
     ],
   },
   {
