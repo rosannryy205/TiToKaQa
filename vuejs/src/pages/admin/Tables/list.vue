@@ -3,13 +3,17 @@
     <div v-if="isLoading || isLoadingPermissions" class="isLoading-overlay">
       <div class="spinner-border text-danger" role="status"></div>
     </div>
-    <button v-if="isSetup" type="button" class="btn btn-danger w-100 mt-3" @click="setUpTablesForOrder"
+
+    <div class="main-layout">
+      <div class="main-content">
+        <div class="d-flex justify-content-between ">
+                  <h2>Danh sách bàn</h2>
+
+<button v-if="isSetup" type="button" class="btn btn-danger1 rounded-0" @click="setUpTablesForOrder"
       :disabled="selectedTablesForOrder.length === 0">
       Xếp Bàn
     </button>
-    <div class="main-layout">
-      <div class="main-content">
-        <h2>Danh sách bàn</h2>
+        </div>
         <template v-if="hasPermission('view_table')">
           <div class="table-filter-box">
             <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">
@@ -1163,7 +1167,12 @@ a {
   height: 100vh;
   overflow: hidden;
 }
-
+.btn-danger1{
+  background-color: #c92c3c;
+  border: #c92c3c;
+  color: #fff;
+  width: 100px;
+}
 .main-content {
   flex-grow: 1;
   padding: 20px;
