@@ -290,6 +290,7 @@ class CartController extends Controller
                 return [
                     'id' => $order->id,
                     'user_id' => $order->user_id,
+                    'shipper_id' => $order->shipper_id,
                     'discount_id' => $order->discount_id,
                     'order_time' => $order->order_time,
                     'order_status' => $order->order_status,

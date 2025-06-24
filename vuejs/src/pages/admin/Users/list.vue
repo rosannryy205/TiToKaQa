@@ -59,7 +59,7 @@
           <td>{{ user.address ? user.address : 'Chưa cập nhật' }}</td>
           <td>{{ getRoleName(user.roles) }}</td>
           <td>
-            {{ user.status }}
+            {{ user.status === "Active" ? 'Hoạt động' : 'Hạn chế' }}
           </td>
           <td class="d-flex justify-content-center gap-2">
             <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
@@ -93,14 +93,7 @@
           </a>
         </li>
       </ul>
-    </div>
-
-
-    <div v-if="isEmployee">
-      <p>*Mật khẩu là (username)Titokaqa <br>
-        VD: staff1Titokaqa
-      </p>
-    </div>
+    </div>z
   </div>
 
   <!-- <button class="btn btn-danger-delete delete_desktop">Xoá</button> -->
