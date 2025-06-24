@@ -1,7 +1,7 @@
 <template>
   <div class="container py-3 position-relative col-12 col-md-8 col-lg-9">
     <!-- Danh mục -->
-    <div class="mb-5 pt-5">
+    <div class="mb-5">
       <div class="d-flex align-items-center mb-3">
         <h5 class="fw-bold mb-0 title-cate-discount">Chọn danh mục bạn quan tâm</h5>
       </div>
@@ -20,7 +20,7 @@
           v-for="category in categories"
           :key="category.id"
           :class="[
-            'voucher-brand-btn d-flex align-items-center',
+            'voucher-brand-btn d-flex align-items-center btn-sm',
             selectedCategory === category.id ? 'active' : '',
           ]"
         >
@@ -34,6 +34,16 @@
       </div>
     </div>
     <div>
+      <div class="d-flex align-items-center mb-3" style="gap: 10px">
+      <input
+        v-model="voucherCode"
+        type="text"
+        class="form-control"
+        placeholder="Tìm mã voucher tại đây"
+        style="max-width: 400px; font-size: 14px; border-radius: 0.25rem"
+      />
+      <button class="btn btn-save-discount px-4">Lưu</button>
+    </div>
       <div class="d-flex align-items-center mb-2">
         <h5 class="fw-bold mb-0 title-discount-hot">Mã giảm giá nổi bật</h5>
       </div>
@@ -147,7 +157,10 @@ const token = userStore.token
 const { getCategory, categories } = FoodList.setup()
 const {
     getImageByType,
-    formatCurrency  
+    formatCurrency,
+    fetchUserDiscounts,
+    userDiscounts,
+
     } = Discounts()
 //=======================
 // Danh mục & Lọc mã giảm giá theo danh mục
@@ -160,11 +173,19 @@ const onSelectCategory = async (category) => {
 }
 
 const filteredDiscounts = computed(() => {
-  if (!selectedCategory.value) return pointsExchangeDiscounts.value
-  return pointsExchangeDiscounts.value.filter(
-    (discount) => discount.category_id === selectedCategory.value,
-  )
+  const keyword = voucherCode.value.toLowerCase()
+
+  return pointsExchangeDiscounts.value.filter(discount => {
+    const matchCategory =
+      !selectedCategory.value || discount.category_id === selectedCategory.value
+
+    const matchKeyword =
+      !voucherCode.value || discount.name.toLowerCase().includes(keyword)
+
+    return matchCategory && matchKeyword
+  })
 })
+
 
 //=======================
 // Danh sách mã giảm giá đổi xu
@@ -254,7 +275,7 @@ const redeemDiscount = async (discountId, code = '', points = 0) => {
         timer: 2000,
         timerProgressBar: true,
       })
-      await fetchUserVouchers()
+      await fetchUserDiscounts()
     } else {
       await Swal.fire({
         icon: 'warning',
@@ -280,32 +301,21 @@ const redeemDiscount = async (discountId, code = '', points = 0) => {
 //=======================
 // userVouchers - Kiểm tra mã đã đổi
 //=======================
-const userVouchers = ref([])
-
-const fetchUserVouchers = async () => {
-  try {
-    const token = localStorage.getItem('token')
-    const response = await axios.get('http://127.0.0.1:8000/api/user-vouchers', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    userVouchers.value = response.data.map((v) => v.code)
-  } catch (err) {
-    toast.error('Không thể tải kho voucher của bạn!', err)
-  }
-}
 
 const hasVoucher = (code) => {
-  return userVouchers.value.includes(code)
+  return userDiscounts.value.some(voucher => voucher.code === code)
 }
 
+//=======================
+// search voucher
+//=======================
+const voucherCode = ref('');
 //=======================
 // onMounted
 //=======================
 onMounted(async () => {
   await getPointExchangeDiscounts()
-  await fetchUserVouchers()
+  await fetchUserDiscounts()
   getCategory()
 
   if (conditionModalRef.value) {
@@ -381,43 +391,7 @@ onMounted(async () => {
     height: 120px;
   }
 }
-.user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #ddd;
-}
 
-.coins-small {
-  width: 24px;
-  height: 24px;
-}
-
-.user-coins-box {
-  background: #fff;
-  padding: 6px 12px;
-  border-radius: 999px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  z-index: 1;
-}
-
-@media (max-width: 576px) {
-  .user-avatar {
-    width: 28px;
-    height: 28px;
-  }
-
-  .coins-small {
-    width: 20px;
-    height: 20px;
-  }
-
-  .user-coins-box {
-    font-size: 14px;
-    padding: 5px 10px;
-  }
-}
 .btn-sm {
   color: #c92c3c;
   border: 1px solid #c92c3c;
@@ -433,5 +407,22 @@ onMounted(async () => {
 .voucher-brand-btn.active {
   background-color: #c92c3c;
   color: white;
+}
+.voucher-brand-btn {
+  font-size: 1rem; 
+  padding: 4px 8px;   
+  border-radius: 4px;
+}
+.btn-save-discount {
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+}
+.btn-save-discount:hover {
+  background-color: #c92c3c;
+  color: white;
+}
+.category-icon {
+  width: 20px;      
+  height: 20px;
 }
 </style>
