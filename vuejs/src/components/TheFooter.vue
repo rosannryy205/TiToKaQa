@@ -12,5 +12,7 @@
   .ant-layout-footer {
     color: #888;
     font-size: 0.85em;
+    position: sticky;
+    bottom: 0%;
   }
   </style>

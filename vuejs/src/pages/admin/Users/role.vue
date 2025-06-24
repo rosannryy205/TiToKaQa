@@ -1,21 +1,21 @@
 <template v-if="hasPermission('view_role')">
-  <div class="d-flex justify-content-between">
-    <h3>Danh sách vai trò</h3>
-    <router-link :to="'/admin/users/list-role-insert'" class="btn btn-add pt-2"
-      v-if="hasPermission('create_role')">+Thêm vai trò</router-link>
-  </div>
-  <div class="mb-4 d-flex align-items-center gap-3 flex-wrap w-25">
-    <span class="vd">Tìm kiếm vai trò</span>
-    <v-select v-model="selectrole" :options="role" label="display_name" placeholder="Nhập vai trò..." :clearable="true"
-      class="form-control rounded" />
+  <h3>Danh sách vai trò</h3>
+
+  <div class="d-flex flex-column flex-md-row justify-content-between mb-3 align-items-start align-items-md-center w-50">
+    <router-link :to="'/admin/users/list-role-insert'" class="btn btn-add pt-2 pe-3 ps-3 w-25 w-md-25 text-center"
+      v-if="hasPermission('create_role')">
+      + Thêm vai trò
+    </router-link>
+    <v-select v-model="selectrole" :options="role" label="display_name" placeholder="Tìm kiếm vai trò..."
+      :clearable="true" class="form-control rounded border-0 w-25" style="height: 45px;" />
   </div>
 
   <div class="table-responsive d-none d-lg-block">
     <table class="table table-bordered">
       <thead class="table-light">
         <tr>
-          <th>STT</th>
-          <th class="d-none d-sm-table-cell">Tên vai trò</th>
+          <th style="width: 50px;">STT</th>
+          <th>Tên vai trò</th>
           <th>Tuỳ chọn</th>
         </tr>
       </thead>
@@ -26,14 +26,32 @@
           <td class="d-flex justify-content-center gap-2">
             <router-link :to="`/admin/users/list-role-edit/${item.id}`" class="btn btn-outline"
               v-if="hasPermission('edit_role')">Sửa</router-link>
-            <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_role')"
-              >
+            <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_role')">
               Xoá
             </button>
           </td>
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="d-lg-none mt-3">
+    <div class="card mb-2" v-for="(item, index) in filteredRoles" :key="item.id">
+      <div class="card-body">
+        <h5 class="card-title mb-1">
+          <router-link :to="`/admin/users/list-role-detail/${item.id}`">{{ item.display_name }}</router-link>
+        </h5>
+        <p class="card-text mb-2 text-muted">STT: {{ index + 1 }}</p>
+        <div class="d-flex gap-2">
+          <router-link :to="`/admin/users/list-role-edit/${item.id}`" class="btn btn-outline btn-sm"
+            v-if="hasPermission('edit_role')">Sửa</router-link>
+          <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_role')">
+            Xoá
+          </button>
+        </div>
+      </div>
+    </div>
+    <p v-if="filteredRoles.length === 0" class="text-center text-muted">Không tìm thấy vai trò nào.</p>
   </div>
 
 </template>
@@ -72,22 +90,6 @@ export default {
     const { hasPermission, permissions } = Permission(userId)
 
 
-    // const deleteRole = async (id) => {
-    //   if (confirm(
-    //     "Bạn có chắc chắn xóa vai trò này không ?"
-    //   )) {
-    //     try {
-    //       await axios.delete(`http://127.0.0.1:8000/api/delete_role/${id}`)
-    //       alert('Success');
-    //       await getAllRole()
-    //     } catch (error) {
-    //       console.error("Lỗi xoá vai trò:", error)
-    //       alert("Xoá thất bại")
-    //     }
-    //   }
-    // }
-
-
     const filteredRoles = computed(() => {
       if (!selectrole.value) {
         return role.value;
@@ -105,11 +107,11 @@ export default {
       filteredRoles,
       userId,
       hasPermission,
-      // deleteRole
     }
   },
 }
 </script>
+
 <style scoped>
 .title {
   font-weight: normal;
@@ -118,25 +120,6 @@ export default {
   color: #333;
 }
 
-.custom-input,
-.custom-select {
-  border: 1px solid #bbb;
-  padding: 2px 6px;
-  height: 28px;
-  font-size: 13px;
-  border-radius: 4px;
-  outline: none;
-  box-shadow: none !important;
-  transition: border-color 0.3s ease;
-}
-
-.custom-input:focus,
-.custom-select:focus {
-  border-color: #999;
-  box-shadow: none;
-}
-
-/* Buttons */
 .btn-outline {
   background: none;
   border: 1px solid #ccc;
@@ -157,7 +140,6 @@ export default {
   background: none;
   color: #c92c3c;
   border: 1px solid #c92c3c;
-  padding: 4px 10px;
   border-radius: 4px;
   font-weight: normal;
   cursor: pointer;
@@ -202,56 +184,41 @@ export default {
   background-color: #a51928;
 }
 
-/* Responsive */
-.delete_mobile {
-  display: none;
+@media (max-width: 576px) {
+  .btn {
+    font-size: 0.875rem;
+    padding: 6px 10px;
+  }
+
+  .v-select {
+    font-size: 0.9rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
 }
 
-@media (max-width: 768px) {
+/* Xóa các quy tắc responsive cũ không cần thiết hoặc gây xung đột */
+/* @media (max-width: 768px) {
   .table-responsive {
     display: none;
   }
-
   .vd {
     display: none;
   }
-
   .delete_desktop {
     display: none;
   }
-
   .delete_mobile {
     display: block;
     margin-top: 1rem;
   }
-}
+} */
 
-/* Để làm cho dropdown menu giống Bootstrap card/dropdown */
-.v-select .vs__dropdown-menu {
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  /* Border của dropdown Bootstrap */
-  border-radius: 0.25rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
-  /* Shadow của Bootstrap dropdown */
-}
-
-/* Định kiểu cho các option trong dropdown */
-.v-select .vs__dropdown-option {
-  padding: 0.25rem 0.5rem;
-  /* Padding giống dropdown item */
-  font-size: 1rem;
-}
-
-.v-select .vs__dropdown-toggle {
-  border: none;
-  padding: 0;
-}
-
-/* Định kiểu cho option khi hover/active */
-.v-select .vs__dropdown-option--highlight {
-  background-color: #f8f9fa;
-  /* Màu background khi hover/active */
-  color: #c92c3c;
-  font-weight: 500;
+/* Custom styles for v-select to better fit its container */
+.v-select {
+  flex-grow: 1;
+  /* Cho phép v-select co giãn */
 }
 </style>

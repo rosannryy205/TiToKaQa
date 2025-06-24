@@ -1,8 +1,6 @@
 <template>
   <div class="container mt-5">
     <div class="permission-manager-wrapper">
-
-
       <h3 v-if="isinsert">Thêm vai trò</h3>
       <h3 v-else-if="isedit">Chỉnh sửa quyền vai trò</h3>
       <h3 v-else>Chi tiết vai trò</h3>
@@ -85,9 +83,9 @@
                     <input class="checkbox-input" type="checkbox" :id="`create-${moduleKey}-${currentRoleId}`"
                       v-model="currentRoleAbilities[moduleKey].create" @change="handleAbilityChange(moduleKey)
                         " :disabled="(isedit && !hasPermission('edit_role')) ||
-                        (isinsert && !hasPermission('create_role')) ||
-                        (!isedit && !isinsert)
-                        " />
+                          (isinsert && !hasPermission('create_role')) ||
+                          (!isedit && !isinsert)
+                          " />
                     <label class="checkbox" :for="`create-${moduleKey}-${currentRoleId}`"> <span
                         class="line line1"></span>
                       <span class="line line2"></span>
