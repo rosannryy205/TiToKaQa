@@ -30,12 +30,8 @@ import './assets/style.css';
 import './assets/cart.css';
 import './assets/base.css'
 
-
-// Thêm dòng này để import Font Awesome
 import "@fortawesome/fontawesome-free/css/all.min.css"
 import 'vue3-toastify/dist/index.css';
-
-
 
 const app = createApp(App)
 
