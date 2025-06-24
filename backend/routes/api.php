@@ -6,10 +6,10 @@ use App\Http\Controllers\AdminFoodController;
 use App\Http\Controllers\AdminToppingController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\ChatRealTimeController;
 use App\Http\Controllers\ComboController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
@@ -19,10 +19,11 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Socialite\ProviderCallbackController;
 use App\Http\Controllers\Socialite\ProviderRedirectController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\TableController;
-use App\Models\Combo;
+use Illuminate\Http\Request;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
 
@@ -86,6 +87,19 @@ Route::delete('/delete_role/{id}', [RoleController::class, 'deleteRole']);
 
 
 
+//permission
+Route::get('/permission', [PermissionController::class, 'getAllPermission']);
+Route::delete('/permission/{id}', [PermissionController::class, 'deletePermission']);
+
+
+
+// message
+Route::get('/messages', [ChatRealTimeController::class, 'getMessages']);
+Route::post('/messages/send', [ChatRealTimeController::class, 'sendMessage']);
+Route::get('/conversations', [ChatRealTimeController::class, 'getConversationToAdmin']);
+Route::put('/assign-conversation-admin/{id}', [ChatRealTimeController::class, 'assignAdmin']);
+Route::put('/mark-read/{id}', [ChatRealTimeController::class, 'markRead']);
+
 
 
 Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
@@ -111,13 +125,14 @@ Route::post('/insert_staff', [UserController::class, 'insertStaff']);
 Route::post('/register/send-code', [UserController::class, 'sendRegisterCode']);
 Route::post('/register/verify-code', [UserController::class, 'verifyRegisterCode']);
 
-Route::post('/login', [UserController::class, 'login']);
+Route::post('/login', [UserController::class, 'login'])->name('login');;
 Route::post('/forgot', [UserController::class, 'forgotPass']);
 Route::post('/verify-code', [UserController::class, 'verifyResetCode']);
 Route::post('/reset-password', [UserController::class, 'ChangePassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
 });
+
 
 // tìm kiếm
 
@@ -224,11 +239,9 @@ Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
 Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 
-
 /**client user-point_exchange*/
 Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');
 Route::get('/user-vouchers', [DiscountController::class, 'getUserDiscounts'])->middleware('auth:sanctum');
-
 /** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 // Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
