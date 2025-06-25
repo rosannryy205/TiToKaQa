@@ -114,8 +114,8 @@ Route::put('/order-history-info/update-address/{id}', [OrderController::class, '
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{id}', [UserController::class, 'show']);
-    Route::patch('/user-update/{id}', [UserController::class, 'update']);
-    // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
+    Route::patch('/user/updateProfile/{id}', [UserController::class, 'update']);
+    Route::post('/user/{id}/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
 
 Route::post('/insert_staff', [UserController::class, 'insertStaff']);
