@@ -1,9 +1,6 @@
 <template>
-  <div v-if="isLoading" class="isLoading-overlay">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">isLoading...</span>
-    </div>
-  </div>
+
+
   <div class="row d-flex text-center">
     <div class="title-shops1 d-sm-block fw-bold mt-5">
       <span>ĐẶT BÀN CÙNG CHÚNG TÔI!</span>
@@ -13,12 +10,8 @@
   <div class="container custom-container">
     <div class="row">
       <div class="col-md-4 booking-image-">
-        <img
-          class="img-fluid img-reservation"
-          src="/img/mo-hinh-lau-nuong-truyen-thong.png"
-          alt="Bản đồ bàn"
-          style="height: 500px; object-fit: cover"
-        />
+        <img class="img-fluid img-reservation" src="/img/mo-hinh-lau-nuong-truyen-thong.png" alt="Bản đồ bàn"
+          style="height: 500px; object-fit: cover" />
       </div>
 
       <div class="col-md-8 col-12 form-section mt-2">
@@ -36,15 +29,10 @@
               </select>
             </div>
             <div class="col-md-3">
-              <input
-                type="number"
-                class="form-control rounded"
-                placeholder="Số lượng người"
-                v-model="guest_count"
-              />
+              <input type="number" class="form-control rounded" placeholder="Số lượng người" v-model="guest_count" />
             </div>
             <div class="col-md-3">
-              <button class="btn btn-danger w-100 fw-bold">Tìm bàn</button>
+              <button class="btn btn-danger1 w-100 fw-bold">Tìm bàn</button>
             </div>
           </div>
         </form>
@@ -53,22 +41,14 @@
         <div class="fs-6 fw-bold mb-3">Kết quả tìm kiếm</div>
 
         <div class="table-container">
-          <div
-            class="table-block"
-            v-for="ban in availableTables"
-            :key="ban.id"
-            @click="chooseTable(ban.id)"
-          >
+          <div class="table-block" v-for="ban in availableTables" :key="ban.id" @click="chooseTable(ban.id)">
             <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
               <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
             </div>
-            <div
-              class="table-rect"
-              :class="{
-                medium: getChairCount(ban.capacity) === 2,
-                large: getChairCount(ban.capacity) === 3,
-              }"
-            >
+            <div class="table-rect" :class="{
+              medium: getChairCount(ban.capacity) === 2,
+              large: getChairCount(ban.capacity) === 3,
+            }">
               B{{ ban.table_number }}
             </div>
             <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
@@ -76,6 +56,10 @@
             </div>
           </div>
         </div>
+
+        <div  v-if="isLoading"  class="loader-wrapper">
+    <div class="loader"></div>
+  </div>
       </div>
     </div>
   </div>
@@ -223,18 +207,6 @@ export default {
 }
 </script>
 <style scoped>
-.isLoading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background-color: rgba(148, 142, 142, 0.8);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
 .table-container {
   display: flex;
@@ -250,14 +222,44 @@ export default {
   align-items: center;
   margin-bottom: 20px;
 }
-.table-block:hover{
+
+.table-block:hover {
   cursor: pointer;
 }
+
 .chairs {
   display: flex;
   justify-content: center;
   gap: 8px;
   margin: 2px 0;
+}
+.loader-wrapper {
+  height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* loader */
+.loader {
+  width: 50px;
+  --b: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000 10%, #f03355) content-box;
+  -webkit-mask:
+    repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
+    radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
+}
+
+@keyframes l4 {
+  to {
+    transform: rotate(1turn);
+  }
 }
 
 .chair {
@@ -278,6 +280,7 @@ export default {
   font-weight: bold;
   font-size: 16px;
 }
+
 .table-rect.medium {
   min-width: 120px;
 }
@@ -302,7 +305,8 @@ export default {
   .table-rect {
     font-size: 0.85rem;
   }
-    .title-shops1 > span {
+
+  .title-shops1>span {
     font-size: 25px;
   }
 
