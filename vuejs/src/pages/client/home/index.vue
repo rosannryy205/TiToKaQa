@@ -89,7 +89,7 @@
               <a
                 @click.prevent="getFoodByCategory(parent.id)"
                 href="#"
-                class="text-decoration-none text-start"
+                class="text-decoration-none text-start text-dark fw-bold"
               >
                 {{ parent.name }}
               </a>
@@ -102,7 +102,7 @@
                   <a
                     @click.prevent="getFoodByCategory(child.id)"
                     href="#"
-                    class="text-decoration-none text-start"
+                    class="text-decoration-none text-start text-dark fw-bold"
                   >
                     🔻{{ child.name }}
                   </a>

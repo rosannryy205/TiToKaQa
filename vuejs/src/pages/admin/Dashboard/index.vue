@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('view_dashboard')">
   <div>
     <h1>Dashboard</h1>
     <p>Chào mừng bạn đến với trang quản trị!</p>
@@ -25,7 +25,18 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { Permission } from '@/stores/permission';
 import { UserOutlined, ShoppingCartOutlined, DollarCircleOutlined } from '@ant-design/icons-vue';
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
 </script>
 
 <style scoped>

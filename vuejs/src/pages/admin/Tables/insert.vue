@@ -6,11 +6,11 @@
   </div>
 
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" v-if="hasPermission('create_booking')">
-    <h3 class="text-danger fw-bold mb-2 mb-md-0">Thêm đơn đặt bàn</h3>
+    <h3 class="fw-bold mb-2 mb-md-0">Thêm đơn đặt bàn</h3>
     <div>
-      <outton @click="$router.back()" class="btn btn-outline-secondary rounded-0">
+      <button @click="$router.back()" class="btn btn-outline-secondary rounded-0">
         <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-      </outton>
+      </button>
     </div>
   </div>
 
@@ -29,19 +29,19 @@
                 <label for="name" class="form-label">
                   Tên khách hàng <span class="text-danger">*</span>
                 </label>
-                <input type="text" class="form-control rounded-0" required v-model="guest_name" />
+                <input type="text" class="form-control rounded-2" required v-model="guest_name" />
                 <label for="name" class="form-label">
                   Số điện thoại <span class="text-danger">*</span>
                 </label>
-                <input type="text" class="form-control rounded-0" required v-model="guest_phone" />
+                <input type="text" class="form-control rounded-2" required v-model="guest_phone" />
                 <label for="category" class="form-label">
                   Email
                 </label>
-                <input type="text" class="form-control rounded-0" required v-model="guest_email" />
+                <input type="text" class="form-control rounded-2" required v-model="guest_email" />
                 <label for="category" class="form-label">
                   Ghi chú
                 </label>
-                <textarea class="form-control rounded-0" id="description" rows="1" v-model="note"></textarea>
+                <textarea class="form-control rounded-2" id="description" rows="1" v-model="note"></textarea>
               </div>
             </div>
 
@@ -360,6 +360,7 @@ import vSelect from 'vue-select'
 import { FoodList } from '@/stores/food'
 import { watch } from 'vue'
 import { Permission } from '@/stores/permission'
+import { useRoute } from 'vue-router'
 
 export default {
   components: {
@@ -422,6 +423,7 @@ export default {
     const selectguest = ref(null)
     const selectfood = ref(null)
     const searchFoodTerm = ref('')
+    const route = useRoute()
 
     const onFoodSearch = (event) => {
       searchFoodTerm.value = event.target.value
@@ -518,13 +520,23 @@ export default {
       isLoading.value = true
       try {
         if (date.value && time.value && guest_count.value) {
-          const datetime = localStorage.getItem('selectedDate') || new Date(`${date.value}T${time.value}:00`)
-          const selectedDateTime = formatDateTime(datetime)
-          const reservedFrom = new Date(selectedDateTime)
-          const reservedTo = reservedFrom.getTime() + 2 * 60 * 60 * 1000
+          let rawDateTime = ''
+
+          if (route.params.date) {
+            rawDateTime = route.params.date
+          } else if (date.value && time.value) {
+            rawDateTime = `${date.value}T${time.value}:00`
+          } else {
+            toast.error('Vui lòng chọn ngày và giờ')
+            return
+          }
+
+          const reservedFrom = new Date(rawDateTime)
+          const reservedTo = new Date(reservedFrom.getTime() + 2 * 60 * 60 * 1000)
 
           const reserved_from = formatDateTime(reservedFrom)
           const reserved_to = formatDateTime(reservedTo)
+
 
           const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
             reserved_from: reserved_from,
@@ -533,7 +545,6 @@ export default {
           })
           availableTables.value = res.data.tables
         } else {
-          // ✅ Nếu không có thông tin đặt bàn thì lấy tất cả bàn
           const res = await axios.get('http://127.0.0.1:8000/api/tables')
           availableTables.value = res.data.tables
         }
@@ -640,6 +651,22 @@ export default {
     // hàm đặt bàn
     const reservation = async () => {
       isLoading.value = true
+          let rawDateTime = ''
+
+          if (route.params.date) {
+            rawDateTime = route.params.date
+          } else if (date.value && time.value) {
+            rawDateTime = `${date.value}T${time.value}:00`
+          } else {
+            toast.error('Vui lòng chọn ngày và giờ')
+            return
+          }
+
+          const reservedFrom = new Date(rawDateTime)
+          const reservedTo = new Date(reservedFrom.getTime() + 2 * 60 * 60 * 1000)
+
+          const reserved_from = formatDateTime(reservedFrom)
+          const reserved_to = formatDateTime(reservedTo)
 
       try {
         await axios.post('http://127.0.0.1:8000/api/reservation', {
@@ -649,7 +676,7 @@ export default {
           guest_email: guest_email.value,
           guest_count: guest_count.value,
           note: note.value,
-          reserved_from: `${date.value} ${time.value}`,
+          reserved_from: reserved_from,
           deposit_amount: 100000,
           total_price: totalPrice.value + 100000,
           table_ids: selectedTableIds.value,
