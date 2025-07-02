@@ -1,20 +1,24 @@
 <template>
   <div>
     <div v-if="isLoading || isLoadingPermissions" class="isLoading-overlay">
-      <div class="spinner-border text-danger" role="status">
-      </div>
+      <div class="spinner-border text-danger" role="status"></div>
     </div>
 
     <div class="main-layout">
       <div class="main-content">
-        <h2>Danh sách bàn</h2>
+        <div class="d-flex justify-content-between ">
+                  <h2>Danh sách bàn</h2>
 
-
+<button v-if="isSetup" type="button" class="btn btn-danger1 rounded-0" @click="setUpTablesForOrder"
+      :disabled="selectedTablesForOrder.length === 0">
+      Xếp Bàn
+    </button>
+        </div>
         <template v-if="hasPermission('view_table')">
           <div class="table-filter-box">
-            <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">+ Thêm
-              Bàn
-              Mới</button>
+            <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">
+              + Thêm Bàn Mới
+            </button>
             <div>
               <input type="date" class="form-control rounded" v-model="date" :min="today" @change="getTable" />
             </div>
@@ -30,21 +34,21 @@
 
             <div class="filter-status-select">
               <select class="form-control rounded" v-model="itemsPerPageUserSelected" @change="currentPage.tables = 1"
-                style="max-width: 109px;">
-                <option value="14">Hiển thị</option>
+                style="max-width: 109px">
+                <option value="20">Hiển thị</option>
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="15">15</option>
               </select>
-
             </div>
             <div class="table-status-box">
               <strong>Trạng thái:</strong>
               <div class="status-item"><span class="status-dot billed"></span>Đã đặt trước</div>
-              <div class="status-item"><span class="status-dot reservation"></span>Đang phục vụ</div>
+              <div class="status-item">
+                <span class="status-dot reservation"></span>Đang phục vụ
+              </div>
               <div class="status-item"><span class="status-dot vacant"></span>Bàn trống</div>
             </div>
-
           </div>
 
           <hr />
@@ -52,7 +56,8 @@
             <draggable :list="displayTables" item-key="id" tag="div" class="table-container" :animation="150"
               @add="onTableAddedFromSidebar" group="tables">
               <template #item="{ element: ban }">
-                <div class="table-block" :class="{ 'rotated-layout': ban.isRotated }">
+                <div class="table-block"
+                  :class="{ 'rotated-layout': ban.isRotated, 'selected-for-setup': isSetup && isTableSelectedForOrder(ban.id) }">
                   <div class="table-content-wrapper" :class="{ 'rotated-visual': ban.isRotated }">
                     <div class="chairs top-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
                       <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n" :class="[
@@ -61,8 +66,7 @@
                           'billed-text': ban.current_day_status === 'Đã đặt trước',
                           chair_reservation: ban.current_day_status === 'Đang phục vụ',
                           'reservation-text': ban.current_day_status === 'Đang phục vụ',
-                          chair1: selectedTableId == ban.id
-
+                          chair1: selectedTableId == ban.id,
                         },
                       ]"></div>
                     </div>
@@ -75,7 +79,6 @@
                         'billed-text': ban.current_day_status === 'Đã đặt trước',
                         reservation: ban.current_day_status === 'Đang phục vụ',
                         'reservation-text': ban.current_day_status === 'Đang phục vụ',
-
                       },
                     ]">
                       B{{ ban.table_number }}
@@ -87,7 +90,7 @@
                           'billed-text': ban.current_day_status === 'Đã đặt trước',
                           chair_reservation: ban.current_day_status === 'Đang phục vụ',
                           'reservation-text': ban.current_day_status === 'Đang phục vụ',
-                          chair1: selectedTableId == ban.id
+                          chair1: selectedTableId == ban.id,
                         },
                       ]"></div>
                     </div>
@@ -128,20 +131,20 @@
       </div>
 
       <transition name="slide-fade">
-        <!-- Chỉ hiển thị sidebar nếu người dùng có quyền tạo hoặc sửa bàn -->
         <div v-if="isSidebarOpen && (hasPermission('create_table') || hasPermission('edit_table'))"
           class="add-table-sidebar">
           <h5 v-if="!hasBookingHistory">{{ selectedTableId ? 'Sửa Bàn' : 'Thêm Bàn Mới' }}</h5>
           <h5 v-else>Chi tiết</h5>
 
-          <button class="close-sidebar-btn" @click="selectedTableId = null; toggleSidebar()">X</button>
+          <button class="close-sidebar-btn" @click="((selectedTableId = null), toggleSidebar())">
+            X
+          </button>
           <form @submit.prevent="addNewTable(selectedTableId)">
             <div class="mb-3">
               <label for="newTableNumber" class="form-label">Số bàn:</label>
 
               <input type="number" class="form-control rounded" id="newTableNumber" v-model.number="table_number"
                 required @input="updateNewTablePreview" :disabled="hasBookingHistory" />
-
             </div>
             <div class="mb-3">
               <label for="newTableCapacity" class="form-label">Số ghế:</label>
@@ -157,7 +160,9 @@
               Sửa Bàn
             </button>
             <button type="submit" class="btn btn-outline-danger w-100 mb-3"
-              v-else-if="!selectedTableId && hasPermission('create_table')">Thêm Bàn</button>
+              v-else-if="!selectedTableId && hasPermission('create_table')">
+              Thêm Bàn
+            </button>
           </form>
 
           <hr />
@@ -184,25 +189,27 @@
               </template>
             </draggable>
           </div>
-          <hr>
-          <div style="min-height: 80px; overflow-y: auto;">
-            <div class="border shadow-sm p-2 mb-2 rounded" style="cursor: pointer;" v-for="item in tableOrder"
+          <hr />
+          <div style="min-height: 80px; overflow-y: auto">
+            <div class="border shadow-sm p-2 mb-2 rounded" style="cursor: pointer" v-for="item in tableOrder"
               :key="item.order_id">
               <div class="" @click="getInfoDetail(item.order_id)">
                 <div class="fw-bold text-danger">#{{ item.order_id }}</div>
                 <div class="d-flex justify-content-between">
-                  <div class="text-mute"><i class="bi bi-calendar2-week"></i> {{ formatTime(item.reserved_from) }}</div>
-                  <div class="text-mute"><i class="bi bi-card-checklist"></i> {{ item.order_status }}</div>
+                  <div class="text-mute">
+                    <i class="bi bi-calendar2-week"></i> {{ formatTime(item.reserved_from) }}
+                  </div>
+                  <div class="text-mute">
+                    <i class="bi bi-card-checklist"></i> {{ item.order_status }}
+                  </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
       </transition>
     </div>
   </div>
-
 
   <div name="popup-fade">
     <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
@@ -353,7 +360,7 @@ import { useRoute } from 'vue-router'
 
 export default {
   components: {
-    draggable
+    draggable,
   },
   setup() {
     const userId = ref(null)
@@ -366,7 +373,7 @@ export default {
     }
     const { hasPermission, permissions, isLoadingPermissions } = Permission(userId)
     const allTables = ref([])
-    const itemCount = allTables.value.length;
+    const itemCount = allTables.value.length
     const route = useRoute()
     const orderId = route.params.orderId
     const selectedTableId = ref(null)
@@ -382,24 +389,30 @@ export default {
     const tableOrder = ref([])
     const currentPage = ref({ tables: 1 })
     const isMobileView = ref(window.innerWidth <= 768)
-
+    const isChange = computed(() => {
+      return route.name && String(route.name).includes('change')
+    })
+    const isSetup = computed(() => {
+      return route.name && String(route.name).includes('setup')
+    })
     const itemsPerPageUserSelected = ref(null)
 
     const dynamicDefaultItemsPerPage = computed(() => {
-      return isMobileView.value ? 9 : 14
+      return isMobileView.value ? 9 : 20
     })
 
     const dynamicItemsPerPageTable = computed(() => {
-      return itemsPerPageUserSelected.value != null ? itemsPerPageUserSelected.value : dynamicDefaultItemsPerPage.value
+      return itemsPerPageUserSelected.value != null
+        ? itemsPerPageUserSelected.value
+        : dynamicDefaultItemsPerPage.value
     })
 
-
-    const { formatTime, formatDate, formatNumber, info, getInfo } = Info.setup()
+    const { formatTime, formatDate, formatNumber, info, getInfo, formatDateTime } = Info.setup()
 
     const updateView = () => {
       isMobileView.value = window.innerWidth <= 768
       if (itemsPerPageUserSelected.value === null) {
-        currentPage.value.tables = 1;
+        currentPage.value.tables = 1
       }
     }
 
@@ -410,7 +423,6 @@ export default {
       }
       getTable()
     })
-
 
     onBeforeUnmount(() => {
       window.removeEventListener('resize', updateView)
@@ -447,15 +459,14 @@ export default {
         const res = await axios.get('http://127.0.0.1:8000/api/tables', {
           params: {
             date: date.value,
-            status: filterStatus.value
-          }
+            status: filterStatus.value,
+          },
         })
         allTables.value = res.data.tables.map((table) => ({
           ...table,
         }))
 
         currentPage.value.tables = 1
-
       } catch (error) {
         console.error('Lỗi khi tải danh sách bàn:', error)
         toast.error('Lỗi khi tải danh sách bàn.')
@@ -474,25 +485,6 @@ export default {
       if (seats <= 2) return 1
       if (seats <= 4) return 2
       return 3
-    }
-
-    const changeTable = async (table_id) => {
-      if (!table_id) {
-        toast.error('Vui lòng chọn một bàn để chuyển.')
-        return
-      }
-      try {
-        selectedTableId.value = table_id
-        await axios.put('http://127.0.0.1:8000/api/change-table', {
-          id: orderId,
-          table_id: table_id
-        })
-        toast.success('Thay đổi bàn thành công!')
-        getTable()
-      } catch (error) {
-        console.error('Lỗi khi chuyển bàn:', error)
-        toast.error('Có lỗi xảy ra khi chuyển bàn.')
-      }
     }
 
     const toggleSidebar = () => {
@@ -527,13 +519,13 @@ export default {
         if (!table_id) {
           await axios.post(`http://127.0.0.1:8000/api/insert-table`, {
             table_number: table_number.value,
-            capacity: capacity.value
+            capacity: capacity.value,
           })
           toast.success(`Thêm bàn thành công!`)
         } else {
           await axios.put(`http://127.0.0.1:8000/api/tables/${table_id}`, {
             table_number: table_number.value,
-            capacity: capacity.value
+            capacity: capacity.value,
           })
           toast.success(`Sửa bàn thành công!`)
         }
@@ -588,7 +580,7 @@ export default {
         isLoading.value = true
         const response = await axios.post(`http://127.0.0.1:8000/api/insert-table`, {
           table_number: addedTableData.table_number,
-          capacity: addedTableData.capacity
+          capacity: addedTableData.capacity,
         })
 
         toast.success(`Đã thêm bàn thành công!`)
@@ -633,13 +625,72 @@ export default {
         isLoading.value = false
       }
     }
-
+    const selectedTablesForOrder = ref([])
     const loadTable = async (id) => {
+      if (isSetup.value) {
+        const selected = allTables.value.find((t) => t.id === id);
+        if (!selected) return;
+
+        if (selected.current_day_status !== 'Bàn trống') {
+          toast.warn('Chỉ có thể chọn bàn trống để xếp bàn.');
+          return;
+        }
+
+        const alreadySelected = selectedTablesForOrder.value.find((t) => t.id === id);
+        if (alreadySelected) {
+          selectedTablesForOrder.value = selectedTablesForOrder.value.filter((t) => t.id !== id);
+        } else {
+          const newTableNumber = selected.table_number;
+          const selectedNumbers = selectedTablesForOrder.value.map(t => t.table_number);
+
+          if (selectedNumbers.length > 0) {
+            const allNumbers = [...selectedNumbers, newTableNumber].sort((a, b) => a - b);
+
+            for (let i = 1; i < allNumbers.length; i++) {
+              if (allNumbers[i] !== allNumbers[i - 1] + 1) {
+                toast.warn('Chỉ có thể chọn các bàn có số liền kề nhau.');
+                return;
+              }
+            }
+          }
+
+          selectedTablesForOrder.value.push(selected);
+        }
+
+        return;
+      }
+      if (isChange.value) {
+        const selected = allTables.value.find((t) => t.id === id)
+        if (selected && selected.current_day_status === 'Bàn trống') {
+          if (
+            confirm(
+              `Bạn có chắc chắn muốn chuyển đơn hàng #${orderId} sang bàn B${selected.table_number}?`,
+            )
+          ) {
+            try {
+              isLoading.value = true
+              await axios.put('http://127.0.0.1:8000/api/change-table', {
+                id: orderId,
+                table_id: id,
+              })
+              toast.success('Chuyển bàn thành công!')
+              await getTable()
+            } catch (error) {
+              console.error('Lỗi khi chuyển bàn:', error)
+              toast.error('Có lỗi xảy ra khi chuyển bàn.')
+            } finally {
+              isLoading.value = false
+            }
+          }
+        } else {
+          toast.warn('Không thể chuyển đến bàn này. Vui lòng chọn một bàn trống.')
+        }
+        return
+      }
       if (!hasPermission('edit_table')) {
         toast.error('Bạn không có quyền sửa bàn.')
         return
       }
-
       if (selectedTableId.value === id && isSidebarOpen.value) {
         selectedTableId.value = null
         toggleSidebar()
@@ -654,8 +705,10 @@ export default {
           updateNewTablePreview()
 
           try {
-            const res = await axios.get(`http://127.0.0.1:8000/api/get-orders-tables/${selected.id}`)
-            tableOrder.value = res.data.data.reservations
+            const res = await axios.get(
+              `http://127.0.0.1:8000/api/get-orders-tables/${selected.id}`,
+            )
+            tableOrder.value = res.data.data.reserversations
           } catch (error) {
             console.error('Lỗi khi lấy thông tin đặt bàn:', error)
             toast.error('Không thể tải thông tin đặt bàn.')
@@ -663,9 +716,42 @@ export default {
           }
 
           if (!isSidebarOpen.value) {
-            toggleSidebar();
+            toggleSidebar()
           }
         }
+      }
+    }
+    const isTableSelectedForOrder = (id) => {
+      return selectedTablesForOrder.value.some((t) => t.id === id)
+    }
+
+
+    const reserved_from = formatDateTime(new Date().toISOString())
+
+    const setUpTablesForOrder = async () => {
+      if (!orderId || selectedTablesForOrder.value.length === 0) {
+        toast.warn('Vui lòng chọn ít nhất 1 bàn và thời gian bắt đầu.')
+        return
+      }
+
+      const tableIds = selectedTablesForOrder.value.map((table) => table.id)
+
+      try {
+        isLoading.value = true
+        await axios.post('http://127.0.0.1:8000/api/set-up/order-tables', {
+          order_id: orderId,
+          table_ids: tableIds,
+          reserved_from: reserved_from,
+        })
+
+        toast.success('Xếp bàn thành công!')
+        selectedTablesForOrder.value = []
+        await getTable()
+      } catch (err) {
+        console.error(err)
+        toast.error('Lỗi khi xếp bàn.')
+      } finally {
+        isLoading.value = false
       }
     }
 
@@ -675,7 +761,7 @@ export default {
           id: `temp-${Date.now()}`,
           table_number: table_number.value,
           capacity: parseInt(capacity.value),
-          status: 'Bàn trống'
+          status: 'Bàn trống',
         }
         newTablesQueue.value = [tempTable]
       } else {
@@ -698,7 +784,8 @@ export default {
     const calculateTotalItemPrice = (item) => {
       const basePrice = item.price * item.quantity
       const toppingTotal =
-        (item.toppings?.reduce((sum, topping) => sum + Number(topping.price), 0) || 0) * item.quantity
+        (item.toppings?.reduce((sum, topping) => sum + Number(topping.price), 0) || 0) *
+        item.quantity
       return basePrice + toppingTotal
     }
 
@@ -745,16 +832,18 @@ export default {
       return false
     }
 
-    watch(permissions, (newPermissions) => {
-      if (newPermissions.length > 0 && !isLoadingPermissions.value) {
-        getTable();
-        console.log(itemCount.value);
-
-      } else if (newPermissions.length === 0 && !isLoadingPermissions.value) {
-        getTable();
-
-      }
-    }, { immediate: true });
+    watch(
+      permissions,
+      (newPermissions) => {
+        if (newPermissions.length > 0 && !isLoadingPermissions.value) {
+          getTable()
+          console.log(itemCount.value)
+        } else if (newPermissions.length === 0 && !isLoadingPermissions.value) {
+          getTable()
+        }
+      },
+      { immediate: true },
+    )
 
     return {
       userId,
@@ -778,7 +867,6 @@ export default {
       getTable,
       goToPage,
       getChairCount,
-      changeTable,
       toggleSidebar,
       addNewTable,
       onNewTableDragEnd,
@@ -805,9 +893,16 @@ export default {
       hasBookingHistory,
       itemsPerPageUserSelected,
       dynamicDefaultItemsPerPage,
-      itemCount
+      itemCount,
+      isChange,
+      isSetup,
+      setUpTablesForOrder,
+      selectedTablesForOrder,
+      reserved_from,
+      isTableSelectedForOrder,
+      formatDateTime
     }
-  }
+  },
 }
 </script>
 
@@ -936,6 +1031,16 @@ a {
   gap: 15px;
 }
 
+.selected-for-setup {
+  box-shadow: 0 0 10px rgba(35, 36, 35, 0.6);
+  transition: all 0.2s ease;
+}
+
+.selected-for-setup .table-rect,
+.selected-for-setup .table-rect1 {
+  font-weight: bold;
+}
+
 .info-item {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1062,7 +1167,12 @@ a {
   height: 100vh;
   overflow: hidden;
 }
-
+.btn-danger1{
+  background-color: #c92c3c;
+  border: #c92c3c;
+  color: #fff;
+  width: 100px;
+}
 .main-content {
   flex-grow: 1;
   padding: 20px;
@@ -1145,7 +1255,6 @@ h2 {
   transition: all 0.3s ease;
   box-sizing: border-box;
   padding: 5px;
-
 }
 
 .isLoading-overlay {
@@ -1279,7 +1388,6 @@ h2 {
   background-color: #ec988e;
   /* Đang phục vụ */
 }
-
 
 /* --- Sidebar & Animations --- */
 .add-table-sidebar {
@@ -1425,7 +1533,6 @@ h2 {
     gap: 15px;
     max-width: 720px;
     height: 420px;
-
   }
 
   .add-table-sidebar {
@@ -1505,7 +1612,6 @@ h2 {
     padding: 5px;
     max-width: 380px;
     height: 450px;
-
   }
 
   .table-block {

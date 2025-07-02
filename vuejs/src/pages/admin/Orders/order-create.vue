@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('create_order')">
   <div v-if="isLoading" class="isLoading-overlay">
     <div class="spinner-border text-danger" role="status">
       <span class="visually-hidden">Đang tải...</span>
@@ -279,6 +279,8 @@ import { Cart } from '@/stores/cart'
 import vSelect from 'vue-select'
 import { FoodList } from '@/stores/food'
 import { useRouter } from 'vue-router'
+import { Permission } from '@/stores/permission'
+
 
 export default {
   components: {
@@ -326,7 +328,15 @@ export default {
     const note = ref('')
     const selectguest = ref(null)
     const guest = ref([])
-
+    const userId = ref(null)
+    const userString = localStorage.getItem('user')
+    if (userString) {
+      const user = JSON.parse(userString)
+      if (user && user.id !== undefined) {
+        userId.value = user.id
+      }
+    }
+    const { hasPermission, permissions } = Permission(userId)
     const paginatedFoods = computed(() => {
       const filtered = foods.value.filter((food) =>
         food.name.toLowerCase().includes(searchFoodTerm.value.toLowerCase())
@@ -587,6 +597,9 @@ export default {
       handleGuestSelection,
 
       paymentMethod,
+      hasPermission,
+      userString,
+      userId
     }
   },
 }

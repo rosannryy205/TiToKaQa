@@ -1,8 +1,8 @@
-<template>
+<template v-if="hasPermission('view_topping')">
   <h3 class="title">Quản lý toppings</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addToppingModal">
+    <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addToppingModal" v-if="hasPermission('create_topping')">
       + Thêm toppings
     </button>
     <div class="col-12 col-md-6 col-lg-3 fram" style="max-width: 250px;">
@@ -52,15 +52,15 @@
           <td class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
             <button type="button" class="btn btn-outline btn-sm" data-bs-toggle="modal"
               data-bs-target="#updateToppingModal"
-              @click="getToppingById(topping.id); selectedToppingId = topping.id">Sửa</button>
-            <button class="btn btn-danger-delete btn-sm" @click="deletedTopping(topping.id)">Xoá</button>
+              @click="getToppingById(topping.id); selectedToppingId = topping.id" v-if="hasPermission('edit_topping')">Sửa</button>
+            <button class="btn btn-danger-delete btn-sm" @click="deletedTopping(topping.id)" v-if="hasPermission('delete_topping')">Xoá</button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <button class="btn btn-danger-delete delete_desktop">Xoá</button>
+  <button class="btn btn-danger-delete delete_desktop" v-if="hasPermission('delete_topping')">Xoá</button>
 
   <!-- Mobile View -->
   <div class="d-block d-lg-none">
@@ -75,8 +75,8 @@
             <h5 class="card-title mb-1">{{ topping.name }}</h5>
             <p class="card-text mb-1"><span class="label">Danh mục:</span> {{ topping.category_name }}</p>
             <p class="card-text mb-2"><span class="label">Giá:</span> {{ formatNumber(topping.price) }} VNĐ</p>
-            <button class="btn btn-outline btn-sm me-2">Sửa</button>
-            <button class="btn btn-danger-delete btn-sm">Xoá</button>
+            <button class="btn btn-outline btn-sm me-2" v-if="hasPermission('edit_topping')">Sửa</button>
+            <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_topping')">Xoá</button>
           </div>
         </div>
       </div>
@@ -210,6 +210,8 @@ import { ref, onMounted, computed, watch } from 'vue';
 import numeral from 'numeral';
 import { toast } from "vue3-toastify";
 import Swal from 'sweetalert2';
+import { Permission } from '@/stores/permission'
+
 
 export default {
   methods: {
@@ -234,7 +236,15 @@ export default {
       price: '',
       category_id: '',
     })
-
+    const userId = ref(null)
+    const userString = localStorage.getItem('user')
+    if (userString) {
+      const user = JSON.parse(userString)
+      if (user && user.id !== undefined) {
+        userId.value = user.id
+      }
+    }
+const { hasPermission, permissions } = Permission(userId)
     const token = localStorage.getItem('token');
     const fetchTopping = async () => {
       try {
@@ -420,7 +430,10 @@ export default {
       getToppingById,
       selectedToppingId,
       updateTopping,
-      deletedTopping
+      deletedTopping,
+      hasPermission,
+      userString,
+      userId
     }
   }
 }

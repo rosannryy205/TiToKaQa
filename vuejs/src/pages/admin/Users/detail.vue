@@ -197,6 +197,7 @@ export default {
       'role': 'Vai trò',
       'employee': 'Nhân viên',
       'customer': 'Khách hàng',
+      'shipper': 'Giao hàng',
     };
 
     const actionKeys = ['view', 'create', 'edit', 'delete'];
