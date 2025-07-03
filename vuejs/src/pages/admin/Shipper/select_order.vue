@@ -2,7 +2,7 @@
   <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h3 class="fw-bold mb-0 text-primary">
-        <i class="bi bi-truck me-2"></i>Chọn đơn hàng để giao
+        <i class="bi bi-truck me-2"></i>Chọn đơn hàng
       </h3>
       <span class="badge bg-secondary">
         Đã chọn: {{ selectedIds.length }}/3
@@ -24,7 +24,7 @@
         <div class="col-md-4" v-for="order in orders" :key="order.id">
           <div class="card order-card h-100 shadow-sm" :class="{ selected: selectedIds.includes(order.id) }">
             <div class="card-body d-flex flex-column">
-              <div class="d-flex justify-content-between align-items-start mb-2">
+              <div class="d-flex justify-content-between align-items-start mb-2 w-100">
                 <h5 class="fw-bold text-dark mb-0">#{{ order.id }}</h5>
                 <i class="bi"
                   :class="selectedIds.includes(order.id) ? 'bi-check-circle-fill text-success' : 'bi-circle text-muted'"
@@ -62,17 +62,20 @@
               </div>
 
               <!-- Tổng tiền & nút -->
-              <div class="mt-auto d-flex justify-content-between align-items-center">
-                <span class="text-primary fw-bold">Tổng: {{ formatCurrency(order.total_price) }}</span>
-                <button class="btn btn-sm px-2 py-1 rounded-pill"
-                  :class="selectedIds.includes(order.id) ? 'btn-outline-danger' : 'btn-outline-primary'"
-                  @click="toggleSelect(order.id)">
-                  <i :class="selectedIds.includes(order.id) ? 'bi bi-x-lg' : 'bi bi-plus-lg'"></i>
-                  {{ selectedIds.includes(order.id) ? 'Bỏ' : 'Chọn' }}
-                </button>
+              <div class="mt-auto total-action-box">
+                <div class="total-label text-primary fw-bold mb-2">
+                  Tổng: {{ formatCurrency(order.total_price) }}
+                </div>
+                <div class="total-button text-end">
+                  <button class="btn btn-sm px-3 py-1 rounded-pill"
+                    :class="selectedIds.includes(order.id) ? 'btn-outline-danger' : 'btn-outline-primary'"
+                    @click="toggleSelect(order.id)">
+                    <i :class="selectedIds.includes(order.id) ? 'bi bi-x-lg' : 'bi bi-plus-lg'"></i>
+                    {{ selectedIds.includes(order.id) ? 'Bỏ' : 'Chọn' }}
+                  </button>
+                </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -212,4 +215,42 @@ onMounted(() => {
   background-color: #ccc;
   border-radius: 4px;
 }
+
+.total-action-box {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #ccc;
+}
+
+.total-label {
+  font-size: 16px;
+  margin-bottom: 0;
+}
+
+.total-button {
+  text-align: right;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 576px) {
+  .total-action-box {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .total-label {
+    font-size: 15px;
+  }
+
+  .total-button .btn {
+    font-size: 14px;
+    padding: 6px 12px;
+  }
+}
+
+
 </style>
