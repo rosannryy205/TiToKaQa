@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ReservationMail;
 use App\Models\Combo;
 use App\Models\Order;
 use App\Models\Order_detail;
@@ -23,6 +24,7 @@ date_default_timezone_set('Asia/Ho_Chi_Minh');
 use Exception;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator as FacadesValidator;
 
 class OrderController extends Controller
@@ -144,7 +146,7 @@ class OrderController extends Controller
                     $guestEmail = $user->email;
 
 
-                    if ($request->filled('guest_name')) { // sử dụng `filled` để kiểm tra có tồn tại và không rỗng
+                    if ($request->filled('guest_name')) {
                         $guestName = $request->guest_name;
                     }
 
@@ -253,12 +255,17 @@ class OrderController extends Controller
                     }
                 }
 
-                // Lấy tên món ăn và topping để gửi mail hoặc trả về
                 foreach ($request->order_detail as $item) {
                     $name = null;
-                    if ($item['type'] === 'food' && !empty($item['food_id'])) {
+                    if ($item['type'] === 'Food' && !empty($item['food_id'])) {
                         $food = Food::find($item['food_id']);
                         $name = $food?->name ?? 'Món ăn không tồn tại';
+                        $image = $food?->image;
+                    }
+                    if ($item['type'] === 'Combo' && !empty($item['combo_id'])) {
+                        $combo = Combo::find($item['combo_id']);
+                        $name = $combo?->name ?? 'Món ăn không tồn tại';
+                        $image = $combo?->image;
                     }
 
                     $toppingsWithNames = [];
@@ -276,6 +283,7 @@ class OrderController extends Controller
 
                     $orderDetailsWithNames[] = [
                         'name' => $name,
+                        'image' => $image,
                         'quantity' => $item['quantity'],
                         'price' => $item['price'],
                         'type' => $item['type'],
@@ -283,20 +291,44 @@ class OrderController extends Controller
                     ];
                 }
             }
+            $subtotal = 0;
 
-            // Chuẩn bị dữ liệu gửi mail
+            foreach ($orderDetailsWithNames as $item) {
+                $itemSubtotal = $item['price'] * $item['quantity'];
+                if (!empty($item['toppings'])) {
+                    foreach ($item['toppings'] as $topping) {
+                        $itemSubtotal += $topping['price'] * $item['quantity'];
+                    }
+                }
+
+                $subtotal += $itemSubtotal;
+            }
+
+            $tableInfos = $order->tables->map(function ($table) {
+                return [
+                    'table_number'  => $table->table_number ?? 'Không rõ',
+                    'reserved_from' => $table->pivot->reserved_from,
+                    'reserved_to'   => $table->pivot->reserved_to,
+                ];
+            })->toArray();
+
+
             $mailData = [
                 'order_id' => $order->id,
                 'guest_name' => $guestName,
                 'guest_email' => $guestEmail,
                 'guest_phone' => $guestPhone,
+                'guest_count' => $request->guest_count || $order->guest_count,
                 'total_price' => $request->total_price ?? null,
                 'note' => $request->note ?? null,
-                'order_detail' => $orderDetailsWithNames,
+                'order_details' => $orderDetailsWithNames,
+                'tables' => $tableInfos,
+                'subtotal' => $subtotal,
+                'order_status' =>  $order->order_status
             ];
 
-            // Gửi mail nếu cần (bạn có thể bỏ comment và chỉnh sửa nếu cần)
-            // Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
+
+            Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
 
             return response()->json([
                 'status' => true,
@@ -1194,13 +1226,12 @@ class OrderController extends Controller
         }
     }
 
-    public function getShipperOrders($id){
+    public function getShipperOrders($id)
+    {
         $orders = Order::where('shipper_id', $id)
-        ->whereIn('order_status', ['Đang giao hàng', 'Bắt đầu giao'])
-        ->get();
+            ->whereIn('order_status', ['Đang giao hàng', 'Bắt đầu giao'])
+            ->get();
 
-    return response()->json(['orders' => $orders]);
+        return response()->json(['orders' => $orders]);
     }
-
-
 }

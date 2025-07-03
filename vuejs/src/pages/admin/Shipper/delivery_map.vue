@@ -36,28 +36,16 @@
     <!-- Nút thao tác -->
     <div class="action-buttons mt-4">
 
-      <button v-if="order?.data?.order_status === 'Bắt đầu giao'" class="action-btn start"
-        @click="changeStatus('Đang giao hàng')">
-        <i class="bi bi-play-fill"></i>
-        Bắt đầu giao
-      </button>
+      <SwipeToConfirm v-if="order?.data?.order_status === 'Bắt đầu giao'" label="Bắt đầu giao" color="#28a745"
+        @confirm="() => changeStatus('Đang giao hàng')" />
 
-      <button disabled v-else class="action-btn start">
-        <i class="bi bi-play-fill"></i>
-        Đang giao hàng
-      </button>
+      <SwipeToConfirm v-if="order?.data?.order_status === 'Đang giao hàng'" label="Xác nhận đã giao"
+        color="#007bff" @confirm="() => changeStatus('Giao thành công')" />
 
-      <button v-show="order?.data?.order_status === 'Đang giao hàng'" class="action-btn delivered"
-        @click="changeStatus('Giao thành công')">
-        <i class="bi bi-check-circle-fill"></i>
-        Giao thành công
-      </button>
+      <SwipeToConfirm v-if="order?.data?.order_status === 'Đang giao hàng'" label="Giao thất bại"
+        color="#dc3545" @confirm="() => changeStatus('Giao thất bại')" />
 
-      <button v-show="order?.data?.order_status === 'Đang giao hàng'" class="action-btn problem"
-        @click="changeStatus('Giao thất bại')">
-        <i class="bi bi-exclamation-triangle-fill"></i>
-        Giao thất bại
-      </button>
+
 
       <button class="action-btn back" @click="goBack">
         <i class="bi bi-arrow-left"></i>
@@ -71,6 +59,7 @@
 
 
 <script setup>
+import SwipeToConfirm from '@/components/SwipeToConfirm.vue'
 import '@/stores/animated-marker'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
@@ -237,6 +226,7 @@ const fetchOrder = async () => {
 }
 
 // Đổi địa chỉ → toạ độ
+//Api LocationIQ
 const getCoordinatesFromAddress = async (address) => {
   const apiKey = 'pk.a3a8213154230324b5a5b37fd3e5f48a'
   const res = await axios.get('https://us1.locationiq.com/v1/search.php', {
@@ -255,12 +245,13 @@ const getCoordinatesFromAddress = async (address) => {
 }
 
 // API: Vẽ tuyến đường
+//Api Heigit
 const getRoutePolyline = async (start, end) => {
   const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: '5b3ce3597851110001cf624831426f803ba340cf9fa916ad9de4c9d8'
+      Authorization: '5b3ce3597851110001cf62482b60c4bf4dd35899168bdb73789d885e63b65a8ba7f4add869673f46'
     },
     body: JSON.stringify({
       coordinates: [

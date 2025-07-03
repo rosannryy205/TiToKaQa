@@ -5,23 +5,24 @@
     </div>
   </div>
   <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="fw-bold fs-4 mb-0">
-        <i class="bi bi-truck-front-fill me-2 text-primary"></i>Đơn hàng đang giao
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+      <h2 class="fw-bold fs-4 mb-0 text-primary d-flex align-items-center">
+        <i class="bi bi-truck-front-fill me-2"></i>Đơn hàng đang giao
       </h2>
-      <router-link to="/admin/select_order">
-        <button class="btn btn-ship fw-semibold" @click="goToSelectOrder">
+      <router-link to="/admin/select_order" class="ms-auto">
+        <button class="btn btn-ship fw-semibold">
           <i class="bi bi-list-check me-1"></i> Chọn đơn giao
         </button>
       </router-link>
     </div>
+
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       <div class="col" v-for="order in orders" :key="order.id">
         <div class="card border-0 shadow-sm h-100">
           <div class="card-body d-flex flex-column">
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2  w-100">
               <h5 class="card-title mb-0">
                 <i class="bi bi-receipt-cutoff text-info me-2"></i>#Mã đơn hàng: {{ order.id }}
               </h5>
@@ -51,13 +52,12 @@
             </ul>
 
             <!-- Order Items -->
-            <div class="mb-3 flex-grow-1 d-flex flex-column">
+            <div class="mb-3 flex-grow-1 d-flex flex-column w-100">
               <strong class="text-dark"><i class="bi bi-list-ul me-2"></i>Chi tiết đơn hàng:</strong>
 
-              <div class="order-items-scroll mt-2 flex-grow-1">
-                <ul class="list-group list-group-flush small" v-if="order.details && order.details.length > 0">
+              <div class="order-items-scroll mt-2 flex-grow-1 w-100">
+                <ul class="list-group list-group-flush small w-100" v-if="order.details && order.details.length > 0">
                   <li class="list-group-item px-0" v-for="food in order.details" :key="food.id">
-
                     <div class="d-flex justify-content-between">
                       <div>
                         <div>🍽️ {{ food.food_name }}</div>
@@ -76,15 +76,16 @@
                 </ul>
               </div>
 
-              <div class="text-end fw-bold mt-2 text-primary">
+              <div class="text-end fw-bold mt-2 text-primary w-100">
                 Tổng: {{ formatCurrency(order.total_price) }}
               </div>
             </div>
 
 
 
+
             <!-- Status Select -->
-            <div class="mb-3">
+            <div class="mb-3 w-100">
               <label class="form-label fw-semibold">
                 <i class="bi bi-shield-check me-1 text-dark"></i>Trạng thái giao hàng:
               </label>
@@ -194,7 +195,19 @@ function statusIcon(status) {
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 4px;
+  width: 100% !important;
+  flex-grow: 1;
 }
+
+.list-group,
+.list-group-item {
+  width: 100%;
+}
+
+.mb-3.flex-grow-1.d-flex.flex-column {
+  width: 100%;
+}
+
 
 .isLoading-overlay {
   position: fixed;
@@ -212,5 +225,44 @@ function statusIcon(status) {
 .btn-ship {
   background-color: #C92C3C;
   color: #fff;
+}
+
+@media (max-width: 576px) {
+  .btn-ship {
+    width: auto;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .d-flex.flex-wrap.justify-content-between.align-items-center {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .card-body>button {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .list-unstyled small,
+  .card .list-group-item {
+    font-size: 0.85rem;
+  }
+
+  .order-items-scroll {
+    max-height: 150px;
+  }
+
+  .text-truncate[title] {
+    max-width: 100% !important;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: initial;
+  }
 }
 </style>
