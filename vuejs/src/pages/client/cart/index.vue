@@ -32,7 +32,7 @@
                 <span v-else>Không có</span>
               </p>
               <p class="text-muted mb-2">Số lượng: {{ item.quantity }}</p>
-              <p class="mb-0 "><strong>Giá:</strong>{{ formatNumber(item.price) }} VNĐ</p>
+              <p class="mb-0 "><strong>Giá: </strong>{{ formatNumber(item.price) }} VNĐ</p>
             </div>
             <div class="text-center me-5 mb-2">
               <div class="qty-control rounded px-2 py-1 d-inline-flex align-items-center gap-2">

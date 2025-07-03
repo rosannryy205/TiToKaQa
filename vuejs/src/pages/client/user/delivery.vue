@@ -49,7 +49,7 @@ async function getRoutePolyline(start, end) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': '5b3ce3597851110001cf624831426f803ba340cf9fa916ad9de4c9d8'
+      'Authorization': '5b3ce3597851110001cf62482b60c4bf4dd35899168bdb73789d885e63b65a8ba7f4add869673f46'
     },
     body: JSON.stringify({
       coordinates: [
