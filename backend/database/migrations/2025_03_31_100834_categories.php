@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignId('parent_id')->nullable()->references('id')->on('categories');
             $table->string('images')->nullable();
             $table->boolean('default')->default(false);
-            // $table->timestamps();
             $table->softDeletes();
         });
     }

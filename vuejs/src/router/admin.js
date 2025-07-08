@@ -67,6 +67,12 @@ const admin = [
         meta: { requiresAdmin: true },
       },
       {
+        path: "tables/booking-schedule-now",
+        name: "admin-tables-booking-schedule-now",
+        component: () => import("../pages/admin/Tables/booking-schedule-now.vue"),
+        meta: { requiresAdmin: true },
+      },
+      {
         path: "tables/current-order",
         name: "admin-tables-current-order",
         component: () => import("../pages/admin/Tables/current-order.vue"),
