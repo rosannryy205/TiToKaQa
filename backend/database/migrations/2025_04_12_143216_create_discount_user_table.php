@@ -17,12 +17,12 @@ return new class extends Migration
             $table->foreignId('discount_id')->constrained()->onDelete('cascade');
             $table->integer('point_used')->default(0);
             $table->dateTime('exchanged_at');
-            $table->dateTime('expiry_at');   
-            $table->dateTime('used_at')->nullable(); 
+            $table->dateTime('expiry_at');
+            $table->dateTime('used_at')->nullable();
             $table->timestamps();
             $table->unique(['user_id', 'discount_id']);
         });
-        
+
     }
     /**
      * Reverse the migrations.
