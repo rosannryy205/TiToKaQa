@@ -385,7 +385,6 @@ export default {
           await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
             order_id: orderId,
             amount_paid: finalTotal.value,
-            payment_type: 'Thanh toán toàn bộ',
           })
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey.value)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Mail\ReservationMail;
 use App\Models\Combo;
 use App\Models\Order;
@@ -17,15 +18,14 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use DateTime;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 Carbon::setLocale('vi');
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator as FacadesValidator;
 
 class OrderController extends Controller
 {
@@ -312,6 +312,17 @@ class OrderController extends Controller
                 ];
             })->toArray();
 
+            $qrImage = QrCode::format('png')->size(250)->generate('http://localhost:5173/history-order-detail/' . $order->id);
+
+            $filename = 'qr_' . $order->id . '.png';
+            $tempPath = storage_path('app/public/' . $filename);
+            file_put_contents($tempPath, $qrImage);
+
+            $uploadedFileUrl = Cloudinary::upload($tempPath, [
+                'folder' => 'qr_codes'
+            ])->getSecurePath();
+
+            unlink($tempPath);
 
             $mailData = [
                 'order_id' => $order->id,
@@ -324,7 +335,8 @@ class OrderController extends Controller
                 'order_details' => $orderDetailsWithNames,
                 'tables' => $tableInfos,
                 'subtotal' => $subtotal,
-                'order_status' =>  $order->order_status
+                'order_status' =>  $order->order_status,
+                'qr_url' => $uploadedFileUrl
             ];
 
 
