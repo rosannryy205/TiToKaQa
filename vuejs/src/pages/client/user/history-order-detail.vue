@@ -146,6 +146,7 @@ import { onMounted } from 'vue';
 import axios from 'axios';
 import { ref } from 'vue';
 import { computed } from 'vue';
+import { toast } from 'vue3-toastify'
 export default {
   methods: {
     goBack() {
@@ -175,12 +176,12 @@ export default {
         if (confirm('Bạn có chắc muốn huỷ đơn này')) {
           const status = await axios.put(`http://127.0.0.1:8000/api/order-history-info/cancel/${id}`)
           if (status) {
-            alert('Hủy đơn thành công.')
+            toast.success('Hủy đơn thành công.')
           }
         }
       } catch (error) {
         console.error(error)
-        alert('Cập nhật thất bại.')
+        toast.error('Cập nhật thất bại.')
       } finally {
         isLoading.value = false
       }
