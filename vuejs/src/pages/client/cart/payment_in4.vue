@@ -145,13 +145,13 @@
                         getAllChildCategoryIds(discount.category_id).includes(Number(item.category_id)),
                       )),
                 }" @click="
-        totalPrice >= discount.min_order_value &&
-        discount.used < discount.usage_limit &&
-        !(discount.discount_type === 'freeship' && !hasShippingFee) &&
-        (selectedDiscount === discount.code
-          ? removeDiscountCode()
-          : applyDiscountCode(discount.code))
-        ">
+                  totalPrice >= discount.min_order_value &&
+                  discount.used < discount.usage_limit &&
+                  !(discount.discount_type === 'freeship' && !hasShippingFee) &&
+                  (selectedDiscount === discount.code
+                    ? removeDiscountCode()
+                    : applyDiscountCode(discount.code))
+                  ">
                   <!-- Cột trái -->
                   <div class="voucher-card-left"
                     :class="discount.discount_type === 'freeship' ? 'freeship' : 'salefood'">
@@ -398,6 +398,10 @@ export default {
     }
 
     const submitOrder = async () => {
+      if (!paymentMethod.value) {
+        toast.error('Vui lòng chọn phương thức thanh toán trước khi đặt hàng.');
+        return;
+      }
       isLoading.value = true
       try {
         if (!selectedProvince.value || !selectedDistrict.value || !selectedWard.value) {

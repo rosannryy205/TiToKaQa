@@ -422,16 +422,6 @@ class UserController extends Controller
             $user->fullname = $request->input('fullname');
             $user->phone = $request->input('phone');
             $user->address = $request->input('address');
-
-            if ($request->hasFile('avatar')) {
-                $file = $request->file('avatar');
-                $filename = $file->hashName();
-                $path = $file->storePubliclyAs('avatar', $filename, 'public');
-                if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                    Storage::disk('public')->delete($user->avatar);
-                }
-                $user->avatar = $path;
-            }
             $user->save();
 
             return response()->json([
@@ -442,6 +432,32 @@ class UserController extends Controller
         } catch (Exception $e) {
             return response()->json(['message' => 'Đã xảy ra lỗi server khi cập nhật thông tin.'], 500);
         }
+    }
+
+    
+    protected  function uploadAvatar(Request $request, string $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $filename = $file->hashName();
+            $path = $file->storePubliclyAs('avatar', $filename, 'public');
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $user->avatar = $path;
+        }
+        $user->save();
+
+        return response()->json([
+            'message' => 'Thông tin và ảnh đại diện đã được cập nhật thành công.',
+            'user' => $user,
+            'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null
+        ]);
     }
 
 
