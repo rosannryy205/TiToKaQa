@@ -39,11 +39,11 @@
       <SwipeToConfirm v-if="order?.data?.order_status === 'Bắt đầu giao'" label="Bắt đầu giao" color="#28a745"
         @confirm="() => changeStatus('Đang giao hàng')" />
 
-      <SwipeToConfirm v-if="order?.data?.order_status === 'Đang giao hàng'" label="Xác nhận đã giao"
-        color="#007bff" @confirm="() => changeStatus('Giao thành công')" />
+      <SwipeToConfirm v-if="order?.data?.order_status === 'Đang giao hàng'" label="Xác nhận đã giao" color="#007bff"
+        @confirm="() => changeStatus('Giao thành công')" />
 
-      <SwipeToConfirm v-if="order?.data?.order_status === 'Đang giao hàng'" label="Giao thất bại"
-        color="#dc3545" @confirm="() => changeStatus('Giao thất bại')" />
+      <SwipeToConfirm v-if="order?.data?.order_status === 'Đang giao hàng'" label="Giao thất bại" color="#dc3545"
+        @confirm="() => changeStatus('Giao thất bại')" />
 
 
 
@@ -67,6 +67,48 @@ import { useRoute } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { toast } from 'vue3-toastify'
+// 👉 Giả lập shipper di chuyển và gửi tọa độ lên Firebase
+import { set, ref as dbRef } from 'firebase/database'
+import { database } from '@/stores/firebase'
+import { remove } from 'firebase/database'
+
+
+// const simulateShipperMovement = async () => {
+//   const shipperId = JSON.parse(localStorage.getItem('user'))?.id
+//   if (!shipperId) return toast.error('Không có ID shipper')
+
+//   const start = restaurant.value
+//   const end = customer.value
+
+//   const { coords } = await getRoutePolyline(start, end)
+//   if (!coords.length) return toast.error('Không có tuyến đường để mô phỏng')
+
+//   let index = 0
+//   const interval = 1000 // 1 giây
+
+//   const intervalId = setInterval(async () => {
+//     // ⛔ Nếu trạng thái đơn đã đổi (giao thành công/thất bại) thì dừng gửi
+//     const currentOrder = await axios.get(`http://127.0.0.1:8000/api/delivery/${order_id}`)
+//     const status = currentOrder.data.data.order_status
+//     if (status !== 'Đang giao hàng') {
+//       clearInterval(intervalId)
+//       return
+//     }
+
+//     if (index >= coords.length) {
+//       clearInterval(intervalId)
+//       return
+//     }
+
+//     const [lat, lng] = coords[index]
+//     const locationRef = dbRef(database, `locations/shipper_${shipperId}`)
+//     set(locationRef, { lat, lng, timestamp: Date.now() })
+//     localStorage.setItem('currentShipperPosition', JSON.stringify({ lat, lng }))
+//     index++
+//   }, interval)
+// }
+
+
 
 const goBack = () => window.history.back()
 const route = useRoute()
@@ -112,26 +154,23 @@ const updateMap = async () => {
   const lastPos = JSON.parse(localStorage.getItem('lastShipperPosition'))
   const startPoint = lastPos || restaurant.value // fallback về nhà hàng
 
-  // Xóa route cũ
+  const { coords: polylineCoords, distance } = await getRoutePolyline(startPoint, customer.value)
+  if (!polylineCoords.length) return
+
+  // ✅ Chỉ xóa sau khi đã có dữ liệu mới
   if (routeLine) {
     map.removeLayer(routeLine)
     routeLine = null
   }
-
-  // Xóa shipper cũ
   if (shipperMarker) {
     map.removeLayer(shipperMarker)
     shipperMarker = null
   }
 
-  // Thêm marker khách
+  // Thêm marker khách hàng
   L.marker([customer.value.lat, customer.value.lng])
     .addTo(map)
     .bindPopup('<b>👤 Khách hàng</b>')
-
-  const { coords: polylineCoords, distance } = await getRoutePolyline(startPoint, customer.value)
-
-  if (!polylineCoords.length) return
 
   routeLine = L.polyline(polylineCoords, {
     color: '#C92C3C',
@@ -157,21 +196,61 @@ const updateMap = async () => {
   })
 
   if (order.value.data.order_status === 'Đang giao hàng') {
-    shipperMarker = new L.AnimatedMarker(routeLine.getLatLngs(), {
+    const latlngs = routeLine.getLatLngs()
+    let savedPos = null
+
+    if (order.value.data.order_status === 'Đang giao hàng') {
+      savedPos = JSON.parse(localStorage.getItem('currentShipperPosition'))
+    }
+
+    let startIndex = 0
+    if (savedPos) {
+      let minDistance = Infinity
+      latlngs.forEach((point, idx) => {
+        const dist = Math.sqrt(
+          Math.pow(point.lat - savedPos.lat, 2) + Math.pow(point.lng - savedPos.lng, 2)
+        )
+        if (dist < minDistance) {
+          minDistance = dist
+          startIndex = idx
+        }
+      })
+    }
+
+    const remainingRoute = latlngs.slice(startIndex)
+
+    shipperMarker = new L.AnimatedMarker(remainingRoute, {
       icon: shipperIcon,
       autoStart: true,
       distance: 80,
-      interval: 150, //150 // 720
+      interval: 150,
       onEnd: () => {
         toast.success('Đã đến điểm giao')
+        localStorage.removeItem('currentShipperPosition')
       }
     })
+
+    shipperMarker.on('move', (e) => {
+      const latlng = e.latlng
+      localStorage.setItem('currentShipperPosition', JSON.stringify(latlng))
+
+      const shipperId = JSON.parse(localStorage.getItem('user'))?.id
+      const locationRef = dbRef(database, `locations/shipper_${shipperId}`)
+      set(locationRef, {
+        lat: latlng.lat,
+        lng: latlng.lng,
+        timestamp: Date.now()
+      })
+    })
   } else {
+    // Không phải đang giao hàng thì đứng yên
     shipperMarker = L.marker([startPoint.lat, startPoint.lng], { icon: shipperIcon })
   }
 
   map.addLayer(shipperMarker)
 }
+
+
 
 // API: Đổi trạng thái
 const changeStatus = async (newStatus) => {
@@ -183,6 +262,9 @@ const changeStatus = async (newStatus) => {
 
     if (response.data.success) {
       toast.success('Cập nhật thành công')
+      // if (newStatus === 'Đang giao hàng') {
+      //   simulateShipperMovement() // ✅ gọi để bắt đầu gửi vị trí
+      // }
       if (newStatus === 'Giao thành công' || newStatus === 'Giao thất bại') {
         const shipperId = JSON.parse(localStorage.getItem('user'))?.id
         const res = await axios.get(`http://127.0.0.1:8000/api/shipper/${shipperId}/active-orders`)
@@ -201,6 +283,11 @@ const changeStatus = async (newStatus) => {
         } else {
           localStorage.setItem('lastShipperPosition', JSON.stringify(newPos))
         }
+
+        localStorage.removeItem('currentShipperPosition')
+
+        const locationRef = dbRef(database, `locations/shipper_${shipperId}`)
+        await set(locationRef, null)
 
 
         setTimeout(() => {
@@ -274,6 +361,9 @@ onMounted(async () => {
     initMap() // map tạo ngay
     await fetchOrder()
     await updateMap()
+    // if (order.value.data.order_status === 'Đang giao hàng') {
+    //   simulateShipperMovement()
+    // }
   } catch (error) {
     console.error('Lỗi khi khởi tạo:', error)
   } finally {
@@ -289,6 +379,9 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
 }
 
 .action-btn {
@@ -299,11 +392,15 @@ onMounted(async () => {
   font-weight: 600;
   font-size: 16px;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 40px;
   border: none;
   color: white;
   transition: all 0.2s ease;
   cursor: pointer;
+  height: 56px;
+  /* Khớp SwipeToConfirm */
+  width: 100%;
+  max-width: 100%;
 }
 
 .action-btn i {
@@ -325,6 +422,10 @@ onMounted(async () => {
 
 .action-btn.back {
   background-color: #6c757d;
+}
+
+.action-btn.back:hover {
+  background-color: #5a6268;
 }
 
 /* Hover effect */

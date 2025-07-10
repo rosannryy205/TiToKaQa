@@ -99,7 +99,7 @@
 
 
     <!-- Khi đơn hàng đang giao -->
-    <router-link :to="{ name: 'delivery', params: { id: info.id } }" v-if="info.order_status === 'Đang giao hàng'">
+    <router-link :to="{ name: 'delivery', params: { id: info.id } }" v-if="info.order_status === 'Bắt đầu giao'">
       <button class="btn btn-sm btn-outline-danger mt-2 ms-2 p-2" style="width: 120px;">
         Theo dõi đơn
       </button>
