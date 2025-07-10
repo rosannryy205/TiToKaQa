@@ -477,9 +477,9 @@ export default {
 
     const handleGuestSelection = () => {
       if (selectguest.value && selectguest.value.id !== 'guest') {
-        guest_name.value = selectguest.value.username || selectguest.value.fullname
-        guest_phone.value = selectguest.value.phone
-        guest_email.value = selectguest.value.email
+        guest_name.value = selectguest.value.guest_name
+        guest_phone.value = selectguest.value.guest_phone
+        guest_email.value = selectguest.value.guest_email
       } else {
         guest_name.value = ''
         guest_phone.value = ''
@@ -503,7 +503,9 @@ export default {
         guest.value = [
           guestDefaultOption, //"Khách lẻ" ở đầu mảng
           ...res.data.user.map((g) => ({
-            ...g,
+            guest_name: g.user.fullname || g.user.username,
+            guest_phone: g.user.phone,
+            guest_email: g.user.email,
             usernameEmail: `${g.user.username} - ${g.user.phone}`,
           })),
         ]
@@ -651,22 +653,22 @@ export default {
     // hàm đặt bàn
     const reservation = async () => {
       isLoading.value = true
-          let rawDateTime = ''
+      let rawDateTime = ''
 
-          if (route.params.date) {
-            rawDateTime = route.params.date
-          } else if (date.value && time.value) {
-            rawDateTime = `${date.value}T${time.value}:00`
-          } else {
-            toast.error('Vui lòng chọn ngày và giờ')
-            return
-          }
+      if (route.params.date) {
+        rawDateTime = route.params.date
+      } else if (date.value && time.value) {
+        rawDateTime = `${date.value}T${time.value}:00`
+      } else {
+        toast.error('Vui lòng chọn ngày và giờ')
+        return
+      }
 
-          const reservedFrom = new Date(rawDateTime)
-          const reservedTo = new Date(reservedFrom.getTime() + 2 * 60 * 60 * 1000)
+      const reservedFrom = new Date(rawDateTime)
+      const reservedTo = new Date(reservedFrom.getTime() + 2 * 60 * 60 * 1000)
 
-          const reserved_from = formatDateTime(reservedFrom)
-          const reserved_to = formatDateTime(reservedTo)
+      const reserved_from = formatDateTime(reservedFrom)
+      const reserved_to = formatDateTime(reservedTo)
 
       try {
         await axios.post('http://127.0.0.1:8000/api/reservation', {
@@ -720,11 +722,12 @@ export default {
       }
     })
     onMounted(() => {
+      getAllUser()
       findTable()
 
       time.value = formatTime(localStorage.getItem('selectedDate')) || ''
       date.value = formatDate(localStorage.getItem('selectedDate')) || ''
-      getAllUser()
+
       selectguest.value = 'guest'
       loadCart()
       for (let hour = 1; hour <= 21; hour++) {
