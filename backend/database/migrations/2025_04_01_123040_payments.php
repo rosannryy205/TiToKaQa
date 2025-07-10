@@ -22,7 +22,6 @@ return new class extends Migration
             $table->enum('payment_method', ['COD', 'VNPAY', 'MOMO']);
             $table->enum('payment_status', ['Đang chờ xử lý', 'Đã thanh toán', 'Thanh toán thất bại', 'Đã hoàn tiền']);
             $table->timestamp('payment_time')->nullable();
-            $table->enum('payment_type', ['Tiền cọc', 'Thanh toán toàn bộ']);
             $table->timestamps();
         });
     }

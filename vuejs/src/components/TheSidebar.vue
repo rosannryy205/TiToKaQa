@@ -312,6 +312,13 @@ const menuItems = [
         permission: 'view_booking',
       },
       {
+        key: '/admin/tables/booking-schedule-now',
+        to: '/admin/tables/booking-schedule-now',
+        label: 'Đặt bàn hôm nay',
+        icon: OrderedListOutlined,
+        permission: 'view_booking',
+      },
+      {
         key: '/admin/tables/insert-reservation', // Đã thêm /admin/
         to: '/admin/tables/insert-reservation',
         label: 'Thêm đơn đặt bàn',
