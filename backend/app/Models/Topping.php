@@ -27,6 +27,6 @@ class Topping extends Model
 
     public function category_topping()
     {
-        return $this->belongsTo(Category_topping::class, 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 }

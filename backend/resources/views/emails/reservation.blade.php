@@ -131,14 +131,13 @@
 
         <div style="border-top: 1px solid #e8e8e8; padding-top: 25px; text-align: center;">
             <div style="font-size: 14px; color: #777777; margin-bottom: 15px;">
-                Bạn có thể theo xem chi tiết đơn hàng của bạn bằng cách nhấp vào nút bên dưới.
+                Khi đến nhà hàng, vui lòng đưa mã QR cho nhân viên để xác nhận đơn hàng của bạn
             </div>
+            @if (!empty($mailData['qr_url']))
+                <img src="{{ $mailData['qr_url'] }}" alt="QR Code" style="width: 250px;" />
+            @endif
             <br>
-            <a href="http://localhost:5173/history-order-detail/{{ $mailData['order_id'] }}"
-                style="display: inline-block; background-color: #c92c3c; color: white; padding: 12px 25px; text-decoration: none; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
-                XEM CHI TIẾT ĐƠN HÀNG
-            </a>
-            <br>
+
             <div style="font-size: 12px; color: #777777; margin-top: 15px;">
                 Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi tại
                 <a href="mailto:support@tiktokaqa.com"

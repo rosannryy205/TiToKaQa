@@ -154,6 +154,7 @@
       </div>
     </div>
   </transition>
+
 </template>
 
 <script setup>
@@ -213,7 +214,6 @@ const getTable = async () => {
   }
 
 }
-
 
 const orderOfTable = ref([])
 const getOrderOfTable = async () => {
@@ -785,6 +785,7 @@ a {
   color: #333;
   gap: 2px;
   border-left: 8px solid #c92c3c;
+  cursor: pointer;
 }
 
 .fc-datagrid-cell-frame {
