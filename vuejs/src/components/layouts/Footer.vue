@@ -100,7 +100,7 @@
           <p>Nhận thông tin khuyến mãi và món mới từ Mỳ Cay TITOKAQA.</p>
           <div class="input-group">
             <input type="email" class="form-control" placeholder="Nhập email của bạn" />
-            <button style="background-color: rgb(199, 11, 11)" class="btn btn-danger">
+            <button style="background-color: rgb(199, 11, 11)" class="btn btn-danger-customer">
               Đăng Ký
             </button>
           </div>
@@ -496,5 +496,10 @@ export default {
   border-radius: 50%;
   cursor: pointer;
   font-size: 18px;
+}
+
+button.btn-danger-customer:hover{
+  color: #fff;
+  background-color: #cc2c40 !important;
 }
 </style>
