@@ -132,7 +132,6 @@ class OrderController extends Controller
     {
         try {
 
-
             $guestName = $request->guest_name ?? null;
             $guestPhone = $request->guest_phone ?? null;
             $guestEmail = $request->guest_email ?? null;
