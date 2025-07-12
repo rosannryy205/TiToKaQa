@@ -98,9 +98,10 @@
               <i class="bi bi-chat-left-text-fill me-2"></i><strong>Ghi chú:</strong> {{ order.note || 'Không có' }}
             </p>
 
-            <button class="btn btn-outline-primary mt-3" @click="goToTracking(order.id)">
+            <button class="btn btn-outline-danger-custom mt-3" @click="goToTracking(order.id)">
               Xem hành trình giao hàng
             </button>
+
           </div>
         </div>
       </div>
@@ -265,4 +266,25 @@ function statusIcon(status) {
     text-overflow: initial;
   }
 }
+
+button.btn-outline-danger-custom {
+  color: #C92C3C !important;
+  border: 1px solid #C92C3C !important;
+  background-color: transparent !important;
+  font-weight: 600;
+  border-radius: 40px;
+  padding: 12px 20px;
+  width: 100%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button.btn-outline-danger-custom:hover {
+  background-color: #C92C3C !important;
+  color: white !important;
+  border-color: #C92C3C !important;
+}
+
 </style>
