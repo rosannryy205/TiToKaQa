@@ -32,7 +32,6 @@ return new class extends Migration
             $table->string('guest_address')->nullable();
             $table->integer('guest_count')->nullable();
             $table->string('note')->nullable();
-            $table->decimal('deposit_amount', 10, 2)->nullable();
             $table->timestamp('check_in_time')->nullable();
             $table->timestamp('expiration_time')->nullable();
             $table->string('reservation_code')->nullable()->unique();

@@ -17,7 +17,6 @@ class Order extends Model
         'guest_email',
         'guest_count',
         'note',
-        'deposit_amount',
         'expiration_time',
         'total_price',
         'money_reduce',
@@ -27,6 +26,7 @@ class Order extends Model
         'order_time',
         'order_status',
         'shippingFee',
+        'reservation_code',
 
     ];
     public function details()
@@ -47,4 +47,5 @@ class Order extends Model
     {
         return $this->hasOne(Payment::class, 'order_id');
     }
+
 }
