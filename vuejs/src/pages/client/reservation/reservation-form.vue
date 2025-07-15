@@ -4,7 +4,9 @@
       <span class="fs-1">ĐẶT BÀN CÙNG CHÚNG TÔI!</span>
     </div>
   </div>
-
+  <div v-if="isLoading" class="loader-wrapper">
+    <div class="loader"></div>
+  </div>
   <div class="container">
     <h6 class="fw-bold">
       Chúng tôi sẽ giữ bàn trong {{ minutes }} phút {{ seconds }} giây
@@ -243,6 +245,8 @@ export default {
 
     const paymentMethod = ref('')
     const check_payment = async (orderId) => {
+      isLoading.value = true
+
       try {
         if (!paymentMethod.value) {
           toast.error('Vui lòng chọn phương thức thanh toán!')
@@ -313,7 +317,6 @@ export default {
           await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
             order_id: orderId,
             amount_paid: finalTotal.value + 100000,
-            payment_type: 'Thanh toán toàn bộ',
           })
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey)
@@ -331,10 +334,11 @@ export default {
           toast.error('Đặt bàn thất bại, vui lòng thử lại!')
         }
 
+      } finally {
+        isLoading.value = false
       }
     };
     const reservation = async () => {
-      isLoading.value = true
       try {
         console.log('✅ form gửi đi:', form.value)
         await check_payment(orderId)
@@ -342,8 +346,6 @@ export default {
         console.log('✅ check_out đã được gọi xong')
       } catch (error) {
         console.error('❌ Lỗi khi gọi check_out:', error)
-      } finally {
-        isLoading.value = false
       }
     }
 
@@ -416,13 +418,14 @@ export default {
       info,
       userId,
       paymentMethod,
-      cartKey
+      cartKey,
+      isLoading
     };
   },
 };
 </script>
 
-<style>
+<style scoped>
 .section-title1 {
   background-color: #d32f2f;
   color: white;
@@ -443,5 +446,40 @@ export default {
 .list-product-scroll1 {
   max-height: 135px;
   overflow-y: auto;
+}
+
+.loader-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(148, 142, 142, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* loader */
+.loader {
+  width: 50px;
+  --b: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000 10%, #f03355) content-box;
+  -webkit-mask:
+    repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
+    radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
+}
+
+@keyframes l4 {
+  to {
+    transform: rotate(1turn);
+  }
 }
 </style>

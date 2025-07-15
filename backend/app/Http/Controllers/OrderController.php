@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Mail\ReservationMail;
 use App\Models\Combo;
 use App\Models\Order;
 use App\Models\Order_detail;
@@ -16,14 +18,14 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use DateTime;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 Carbon::setLocale('vi');
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator as FacadesValidator;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -129,29 +131,7 @@ class OrderController extends Controller
     public function reservation(Request $request)
     {
         try {
-            $validator = FacadesValidator::make($request->all(), [
-                'guest_count' => 'required|integer|min:1',
-                'guest_name' => 'required|string',
-                'guest_phone' => 'required|numeric',
-                'reserved_from' => 'required|date',
-                'table_ids' => 'required|array|min:1',
-                'table_ids.*' => 'integer|exists:tables,id',
-            ], [
-                'guest_count.required' => 'Vui lòng nhập số khách.',
-                'reserved_from.required' => 'Vui lòng chọn thời gian đặt bàn.',
-                'table_ids.required' => 'Vui lòng chọn ít nhất một bàn.',
-                'table_ids.*.exists' => 'Bàn không tồn tại trong hệ thống.',
-                'guest_name.required' => 'Vui lòng nhập tên.',
-                'guest_phone.required' => 'Vui lòng nhập số điện thoại.',
 
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'status' => false,
-                    'errors' => $validator->errors()
-                ], 422);
-            }
 
             $guestName = $request->guest_name ?? null;
             $guestPhone = $request->guest_phone ?? null;
@@ -166,7 +146,7 @@ class OrderController extends Controller
                     $guestEmail = $user->email;
 
 
-                    if ($request->filled('guest_name')) { // sử dụng `filled` để kiểm tra có tồn tại và không rỗng
+                    if ($request->filled('guest_name')) {
                         $guestName = $request->guest_name;
                     }
 
@@ -275,12 +255,17 @@ class OrderController extends Controller
                     }
                 }
 
-                // Lấy tên món ăn và topping để gửi mail hoặc trả về
                 foreach ($request->order_detail as $item) {
                     $name = null;
-                    if ($item['type'] === 'food' && !empty($item['food_id'])) {
+                    if ($item['type'] === 'Food' && !empty($item['food_id'])) {
                         $food = Food::find($item['food_id']);
                         $name = $food?->name ?? 'Món ăn không tồn tại';
+                        $image = $food?->image;
+                    }
+                    if ($item['type'] === 'Combo' && !empty($item['combo_id'])) {
+                        $combo = Combo::find($item['combo_id']);
+                        $name = $combo?->name ?? 'Món ăn không tồn tại';
+                        $image = $combo?->image;
                     }
 
                     $toppingsWithNames = [];
@@ -298,6 +283,7 @@ class OrderController extends Controller
 
                     $orderDetailsWithNames[] = [
                         'name' => $name,
+                        'image' => $image,
                         'quantity' => $item['quantity'],
                         'price' => $item['price'],
                         'type' => $item['type'],
@@ -305,20 +291,56 @@ class OrderController extends Controller
                     ];
                 }
             }
+            $subtotal = 0;
 
-            // Chuẩn bị dữ liệu gửi mail
+            foreach ($orderDetailsWithNames as $item) {
+                $itemSubtotal = $item['price'] * $item['quantity'];
+                if (!empty($item['toppings'])) {
+                    foreach ($item['toppings'] as $topping) {
+                        $itemSubtotal += $topping['price'] * $item['quantity'];
+                    }
+                }
+
+                $subtotal += $itemSubtotal;
+            }
+
+            $tableInfos = $order->tables->map(function ($table) {
+                return [
+                    'table_number'  => $table->table_number ?? 'Không rõ',
+                    'reserved_from' => $table->pivot->reserved_from,
+                    'reserved_to'   => $table->pivot->reserved_to,
+                ];
+            })->toArray();
+
+            $qrImage = QrCode::format('png')->size(250)->generate('http://localhost:5173/history-order-detail/' . $order->id);
+
+            $filename = 'qr_' . $order->id . '.png';
+            $tempPath = storage_path('app/public/' . $filename);
+            file_put_contents($tempPath, $qrImage);
+
+            $uploadedFileUrl = Cloudinary::upload($tempPath, [
+                'folder' => 'qr_codes'
+            ])->getSecurePath();
+
+            unlink($tempPath);
+
             $mailData = [
                 'order_id' => $order->id,
                 'guest_name' => $guestName,
                 'guest_email' => $guestEmail,
                 'guest_phone' => $guestPhone,
+                'guest_count' => $request->guest_count || $order->guest_count,
                 'total_price' => $request->total_price ?? null,
                 'note' => $request->note ?? null,
-                'order_detail' => $orderDetailsWithNames,
+                'order_details' => $orderDetailsWithNames,
+                'tables' => $tableInfos,
+                'subtotal' => $subtotal,
+                'order_status' =>  $order->order_status,
+                'qr_url' => $uploadedFileUrl
             ];
 
-            // Gửi mail nếu cần (bạn có thể bỏ comment và chỉnh sửa nếu cần)
-            // Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
+
+            Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
 
             return response()->json([
                 'status' => true,
@@ -616,16 +638,54 @@ class OrderController extends Controller
     //huỷ đơn
     public function cancelOrder(Request $request)
     {
-        $order = Order::find($request->id);
+        $order = Order::with(['payment', 'details'])->find($request->id);
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
-        $order->order_status = 'Đã hủy';
-        $order->save();
 
-        return response()->json(['message' => 'Đơn hàng đã được hủy thành công.']);
+        // Chỉ cho phép hủy nếu đang ở trạng thái Chờ xác nhận hoặc Đã xác nhận
+        if (!in_array($order->order_status, ['Chờ xác nhận', 'Đã xác nhận'])) {
+            return response()->json(['message' => 'Chỉ có thể hủy đơn khi đang ở trạng thái chờ xác nhận hoặc đã xác nhận.'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Khôi phục tồn kho
+            foreach ($order->details as $detail) {
+                $food = Food::find($detail->food_id);
+                if ($food) {
+                    $food->stock += $detail->quantity;
+                    $food->quantity_sold -= $detail->quantity;
+                    $food->save();
+                }
+            }
+
+            // Cập nhật trạng thái đơn hàng
+            $order->order_status = 'Đã hủy';
+            $order->save();
+
+            // Cập nhật trạng thái thanh toán nếu có
+            if ($order->payment) {
+                if (in_array($order->payment->payment_method, ['VNPAY', 'MOMO'])) {
+                    $order->payment->payment_status = 'Đã hoàn tiền';
+                } else {
+                    $order->payment->payment_status = 'Thanh toán thất bại';
+                }
+                $order->payment->save();
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Đơn hàng đã được hủy thành công.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi khi hủy đơn hàng.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
 
     //cập nhật địa chỉ
     public function updateAddressForOrder(Request $request, $id)
@@ -803,12 +863,10 @@ class OrderController extends Controller
                 ];
             });
 
-            // Sắp xếp dữ liệu
             $sortedData = $data->sort(function ($a, $b) {
                 $statusA = $a['order_status'];
                 $statusB = $b['order_status'];
 
-                // Chuyển đổi thời gian thành đối tượng Carbon để so sánh dễ dàng
                 $timeA = ($statusA === 'Khách đã đến' && $a['check_in_time'])
                     ? Carbon::parse($a['check_in_time'])
                     : Carbon::parse($a['order_time']);
@@ -817,16 +875,14 @@ class OrderController extends Controller
                     ? Carbon::parse($b['check_in_time'])
                     : Carbon::parse($b['order_time']);
 
-                // Ưu tiên 'Khách đã đến' và so sánh theo check_in_time
                 if ($statusA === 'Khách đã đến' && $statusB !== 'Khách đã đến') {
-                    return -1; // A ưu tiên hơn B
+                    return -1;
                 } elseif ($statusA !== 'Khách đã đến' && $statusB === 'Khách đã đến') {
-                    return 1; // B ưu tiên hơn A
+                    return 1;
                 } else {
-                    // Cả hai cùng trạng thái 'Khách đã đến' hoặc cả hai không phải 'Khách đã đến'
-                    return $timeA->timestamp - $timeB->timestamp; // Sắp xếp theo thời gian tăng dần
+                    return $timeA->timestamp - $timeB->timestamp;
                 }
-            })->values(); // Đảm bảo các khóa mảng được đặt lại sau khi sắp xếp
+            })->values();
 
             return response()->json([
                 'status' => true,
@@ -849,11 +905,22 @@ class OrderController extends Controller
                 'order_id' => 'required|numeric',
                 'table_ids' => 'required|array',
                 'table_ids.*' => 'numeric',
-                'reserved_from' => 'required|date',
+                'reserved_from' => 'nullable|date',
                 'reserved_to' => 'nullable|date',
             ], [
                 'table_ids.required' => 'Bạn chưa xếp bàn cho đơn hàng này.',
             ]);
+
+            if (empty($data['reserved_to'])) {
+                $order = Order::find($data['order_id']);
+                if (!$order) {
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Không tìm thấy đơn hàng.'
+                    ], 404);
+                }
+                $data['reserved_to'] = $order->reserved_to;
+            }
 
             $createdTables = [];
 
@@ -876,20 +943,11 @@ class OrderController extends Controller
                     'reserved_to' => $data['reserved_to'],
                 ]);
                 $createdTables[] = $reservation;
-
-                Table::where('id', $table_id)->update([
-                    'status' => 'Đã đặt trước'
-                ]);
             }
-
-
-            Order::where('id', $data['order_id'])->update([
-                'reservation_status' => 'Đã xếp bàn'
-            ]);
 
             return response()->json([
                 'status' => true,
-                'message' => 'Xếp bàn thành công và trạng thái bàn đã thay đổi thành "Đã đặt trước".',
+                'message' => 'Xếp bàn thành công',
             ]);
         } catch (ValidationException $th) {
             return response()->json([
@@ -903,6 +961,7 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
 
     public function getAllFoodsWithToppings()
     {
@@ -1052,5 +1111,139 @@ class OrderController extends Controller
             'message' => 'Đã tìm thấy đơn hàng',
             'data' => $order
         ]);
+    }
+
+
+    public function getOrdersByShipper()
+    {
+        $shipper = auth()->user();
+
+        if (!$shipper) {
+            return response()->json([
+                'status' => false,
+                'mess' => 'Chưa xác thực người dùng'
+            ], 401);
+        }
+
+        $orders = Order::with([
+            'details.foods',
+            'details.toppings.food_toppings.toppings',
+            'tables',
+            'payment'
+        ])
+            ->where('shipper_id', $shipper->id)
+            ->whereIn('order_status', ['Bắt đầu giao', 'Đang giao hàng'])
+            ->orderByDesc('order_time')
+            ->get();
+
+        if ($orders->isEmpty()) {
+            return response()->json([
+                'status' => false,
+                'mess' => 'Không có đơn hàng nào được giao cho bạn'
+            ]);
+        }
+
+        $data = $orders->map(function ($order) {
+            $details = $order->details->map(function ($detail) {
+                return [
+                    'id' => $detail->id,
+                    'food_id' => $detail->food_id,
+                    'food_name' => optional($detail->foods)->name,
+                    'quantity' => $detail->quantity,
+                    'price' => $detail->price,
+                    'image' => optional($detail->foods)->image,
+                    'type' => $detail->type,
+                    'toppings' => $detail->toppings->map(function ($toppings) {
+                        return [
+                            'food_toppings_id' => $toppings->food_toppings_id,
+                            'topping_name' => $toppings->food_toppings->toppings->name ?? null,
+                            'price' => $toppings->price,
+                        ];
+                    })
+                ];
+            });
+
+            return [
+                'id' => $order->id,
+                'user_id' => $order->user_id,
+                'shipper_id' => $order->shipper_id,
+                'discount_id' => $order->discount_id,
+                'order_time' => $order->order_time,
+                'order_status' => $order->order_status,
+                'total_price' => $order->total_price,
+                'comment' => $order->comment,
+                'review_time' => $order->review_time,
+                'rating' => $order->rating,
+                'guest_name' => $order->guest_name,
+                'guest_phone' => $order->guest_phone,
+                'guest_email' => $order->guest_email,
+                'guest_address' => $order->guest_address,
+                'guest_count' => $order->guest_count,
+                'note' => $order->note,
+                'deposit_amount' => $order->deposit_amount,
+                'check_in_time' => $order->check_in_time,
+                'expiration_time' => $order->expiration_time,
+                'money_reduce' => $order->money_reduce,
+                'type_order' => $order->type_order,
+                'details' => $details,
+                'tables' => $order->tables->map(function ($table) {
+                    return [
+                        'table_number' => $table->table_number,
+                        'capacity' => $table->capacity,
+                        'status' => $table->status,
+                        'order_id' => $table->pivot->order_id,
+                        'table_id' => $table->pivot->table_id,
+                        'reservation_status' => $table->pivot->reservation_status,
+                        'reserved_from' => $table->pivot->reserved_from,
+                        'reserved_to' => $table->pivot->reserved_to,
+                    ];
+                }),
+                'payment' => [
+                    'amount_paid' => $order->payment->amount_paid ?? null,
+                    'payment_method' => $order->payment->payment_method ?? null,
+                    'payment_status' => $order->payment->payment_status ?? null,
+                    'payment_time' => $order->payment->payment_time ?? null,
+                    'payment_type' => $order->payment->payment_type ?? null,
+                ],
+            ];
+        });
+
+        return response()->json([
+            'status' => true,
+            'mess' => 'Lấy đơn hàng của shipper thành công',
+            'orders' => $data
+        ]);
+    }
+
+    public function assignShipper(Request $request)
+    {
+        $request->validate([
+            'order_ids' => 'required|array',
+            'shipper_id' => 'required|integer',
+        ]);
+
+        try {
+            Order::whereIn('id', $request->order_ids)->update([
+                'shipper_id' => $request->shipper_id,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Giao đơn hàng thành công'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getShipperOrders($id)
+    {
+        $orders = Order::where('shipper_id', $id)
+            ->whereIn('order_status', ['Đang giao hàng', 'Bắt đầu giao'])
+            ->get();
+
+        return response()->json(['orders' => $orders]);
     }
 }

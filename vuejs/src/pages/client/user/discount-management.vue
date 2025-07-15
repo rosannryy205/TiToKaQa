@@ -235,4 +235,13 @@ const hideConditionModal = () => {
   background-color: #c92c3c;
   color: white;
 }
+
+.btn-save-discount {
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+}
+.btn-save-discount:hover {
+  background-color: #c92c3c;
+  color: white;
+}
 </style>

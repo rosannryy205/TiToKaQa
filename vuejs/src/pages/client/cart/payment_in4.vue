@@ -13,70 +13,35 @@
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
             <div class="mb-3">
-              <input
-                v-model="form.fullname"
-                type="text"
-                class="form-control-customer"
-                placeholder="Tên của bạn"
-              />
+              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn" />
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.email"
-                type="email"
-                class="form-control-customer"
-                placeholder="Email của bạn"
-              />
+              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn" />
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.phone"
-                type="text"
-                class="form-control-customer"
-                placeholder="Số điện thoại"
-              />
+              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại" />
             </div>
             <div class="mb-3">
-              <select
-                v-model="selectedProvince"
-                @change="fetchDistricts"
-                class="form-control-customer"
-              >
+              <select v-model="selectedProvince" @change="fetchDistricts" class="form-control-customer">
                 <option value="">Chọn tỉnh / thành</option>
-                <option
-                  v-for="province in provinces"
-                  :key="province.ProvinceID"
-                  :value="province.ProvinceID"
-                >
+                <option v-for="province in provinces" :key="province.ProvinceID" :value="province.ProvinceID">
                   {{ province.ProvinceName }}
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <select
-                v-model="selectedDistrict"
-                @change="fetchWards"
-                :disabled="!selectedProvince"
-                class="form-control-customer"
-              >
+              <select v-model="selectedDistrict" @change="fetchWards" :disabled="!selectedProvince"
+                class="form-control-customer">
                 <option value="">Chọn quận / huyện</option>
-                <option
-                  v-for="district in districts"
-                  :key="district.DistrictID"
-                  :value="district.DistrictID"
-                >
+                <option v-for="district in districts" :key="district.DistrictID" :value="district.DistrictID">
                   {{ district.DistrictName }}
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <select
-                v-model="selectedWard"
-                :disabled="!selectedDistrict"
-                class="form-control-customer"
-              >
+              <select v-model="selectedWard" :disabled="!selectedDistrict" class="form-control-customer">
                 <option value="">Chọn phường / xã</option>
                 <option v-for="ward in wards" :key="ward.WardCode" :value="ward.WardCode">
                   {{ ward.WardName }}
@@ -85,20 +50,10 @@
             </div>
 
             <div class="mb-3">
-              <input
-                v-model="form.address"
-                type="text"
-                class="form-control-customer"
-                placeholder="Địa chỉ"
-              />
+              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ" />
             </div>
             <div class="mb-3">
-              <textarea
-                v-model="note"
-                class="form-control-customer"
-                rows="3"
-                placeholder="Ghi chú"
-              ></textarea>
+              <textarea v-model="note" class="form-control-customer" rows="3" placeholder="Ghi chú"></textarea>
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <router-link to="/cart" class="btn btn-outline-secondary">
@@ -119,13 +74,7 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img
-                :src="getImageUrl(item.image)"
-                alt=""
-                class="me-3 rounded"
-                width="80"
-                height="80"
-              />
+              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>Loại: {{ item.type }}</div>
@@ -153,16 +102,10 @@
           <div class="d-flex justify-content-between mb-2">
             <span>Phí ship</span>{{ formatNumber(shippingFee) }} VNĐ
           </div>
-          <div
-            v-if="discountFoodAmount > 0"
-            class="d-flex justify-content-between mb-2 text-success"
-          >
+          <div v-if="discountFoodAmount > 0" class="d-flex justify-content-between mb-2 text-success">
             <span>Giảm giá sản phẩm</span> -{{ formatNumber(discountFoodAmount) }} VNĐ
           </div>
-          <div
-            v-if="discountShipAmount > 0"
-            class="d-flex justify-content-between mb-2 text-success"
-          >
+          <div v-if="discountShipAmount > 0" class="d-flex justify-content-between mb-2 text-success">
             <span>Giảm giá phí ship</span> -{{ formatNumber(discountShipAmount) }} VNĐ
           </div>
           <div style="color: #c92c3c" class="d-flex justify-content-between mb-2 fw-bold">
@@ -181,69 +124,57 @@
             </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input
-                v-model="discountInput"
-                type="text"
-                id="discount"
-                class="form-control"
-                placeholder="Nhập mã giảm giá..."
-              />
+              <input v-model="discountInput" type="text" id="discount" class="form-control"
+                placeholder="Nhập mã giảm giá..." />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
             <div class="order-tabs d-flex flex-nowrap overflow-auto gap-3 mb-4 mt-3">
-          <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]"
-            @click="setActive(tab)">
-            {{ tab }}
-          </div>
-        </div>
-        <div class="discount-scroll-wrapper" v-if="isLoggedIn">
-  <div v-for="discount in displayedDiscounts" :key="discount.id">
-    <div
-      class="voucher-card mb-3"
-      :class="{
-        'disabled-voucher': totalPrice < discount.min_order_value ||
-          discount.used >= discount.usage_limit ||
-          (discount.discount_type === 'freeship' && !hasShippingFee) ||
-          (discount.category_id &&
-            !cartItems.some((item) =>
-              getAllChildCategoryIds(discount.category_id).includes(Number(item.category_id)),
-            )),
-      }"
-      @click="
-        totalPrice >= discount.min_order_value &&
-        discount.used < discount.usage_limit &&
-        !(discount.discount_type === 'freeship' && !hasShippingFee) &&
-        (selectedDiscount === discount.code
-          ? removeDiscountCode()
-          : applyDiscountCode(discount.code))
-      "
-    >
-      <!-- Cột trái -->
-      <div
-        class="voucher-card-left"
-        :class="discount.discount_type === 'freeship' ? 'freeship' : 'salefood'"
-      >
-        <img
-          :src="discount.discount_type === 'freeship' ? '/img/freeship-icon.png' : '/img/discount-icon.png'"
-          alt="icon"
-        />
-        <div class="voucher-card-label">
-          {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
-        </div>
-      </div>
+              <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]"
+                @click="setActive(tab)">
+                {{ tab }}
+              </div>
+            </div>
+            <div class="discount-scroll-wrapper" v-if="isLoggedIn">
+              <div v-for="discount in displayedDiscounts" :key="discount.id">
+                <div class="voucher-card mb-3" :class="{
+                  'disabled-voucher': totalPrice < discount.min_order_value ||
+                    discount.used >= discount.usage_limit ||
+                    (discount.discount_type === 'freeship' && !hasShippingFee) ||
+                    (discount.category_id &&
+                      !cartItems.some((item) =>
+                        getAllChildCategoryIds(discount.category_id).includes(Number(item.category_id)),
+                      )),
+                }" @click="
+                  totalPrice >= discount.min_order_value &&
+                  discount.used < discount.usage_limit &&
+                  !(discount.discount_type === 'freeship' && !hasShippingFee) &&
+                  (selectedDiscount === discount.code
+                    ? removeDiscountCode()
+                    : applyDiscountCode(discount.code))
+                  ">
+                  <!-- Cột trái -->
+                  <div class="voucher-card-left"
+                    :class="discount.discount_type === 'freeship' ? 'freeship' : 'salefood'">
+                    <img
+                      :src="discount.discount_type === 'freeship' ? '/img/freeship-icon.png' : '/img/discount-icon.png'"
+                      alt="icon" />
+                    <div class="voucher-card-label">
+                      {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
+                    </div>
+                  </div>
 
-      <!-- Cột phải -->
-      <div class="voucher-card-right">
-        <div>
-          <div class="voucher-code">Mã: {{ discount.code }}</div>
-          <div class="voucher-condition">
-            <i class="fa-regular fa-clock me-1"></i>Hết hạn: {{ discount.end_date }}
-          </div>
-          <div class="voucher-condition">
-           {{ discount.name }}
-          </div>
+                  <!-- Cột phải -->
+                  <div class="voucher-card-right">
+                    <div>
+                      <div class="voucher-code">Mã: {{ discount.code }}</div>
+                      <div class="voucher-condition">
+                        <i class="fa-regular fa-clock me-1"></i>Hết hạn: {{ discount.end_date }}
+                      </div>
+                      <div class="voucher-condition">
+                        {{ discount.name }}
+                      </div>
 
-          <!-- <div
+                      <!-- <div
             v-if="discount.discount_type === 'freeship' && !hasShippingFee"
             class="text-danger small"
           >
@@ -255,72 +186,50 @@
           >
             Đơn tối thiểu: {{ discount.min_order_value.toLocaleString() }}đ
           </div> -->
-        </div>
+                    </div>
 
-        <div class="voucher-footer">
-          <div class="voucher-coins">
-            Đã dùng: {{ discount.used }}/{{ discount.usage_limit }}
-          </div>
-          <button
-            class="voucher-button"
-            :class="{ 'has-voucher': selectedDiscount === discount.code }"
-            :disabled="
-              totalPrice < discount.min_order_value ||
-              discount.used >= discount.usage_limit ||
-              (discount.discount_type === 'freeship' && !hasShippingFee)
-            "
-          >
-            {{ selectedDiscount === discount.code ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+                    <div class="voucher-footer">
+                      <div class="voucher-coins">
+                        Đã dùng: {{ discount.used }}/{{ discount.usage_limit }}
+                      </div>
+                      <button class="voucher-button" :class="{ 'has-voucher': selectedDiscount === discount.code }"
+                        :disabled="totalPrice < discount.min_order_value ||
+                          discount.used >= discount.usage_limit ||
+                          (discount.discount_type === 'freeship' && !hasShippingFee)
+                          ">
+                        {{ selectedDiscount === discount.code ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
           </div>
 
-      
+
           <!-- Payment Methods -->
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="vnpay"
-                value="VNPAY"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="VNPAY"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
                 <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="momo"
-                value="MOMO"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
                 <img src="/img/momo.png" height="20" width="20" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="cod"
-                value="COD"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="cod" value="COD"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="cod">
                 <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
                 <img src="/img/cod.png" height="30" width="30" alt="" />
@@ -469,10 +378,13 @@ export default {
         }
 
         if (paymentMethod.value === 'COD') {
+          if (user.value?.status === 'Block') {
+            toast.error('Tài khoản của bạn đã bị hạn chế. Không thể thanh toán bằng tiền mặt.');
+            return;
+          }
           await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
             order_id: orderId,
             amount_paid: finalTotal.value,
-            payment_type: 'Thanh toán toàn bộ',
           })
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey.value)
@@ -486,6 +398,10 @@ export default {
     }
 
     const submitOrder = async () => {
+      if (!paymentMethod.value) {
+        toast.error('Vui lòng chọn phương thức thanh toán trước khi đặt hàng.');
+        return;
+      }
       isLoading.value = true
       try {
         if (!selectedProvince.value || !selectedDistrict.value || !selectedWard.value) {
@@ -514,6 +430,7 @@ export default {
           guest_address: fullAddress,
           note: note.value || '',
           total_price: finalTotal.value || 0,
+          shippingFee: shippingFee.value || 0,
           money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map(item => ({
@@ -716,7 +633,7 @@ export default {
 <style>
 .isLoading-overlay {
   position: fixed;
-  top: 0; 
+  top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
@@ -731,9 +648,11 @@ export default {
 .modal-backdrop {
   z-index: 1040;
 }
+
 .modal {
   z-index: 1050;
 }
+
 .order-tabs {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -749,6 +668,7 @@ export default {
   white-space: nowrap;
   border-bottom: 2px solid transparent;
 }
+
 .tab-item.active {
   border-color: #c92c3c;
   color: #c92c3c;
@@ -758,7 +678,8 @@ export default {
 
 .voucher-card {
   display: flex;
-  min-height: 100px; /* Tăng nhẹ từ 90px */
+  min-height: 100px;
+  /* Tăng nhẹ từ 90px */
   border-radius: 8px;
   overflow: hidden;
   background-color: #fff;
@@ -876,5 +797,4 @@ export default {
   background-color: #007d00;
   color: white;
 }
-
 </style>

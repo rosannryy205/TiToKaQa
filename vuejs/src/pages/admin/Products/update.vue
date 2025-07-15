@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('edit_food')">
   <div>
     <div class="d-flex justify-content-between">
       <h3 class="text-danger fw-bold">Cập nhật món ăn</h3>
@@ -108,6 +108,16 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2';
+import { Permission } from '@/stores/permission'
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
 
 const route = useRoute()
 const router = useRouter()

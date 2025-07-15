@@ -22,6 +22,7 @@ class RolePermission extends Seeder
             'role' => 'Vai trò',
             'employee' => 'Nhân viên',
             'customer' => 'Khách hàng',
+            'shipper' => 'Giao hàng',
         ];
 
         $actions = [

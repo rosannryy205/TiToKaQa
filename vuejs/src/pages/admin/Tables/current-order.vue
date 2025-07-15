@@ -1,10 +1,71 @@
 <template v-if="hasPermission('view_booking')">
   <h4 class="pb-2">Đơn hiện thời</h4>
   <router-link to="/admin/order-create">
-    <button class="btn add-order-fixed-btn">
-      + Thêm đơn hàng
-    </button>
+    <button class="btn add-order-fixed-btn me-3">+ Thêm đơn hàng</button>
   </router-link>
+  <button class="btn add-order-fixed-btn" @click="openQrScanner" v-if="hasPermission('edit_booking')">
+    + Quét mã
+  </button>
+
+  <div v-if="showQrScanner" class="qr-scanner-modal-overlay">
+    <div class="qr-scanner-modal">
+      <div class="modal-header">
+        <h5 class="modal-title">Quét mã đặt bàn</h5>
+        <button type="button" class="btn-close" @click="closeQrScanner">x</button>
+      </div>
+      <div class="modal-body">
+        <div id="qr-reader" style="width: 100%"></div>
+        <!-- <div v-if="qrScanError" class="alert alert-danger mt-3">Lỗi quét mã: {{ qrScanError }}</div> -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal hiển thị đơn sau khi quét QR -->
+  <div v-if="showScannedOrderPopup" class="qr-scanner-modal-overlay">
+    <div class="qr-scanner-modal">
+      <div class="modal-header">
+        <h5 class="modal-title">Thông tin đơn đặt bàn</h5>
+        <button type="button" class="btn-close" @click="showScannedOrderPopup = false"></button>
+      </div>
+      <div class="modal-body">
+        <template v-if="scannedOrder">
+          <h6><span class="fw-bold">Mã đặt bàn:</span> {{ scannedOrder.id }}</h6>
+          <div class="text-muted">{{ scannedOrder.guest_name }} - {{ scannedOrder.guest_phone }}</div>
+          <div class="text-muted">
+            <span class="label fw-bold">Thời gian:</span> {{ formatTime(scannedOrder.reserved_from) }}
+          </div>
+          <div class="text-muted">
+            <span class="label fw-bold">Bàn số:</span>
+            <span v-for="(t, index) in scannedOrder.tables" :key="t.id">
+              {{ t.table_number }}<span v-if="index < scannedOrder.tables.length - 1">, </span>
+            </span>
+          </div>
+          <div class="text-muted">
+            <span class="label fw-bold">Số khách:</span> {{ scannedOrder.guest_count }}
+          </div>
+          <div class="text-muted mb-2">
+            <span class="label fw-bold">Trạng thái:</span> {{ scannedOrder.order_status }}
+          </div>
+
+          <div v-if="hasPermission('edit_booking') &&
+            scannedOrder.order_status !== 'Đã hủy' &&
+            scannedOrder.order_status !== 'Hoàn thành' &&
+            scannedOrder.order_status !== 'Khách đã đến'">
+            <button class="add-order-fixed-btn" @click="updateStatus(scannedOrder.id, 'Khách đã đến')">Khách đã
+              đến</button>
+
+          </div>
+        </template>
+        <template v-else>
+          <p class="text-danger">Không tìm thấy dữ liệu đơn hàng.</p>
+        </template>
+      </div>
+    </div>
+  </div>
+
+
+
   <div class="tab-content">
     <div class="tab-pane active" id="all-content" role="tabpanel" aria-labelledby="tab-all">
       <div class="order-cards-grid">
@@ -23,10 +84,14 @@
             </div>
           </header>
 
+
+
           <div class="date-time-info">
             <div>
               Thời gian tiếp nhận:
-              <strong>{{ formatTime(order.check_in_time ? order.check_in_time : order.order_time) }}h</strong>
+              <strong>{{
+                formatTime(order.check_in_time ? order.check_in_time : order.order_time)
+              }}h</strong>
             </div>
           </div>
 
@@ -37,7 +102,10 @@
 
                 <div class="text-muted small" v-if="food.toppings && food.toppings.length">
                   <div v-for="(topping, i) in food.toppings" :key="i">
-                    + {{ topping.topping_name || 'Tên topping không có' }} ({{ formatNumber(topping.price) }} VNĐ)
+                    + {{ topping.topping_name || 'Tên topping không có' }} ({{
+                      formatNumber(topping.price)
+                    }}
+                    VNĐ)
                   </div>
                 </div>
                 <div v-else class="text-muted small">Không có topping</div>
@@ -48,17 +116,24 @@
           <div class="status-update-section pt-1">
             <select v-model="order.order_status" class="status-dropdown"
               @change="updateStatus(order.id, order.order_status)">
-              <option value="Chờ xác nhận" :disabled="!canSelectStatus(order.order_status, 'Chờ xác nhận')">Chờ xác nhận
+              <option value="Chờ xác nhận" :disabled="!canSelectStatus(order.order_status, 'Chờ xác nhận')">
+                Chờ xác nhận
               </option>
-              <option value="Đã xác nhận" :disabled="!canSelectStatus(order.order_status, 'Đã xác nhận')">Đã xác nhận
+              <option value="Đã xác nhận" :disabled="!canSelectStatus(order.order_status, 'Đã xác nhận')">
+                Đã xác nhận
               </option>
-              <option value="Đang xử lý" :disabled="!canSelectStatus(order.order_status, 'Đang xử lý')">Đang xử lý
+              <option value="Đang xử lý" :disabled="!canSelectStatus(order.order_status, 'Đang xử lý')">
+                Đang xử lý
               </option>
-              <option value="Khách đã đến" :disabled="!canSelectStatus(order.order_status, 'Khách đã đến')">Khách đã đến
+              <option value="Khách đã đến" :disabled="!canSelectStatus(order.order_status, 'Khách đã đến')">
+                Khách đã đến
               </option>
-              <option value="Hoàn thành" :disabled="!canSelectStatus(order.order_status, 'Hoàn thành')">Hoàn thành
+              <option value="Hoàn thành" :disabled="!canSelectStatus(order.order_status, 'Hoàn thành')">
+                Hoàn thành
               </option>
-              <option value="Đã hủy" :disabled="!canSelectStatus(order.order_status, 'Đã hủy')">Đã hủy</option>
+              <option value="Đã hủy" :disabled="!canSelectStatus(order.order_status, 'Đã hủy')">
+                Đã hủy
+              </option>
             </select>
           </div>
 
@@ -67,15 +142,14 @@
             <div class="total-amount">{{ formatNumber(order.total_price) }}VNĐ</div>
           </div>
 
-          <hr>
+          <hr />
 
           <div class="buttons-section">
-            <button class="btn btn-details">Chi tiết</button>
+            <router-link :to="`/admin/choose-list-food/${order.id}`" class="btn btn-details">Thêm
+              món</router-link>
             <button class="btn btn-pay">Thanh toán</button>
           </div>
         </article>
-
-
 
         <article class="order-card-container" v-for="(order, index) in orderTakeAway" :key="order.id">
           <header class="order-header">
@@ -83,9 +157,7 @@
               <div class="avatar-placeholder">{{ ++index }}</div>
               <div class="name-order">
                 <h3 class="user-name">{{ order.guest_name }}</h3>
-                <p class="order-details-line">
-                  Mã đơn #{{ order.id }}
-                </p>
+                <p class="order-details-line">Mã đơn #{{ order.id }}</p>
               </div>
             </div>
           </header>
@@ -93,11 +165,12 @@
           <div class="date-time-info">
             <div>
               Thời gian tiếp nhận:
-              <strong>{{ formatTime(order.order_time ? order.order_time : order.check_in_time) }}h</strong>
+              <strong>{{
+                formatTime(order.order_time ? order.order_time : order.check_in_time)
+              }}h</strong>
             </div>
           </div>
 
-          <!-- ✅ Danh sách món ăn có thanh cuộn -->
           <div class="food-list-scroll">
             <div v-for="food in order.details" :key="food.food_id" class="food-item">
               <div class="flex-grow-1">
@@ -105,7 +178,10 @@
 
                 <div class="text-muted small" v-if="food.toppings && food.toppings.length">
                   <div v-for="(topping, i) in food.toppings" :key="i">
-                    + {{ topping.topping_name || 'Tên topping không có' }} ({{ formatNumber(topping.price) }} VNĐ)
+                    + {{ topping.topping_name || 'Tên topping không có' }} ({{
+                      formatNumber(topping.price)
+                    }}
+                    VNĐ)
                   </div>
                 </div>
                 <div v-else class="text-muted small">Không có topping</div>
@@ -116,14 +192,18 @@
           <div class="status-update-section pt-1">
             <select v-model="order.order_status" class="status-dropdown"
               @change="updateStatusOrder(order.id, order.order_status)">
-              <option value="Đã xác nhận" :disabled="!canSelectStatusOrder(order.order_status, 'Đã xác nhận')">Đã xác
-                nhận
+              <option value="Đã xác nhận" :disabled="!canSelectStatusOrder(order.order_status, 'Đã xác nhận')">
+                Đã xác nhận
               </option>
-              <option value="Đang xử lý" :disabled="!canSelectStatusOrder(order.order_status, 'Đang xử lý')">Đang xử lý
+              <option value="Đang xử lý" :disabled="!canSelectStatusOrder(order.order_status, 'Đang xử lý')">
+                Đang xử lý
               </option>
-              <option value="Hoàn thành" :disabled="!canSelectStatusOrder(order.order_status, 'Hoàn thành')">Hoàn thành
+              <option value="Hoàn thành" :disabled="!canSelectStatusOrder(order.order_status, 'Hoàn thành')">
+                Hoàn thành
               </option>
-              <option value="Đã hủy" :disabled="!canSelectStatusOrder(order.order_status, 'Đã hủy')">Đã hủy</option>
+              <option value="Đã hủy" :disabled="!canSelectStatusOrder(order.order_status, 'Đã hủy')">
+                Đã hủy
+              </option>
             </select>
           </div>
 
@@ -132,7 +212,6 @@
             <div class="total-amount">{{ formatNumber(order.total_price) }}VNĐ</div>
           </div>
         </article>
-
       </div>
     </div>
 
@@ -148,13 +227,27 @@
 
 <script>
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
 import { toast } from 'vue3-toastify'
-
+import { useRouter } from 'vue-router'
+import { Permission } from '@/stores/permission'
+import { Html5QrcodeScanner } from 'html5-qrcode'
+import { nextTick } from 'vue'
 export default {
   setup() {
     const { formatNumber, formatTime } = Info.setup()
+    const userId = ref(null)
+    const userString = localStorage.getItem('user')
+    if (userString) {
+      const user = JSON.parse(userString)
+      if (user && user.id !== undefined) {
+        userId.value = user.id
+      }
+    }
+    const { hasPermission, permissions, isLoadingPermissions } = Permission(userId)
+
+    const router = useRouter()
 
     const timers = ref({})
     const startTimes = ref({})
@@ -177,22 +270,17 @@ export default {
       }
     }
 
-    const orderTakeAway = ref([]);
+    const orderTakeAway = ref([])
     const getOrderTakeAway = async () => {
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/get_all_orders')
-        orderTakeAway.value = res.data.orders.filter(order => order.type_order === 'takeaway');
+        orderTakeAway.value = res.data.orders.filter((order) => order.type_order === 'takeaway')
       } catch (error) {
         console.log(error)
       }
     }
     const canSelectStatusOrder = (currentStatus, optionStatus) => {
-      const statusOrder = [
-        'Đã xác nhận',
-        'Đang xử lý',
-        'Hoàn thành',
-        'Đã hủy',
-      ]
+      const statusOrder = ['Đã xác nhận', 'Đang xử lý', 'Hoàn thành', 'Đã hủy']
 
       const currentIndex = statusOrder.indexOf(currentStatus)
       const optionIndex = statusOrder.indexOf(optionStatus)
@@ -225,9 +313,69 @@ export default {
       }
     }
 
+    const showQrScanner = ref(false)
+    const qrScanner = ref(null)
+    const qrScanResult = ref(null)
+    const qrScanError = ref(null)
+
+    const openQrScanner = async () => {
+      showQrScanner.value = true
+      qrScanResult.value = null
+      qrScanError.value = null
+
+      await nextTick() // Đảm bảo DOM đã được render
+      qrScanner.value = new Html5QrcodeScanner(
+        'qr-reader',
+        { fps: 10, qrbox: { width: 250, height: 250 } }, // 10 khung hình/giây, hộp quét 250x250px
+        /* verbose= */ false, // Không hiển thị log chi tiết của thư viện
+      )
+      qrScanner.value.render(onScanSuccess, onScanError)
+    }
+
+    const closeQrScanner = () => {
+      showQrScanner.value = false
+      qrScanner.value = null
+    }
+    const scannedOrder = ref(null);
+    const showScannedOrderPopup = ref(false);
+
+    const onScanSuccess = (decodedText) => {
+      closeQrScanner()
+      toast.success(`Quét thành công`);
+
+      const match = decodedText.match(/\/(\d+)$/); // Lấy ID từ URL
+      if (!match) {
+        toast.error("QR không hợp lệ. Không tìm thấy ID đơn hàng.");
+        return;
+      }
+      const scannedId = parseInt(match[1]);
+      const foundOrder = orderOfTable.value.find(order => order.id === scannedId);
+      if (foundOrder) {
+        scannedOrder.value = foundOrder;
+        showScannedOrderPopup.value = true;
+      } else {
+        toast.error("Không tìm thấy đơn hàng này trong danh sách.");
+      }
+    };
 
 
+    const onScanError = (errorMessage) => {
+      console.warn(`Lỗi khi quét QR: ${errorMessage}`)
+      qrScanError.value = errorMessage
+    }
 
+    const initialTablesLoaded = ref(false)
+
+    watch(
+      [permissions, isLoadingPermissions],
+      async ([newPermissions, newIsLoadingPermissions]) => {
+        if (newPermissions.length > 0 && !newIsLoadingPermissions && !initialTablesLoaded.value) {
+          await getOrderOfTable()
+          initialTablesLoaded.value = true
+        }
+      },
+      { immediate: true },
+    )
 
     const orderOfTable = ref([])
     const getOrderOfTable = async () => {
@@ -255,6 +403,7 @@ export default {
             order_status: status,
           })
           toast.success('Cập nhật thành công')
+          showScannedOrderPopup.value = false;
           await getOrderOfTable()
         }
       } catch (error) {
@@ -290,33 +439,31 @@ export default {
     }
 
     onMounted(() => {
-      const params = new URLSearchParams(window.location.search);
-      const hasVnpParams = params.has('vnp_TransactionStatus') || params.has('vnp_TxnRef');
+      const params = new URLSearchParams(window.location.search)
+      const hasVnpParams = params.has('vnp_TransactionStatus') || params.has('vnp_TxnRef')
 
-      axios.get('http://127.0.0.1:8000/api/payments/vnpay-return', { params })
-        .then(res => {
+      axios
+        .get('http://127.0.0.1:8000/api/payments/vnpay-return', { params })
+        .then((res) => {
           if (hasVnpParams) {
             if (res.data.success) {
-              toast.success('Thanh toán thành công!');
+              toast.success('Thanh toán thành công!')
             } else {
-              toast.error('Thanh toán thất bại hoặc có lỗi!');
+              toast.error('Thanh toán thất bại hoặc có lỗi!')
             }
           }
         })
         .catch(() => {
           if (hasVnpParams) {
-            toast.error('Lỗi xác minh thanh toán!');
+            toast.error('Lỗi xác minh thanh toán!')
           }
         })
         .finally(() => {
-          getOrderOfTable();
-          getOrderTakeAway();
-          setInterval(updateTimers, 1000);
-        });
-    });
-
-
-
+          getOrderOfTable()
+          getOrderTakeAway()
+          setInterval(updateTimers, 1000)
+        })
+    })
 
     return {
       orderOfTable,
@@ -327,7 +474,18 @@ export default {
       canSelectStatusOrder,
       updateStatus,
       updateStatusOrder,
-      orderTakeAway
+      orderTakeAway,
+      userId,
+      router,
+      hasPermission,
+      openQrScanner,
+      qrScanError,
+      qrScanResult,
+      qrScanner,
+      showQrScanner,
+      closeQrScanner,
+      showScannedOrderPopup,
+      scannedOrder
     }
   },
 }
@@ -339,6 +497,85 @@ export default {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 25px;
   width: 100%;
+}
+
+.qr-scanner-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  /* Đảm bảo modal hiện trên các phần tử khác */
+}
+
+.qr-scanner-modal {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 500px;
+  /* Giới hạn chiều rộng của modal */
+  max-height: 90%;
+  /* Giới hạn chiều cao */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.qr-scanner-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  background-color: #f8f9fa;
+}
+
+.qr-scanner-modal .modal-title {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin: 0;
+}
+
+.qr-scanner-modal .btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  padding: 0;
+}
+
+.qr-scanner-modal .modal-body {
+  padding: 20px;
+  flex-grow: 1;
+  overflow-y: auto;
+  /* Cho phép cuộn nếu nội dung dài */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Html5-qrcode specific styles (adjust if needed) */
+#qr-reader video {
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 8px;
+}
+
+#qr-reader__dashboard_section_csr,
+#qr-reader__dashboard_section_start {
+  display: none !important;
+  /* Ẩn các nút điều khiển mặc định của thư viện */
+}
+
+#qr-reader__dashboard_section {
+  padding: 0 !important;
+  /* Loại bỏ padding thừa */
 }
 
 @media (max-width: 1366px) {
@@ -668,15 +905,10 @@ export default {
 }
 
 .add-order-fixed-btn {
-  position: fixed;
-  top: 70px;
-  right: 10px;
-  z-index: 999;
   padding: 10px 16px;
-  font-weight: 600;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  color: #fff;
-  background-color: #c92c3c;
+  border-radius: 5px;
+  color: #c92c3c;
+  border: 1px solid #c92c3c;
+  margin-bottom: 10px;
 }
 </style>

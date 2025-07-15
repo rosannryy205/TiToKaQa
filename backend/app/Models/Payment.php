@@ -21,6 +21,5 @@ class Payment extends Model
         'payment_method',
         'payment_status',
         'payment_time',
-        'payment_type',
     ];
 }

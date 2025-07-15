@@ -49,8 +49,14 @@ const admin = [
         meta: { requiresAdmin: true },
       },
       {
-        path: 'tables/:orderId',
-        name: 'admin-tables-list',
+        path: 'tables-change/:orderId',
+        name: 'admin-tables-list-change',
+        component: () => import('../pages/admin/Tables/list.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: 'tables-setup/:orderId',
+        name: 'admin-tables-list-setup',
         component: () => import('../pages/admin/Tables/list.vue'),
         meta: { requiresAdmin: true },
       },
@@ -58,6 +64,12 @@ const admin = [
         path: "tables/booking-schedule",
         name: "admin-tables-booking-schedule",
         component: () => import("../pages/admin/Tables/booking-schedule.vue"),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: "tables/booking-schedule-now",
+        name: "admin-tables-booking-schedule-now",
+        component: () => import("../pages/admin/Tables/booking-schedule-now.vue"),
         meta: { requiresAdmin: true },
       },
       {
@@ -69,6 +81,12 @@ const admin = [
       {
         path: 'tables/insert-reservation',
         name: 'insert-reservation-admin',
+        component: () => import('../pages/admin/Tables/insert.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: 'tables/insert-reservation/:date',
+        name: 'insert-reservation-admin-date',
         component: () => import('../pages/admin/Tables/insert.vue'),
         meta: { requiresAdmin: true },
       },
@@ -202,6 +220,24 @@ const admin = [
         path: '/admin/insert_staff',
         name: 'admin/insert_staff',
         component: () => import('../pages/admin/Users/insertStaff.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: '/admin/delivery',
+        name: 'admin/delivery',
+        component: () => import('../pages/admin/Shipper/index.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: '/admin/delivery_map/:id',
+        name: 'admin/delivery_map',
+        component: () => import('../pages/admin/Shipper/delivery_map.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: '/admin/select_order',
+        name: 'admin/select_order',
+        component: () => import('../pages/admin/Shipper/select_order.vue'),
         meta: { requiresAdmin: true },
       },
     ],
