@@ -100,7 +100,7 @@
 
 
     <!-- Khi đơn hàng đang giao -->
-    <router-link :to="{ name: 'delivery', params: { id: info.id } }" v-if="info.order_status === 'Đang giao hàng'">
+    <router-link :to="{ name: 'delivery', params: { id: info.id } }" v-if="info.order_status === 'Bắt đầu giao'">
       <button class="btn btn-sm btn-outline-danger mt-2 ms-2 p-2" style="width: 120px;">
         Theo dõi đơn
       </button>
@@ -147,6 +147,7 @@ import { onMounted } from 'vue';
 import axios from 'axios';
 import { ref } from 'vue';
 import { computed } from 'vue';
+import { toast } from 'vue3-toastify'
 export default {
   methods: {
     goBack() {
@@ -176,12 +177,12 @@ export default {
         if (confirm('Bạn có chắc muốn huỷ đơn này')) {
           const status = await axios.put(`http://127.0.0.1:8000/api/order-history-info/cancel/${id}`)
           if (status) {
-            alert('Hủy đơn thành công.')
+            toast.success('Hủy đơn thành công.')
           }
         }
       } catch (error) {
         console.error(error)
-        alert('Cập nhật thất bại.')
+        toast.error('Cập nhật thất bại.')
       } finally {
         isLoading.value = false
       }

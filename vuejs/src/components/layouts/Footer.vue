@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <!-- Nút toggle -->
+  <!-- <div>
+     Nút toggle
     <div class="chat-toggle-btn" @click="toggleChat">
       <span v-if="!showChat"><i class="bi bi-chat-dots"></i></span>
       <span v-else class="icon-x"><i class="bi bi-x"></i></span>
     </div>
 
-    <!-- Chatbox -->
+     Chatbox
     <div v-if="showChat" class="chat-wrapper">
       <div class="d-flex justify-content-between">
         <div class="chat-header">
@@ -60,7 +60,7 @@
         </button>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <footer class="bg-white pt-5">
     <div class="container">
@@ -100,7 +100,7 @@
           <p>Nhận thông tin khuyến mãi và món mới từ Mỳ Cay TITOKAQA.</p>
           <div class="input-group">
             <input type="email" class="form-control" placeholder="Nhập email của bạn" />
-            <button style="background-color: rgb(199, 11, 11)" class="btn btn-danger">
+            <button style="background-color: rgb(199, 11, 11)" class="btn btn-danger-customer">
               Đăng Ký
             </button>
           </div>
@@ -496,5 +496,10 @@ export default {
   border-radius: 50%;
   cursor: pointer;
   font-size: 18px;
+}
+
+button.btn-danger-customer:hover{
+  color: #fff;
+  background-color: #cc2c40 !important;
 }
 </style>

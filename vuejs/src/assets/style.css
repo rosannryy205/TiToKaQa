@@ -19,22 +19,22 @@ body {
 }
 
 /* Header Styles */
-.header {
-}
+/* .header {
+} */
 
 .header .navbar {
-  padding-top: 0.5rem; 
+  padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
 
 .header .navbar-brand img.logo {
-  display: block; 
+  display: block;
 }
 
 .header .navbar-toggler {
-  padding: 0.25rem 0.5rem; 
-  font-size: 1rem; 
-  border: 1px solid transparent; 
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  border: 1px solid transparent;
 }
 .header .navbar-toggler:focus {
   box-shadow: none;
@@ -53,15 +53,15 @@ body {
 
 .header .main-nav-links .nav-link:hover {
   color: #c92c3c;
-  transform: scale(1.05); 
+  transform: scale(1.05);
 }
 .icon-btn {
   border: none;
   background: none;
-  font-size: 1.5rem; 
+  font-size: 1.5rem;
   color: #333;
   transition: color 0.3s ease, transform 0.3s ease;
-  padding: 0.25rem 0.5rem; 
+  padding: 0.25rem 0.5rem;
   cursor: pointer;
 }
 
@@ -73,7 +73,7 @@ body {
     font-weight: 500;
 }
 .text-primary-red {
-    color: #c92c3c !important; 
+    color: #c92c3c !important;
 }
 .text-primary-red:hover {
     color: #a32330 !important;
@@ -92,8 +92,8 @@ body {
   outline: none;
   border-radius: 50%;
   transition: width 0.5s ease-in-out, border-radius 0.5s ease-in-out, background-color 0.5s ease-in-out, border-bottom 0.5s ease-in-out;
-  background-color: transparent; 
-  padding-right: 35px; 
+  background-color: transparent;
+  padding-right: 35px;
   font-size: 0.9rem;
 }
 
@@ -118,11 +118,11 @@ body {
   border-radius: 50%;
   background-color: transparent;
   transition: 0.2s linear;
-  padding: 0; 
+  padding: 0;
 }
 
 /* Animation khi focus search */
-.input-wrapper .icon-search-submit:focus-within ~ .input-search, 
+.input-wrapper .icon-search-submit:focus-within ~ .input-search,
 .input-wrapper .input-search:focus {
   box-shadow: none;
   width: 350px;
@@ -137,7 +137,7 @@ body {
   position: absolute;
   top: 100%;
   left: 0;
-  width: 350px; 
+  width: 350px;
   background-color: white;
   border: 1px solid #ddd;
   border-top: none;
@@ -147,7 +147,7 @@ body {
   margin: 0;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 1000; 
+  z-index: 1000;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 .suggestion-dropdown li {
@@ -174,7 +174,7 @@ body {
 
 .navbar-nav .nav-link:hover {
   transform: scale(1.1);
-  color: #c92c3c; 
+  color: #c92c3c;
 }
 
 .offcanvas {
@@ -203,10 +203,10 @@ body {
   padding-top: 1.5rem;
   border-top: 1px solid #e0e0e0;
 }
-.offcanvas-body .mobile-actions .input-wrapper { 
+.offcanvas-body .mobile-actions .input-wrapper {
     width: 100%;
 }
-.offcanvas-body .mobile-actions .input-search { 
+.offcanvas-body .mobile-actions .input-search {
     width: 100%;
     border-radius: 4px;
     background-color: #f5f5f5;
@@ -219,11 +219,11 @@ body {
 
 .offcanvas-body .mobile-actions .icon-btn {
   font-size: 1rem;
-  display: flex; 
+  display: flex;
   align-items: center;
 }
 .offcanvas-body .mobile-actions .icon-btn i {
-  font-size: 1.25rem; 
+  font-size: 1.25rem;
 }
 /* Responsive Adjustments (Sử dụng breakpoints của Bootstrap nếu có thể) */
 /* Bootstrap lg breakpoint là 992px */
@@ -231,7 +231,7 @@ body {
   .header .navbar-brand {
     margin-left: auto;
     margin-right: auto;
-  
+
   }
 }
 
@@ -241,7 +241,7 @@ body {
     width: 60px;
   }
   .offcanvas {
-    width: 250px; 
+    width: 250px;
   }
 }
 /**/
@@ -1193,18 +1193,18 @@ color: #000000;
     padding: 1rem;
   }
   .modal-dialog.modal-lg {
-    margin: 0.5rem; 
+    margin: 0.5rem;
   }
   .none-topping{
     height: 10vh;
   }
   .modal-body {
-    padding: 1rem; 
+    padding: 1rem;
   }
 
   .btn-close {
-    font-size: 1rem; 
-    margin: 0.5rem !important; 
+    font-size: 1rem;
+    margin: 0.5rem !important;
   }
 
   .modal-image {
@@ -1213,17 +1213,17 @@ color: #000000;
   }
 
   .col-md-6.border-end {
-    border-right: none !important; 
-    margin-bottom: 1rem; 
-    border-bottom: 1px solid #e5e5e5; 
+    border-right: none !important;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e5e5e5;
   }
 
   .text-center.mb-3 {
-    margin-bottom: 0.5rem !important; 
+    margin-bottom: 0.5rem !important;
   }
 
   h5.fw-bold.text-danger.text-center.mb-3 {
-    font-size: 1.25rem; 
+    font-size: 1.25rem;
     margin-bottom: 1rem !important;
   }
 
@@ -1232,42 +1232,42 @@ color: #000000;
   }
 
   p.text-dark.text-center.text-lg.fw-bold.mb-3 {
-    font-size: 0.95rem; 
+    font-size: 0.95rem;
     margin-bottom: 1rem !important;
   }
 
   .topping-container,
   .mb-3 {
-    margin-bottom: 1rem !important; 
+    margin-bottom: 1rem !important;
   }
 
   .qty-control {
     gap: 0.75rem;
-    font-size: 1rem; 
+    font-size: 1rem;
   }
 
   .qty-control button {
-    width: 35px; 
+    width: 35px;
     height: 35px;
-    font-size: 1.1rem; 
+    font-size: 1.1rem;
   }
 
   .qty-control span {
-    font-size: 1.1rem; 
+    font-size: 1.1rem;
   }
 
   .btn-danger {
-    font-size: 0.9rem; 
-    padding: 0.6rem; 
+    font-size: 0.9rem;
+    padding: 0.6rem;
   }
 
   .form-select,
   .form-control {
-    padding: 0.4rem 0.8rem; 
+    padding: 0.4rem 0.8rem;
   }
 }
 .modal-ct .modal-body {
-  max-height: calc(100vh - 200px); 
+  max-height: calc(100vh - 200px);
   overflow-y: auto;
   padding-bottom: 0;
 }

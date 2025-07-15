@@ -1,7 +1,7 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
-import { toast } from "vue3-toastify";
 import { form } from '@/stores/userForm'
+import Swal from 'sweetalert2'
 export const User = {
   setup() {
     const user = ref(null)    
@@ -15,7 +15,7 @@ export const User = {
         const res = await axios.get(`http://127.0.0.1:8000/api/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
-          }
+          },
         })
     
         user.value = res.data
@@ -41,10 +41,10 @@ export const User = {
     }
     
 
-    const tempAvatar = ref(null);
+    const tempAvatar = ref(null)
     const avatarUrl = computed(() => {
       if (tempAvatar.value) {
-        return tempAvatar.value;
+        return tempAvatar.value
       }
       return form.avatar;
     });
@@ -58,59 +58,68 @@ export const User = {
         tempAvatar.value = null;
       }
     };
-
-
     //  Đăng xuất
     const handleLogout = async () => {
       try {
         await axios.post('http://127.0.0.1:8000/api/logout', null, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        })
 
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
+        user.value = null
+        isLoggedIn.value = false
 
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        user.value = null;
-        isLoggedIn.value = false;
-
-        alert('Đăng xuất thành công!');
-        window.location.href = '/';
+        alert('Đăng xuất thành công!')
+        window.location.href = '/'
       } catch (error) {
-        console.error('Lỗi đăng xuất:', error);
-        alert('Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!');
+        console.error('Lỗi đăng xuất:', error)
+        alert('Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại!')
       }
-    };
-
+    }
 
     const handleSubmit = async () => {
       try {
-        const formData = new FormData();
-        formData.append("fullname", form.value.fullname || "");
-        formData.append("phone", form.value.phone || "");
-        formData.append("address", form.value.address || "");
-        if (form.value.avatar instanceof File) {
-          formData.append("avatar", form.value.avatar);
+        const updateProfile = {
+          fullname: form.value.fullname || '',
+          phone: form.value.phone || '',
+          address: form.value.address || '',
         }
-        formData.append("_method", "PATCH");
-
-        await axios.post(`http://127.0.0.1:8000/api/user/${user.value.id}`, formData, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'multipart/form-data',
-          }
-        });
-        toast.success('Cập nhật thành công!')
-        console.log(form.value)
-        await personally(user.value.id)
+        await axios.patch(
+          `http://127.0.0.1:8000/api/user/updateProfile/${user.value.id}`,
+          updateProfile,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          },
+        )
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Cập nhật thông tin thành công!',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        })
+        console.log(updateProfile)
+        personally(user.value.id)
       } catch (error) {
         console.error(error)
-        toast.error('Cập nhật thất bại!')
+        Swal.fire({
+          toast: false,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Cập nhật thông tin thất bại!',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        })
       }
-    };
-
-
+    }
 
     const getInitial = (fullname) => {
       if (!fullname) return '?'
@@ -121,16 +130,15 @@ export const User = {
       if (userLocal?.id) {
         personally(userLocal.id)
           .then(() => {
-            isLoggedIn.value = !!user.value;
+            isLoggedIn.value = !!user.value
           })
           .finally(() => {
             loading.value = false
           })
         // console.log(form.value.avatar);
-
       } else {
-        console.warn('Không tìm thấy user trong localStorage');
-        isLoggedIn.value = false;
+        console.warn('Không tìm thấy user trong localStorage')
+        isLoggedIn.value = false
       }
     })
     return {
@@ -141,7 +149,7 @@ export const User = {
       handleLogout,
       getInitial,
       loading,
-      avatarUrl
+      avatarUrl,
     }
   },
 }

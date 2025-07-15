@@ -28,7 +28,7 @@ class Order extends Model
         'guest_address',
         'order_time',
         'order_status',
-        'type_order',
+        'shippingFee',
 
     ];
     public function details()
