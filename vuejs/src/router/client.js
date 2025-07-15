@@ -43,6 +43,12 @@ const client = [
         meta: { title: 'Vòng quay may mắn' },
       },
       {
+        path: 'flashsale',
+        name: 'flashsale',
+        component: () => import('../pages/client/flashsale/index.vue'),
+        meta: { title: 'Vòng quay may mắn' },
+      },
+      {
         path: 'reservation-form/:orderId',
         name: 'reservation-form',
         component: () => import('../pages/client/reservation/reservation-form.vue'),
