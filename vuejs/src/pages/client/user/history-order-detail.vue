@@ -82,8 +82,9 @@
         </tbody>
       </table>
       <div class="text-end">
-        <p>Tạm tính: {{ formatNumber(info.ex_price) }} VNĐ</p>
-        <p>Khuyến mãi: {{ formatNumber(info.money_reduce) }} VNĐ</p>
+        <p>Phí ship: {{ formatNumber(info.ship_cost) }} VNĐ</p>
+        <p>Khuyến mãi: -{{ formatNumber(info.money_reduce) }} VNĐ</p>
+        <p>Trừ điểm Tpoint: -{{ formatNumber(info.tpoint_used) }} VNĐ</p>
         <h5>Tổng cộng (VAT): {{ formatNumber(info.total_price) }} VNĐ</h5>
       </div>
     </div>

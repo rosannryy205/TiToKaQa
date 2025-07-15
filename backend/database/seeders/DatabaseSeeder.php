@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
                 Discount::class,
                 Table::class,
                 RolePermission::class,
+                LuckyWheelPrizeSeeder::class,
             ]
         );
     }
