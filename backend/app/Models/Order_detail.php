@@ -11,7 +11,7 @@ class Order_detail extends Model
     public $timestamps = false; 
 
     protected $fillable = [
-        'order_id', 'food_id', 'combo_id', 'reward_id', 'quantity', 'price', 'type',
+        'order_id', 'food_id', 'combo_id', 'reward_id', 'quantity', 'price', 'type', 'is_deal',
     ];
     public function toppings()
     {
@@ -33,5 +33,7 @@ class Order_detail extends Model
 {
     return $this->belongsTo(Order::class);
 }
-
+        protected $casts = [
+        'is_deal' => 'boolean',
+];
 }
