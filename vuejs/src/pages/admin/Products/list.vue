@@ -1,9 +1,9 @@
-<template>
+<template v-if="hasPermission('view_food')">
   <h3 class="title">Quản lý món ăn</h3>
 
   <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
 
-    <router-link :to="{ name: 'insert-food' }" class="btn btn-add">
+    <router-link :to="{ name: 'insert-food' }" class="btn btn-add" v-if="hasPermission('create_food')">
       + Thêm món ăn
     </router-link>
     <span class="vd">Tìm kiếm</span>
@@ -93,7 +93,7 @@
     <table class="table table-bordered">
       <thead class="table-light">
         <tr>
-          <th><input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" /></th>
+          <!-- <th><input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" /></th> -->
           <th>Món ăn</th>
           <th>Danh mục</th>
           <th>Giá thành</th>
@@ -103,7 +103,7 @@
       </thead>
       <tbody>
         <tr v-for="food in foods" :key="food.id">
-          <td><input type="checkbox" :value="food.id" v-model="selectedFoods" /></td>
+          <!-- <td><input type="checkbox" :value="food.id" v-model="selectedFoods" /></td> -->
           <td style="max-width: 220px;" class="text-start">
             <img :src="'http://127.0.0.1:8000/storage/img/food/' + food.image" :alt="food.name"
               class="me-2 img_thumbnail" style="width:80px" />
@@ -113,12 +113,12 @@
           <td>{{ food.price.toLocaleString('vi-VN') }} VNĐ</td>
           <td>{{ food.stock }}</td>
           <td class="d-flex gap-2">
-            <router-link :to="{ name: 'update-food', params: { id: food.id } }">
+            <router-link :to="{ name: 'update-food', params: { id: food.id } }" v-if="hasPermission('edit_food')">
               <button type="button" class="btn btn-update ">
                 Sửa
               </button>
             </router-link>
-            <button class="btn btn-clean btn-delete btn-sm" @click="deleteFood(food.id)">Xoá</button>
+            <!-- <button class="btn btn-clean btn-delete btn-sm" @click="deleteFood(food.id)" v-if="hasPermission('delete_food')">Xoá</button> -->
 
             <button @click="toggleStatus(food)" class="btn btn-toggle-status"
               :class="food.status === 'active' ? 'btn-outline-secondary' : 'btn-outline-success'"
@@ -212,13 +212,13 @@
       </li>
     </ul>
   </nav>
-  <button class="btn btn-danger-delete delete_desktop" @click="deleteSelectedFoods"
-    :disabled="selectedFoods.length === 0">Xoá đã chọn({{ selectedFoods.length }})</button>
+  <!-- <button class="btn btn-danger-delete delete_desktop" @click="deleteSelectedFoods"
+    :disabled="selectedFoods.length === 0">Xoá đã chọn({{ selectedFoods.length }})</button> -->
 
 
 
   <!-- Mobile View -->
-  <div class="d-block d-lg-none">
+  <!-- <div class="d-block d-lg-none">
     <div class="card mb-3">
       <div class="row g-0 align-items-center">
         <div class="col-3 d-flex p-1">
@@ -239,8 +239,8 @@
         </div>
       </div>
     </div>
-  </div>
-  <button class="btn-outline btn-danger-delete delete_mobile">Xoá</button>
+  </div> -->
+  <!-- <button class="btn-outline btn-danger-delete delete_mobile">Xoá</button> -->
 
 
 </template>
@@ -249,7 +249,16 @@ import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import * as bootstrap from 'bootstrap'
-
+import { Permission } from '@/stores/permission'
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
 const foods = ref([]);
 const currentPage = ref(1);
 const lastPage = ref(1);

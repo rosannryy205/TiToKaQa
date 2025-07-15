@@ -1,8 +1,6 @@
 <template>
-  <div v-if="isLoading" class="isLoading-overlay">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">Đang tải...</span>
-    </div>
+  <div v-if="isLoading" class="loader-wrapper1">
+    <div class="loader"></div>
   </div>
   <div class="d-flex mb-2">
     <div>
@@ -38,7 +36,7 @@
             <div class="info-block">
               <i class="bi bi-clock"></i>Giờ đặt:
               <span v-for="(t, index) in info.tables" :key="index">
-                {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
+                {{ formatTime(t.reserved_from) }} - {{ formatTime(t.reserved_to)
                 }}<span v-if="index < info.tables.length - 1">, </span>
               </span>
             </div>
@@ -151,10 +149,12 @@
         <div class="popup-actions" v-if="hasPermission('edit_booking')">
           <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
           <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
+          <router-link :to="`/admin/tables-setup/${info.id}`" class="btn edit-button">Xếp bàn</router-link>
         </div>
       </div>
     </div>
   </transition>
+
 </template>
 
 <script setup>
@@ -181,7 +181,7 @@ if (userString) {
     userId.value = user.id
   }
 }
-const { hasPermission, permissions } = Permission(userId)
+const { hasPermission, permissions, isLoadingPermissions } = Permission(userId)
 
 const { formatDate, formatTime, formatNumber, info, getInfo } = Info.setup()
 const router = useRouter()
@@ -189,6 +189,10 @@ const isLoading = ref(false)
 
 const tables = ref([])
 const getTable = async () => {
+  if (!isLoading.value) {
+    isLoading.value = true;
+  }
+
   try {
     const res = await axios.get('http://127.0.0.1:8000/api/all-tables')
     tables.value = res.data;
@@ -201,14 +205,22 @@ const getTable = async () => {
         tableNumber: table.table_number,
       }
     }));
+    isLoading.value = false
 
   } catch (error) {
     console.log(error)
+  } finally {
+    isLoading.value = false;
   }
+
 }
 
 const orderOfTable = ref([])
 const getOrderOfTable = async () => {
+  if (!isLoading.value) {
+    isLoading.value = true;
+  }
+
   try {
     const res = await axios.get('http://127.0.0.1:8000/api/order-tables')
     orderOfTable.value = res.data.orders
@@ -227,8 +239,12 @@ const getOrderOfTable = async () => {
         total_quantity: order.total_quantity,
       },
     }))
+
   } catch (error) {
     console.log(error)
+  } finally {
+    isLoading.value = false
+
   }
 }
 
@@ -321,24 +337,35 @@ const handleDateInputChange = () => {
 const handleDateClick = (clickDate) => {
   // const date = formatDateTime(clickDate.dateStr)
   // const date = formatDateTime1(clickDate.dateStr)
-  localStorage.setItem('selectedDate', clickDate.dateStr)
   router.push({
-    name: 'insert-reservation-admin',
+    name: 'insert-reservation-admin-date',
+    params: { date: clickDate.dateStr } // chỉ lấy YYYY-MM-DD
   })
+
+
 }
 
 onMounted(async () => {
-  await getTable()
-  await getOrderOfTable()
+
   selectedDateInput.value = new Date().toISOString().split('T')[0];
   // console.log(calendarOptions.value.events)
   // console.log(calendarOptions.value.resources)
 })
+const initialTablesLoaded = ref(false);
 
-watch(permissions, (newPermissions) => {
-  getTable()
-  getOrderOfTable()
-}, { immediate: true })
+
+watch(
+  [permissions, isLoadingPermissions],
+  async ([newPermissions, newIsLoadingPermissions]) => {
+    if (newPermissions.length > 0 && !newIsLoadingPermissions && !initialTablesLoaded.value) {
+      await getTable();
+      await getOrderOfTable();
+      initialTablesLoaded.value = true;
+    }
+  },
+  { immediate: true }
+);
+
 
 const calendarOptions = ref({
   plugins: [
@@ -665,6 +692,41 @@ a {
   display: none;
 }
 
+.loader-wrapper1 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(148, 142, 142, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* loader */
+.loader {
+  width: 50px;
+  --b: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000 10%, #f03355) content-box;
+  -webkit-mask:
+    repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
+    radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
+}
+
+@keyframes l4 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
 /* Đường kẻ thời gian hiện tại (Now Indicator) */
 .fc-timegrid-now-indicator-line {
   border-top: 1px solid rgb(226, 26, 26) !important;
@@ -723,6 +785,7 @@ a {
   color: #333;
   gap: 2px;
   border-left: 8px solid #c92c3c;
+  cursor: pointer;
 }
 
 .fc-datagrid-cell-frame {

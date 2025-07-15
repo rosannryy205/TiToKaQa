@@ -114,8 +114,8 @@ Route::put('/order-history-info/update-address/{id}', [OrderController::class, '
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{id}', [UserController::class, 'show']);
-    Route::patch('/user-update/{id}', [UserController::class, 'update']);
-    // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
+    Route::patch('/user/updateProfile/{id}', [UserController::class, 'update']);
+    Route::post('/user/{id}/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
 
 Route::post('/insert_staff', [UserController::class, 'insertStaff']);
@@ -172,6 +172,13 @@ Route::post('/order/{id}/cancel', [OrderController::class, 'handelOrderCancel'])
 Route::get('/order_detail/{id}', [CartController::class, 'get_order_detail']);
 Route::get('/get_all_orders', [CartController::class, 'get_all_orders']);
 Route::put('/update/{id}/status', [CartController::class, 'update_status']);
+Route::middleware('auth:sanctum')->get('/shipper/orders', [OrderController::class, 'getOrdersByShipper']);
+Route::post('/selected_orders', [OrderController::class, 'assignShipper']);
+Route::get('/shipper/{id}/active-orders', [OrderController::class, 'getShipperOrders']);
+Route::post('/shipper/update-location', [UserController::class, 'updateLocation']);
+Route::get('/shipper/{id}/last-location', [UserController::class, 'getLastLocation']);
+
+
 
 
 //discount
