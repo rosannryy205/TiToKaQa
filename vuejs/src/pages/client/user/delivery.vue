@@ -20,16 +20,18 @@
 </template>
 
 <script setup>
-import '@/stores/animated-marker'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { toast } from 'vue3-toastify'
-const goBack = () => {
-  window.history.back()
-}
+
+// Firebase
+import { ref as dbRef, onValue } from 'firebase/database'
+import { database } from '@/stores/firebase'
+
+const goBack = () => window.history.back()
 
 const isLoading = ref(false)
 const route = useRoute()
@@ -37,19 +39,92 @@ const order_id = route.params.id
 
 const showDistanceBox = ref(false)
 
-
 const restaurant = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 const customer = ref({})
 const shipper = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 
+let shipperMarker = null
+let animationFrameId = null
+let previousLatLng = null
 
-//Api Heigit
+function animateMarker(marker, fromLatLng, toLatLng, duration = 1000) {
+  if (fromLatLng.lat === toLatLng.lat && fromLatLng.lng === toLatLng.lng) return
+
+  const startTime = performance.now()
+  function easeInOutQuad(t) {
+    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t
+  }
+
+  function animate(currentTime) {
+    const elapsed = currentTime - startTime
+    const t = Math.min(elapsed / duration, 1)
+    const easedT = easeInOutQuad(t)
+
+    const lat = fromLatLng.lat + (toLatLng.lat - fromLatLng.lat) * easedT
+    const lng = fromLatLng.lng + (toLatLng.lng - fromLatLng.lng) * easedT
+
+    marker.setLatLng([lat, lng])
+
+    if (t < 1) {
+      animationFrameId = requestAnimationFrame(animate)
+    }
+  }
+
+  if (animationFrameId) cancelAnimationFrame(animationFrameId)
+  animationFrameId = requestAnimationFrame(animate)
+}
+
+
+
+let dynamicRouteLine = null
+let hasArrived = false // dùng để hiển thị toast 1 lần duy nhất
+
+const listenToShipperLocation = (shipperId, map, icon) => {
+  const locationRef = dbRef(database, `locations/shipper_${shipperId}`)
+
+  onValue(locationRef, (snapshot) => {
+    const data = snapshot.val()
+    if (!data) return
+
+    const { lat, lng } = data
+    const newLatLng = L.latLng(lat, lng)
+
+    // Nếu chưa có marker → khởi tạo marker mới
+    if (!shipperMarker) {
+      shipperMarker = L.marker(newLatLng, { icon }).addTo(map)
+      previousLatLng = newLatLng
+    } else {
+      // So sánh nếu toạ độ mới cách toạ độ cũ > 1m → animate
+      if (
+        previousLatLng &&
+        newLatLng.distanceTo(previousLatLng) > 1 &&
+        (newLatLng.lat !== previousLatLng.lat || newLatLng.lng !== previousLatLng.lng)
+      ) {
+        animateMarker(shipperMarker, previousLatLng, newLatLng, 1000) // ⏱ khớp Firebase
+        previousLatLng = newLatLng
+      }
+    }
+
+    // 🟢 Khi shipper đến nơi (cách < 10m)
+    const distToCustomer = newLatLng.distanceTo(L.latLng(customer.value.lat, customer.value.lng))
+    if (distToCustomer < 15 && !hasArrived) {
+      toast.success('Shipper đã đến nơi!')
+      hasArrived = true
+    }
+  }, {
+    onlyOnce: false
+  })
+}
+
+
+
+
 async function getRoutePolyline(start, end) {
   const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': '5b3ce3597851110001cf624831426f803ba340cf9fa916ad9de4c9d8'
+      'Authorization': '5b3ce3597851110001cf62482b60c4bf4dd35899168bdb73789d885e63b65a8ba7f4add869673f46'
     },
     body: JSON.stringify({
       coordinates: [
@@ -60,19 +135,13 @@ async function getRoutePolyline(start, end) {
   })
 
   const data = await response.json()
-
   if (!data.features || data.features.length === 0) return { coords: [], distance: 0 }
 
-
   const coords = data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]])
-
   const distance = data.features[0].properties.summary.distance
-
   return { coords, distance }
 }
 
-
-//Api LocationIQ
 const getCoordinatesFromAddress = async (address) => {
   const apiKey = 'pk.a3a8213154230324b5a5b37fd3e5f48a'
   const res = await axios.get('https://us1.locationiq.com/v1/search.php', {
@@ -88,18 +157,14 @@ const getCoordinatesFromAddress = async (address) => {
     const { lat, lon } = res.data[0]
     return { lat: parseFloat(lat), lng: parseFloat(lon) }
   }
-
   return null
 }
-
 
 onMounted(async () => {
   isLoading.value = true
   try {
-    //Gọi API lấy thông tin đơn hàng
     const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${order_id}`)
     const order = res.data
-
     const shipperId = order.data.shipper_id
 
     const res2 = await axios.get(`http://127.0.0.1:8000/api/shipper/${shipperId}/last-location`)
@@ -108,47 +173,33 @@ onMounted(async () => {
       lng: res2.data.lng
     }
 
-    console.log(order)
 
-    //Lấy địa chỉ khách hàng từ đơn hàng
+
     const address = order.data.guest_address
-    console.log('Địa chỉ khách hàng:', address)
-
     const coords = await getCoordinatesFromAddress(address)
     if (coords) {
       customer.value = coords
-      console.log('Tọa độ khách hàng:', coords)
     } else {
       console.warn('Không tìm thấy tọa độ từ địa chỉ.')
     }
 
-
-    //logic vẽ map
-    const map = L.map('deliveryMap', {
-      zoomControl: false
-    }).setView([restaurant.value.lat, restaurant.value.lng], 13)
-
+    const map = L.map('deliveryMap', { zoomControl: false }).setView([restaurant.value.lat, restaurant.value.lng], 13)
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://carto.com/">CARTO</a> contributors'
     }).addTo(map)
 
-
     L.control.zoom({ position: 'bottomright' }).addTo(map)
-
 
     L.marker([restaurant.value.lat, restaurant.value.lng])
       .addTo(map)
       .bindPopup('<b>🏠 Nhà hàng</b>')
 
-
     L.marker([customer.value.lat, customer.value.lng])
       .addTo(map)
       .bindPopup('<b>👤 Khách hàng</b>')
 
-
     const { coords: polylineCoords, distance } = await getRoutePolyline(shipper.value, customer.value)
-
     if (polylineCoords.length) {
       const routeLine = L.polyline(polylineCoords, {
         color: '#C92C3C',
@@ -161,48 +212,32 @@ onMounted(async () => {
 
       const distanceInKm = (distance / 1000).toFixed(2)
       const distanceBox = document.getElementById('distanceBox')
-
       if (distanceBox) {
         distanceBox.textContent = `${distanceInKm} km`
         showDistanceBox.value = true
       }
-
-      const shipperIcon = L.icon({
-        iconUrl: '/shipper.png',
-        iconSize: [50, 50],
-        iconAnchor: [25, 25],
-        popupAnchor: [0, -20]
-      })
-
-      const animatedMarker = new L.AnimatedMarker(routeLine.getLatLngs(), {
-        icon: shipperIcon,
-        autoStart: true,
-        distance: 80,
-        interval: 150, //150 // 720
-        onEnd: () => {
-          toast.success('Shipper đã đến, bạn hãy xuống lấy hàng')
-        }
-      })
-      map.addLayer(animatedMarker)
     }
 
+    const shipperIcon = L.icon({
+      iconUrl: '/shipper.png',
+      iconSize: [50, 50],
+      iconAnchor: [25, 25],
+      popupAnchor: [0, -20]
+    })
 
+    listenToShipperLocation(shipperId, map, shipperIcon)
 
-
-
-
-
-    // Khắc phục hiển thị sai nếu map chưa render kịp
     setTimeout(() => {
       map.invalidateSize()
     }, 300)
   } catch (error) {
-    console.log('Lỗi rồi kìa mày')
+    console.error('Lỗi khi khởi tạo:', error)
   } finally {
     isLoading.value = false
   }
-});
+})
 </script>
+
 
 <style scoped>
 #deliveryMap {

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderMail;
+use App\Models\Combo;
 use App\Models\Food;
 use App\Models\FoodReward;
+use App\Models\Food_topping;
 use App\Models\Order;
 use App\Models\Order_detail;
 use App\Models\Order_topping;
@@ -13,8 +16,10 @@ use App\Services\PointService;
 use App\Services\RanksService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
+
 
 class CartController extends Controller
 {
@@ -111,6 +116,72 @@ class CartController extends Controller
                         }
                     }
                 }
+
+                foreach ($request->order_detail as $item) {
+                    $name = null;
+                    if ($item['type'] === 'Food' && !empty($item['food_id'])) {
+                        $food = Food::find($item['food_id']);
+                        $name = $food?->name ?? 'Món ăn không tồn tại';
+                        $image = $food?->image;
+                    }
+                    if ($item['type'] === 'Combo' && !empty($item['combo_id'])) {
+                        $combo = Combo::find($item['combo_id']);
+                        $name = $combo?->name ?? 'Món ăn không tồn tại';
+                        $image = $combo?->image;
+                    }
+
+                    $toppingsWithNames = [];
+                    if (!empty($item['toppings'])) {
+                        foreach ($item['toppings'] as $topping) {
+                            $foodToppingModel = Food_topping::find($topping['food_toppings_id']);
+                            $toppingModel = $foodToppingModel?->toppings;
+
+                            $toppingsWithNames[] = [
+                                'name' => $toppingModel?->name ?? 'Topping không tồn tại',
+                                'price' => $topping['price']
+                            ];
+                        }
+                    }
+
+                    $orderDetailsWithNames[] = [
+                        'name' => $name,
+                        'image' => $image,
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price'],
+                        'type' => $item['type'],
+                        'toppings' => $toppingsWithNames,
+                    ];
+                }
+
+                $subtotal = 0;
+
+                foreach ($orderDetailsWithNames as $item) {
+                    $itemSubtotal = $item['price'] * $item['quantity'];
+                    if (!empty($item['toppings'])) {
+                        foreach ($item['toppings'] as $topping) {
+                            $itemSubtotal += $topping['price'] * $item['quantity'];
+                        }
+                    }
+
+                    $subtotal += $itemSubtotal;
+                }
+
+                $mailData = [
+                    'order_id' => $order->id,
+                    'guest_name' => $data['guest_name'],
+                    'guest_email' => $data['guest_email'],
+                    'guest_phone' => $data['guest_phone'],
+                    'guest_address' => $data['guest_address'],
+                    'total_price' => $request->total_price ?? null,
+                    'note' => $request->note ?? null,
+                    'order_details' => $orderDetailsWithNames,
+                    'subtotal' => $subtotal,
+                    'order_status' =>  'Chờ xác nhận',
+                    'shippingFee' =>  $order->shippingFee
+                ];
+
+                Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+
                 return response()->json([
                     'status' => true,
                     'message' => 'Đặt hàng thành công',
@@ -274,8 +345,8 @@ class CartController extends Controller
     public function get_all_orders()
     {
         $orders = Order::with([
-            'details.foods.category', 
-            'details.toppings.food_toppings.toppings', 
+            'details.foods.category',
+            'details.toppings.food_toppings.toppings',
             'tables',
             'payment'
         ])->orderByDesc('order_time')->get();
@@ -396,11 +467,11 @@ class CartController extends Controller
             $user = $order->user;
             $pointService = new PointService();
             $rankService = new RanksService();
-            
+
             $pointService->updateUserPointsWhenOrderCompleted($order);
             $user->refresh();
             $rankService->updateUserRankByPoints($user);
-           
+
             //================================
 
             if ($order->payment) {
@@ -411,7 +482,7 @@ class CartController extends Controller
                 } elseif (in_array($newStatus, ['Giao thất bại', 'Đã hủy'])) {
                     $payment->payment_status = 'Thanh toán thất bại';
 
-                    if(in_array($payment->payment_method, ['VNPAY', 'MOMO'])){
+                    if (in_array($payment->payment_method, ['VNPAY', 'MOMO'])) {
                         $payment->payment_status = 'Đã hoàn tiền';
                     }
                 }

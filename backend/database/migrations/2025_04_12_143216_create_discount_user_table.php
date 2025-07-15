@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps();
             $table->unique(['user_id', 'discount_id']);
         });
-        
+
     }
     /**
      * Reverse the migrations.
