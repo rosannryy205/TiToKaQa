@@ -16,7 +16,8 @@
             <label class="form-label">
               <i class="bi bi-person-fill text-primary me-2"></i>Username
             </label>
-            <input type="text" class="form-control rounded" placeholder="Username tự động được tạo" disabled>
+            <input v-model="form.username" type="text" class="form-control rounded" placeholder="Username">
+            <div v-if="errors.username" class="text-danger small">{{ errors.username }}</div>
           </div>
 
           <div class="col-md-6">
@@ -32,14 +33,16 @@
             <label class="form-label">
               <i class="bi bi-envelope-fill text-primary me-2"></i>Email
             </label>
-            <input type="email" class="form-control rounded" placeholder="Email sẽ tự động được tạo" disabled>
+            <input v-model="form.email" type="email" class="form-control rounded" placeholder="Email">
+            <div v-if="errors.email" class="text-danger small">{{ errors.email }}</div>
           </div>
 
           <div class="col-md-6">
             <label class="form-label">
               <i class="bi bi-lock-fill text-primary me-2"></i>Mật khẩu
             </label>
-            <input type="password" class="form-control rounded" placeholder="Mật khẩu sẽ tự động được tạo" disabled>
+            <input v-model="form.password" type="password" class="form-control rounded" placeholder="Mật khẩu">
+            <div v-if="errors.password" class="text-danger small">{{ errors.password }}</div>
           </div>
 
           <div class="col-md-6">
@@ -59,6 +62,15 @@
             </button>
           </div>
         </form>
+        <div>
+          <p>
+            <strong>*Cấu trúc Email:</strong> <br>
+            <em>[tên không dấu]</em> + <em>chữ cái đầu của tên đệm</em> + <em>chữ cái đầu của họ</em> +
+            <code>Titokaqa@gmail.com</code><br>
+            <strong>Ví dụ:</strong> Võ Minh Khánh → <code>khanhvmTitokaqa@gmail.com</code>
+          </p>
+
+        </div>
       </div>
     </div>
   </div>
@@ -76,16 +88,25 @@ const isLoading = ref(false)
 const form = reactive({
   fullname: '',
   phone: '',
+  username: '',
+  password: '',
+  email: '',
 })
 const errors = reactive({
   fullname: '',
   phone: '',
+  username: '',
+  password: '',
+  email: '',
 })
 
 const submitForm = async () => {
   isLoading.value = true
   errors.fullname = ''
   errors.phone = ''
+  errors.email = ''
+  errors.username = ''
+  errors.password = ''
   try {
     console.log('Dữ liệu gửi:', form)
 
@@ -100,6 +121,9 @@ const submitForm = async () => {
       const responseErrors = error.response.data.errors
       errors.fullname = responseErrors.fullname?.[0] || ''
       errors.phone = responseErrors.phone?.[0] || ''
+      errors.email = responseErrors.email?.[0] || ''
+      errors.username = responseErrors.username?.[0] || ''
+      errors.password = responseErrors.password?.[0] || ''
     } else {
       alert('Đã xảy ra lỗi k xác định')
     }

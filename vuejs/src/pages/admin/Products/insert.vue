@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('create_food')">
   <div class="d-flex justify-content-between">
     <h3 class="text-danger fw-bold">Thêm món ăn</h3>
     <div>
@@ -101,6 +101,16 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2';
+import { Permission } from '@/stores/permission'
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
 
 
 // Dữ liệu món ăn mới

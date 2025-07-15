@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('view_order')">
   <div>
     <h2>Lịch sử đơn hàng</h2>
 
@@ -58,7 +58,7 @@
         <template v-if="column.key === 'action'">
           <a-space size="middle">
             <a-button type="link" @click="viewOrderDetails(record)">Xem chi tiết</a-button>
-            <a-button type="link" @click="printInvoice(record)">In hóa đơn</a-button>
+            <a-button type="link" @click="printInvoice(record.id)">In hóa đơn</a-button>
           </a-space>
         </template>
       </template>
@@ -135,6 +135,16 @@ import { message } from 'ant-design-vue';
 // Import các icon nếu cần cho nút hoặc các phần khác
 // import { EyeOutlined, PrinterOutlined } from '@ant-design/icons-vue';
 
+import { Permission } from '@/stores/permission'
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
 
 const orders = ref([]);
 const ordersRaw = ref([]);
@@ -155,7 +165,7 @@ const fetchOrders = async () => {
           phone: order.guest_phone,
         },
         orderDate: order.order_time,
-        areaTable: order.tables?.map(t => `Bàn ${t.table_number}`).join(', ') || 'Not found',
+        areaTable: order.tables?.map(t => `Bàn ${t.table_number}`).join(', ') || 'Trống',
         orderType: order.tables?.length > 0 ? 'Đặt bàn' : 'Mang về',
         totalAmount: parseFloat(order.total_price),
         status: order.order_status,
@@ -188,10 +198,11 @@ const allowedStatuses = [
   'Chờ xác nhận',
   'Đã xác nhận',
   'Đang xử lý',
-  'Đang giao hàng',
-  'Giao thành công',
-  'Giao thất bại',
-  'Đã hủy'
+  'Bắt đầu giao',
+  // 'Đang giao hàng',
+  // 'Giao thành công',
+  // 'Giao thất bại',
+  // 'Đã hủy'
 ];
 
 // Quy ước thứ tự trạng thái (để kiểm soát nhảy bậc và lùi)
@@ -199,10 +210,11 @@ const statusOrder = {
   'Chờ xác nhận': 1,
   'Đã xác nhận': 2,
   'Đang xử lý': 3,
-  'Đang giao hàng': 4,
-  'Giao thành công': 5,
-  'Giao thất bại': 5,  // cùng bậc với giao thành công
-  'Đã hủy': 6
+  'Bắt đầu giao': 4,
+  'Đang giao hàng': 5,
+  'Giao thành công': 6,
+  'Giao thất bại': 6,  // cùng bậc với giao thành công
+  'Đã hủy': 7
 };
 
 const isStatusDisabled = (status) => {
@@ -436,7 +448,8 @@ const getStatusColor = (status) => {
   switch (status) {
     case 'Chờ xác nhận': return 'orange';
     case 'Đã xác nhận': return 'blue';
-    case 'Đang xử lý': return 'processing'; // AntD processing có animation
+    case 'Đang xử lý': return 'processing'; // có animation
+    case 'Bắt đầu giao': return 'cyan';
     case 'Đang giao hàng': return 'geekblue';
     case 'Giao thành công': return 'green';
     case 'Giao thất bại': return 'red';
@@ -444,6 +457,7 @@ const getStatusColor = (status) => {
     default: return 'default';
   }
 };
+
 
 const formatCurrency = (value) => {
   if (typeof value !== 'number') return value;
@@ -457,10 +471,19 @@ const viewOrderDetails = (record) => {
 };
 
 const printInvoice = (record) => {
-  console.log('In hóa đơn cho đơn hàng:', record);
-  // Logic in hóa đơn (có thể mở một tab mới với giao diện in)
-  alert(`Đang chuẩn bị in hóa đơn cho đơn hàng ${record.id}`);
+  axios.get(`http://127.0.0.1:8000/api/invoice/${record}`, {
+    responseType: 'blob'
+  })
+  .then(response => {
+    const file = new Blob([response.data], { type: 'application/pdf' });
+    const fileURL = URL.createObjectURL(file);
+    window.open(fileURL); //mở tab mới
+  })
+  .catch(error => {
+    console.error('Lỗi in hóa đơn:', error);
+  });
 };
+
 
 onMounted(() => {
   fetchOrders();
