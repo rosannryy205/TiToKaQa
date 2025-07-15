@@ -52,6 +52,7 @@ Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']
 
 //reservation-client
 Route::post('/reservation', [OrderController::class, 'reservation']);
+Route::post('/reservation-by-chatbot', [ChatbotController::class, 'combine']);
 Route::get('/order-reservation-info', [OrderController::class, 'getInfoReservation']);
 Route::post('/choose-table', [OrderController::class, 'chooseTable']);
 
@@ -117,8 +118,8 @@ Route::put('/order-history-info/update-address/{id}', [OrderController::class, '
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{id}', [UserController::class, 'show']);
-    Route::patch('/user-update/{id}', [UserController::class, 'update']);
-    // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
+    Route::patch('/user/updateProfile/{id}', [UserController::class, 'update']);
+    Route::post('/user/{id}/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
 
 Route::post('/insert_staff', [UserController::class, 'insertStaff']);

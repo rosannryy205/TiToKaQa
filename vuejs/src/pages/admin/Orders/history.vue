@@ -58,7 +58,7 @@
         <template v-if="column.key === 'action'">
           <a-space size="middle">
             <a-button type="link" @click="viewOrderDetails(record)">Xem chi tiết</a-button>
-            <a-button type="link" @click="printInvoice(record)">In hóa đơn</a-button>
+            <a-button type="link" @click="printInvoice(record.id)">In hóa đơn</a-button>
           </a-space>
         </template>
       </template>
@@ -471,10 +471,19 @@ const viewOrderDetails = (record) => {
 };
 
 const printInvoice = (record) => {
-  console.log('In hóa đơn cho đơn hàng:', record);
-  // Logic in hóa đơn (có thể mở một tab mới với giao diện in)
-  alert(`Đang chuẩn bị in hóa đơn cho đơn hàng ${record.id}`);
+  axios.get(`http://127.0.0.1:8000/api/invoice/${record}`, {
+    responseType: 'blob'
+  })
+  .then(response => {
+    const file = new Blob([response.data], { type: 'application/pdf' });
+    const fileURL = URL.createObjectURL(file);
+    window.open(fileURL); //mở tab mới
+  })
+  .catch(error => {
+    console.error('Lỗi in hóa đơn:', error);
+  });
 };
+
 
 onMounted(() => {
   fetchOrders();

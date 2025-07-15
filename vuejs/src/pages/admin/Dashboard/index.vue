@@ -6,17 +6,23 @@
       <a-row :gutter="[16, 16]">
         <a-col :xs="24" :sm="12" :md="8">
           <a-statistic title="Người dùng mới" :value="1128">
-            <template #prefix><UserOutlined /></template>
+            <template #prefix>
+              <UserOutlined />
+            </template>
           </a-statistic>
         </a-col>
         <a-col :xs="24" :sm="12" :md="8">
           <a-statistic title="Đơn hàng" :value="93">
-            <template #prefix><ShoppingCartOutlined /></template>
+            <template #prefix>
+              <ShoppingCartOutlined />
+            </template>
           </a-statistic>
         </a-col>
         <a-col :xs="24" :sm="12" :md="8">
           <a-statistic title="Doanh thu (VND)" :precision="0" :value="15000000">
-            <template #prefix><DollarCircleOutlined /></template>
+            <template #prefix>
+              <DollarCircleOutlined />
+            </template>
           </a-statistic>
         </a-col>
       </a-row>
@@ -25,9 +31,9 @@
 </template>
 
 <script setup>
-import { Permission } from '@/stores/permission';
+import { Permission } from '@/stores/permission'
+import { ref, onMounted, computed, watch } from 'vue';
 import { UserOutlined, ShoppingCartOutlined, DollarCircleOutlined } from '@ant-design/icons-vue';
-import { ref } from 'vue';
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -43,6 +49,7 @@ const { hasPermission, permissions } = Permission(userId)
 h1 {
   margin-bottom: 8px;
 }
+
 p {
   margin-bottom: 24px;
   color: #555;

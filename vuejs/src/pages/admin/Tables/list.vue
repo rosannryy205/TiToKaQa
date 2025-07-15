@@ -1,28 +1,22 @@
 <template>
   <div>
-    <div v-if="isLoading || isLoadingPermissions" class="isLoading-overlay">
-      <div class="spinner-border text-danger" role="status"></div>
-    </div>
 
     <div class="main-layout">
       <div class="main-content">
         <div class="d-flex justify-content-between ">
-                  <h2>Danh sách bàn</h2>
+          <h2>Danh sách bàn</h2>
 
-<button v-if="isSetup" type="button" class="btn btn-danger1 rounded-0" @click="setUpTablesForOrder"
-      :disabled="selectedTablesForOrder.length === 0">
-      Xếp Bàn
-    </button>
+          <button v-if="isSetup" type="button" class="btn btn-danger1 rounded-0" @click="setUpTablesForOrder"
+            :disabled="selectedTablesForOrder.length === 0">
+            Xếp Bàn
+          </button>
         </div>
         <template v-if="hasPermission('view_table')">
           <div class="table-filter-box">
             <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">
               + Thêm Bàn Mới
             </button>
-            <div>
-              <input type="date" class="form-control rounded" v-model="date" :min="today" @change="getTable" />
-            </div>
-
+            <input type="date" class="form-control rounded" v-model="date" :min="today" @change="getTable" />
             <div class="filter-status-select">
               <select class="form-control rounded" v-model="filterStatus" @change="getTable">
                 <option value="">Tất cả bàn</option>
@@ -52,6 +46,9 @@
           </div>
 
           <hr />
+          <div v-if="isLoading" class="loader-wrapper">
+            <div class="loader"></div>
+          </div>
           <div class="col-md-12 form-section mt-2" style="background-color: #ffff; min-height: 500px">
             <draggable :list="displayTables" item-key="id" tag="div" class="table-container" :animation="150"
               @add="onTableAddedFromSidebar" group="tables">
@@ -421,7 +418,6 @@ export default {
       if (!itemsPerPageUserSelected.value) {
         itemsPerPageUserSelected.value = dynamicDefaultItemsPerPage.value
       }
-      getTable()
     })
 
     onBeforeUnmount(() => {
@@ -453,8 +449,10 @@ export default {
         allTables.value = []
         return
       }
+      if (!isLoading.value) {
+        isLoading.value = true;
+      }
 
-      isLoading.value = true
       try {
         const res = await axios.get('http://127.0.0.1:8000/api/tables', {
           params: {
@@ -471,7 +469,7 @@ export default {
         console.error('Lỗi khi tải danh sách bàn:', error)
         toast.error('Lỗi khi tải danh sách bàn.')
       } finally {
-        isLoading.value = false
+        isLoading.value = false;
       }
     }
 
@@ -831,19 +829,19 @@ export default {
 
       return false
     }
+    const initialTablesLoaded = ref(false);
 
     watch(
-      permissions,
-      (newPermissions) => {
-        if (newPermissions.length > 0 && !isLoadingPermissions.value) {
-          getTable()
-          console.log(itemCount.value)
-        } else if (newPermissions.length === 0 && !isLoadingPermissions.value) {
-          getTable()
+      [permissions, isLoadingPermissions],
+      ([newPermissions, newIsLoadingPermissions]) => {
+
+        if (newPermissions.length > 0 && !newIsLoadingPermissions && !initialTablesLoaded.value) {
+          getTable();
+          initialTablesLoaded.value = true;
         }
       },
-      { immediate: true },
-    )
+      { immediate: true } // Kích hoạt watch ngay lập tức khi component setup
+    );
 
     return {
       userId,
@@ -900,7 +898,8 @@ export default {
       selectedTablesForOrder,
       reserved_from,
       isTableSelectedForOrder,
-      formatDateTime
+      formatDateTime,
+      initialTablesLoaded
     }
   },
 }
@@ -1132,18 +1131,36 @@ a {
   border: none;
 }
 
-.isLoading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background-color: rgba(148, 142, 142, 0.8);
-  z-index: 9999;
+.loader-wrapper {
+  height: 50vh;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
+/* loader */
+.loader {
+  width: 50px;
+  --b: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000 10%, #f03355) content-box;
+  -webkit-mask:
+    repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
+    radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
+}
+
+@keyframes l4 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+
 
 .popup-fade-enter-active,
 .popup-fade-leave-active {
@@ -1167,12 +1184,14 @@ a {
   height: 100vh;
   overflow: hidden;
 }
-.btn-danger1{
+
+.btn-danger1 {
   background-color: #c92c3c;
   border: #c92c3c;
   color: #fff;
   width: 100px;
 }
+
 .main-content {
   flex-grow: 1;
   padding: 20px;

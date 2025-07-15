@@ -3,9 +3,7 @@
     <div class="main-page-foods container">
       <div class="row d-flex align-items-center justify-content-between">
         <div class="col-md-6 d-none d-lg-flex justify-content-center align-items-center">
-          <span class="fw-bold text-center align-items-center justify-content-center"
-            >Thực đơn</span
-          >
+          <span class="fw-bold text-center align-items-center justify-content-center">Thực đơn</span>
         </div>
         <div class="col-6 d-none d-lg-flex flex-wrap justify-content-center">
           <ul class="menu-grid">
@@ -15,11 +13,7 @@
               </a>
               <ul v-if="parent.children && parent.children.length" class="submenu">
                 <li v-for="child in parent.children" :key="child.id">
-                  <a
-                    @click.prevent="getFoodByCategory(child.id)"
-                    href="#"
-                    class="submenu-link fw-bold text-center"
-                  >
+                  <a @click.prevent="getFoodByCategory(child.id)" href="#" class="submenu-link fw-bold text-center">
                     {{ child.name }}
                   </a>
                 </li>
@@ -30,10 +24,7 @@
       </div>
       <!--small-->
       <div class="col-12 d-lg-none position-relative">
-        <div
-          class="menu-header d-flex justify-content-between align-items-center mt-3"
-          @click="toggleDropdown"
-        >
+        <div class="menu-header d-flex justify-content-between align-items-center mt-3" @click="toggleDropdown">
           <h2 class="menu-title">Thực đơn</h2>
           <div class="menu-icon d-flex align-items-center">
             <i class="fas fa-list-alt"></i>
@@ -43,29 +34,15 @@
 
         <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
           <ul class="list-group">
-            <li
-              v-for="parent in categories"
-              :key="parent.id"
-              class="list-group-item parent-category d-flex"
-            >
-              <a
-                @click.prevent="getFoodByCategory(parent.id)"
-                href="#"
-                class="text-decoration-none text-start text-dark fw-bold"
-              >
+            <li v-for="parent in categories" :key="parent.id" class="list-group-item parent-category d-flex">
+              <a @click.prevent="getFoodByCategory(parent.id)" href="#"
+                class="text-decoration-none text-start text-dark fw-bold">
                 {{ parent.name }}
               </a>
               <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
-                <li
-                  v-for="child in parent.children"
-                  :key="child.id"
-                  class="list-group-item child-category d-flex"
-                >
-                  <a
-                    @click.prevent="getFoodByCategory(child.id)"
-                    href="#"
-                    class="text-decoration-none text-start text-dark fw-bold"
-                  >
+                <li v-for="child in parent.children" :key="child.id" class="list-group-item child-category d-flex">
+                  <a @click.prevent="getFoodByCategory(child.id)" href="#"
+                    class="text-decoration-none text-start text-dark fw-bold">
                     🔻{{ child.name }}
                   </a>
                 </li>
@@ -83,11 +60,7 @@
           <div class="col-12 images-dish d-flex justify-content-between flex-wrap">
             <!---->
             <div class="col-md-6 d-none d-md-block img-dish">
-              <img
-                :src="getImageMenuUrl(selectedCategoryImage || 'mycay.png')"
-                alt="dish-images"
-                class="img-fluid"
-              />
+              <img :src="getImageMenuUrl(selectedCategoryImage || 'mycay.png')" alt="dish-images" class="img-fluid" />
             </div>
 
             <!---->
@@ -99,12 +72,7 @@
             <div class="row">
               <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3">
                 <div class="product-card">
-                  <img
-                    :src="getImageUrl(item.image)"
-                    alt=""
-                    class="product-img mx-auto d-block"
-                    width="180px"
-                  />
+                  <img :src="getImageUrl(item.image)" alt="" class="product-img mx-auto d-block" width="180px" />
                   <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
                   <span class="product-dish-desc text-start">
                     {{ item.description }}
@@ -123,12 +91,8 @@
 
   <section class="section-banner m-3 mt-5">
     <div class="banner-deals container-fluid">
-      <img
-        :src="images[currentIndex]"
-        alt="banner"
-        class="img-fluid"
-        style="border-radius: 25px; transition: opacity 0.5s ease"
-      />
+      <img :src="images[currentIndex]" alt="banner" class="img-fluid"
+        style="border-radius: 25px; transition: opacity 0.5s ease" />
       <button @click="changeSlide(-1)" class="trans-left d-none d-lg-block">
         <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
       </button>
@@ -158,25 +122,17 @@
   </section>
   <!-- Modal -->
   <div class="modal fade" id="productModal">
- <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
-          <button
-            type="button"
-            class="btn-close position-absolute top-0 end-0 m-2"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
+            aria-label="Close"></button>
           <div class="row">
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img
-                  :src="getImageUrl(foodDetail.image)"
-                  :alt="foodDetail.name"
-                  class="modal-image img-fluid"
-                />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -196,11 +152,8 @@
                       </select>
                     </div>
                     <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-                    <div
-                      v-for="topping in toppingList"
-                      :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2"
-                    >
+                    <div v-for="topping in toppingList" :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2">
                       <label class="d-flex align-items-center">
                         <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                         {{ topping.name }}
@@ -216,17 +169,19 @@
                 <!---->
                 <div class="mt-auto">
                   <div class="text-center mb-2">
-              <div class="qty-control px-2 py-1">
-                <button type="button" @click="decreaseQuantity" class="btn-lg" style="background-color: #fff;">-</button>
-                <span>{{ quantity }}</span>
-                <button type="button" @click="increaseQuantity" class="btn-lg" style="background-color: #fff;">+</button>
-              </div>
-            </div>
+                    <div class="qty-control px-2 py-1">
+                      <button type="button" @click="decreaseQuantity" class="btn-lg"
+                        style="background-color: #fff;">-</button>
+                      <span>{{ quantity }}</span>
+                      <button type="button" @click="increaseQuantity" class="btn-lg"
+                        style="background-color: #fff;">+</button>
+                    </div>
+                  </div>
                   <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
 
-              </div>
+            </div>
 
           </div>
         </div>
@@ -235,13 +190,14 @@
   </div>
 
   <div class="fixed-element d-flex align-items-center justify-content-between px-4" v-if="isReservation && orderId">
-  <div class="scrolling-container">
-    <div class="scrolling-text">
-      ✨ Chọn món cho đơn đặt bàn của bạn! ✨
+    <div class="scrolling-container">
+      <div class="scrolling-text">
+        ✨ Chọn món cho đơn đặt bàn của bạn! ✨
+      </div>
     </div>
+    <router-link :to="`/reservation-form/${orderId}`" class="btn-confirm text-decoration-none">Xác nhận chọn
+      xong</router-link>
   </div>
-  <router-link :to="`/reservation-form/${orderId}`" class="btn-confirm text-decoration-none">Xác nhận chọn xong</router-link>
-</div>
 </template>
 <script>
 import axios from 'axios'
@@ -278,8 +234,8 @@ export default {
     const route = useRoute()
     const orderId = route.params.orderId
     const isReservation = computed(() => {
-    return route.name && String(route.name).includes('reservation')
-  })
+      return route.name && String(route.name).includes('reservation')
+    })
 
     const isLoading = ref(false)
     const isDropdownOpen = ref(false)
@@ -348,7 +304,7 @@ export default {
               parentName = parent.name
               childName = child.name
               parentImage = child.images || ''
-              if(!child.images){
+              if (!child.images) {
                 parentImage = parent.images
               }
               break
@@ -399,8 +355,8 @@ export default {
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
 
-          spicyLevel.value = toppings.value.filter((item) => item.category_id == 1)
-          toppingList.value = toppings.value.filter((item) => item.category_id == 2)
+          spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
+          toppingList.value = toppings.value.filter((item) => item.category_id == 16)
           toppingList.value.forEach((item) => {
             item.price = item.price || 0
           })
@@ -435,64 +391,64 @@ export default {
       const user = JSON.parse(localStorage.getItem('user'))
       const userId = user?.id || 'guest'
       const cartKey = orderId
-          ? `cart_${userId}_reservation_${orderId}`
-          : `cart_${userId}`
+        ? `cart_${userId}_reservation_${orderId}`
+        : `cart_${userId}`
 
-        const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-        const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
 
-        let allSelectedToppings = [];
+      let allSelectedToppings = [];
 
-        if (selectedSpicy) {
-            allSelectedToppings.push({
-                id: selectedSpicy.id,
-                name: selectedSpicy.name,
-                price: selectedSpicy.price,
-                food_toppings_id: selectedSpicy.pivot?.id || null,
-                is_spicy_level: true
-            });
-        }
+      if (selectedSpicy) {
+        allSelectedToppings.push({
+          id: selectedSpicy.id,
+          name: selectedSpicy.name,
+          price: selectedSpicy.price,
+          food_toppings_id: selectedSpicy.pivot?.id || null,
+          is_spicy_level: true
+        });
+      }
 
-        const selectedToppingIds = Array.from(
-            document.querySelectorAll('input[name="topping[]"]:checked')
-        ).map((el) => parseInt(el.value));
+      const selectedToppingIds = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')
+      ).map((el) => parseInt(el.value));
 
-        const normalToppings = toppingList.value
-            .filter((topping) => selectedToppingIds.includes(topping.id))
-            .map((topping) => ({
-                id: topping.id,
-                name: topping.name,
-                price: topping.price,
-                food_toppings_id: topping.pivot?.id || null,
-                is_spicy_level: false
-            }));
+      const normalToppings = toppingList.value
+        .filter((topping) => selectedToppingIds.includes(topping.id))
+        .map((topping) => ({
+          id: topping.id,
+          name: topping.name,
+          price: topping.price,
+          food_toppings_id: topping.pivot?.id || null,
+          is_spicy_level: false
+        }));
 
-        allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+      allSelectedToppings = [...allSelectedToppings, ...normalToppings];
 
-        const cartItem = {
-            id: foodDetail.value.id,
-            name: foodDetail.value.name,
-            image: foodDetail.value.image,
-            price: foodDetail.value.price,
-            toppings: allSelectedToppings,
-            quantity: quantity.value,
-            type: foodDetail.value.type,
-            category_id: foodDetail.value.category_id,
-        };
-        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        const existingItemIndex = cart.findIndex(
-            (item) =>
-                item.id === cartItem.id &&
-                JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
-        );
+      const cartItem = {
+        id: foodDetail.value.id,
+        name: foodDetail.value.name,
+        image: foodDetail.value.image,
+        price: foodDetail.value.price,
+        toppings: allSelectedToppings,
+        quantity: quantity.value,
+        type: foodDetail.value.type,
+        category_id: foodDetail.value.category_id,
+      };
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      const existingItemIndex = cart.findIndex(
+        (item) =>
+          item.id === cartItem.id &&
+          JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
+      );
 
-        if (existingItemIndex !== -1) {
-            cart[existingItemIndex].quantity += 1;
-        } else {
-            cart.push(cartItem);
-        }
+      if (existingItemIndex !== -1) {
+        cart[existingItemIndex].quantity += 1;
+      } else {
+        cart.push(cartItem);
+      }
 
-        localStorage.setItem(cartKey, JSON.stringify(cart));
+      localStorage.setItem(cartKey, JSON.stringify(cart));
       toast.success('🛍️ Đã thêm vào giỏ hàng!')
     };
 
@@ -572,8 +528,13 @@ export default {
 }
 
 @keyframes scroll-left {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 .btn-confirm {
@@ -615,6 +576,7 @@ export default {
   list-style: none;
   padding: 0;
 }
+
 .menu-item {
   position: relative;
 }
@@ -645,8 +607,8 @@ export default {
   opacity: 0;
   transform: translateY(10px) scale(0.95);
   transition:
-  opacity 0.3s ease,
-  transform 0.3s ease;
+    opacity 0.3s ease,
+    transform 0.3s ease;
   border-radius: 8px;
   min-width: 180px;
 }
@@ -673,6 +635,4 @@ export default {
 .submenu-link:hover {
   background-color: #d5d5d565;
 }
-
-
 </style>

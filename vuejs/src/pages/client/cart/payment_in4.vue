@@ -13,70 +13,35 @@
           <h4 class="mb-4">Thông tin đặt hàng</h4>
           <form @submit.prevent="submitOrder">
             <div class="mb-3">
-              <input
-                v-model="form.fullname"
-                type="text"
-                class="form-control-customer"
-                placeholder="Tên của bạn"
-              />
+              <input v-model="form.fullname" type="text" class="form-control-customer" placeholder="Tên của bạn" />
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.email"
-                type="email"
-                class="form-control-customer"
-                placeholder="Email của bạn"
-              />
+              <input v-model="form.email" type="email" class="form-control-customer" placeholder="Email của bạn" />
             </div>
             <div class="mb-3">
-              <input
-                v-model="form.phone"
-                type="text"
-                class="form-control-customer"
-                placeholder="Số điện thoại"
-              />
+              <input v-model="form.phone" type="text" class="form-control-customer" placeholder="Số điện thoại" />
             </div>
             <div class="mb-3">
-              <select
-                v-model="selectedProvince"
-                @change="fetchDistricts"
-                class="form-control-customer"
-              >
+              <select v-model="selectedProvince" @change="fetchDistricts" class="form-control-customer">
                 <option value="">Chọn tỉnh / thành</option>
-                <option
-                  v-for="province in provinces"
-                  :key="province.ProvinceID"
-                  :value="province.ProvinceID"
-                >
+                <option v-for="province in provinces" :key="province.ProvinceID" :value="province.ProvinceID">
                   {{ province.ProvinceName }}
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <select
-                v-model="selectedDistrict"
-                @change="fetchWards"
-                :disabled="!selectedProvince"
-                class="form-control-customer"
-              >
+              <select v-model="selectedDistrict" @change="fetchWards" :disabled="!selectedProvince"
+                class="form-control-customer">
                 <option value="">Chọn quận / huyện</option>
-                <option
-                  v-for="district in districts"
-                  :key="district.DistrictID"
-                  :value="district.DistrictID"
-                >
+                <option v-for="district in districts" :key="district.DistrictID" :value="district.DistrictID">
                   {{ district.DistrictName }}
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <select
-                v-model="selectedWard"
-                :disabled="!selectedDistrict"
-                class="form-control-customer"
-              >
+              <select v-model="selectedWard" :disabled="!selectedDistrict" class="form-control-customer">
                 <option value="">Chọn phường / xã</option>
                 <option v-for="ward in wards" :key="ward.WardCode" :value="ward.WardCode">
                   {{ ward.WardName }}
@@ -85,20 +50,10 @@
             </div>
 
             <div class="mb-3">
-              <input
-                v-model="form.address"
-                type="text"
-                class="form-control-customer"
-                placeholder="Địa chỉ"
-              />
+              <input v-model="form.address" type="text" class="form-control-customer" placeholder="Địa chỉ" />
             </div>
             <div class="mb-3">
-              <textarea
-                v-model="note"
-                class="form-control-customer"
-                rows="3"
-                placeholder="Ghi chú"
-              ></textarea>
+              <textarea v-model="note" class="form-control-customer" rows="3" placeholder="Ghi chú"></textarea>
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <router-link to="/cart" class="btn btn-outline-secondary">
@@ -119,13 +74,7 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img
-                :src="getImageUrl(item.image)"
-                alt=""
-                class="me-3 rounded"
-                width="80"
-                height="80"
-              />
+              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>Loại: {{ item.type }}</div>
@@ -176,10 +125,7 @@
           >
             <span>Giảm giá sản phẩm</span> -{{ formatNumber(discountFoodAmount) }} VNĐ
           </div>
-          <div
-            v-if="discountShipAmount > 0"
-            class="d-flex justify-content-between mb-2 text-success"
-          >
+          <div v-if="discountShipAmount > 0" class="d-flex justify-content-between mb-2 text-success">
             <span>Giảm giá phí ship</span> -{{ formatNumber(discountShipAmount) }} VNĐ
           </div>
           <div style="color: #c92c3c" class="d-flex justify-content-between mb-2 fw-bold">
@@ -198,13 +144,8 @@
             </div>
             <label for="discount" class="form-label">Mã giảm giá</label>
             <div class="input-group">
-              <input
-                v-model="discountInput"
-                type="text"
-                id="discount"
-                class="form-control"
-                placeholder="Nhập mã giảm giá..."
-              />
+              <input v-model="discountInput" type="text" id="discount" class="form-control"
+                placeholder="Nhập mã giảm giá..." />
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
             <div class="order-tabs d-flex flex-nowrap overflow-auto gap-3 mb-4 mt-3">
@@ -307,42 +248,24 @@
           <div>
             <h6 class="mb-2">Phương thức thanh toán</h6>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="vnpay"
-                value="VNPAY"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="vnpay" value="VNPAY"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="vnpay">
                 <span class="me-2">Thanh toán qua VNPAY</span>
                 <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="momo"
-                value="MOMO"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="momo">
                 <span class="me-2">Thanh toán qua Momo</span>
                 <img src="/img/momo.png" height="20" width="20" alt="" />
               </label>
             </div>
             <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="cod"
-                value="COD"
-                v-model="paymentMethod"
-              />
+              <input class="form-check-input" type="radio" name="payment" id="cod" value="COD"
+                v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="cod">
                 <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
                 <img src="/img/cod.png" height="30" width="30" alt="" />
@@ -495,7 +418,6 @@ export default {
           await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
             order_id: orderId,
             amount_paid: finalTotal.value,
-            payment_type: 'Thanh toán toàn bộ',
           })
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey.value)
@@ -509,6 +431,10 @@ export default {
     }
 
     const submitOrder = async () => {
+      if (!paymentMethod.value) {
+        toast.error('Vui lòng chọn phương thức thanh toán trước khi đặt hàng.');
+        return;
+      }
       isLoading.value = true
       try {
         if (!selectedProvince.value || !selectedDistrict.value || !selectedWard.value) {
@@ -539,8 +465,7 @@ export default {
           total_price: finalTotal.value || 0,
           tpoint_used: pointsDiscountAmount.value,
           ship_cost: parseInt(shippingFee.value),
-          money_reduce:
-            discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
+          money_reduce:discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.type === 'Food' ? item.id : null,
@@ -766,9 +691,11 @@ export default {
 .modal-backdrop {
   z-index: 1040;
 }
+
 .modal {
   z-index: 1050;
 }
+
 .order-tabs {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -784,6 +711,7 @@ export default {
   white-space: nowrap;
   border-bottom: 2px solid transparent;
 }
+
 .tab-item.active {
   border-color: #c92c3c;
   color: #c92c3c;
@@ -792,7 +720,8 @@ export default {
 
 .voucher-card {
   display: flex;
-  min-height: 100px; /* Tăng nhẹ từ 90px */
+  min-height: 100px;
+  /* Tăng nhẹ từ 90px */
   border-radius: 8px;
   overflow: hidden;
   background-color: #fff;
@@ -918,13 +847,9 @@ export default {
   height: 18px;
   cursor: pointer;
 }
-
-/* Ẩn input checkbox */
 .toggle-switch input[type='checkbox'] {
   display: none;
 }
-
-/* Nền của switch */
 .toggle-switch-background {
   position: absolute;
   top: 0;
@@ -936,8 +861,6 @@ export default {
   box-shadow: inset 0 0 0 1px #ccc;
   transition: background-color 0.3s ease-in-out;
 }
-
-/* Nút tròn handle */
 .toggle-switch-handle {
   position: absolute;
   top: 2px;
@@ -949,8 +872,6 @@ export default {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease-in-out;
 }
-
-/* Nhãn On/Off phía trên nếu cần */
 .toggle-switch::before {
   content: '';
   position: absolute;
@@ -962,14 +883,10 @@ export default {
   text-shadow: 1px 1px #fff;
   transition: color 0.3s ease-in-out;
 }
-
-/* Khi checkbox được chọn (On) */
 .toggle-switch input[type='checkbox']:checked + .toggle-switch-background {
   background-color: #05c46b;
   box-shadow: inset 0 0 0 1px #04b360;
 }
-
-/* Di chuyển nút handle khi bật */
 .toggle-switch input[type='checkbox']:checked + .toggle-switch-background .toggle-switch-handle {
   transform: translateX(18px);
 }
