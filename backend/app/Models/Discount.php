@@ -17,4 +17,5 @@ class Discount extends Model
         ->withPivot(['used', 'created_at'])
         ->withTimestamps();
 }
+
 }

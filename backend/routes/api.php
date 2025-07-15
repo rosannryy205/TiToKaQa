@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ChatRealTimeController;
+use App\Http\Controllers\ClaimPrizesController;
 use App\Http\Controllers\ComboController;
+use App\Http\Controllers\DealFoodsController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
@@ -23,6 +25,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\TableController;
+use App\Http\Controllers\LuckyWheelController;
 use Illuminate\Http\Request;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
@@ -245,6 +248,16 @@ Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
 Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
+
+/**client vong quay*/
+Route::get('/lucky-wheel/prizes', [LuckyWheelController::class, 'getPrizes']); 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/spin', [LuckyWheelController::class, 'spin']); 
+    Route::get('/user-rewards', [LuckyWheelController::class, 'getUserRewards']); 
+    Route::post('/claim-reward', [ClaimPrizesController::class, 'claimPrize']); 
+    Route::get('/spin-status', [LuckyWheelController::class, 'checkSpinStatus']); 
+    Route::get('/deals-food', [DealFoodsController::class, 'getDealsFood']); 
+});    
 
 /**client user-point_exchange*/
 Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');

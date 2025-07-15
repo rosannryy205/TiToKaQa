@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Food;
+use App\Models\FoodReward;
 use App\Models\Order;
 use App\Models\Order_detail;
 use App\Models\Order_topping;
 use App\Models\Reservation_table;
+use App\Models\User;
 use App\Services\PointService;
 use App\Services\RanksService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
@@ -28,6 +31,8 @@ class CartController extends Controller
                     'guest_address' => 'required|string|max:255',
                     'total_price' => 'required|numeric',
                     'money_reduce' => 'required|numeric',
+                    'tpoint_used' => 'nullable|numeric',
+                    'ship_cost' => 'nullable|numeric',
                     'order_detail' => 'nullable|array',
                     'discount_id' => 'nullable|numeric',
                     'note' => 'nullable|string',
@@ -57,11 +62,19 @@ class CartController extends Controller
                     'guest_address' => $data['guest_address'],
                     'total_price' => $data['total_price'],
                     'money_reduce' => $data['money_reduce'],
+                    'tpoint_used' => $data['tpoint_used'],
+                    'ship_cost' => $data['ship_cost'],
                     'discount_id' => $data['discount_id'],
                     'note' => $data['note'] ?? null,
+                    
                 ]);
-
-
+                if (!empty($data['user_id']) && !empty($data['tpoint_used'])) {
+                    $user = User::find($data['user_id']);
+                    if ($user && $user->usable_points >= $data['tpoint_used']) {
+                        $user->usable_points -= $data['tpoint_used'];
+                        $user->save();
+                    }
+                }
                 if (!empty($data['order_detail'])) {
                     foreach ($data['order_detail'] as $item) {
                         $orderDetail = Order_detail::create([
@@ -71,6 +84,9 @@ class CartController extends Controller
                             'quantity' => $item['quantity'],
                             'price' => $item['price'],
                             'type' => $item['type'],
+                            'is_deal' => $item['is_deal'] ?? false,
+                            'reward_id' => $item['reward_id'] ?? null, 
+                            
                         ]);
 
                         // Trừ stock và cộng quantity_sold nếu là món ăn đơn lẻ
@@ -389,8 +405,8 @@ class CartController extends Controller
 
             if ($order->payment) {
                 $payment = $order->payment;
-
                 if ($newStatus === 'Giao thành công') {
+                    
                     $payment->payment_status = 'Đã thanh toán';
                 } elseif (in_array($newStatus, ['Giao thất bại', 'Đã hủy'])) {
                     $payment->payment_status = 'Thanh toán thất bại';
@@ -409,9 +425,23 @@ class CartController extends Controller
 
                 $payment->save();
             }
-
-
-
+            /**deal*/
+            if ($newStatus === 'Giao thành công') {
+                foreach ($order->details as $detail) {
+                    if ((bool)$detail->is_deal && $detail->reward_id) {
+                        $reward = FoodReward::find($detail->reward_id);
+                        if ($reward && !$reward->is_used) {
+                            $reward->is_used = true;
+                            $reward->used_at = now();
+                            $reward->save();
+        
+                            Log::info("✅ Reward ID {$reward->id} đã được đánh dấu is_used = true");
+                        } else {
+                            Log::warning("⚠️ Reward ID {$detail->reward_id} không hợp lệ hoặc đã được dùng.");
+                        }
+                    }
+                }
+            }
             DB::commit();
 
             return response()->json([

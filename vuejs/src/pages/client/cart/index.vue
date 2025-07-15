@@ -136,6 +136,7 @@ import { useRouter } from 'vue-router';
 import numeral from 'numeral'
 import { computed } from 'vue'
 import { Modal } from 'bootstrap';
+import { onBeforeRouteLeave } from 'vue-router'
 export default {
   methods: {
     formatNumber(value) {
@@ -225,6 +226,30 @@ export default {
     onMounted(() => {
       loadCart();
     });
+
+    onBeforeRouteLeave((to, from, next) => {
+  if (to.path === '/payment_if') {
+    return next()
+  }
+
+  const originalLength = cartItems.value.length
+
+  // Lọc lại: chỉ giữ item không phải deal
+  const filteredCart = cartItems.value.filter(item => !item.is_deal)
+
+  // Nếu có item deal bị xóa
+  if (filteredCart.length !== originalLength) {
+    if (filteredCart.length === 0) {
+      localStorage.removeItem(getCartKey())
+    } else {
+      localStorage.setItem(getCartKey(), JSON.stringify(filteredCart))
+    }
+
+    cartItems.value = filteredCart
+  }
+
+  next()
+})
 
 
     return {

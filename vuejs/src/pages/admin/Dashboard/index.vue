@@ -25,7 +25,9 @@
 </template>
 
 <script setup>
+import { Permission } from '@/stores/permission';
 import { UserOutlined, ShoppingCartOutlined, DollarCircleOutlined } from '@ant-design/icons-vue';
+import { ref } from 'vue';
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
