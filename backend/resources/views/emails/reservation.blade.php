@@ -17,77 +17,78 @@
                 đặt bàn của bạn đã được xác nhận. Chúng tôi sẽ gửi một email khác khi đơn của bạn đã được chuẩn bị.
             </div>
         </div>
-
-        <div style="border-top: 1px solid #e8e8e8; padding-top: 25px;">
-            <h3
-                style="font-size: 16px; color: #333333; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;">
-                MÓN ĐÃ ĐẶT
-            </h3>
-            @foreach ($mailData['order_details'] as $item)
-                <table cellspacing="0" cellpadding="0" border="0" width="100%"
-                    style="margin-bottom: 20px; border-bottom: 1px dashed #eeeeee; padding-bottom: 15px;">
-                    <tr>
-                        <td style="vertical-align: top; padding-right: 15px; width: 60px;">
-                            <img src="https://res.cloudinary.com/daqhc6id1/image/upload/v1750924403/{{ $item['image'] }}"
-                                alt="{{ $item['name'] }}"
-                                style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #eeeeee; background-color: #ffffff; display: block;">
-                        </td>
-                        <td style="vertical-align: top; width: 70%;">
-                            <p style="margin: 0; font-size: 15px; color: #333333; font-weight: bold;">
-                                {{ $item['name'] }}
-                            </p>
-                            @if (!empty($item['toppings']))
-                                <ul
-                                    style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc; font-size: 13px; color: #777777;">
-                                    @foreach ($item['toppings'] as $index => $toping)
-                                        @if ($index < 3)
-                                            @if ($toping['price'] > 0)
-                                                <li>{{ $toping['name'] }} - {{ number_format($toping['price']) }} VNĐ
-                                                </li>
-                                            @else
-                                                <li>{{ $toping['name'] }}</li>
+        @if ($mailData['order_details'] != null)
+            <div style="border-top: 1px solid #e8e8e8; padding-top: 25px;">
+                <h3
+                    style="font-size: 16px; color: #333333; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    MÓN ĐÃ ĐẶT
+                </h3>
+                @foreach ($mailData['order_details'] as $item)
+                    <table cellspacing="0" cellpadding="0" border="0" width="100%"
+                        style="margin-bottom: 20px; border-bottom: 1px dashed #eeeeee; padding-bottom: 15px;">
+                        <tr>
+                            <td style="vertical-align: top; padding-right: 15px; width: 60px;">
+                                <img src="https://res.cloudinary.com/daqhc6id1/image/upload/v1750924403/{{ $item['image'] }}"
+                                    alt="{{ $item['name'] }}"
+                                    style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #eeeeee; background-color: #ffffff; display: block;">
+                            </td>
+                            <td style="vertical-align: top; width: 70%;">
+                                <p style="margin: 0; font-size: 15px; color: #333333; font-weight: bold;">
+                                    {{ $item['name'] }}
+                                </p>
+                                @if (!empty($item['toppings']))
+                                    <ul
+                                        style="margin: 5px 0 0 15px; padding: 0; list-style-type: disc; font-size: 13px; color: #777777;">
+                                        @foreach ($item['toppings'] as $index => $toping)
+                                            @if ($index < 3)
+                                                @if ($toping['price'] > 0)
+                                                    <li>{{ $toping['name'] }} - {{ number_format($toping['price']) }}
+                                                        VNĐ
+                                                    </li>
+                                                @else
+                                                    <li>{{ $toping['name'] }}</li>
+                                                @endif
                                             @endif
+                                        @endforeach
+                                        @if (count($item['toppings']) > 3)
+                                            <li>... và {{ count($item['toppings']) - 3 }} topping khác</li>
                                         @endif
-                                    @endforeach
-                                    @if (count($item['toppings']) > 3)
-                                        <li>... và {{ count($item['toppings']) - 3 }} topping khác</li>
-                                    @endif
-                                </ul>
-                            @endif
-                        </td>
+                                    </ul>
+                                @endif
+                            </td>
 
-                        <td style="vertical-align: top; text-align: right; width: 30%;">
-                            <p style="margin: 0; font-size: 15px; color: #333333;">x{{ $item['quantity'] }}</p>
-                            <p style="margin: 5px 0 0 0; font-size: 15px; color: #333333; font-weight: bold;">
-                                {{ number_format($item['price']) }} VND
-                            </p>
+                            <td style="vertical-align: top; text-align: right; width: 30%;">
+                                <p style="margin: 0; font-size: 15px; color: #333333;">x{{ $item['quantity'] }}</p>
+                                <p style="margin: 5px 0 0 0; font-size: 15px; color: #333333; font-weight: bold;">
+                                    {{ number_format($item['price']) }} VND
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                @endforeach
+            </div>
+
+            <div style="border-top: 1px solid #e8e8e8; padding-top: 20px; margin-top: 25px;">
+                <table style="width: 100%; font-size: 14px; color: #555555;">
+                    <tr>
+                        <td style="padding-bottom: 5px;">Tạm tính:</td>
+                        <td style="text-align: right; padding-bottom: 5px;">
+                            {{ number_format($mailData['subtotal']) }} VND
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-bottom: 5px;">Phí giữ bàn:</td>
+                        <td style="text-align: right; padding-bottom: 5px;">100,000 VND</td>
+                    </tr>
+                    <tr style="font-size: 16px; color: #c92c3c; font-weight: bold; border-top: 1px solid #e8e8e8;">
+                        <td style="padding-top: 10px;">Tổng tiền:</td>
+                        <td style="text-align: right; padding-top: 10px;">
+                            {{ number_format($mailData['total_price']) }} VND
                         </td>
                     </tr>
                 </table>
-            @endforeach
-        </div>
-
-        <div style="border-top: 1px solid #e8e8e8; padding-top: 20px; margin-top: 25px;">
-            <table style="width: 100%; font-size: 14px; color: #555555;">
-                <tr>
-                    <td style="padding-bottom: 5px;">Tạm tính:</td>
-                    <td style="text-align: right; padding-bottom: 5px;">
-                        {{ number_format($mailData['subtotal']) }} VND
-                    </td>
-                </tr>
-                <tr>
-                    <td style="padding-bottom: 5px;">Phí giữ bàn:</td>
-                    <td style="text-align: right; padding-bottom: 5px;">100,000 VND</td>
-                </tr>
-                <tr style="font-size: 16px; color: #c92c3c; font-weight: bold; border-top: 1px solid #e8e8e8;">
-                    <td style="padding-top: 10px;">Tổng tiền:</td>
-                    <td style="text-align: right; padding-top: 10px;">
-                        {{ number_format($mailData['total_price']) }} VND
-                    </td>
-                </tr>
-            </table>
-        </div>
-
+            </div>
+        @endif
         <div style="border-top: 1px solid #e8e8e8; padding-top: 20px; margin-top: 25px; margin-bottom:10px;">
             <table cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
@@ -112,12 +113,14 @@
                                 $reservedTime = \Carbon\Carbon::parse($firstTable['reserved_from'])->format('H:i');
                                 $tableNumbers = collect($mailData['tables'])->pluck('table_number')->implode(', ');
                             @endphp
-
-                            <p style="margin: 0; color: #333333"><strong>Các bàn đã đặt:</strong> Bàn số
-                                {{ $tableNumbers }}</p>
-                            <p style="margin: 5px 0 0 0; color: #333333"><strong>Ngày đặt:</strong> {{ $reservedDate }}
+                            <p style="margin: 5px 0 0 0; color: #333333"><strong>Mã đặt bàn:</strong>
+                                {{ $mailData['reservation_code'] }}
                             </p>
-                            <p style="margin: 5px 0 0 0; color: #333333"><strong>Giờ đặt:</strong> {{ $reservedTime }}
+                            <p style="margin: 0; color: #333333"><strong>Bàn đã đặt:</strong> Bàn số
+                                {{ $tableNumbers }}</p>
+                            <p style="margin: 5px 0 0 0; color: #333333"><strong>Ngày đặt:</strong> {{ $reservedTime }}
+                                - {{ $reservedDate }}
+                            </p>
                             </p>
                             <p style="margin: 5px 0 0 0; color: #333333"><strong>Trạng thái đơn:</strong>
                                 {{ $mailData['order_status'] }}</p>
@@ -131,7 +134,8 @@
 
         <div style="border-top: 1px solid #e8e8e8; padding-top: 25px; text-align: center;">
             <div style="font-size: 14px; color: #777777; margin-bottom: 15px;">
-                Khi đến nhà hàng, vui lòng đưa mã QR cho nhân viên để xác nhận đơn hàng của bạn
+                Khi đến nhà hàng, vui lòng đưa mã QR cho nhân viên để xác nhận
+                đơn hàng của bạn
             </div>
             @if (!empty($mailData['qr_url']))
                 <img src="{{ $mailData['qr_url'] }}" alt="QR Code" style="width: 250px;" />
