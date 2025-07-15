@@ -1,12 +1,13 @@
 // src/stores/discount.js
 import axios from 'axios'
-import { ref, onMounted, computed, watchEffect } from 'vue'
+import { ref, onMounted, computed, watch, watchEffect } from 'vue'
 import { toast } from 'vue3-toastify'
 import { useShippingStore } from './shippingStore'
 import { Cart } from '@/stores/cart'
 import { FoodList } from './food'
 import { useUserStore } from '@/stores/userAuth'
-
+import { User } from '@/stores/user'
+const { form } = User.setup()
 export function Discounts() {
   const shippingStore = useShippingStore()
   const shippingFee = computed(() => shippingStore.shippingFee)
@@ -164,13 +165,25 @@ export function Discounts() {
 
     return Math.min(amount, max)
   })
+  const POINT_TO_VND = 1
 
-  const finalTotal = computed(() => {
-    return Math.max(
+  const totalBeforePoints = computed(() =>
+    Math.max(
       totalPrice.value - discountFoodAmount.value + shippingFee.value - discountShipAmount.value,
       0
     )
+  )
+  
+  const pointsDiscountAmount = computed(() => {
+    if (!form.use_points) return 0
+    const usableMoney = form.usable_points * POINT_TO_VND
+    return Math.min(usableMoney, totalBeforePoints.value) 
   })
+
+  const finalTotal = computed(() =>
+    Math.max(totalBeforePoints.value - pointsDiscountAmount.value, 0)
+  )
+  
 
   const getImageByType = (type) =>
     type === 'freeship' ? '/img/freeship-icon.png' : '/img/discount-icon.png'
@@ -179,7 +192,22 @@ export function Discounts() {
     if (!num) return '0'
     return Number(num).toLocaleString('vi-VN')
   }
-
+  watch(
+    () => form.use_points,
+    (newValue) => {
+      if (newValue) {
+        console.log('Đã bật sử dụng Tpoints, giảm:', pointsDiscountAmount.value, 'VND')
+      } else {
+        console.log('Đã tắt sử dụng Tpoints')
+      }
+    }
+  )
+  watchEffect(() => {
+    console.log('USE_POINTS:', form.use_points)
+    console.log('USABLE_POINTS:', form.usable_points)
+    console.log('Tpoints giảm:', pointsDiscountAmount.value)
+  })
+  
   onMounted(async () => {
     await getAllCategory()
   })
@@ -207,6 +235,7 @@ export function Discounts() {
     formatCurrency,
     fetchUserDiscounts,
     userDiscounts,
-    allDiscounts // nếu cần dùng ở template
+    allDiscounts,
+    pointsDiscountAmount
   }
 }

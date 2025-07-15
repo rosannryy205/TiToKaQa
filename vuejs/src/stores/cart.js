@@ -58,8 +58,8 @@ export function Cart() {
     }, 0)
   })
 
-  const addToCart = (foodDetail, quantity, toppings) => {
-    console.log(isAdmin.value)
+  const addToCart = (foodDetail, quantity, toppings, isDeal = false) => {
+    console.log(isAdmin.value);
 
     const newCartItem = {
       id: foodDetail.id,
@@ -70,14 +70,16 @@ export function Cart() {
       quantity: quantity,
       type: foodDetail.type,
       category_id: foodDetail.category_id,
+      is_deal: isDeal
+
     }
-    const existingItemIndex = cartItems.value.findIndex(
-      (item) =>
-        item.id === newCartItem.id &&
-        // item.spicyLevel === newCartItem.spicyLevel &&
+      const existingItemIndex = cartItems.value.findIndex(
+        (item) =>
+          item.id === newCartItem.id &&
         JSON.stringify(item.toppings.sort((a, b) => a.id - b.id)) ===
-          JSON.stringify(newCartItem.toppings.sort((a, b) => a.id - b.id)),
-    )
+        JSON.stringify(newCartItem.toppings.sort((a, b) => a.id - b.id)) &&
+      item.is_deal === newCartItem.is_deal
+      )
 
     if (existingItemIndex !== -1) {
       cartItems.value[existingItemIndex].quantity += newCartItem.quantity

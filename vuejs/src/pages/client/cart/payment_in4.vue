@@ -102,7 +102,27 @@
           <div class="d-flex justify-content-between mb-2">
             <span>Phí ship</span>{{ formatNumber(shippingFee) }} VNĐ
           </div>
-          <div v-if="discountFoodAmount > 0" class="d-flex justify-content-between mb-2 text-success">
+          <div class="d-flex justify-content-between mb-2">
+            <span>{{ formatNumber(form.usable_points) }} Tpoints</span
+            ><label class="toggle-switch">
+              <input type="checkbox" v-model="form.use_points" 
+              :disabled="form.usable_points <= 0"/>
+              <div class="toggle-switch-background">
+                <div class="toggle-switch-handle"></div>
+              </div>
+            </label>
+          </div>
+          <div v-if="form.use_points" class="d-flex justify-content-between mb-2 text-success mb-2">
+  Giảm {{ formatNumber(pointsDiscountAmount) }} VNĐ từ Tpoints
+  <br />
+  <span class="text-muted">
+    Còn lại {{ formatNumber(form.usable_points - (pointsDiscountAmount)) }} Tpoints
+  </span>
+</div>
+          <div
+            v-if="discountFoodAmount > 0"
+            class="d-flex justify-content-between mb-2 text-success"
+          >
             <span>Giảm giá sản phẩm</span> -{{ formatNumber(discountFoodAmount) }} VNĐ
           </div>
           <div v-if="discountShipAmount > 0" class="d-flex justify-content-between mb-2 text-success">
@@ -129,84 +149,100 @@
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
             <div class="order-tabs d-flex flex-nowrap overflow-auto gap-3 mb-4 mt-3">
-              <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]"
-                @click="setActive(tab)">
+              <div
+                v-for="tab in tabs"
+                :key="tab"
+                :class="['tab-item', { active: activeTab === tab }]"
+                @click="setActive(tab)"
+              >
                 {{ tab }}
               </div>
             </div>
             <div class="discount-scroll-wrapper" v-if="isLoggedIn">
               <div v-for="discount in displayedDiscounts" :key="discount.id">
-                <div class="voucher-card mb-3" :class="{
-                  'disabled-voucher': totalPrice < discount.min_order_value ||
-                    discount.used >= discount.usage_limit ||
-                    (discount.discount_type === 'freeship' && !hasShippingFee) ||
-                    (discount.category_id &&
-                      !cartItems.some((item) =>
-                        getAllChildCategoryIds(discount.category_id).includes(Number(item.category_id)),
-                      )),
-                }" @click="
-                  totalPrice >= discount.min_order_value &&
-                  discount.used < discount.usage_limit &&
-                  !(discount.discount_type === 'freeship' && !hasShippingFee) &&
-                  (selectedDiscount === discount.code
-                    ? removeDiscountCode()
-                    : applyDiscountCode(discount.code))
-                  ">
-                  <!-- Cột trái -->
-                  <div class="voucher-card-left"
-                    :class="discount.discount_type === 'freeship' ? 'freeship' : 'salefood'">
-                    <img
-                      :src="discount.discount_type === 'freeship' ? '/img/freeship-icon.png' : '/img/discount-icon.png'"
-                      alt="icon" />
-                    <div class="voucher-card-label">
-                      {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
-                    </div>
-                  </div>
+  <div
+    class="voucher-card mb-3"
+    :class="{
+      'disabled-voucher':
+        totalPrice < discount.min_order_value ||
+        discount.used >= discount.usage_limit ||
+        (discount.discount_type === 'freeship' && !hasShippingFee) ||
+        (discount.category_id &&
+          !cartItems.some((item) =>
+            getAllChildCategoryIds(discount.category_id).includes(Number(item.category_id))
+          )) ||
+        finalTotal <= 0
+    }"
+    @click="
+      totalPrice >= discount.min_order_value &&
+      discount.used < discount.usage_limit &&
+      !(discount.discount_type === 'freeship' && !hasShippingFee) &&
+      finalTotal > 0 &&
+      (selectedDiscount === discount.code
+        ? removeDiscountCode()
+        : applyDiscountCode(discount.code))
+    "
+  >
+    <!-- Cột trái -->
+    <div
+      class="voucher-card-left"
+      :class="discount.discount_type === 'freeship' ? 'freeship' : 'salefood'"
+    >
+      <img
+        :src="
+          discount.discount_type === 'freeship'
+            ? '/img/freeship-icon.png'
+            : '/img/discount-icon.png'
+        "
+        alt="icon"
+      />
+      <div class="voucher-card-label">
+        {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
+      </div>
+    </div>
 
-                  <!-- Cột phải -->
-                  <div class="voucher-card-right">
-                    <div>
-                      <div class="voucher-code">Mã: {{ discount.code }}</div>
-                      <div class="voucher-condition">
-                        <i class="fa-regular fa-clock me-1"></i>Hết hạn: {{ discount.end_date }}
-                      </div>
-                      <div class="voucher-condition">
-                        {{ discount.name }}
-                      </div>
+    <!-- Cột phải -->
+    <div class="voucher-card-right">
+      <div>
+        <div class="voucher-code">Mã: {{ discount.code }}</div>
+        <div class="voucher-condition">
+          <i class="fa-regular fa-clock me-1"></i>Hết hạn: {{ discount.end_date }}
+        </div>
+        <div class="voucher-condition">
+          {{ discount.name }}
+        </div>
 
-                      <!-- <div
-            v-if="discount.discount_type === 'freeship' && !hasShippingFee"
-            class="text-danger small"
-          >
-            Vui lòng chọn địa chỉ để dùng mã!
-          </div>
-          <div
-            v-else-if="totalPrice < discount.min_order_value"
-            class="text-danger small"
-          >
-            Đơn tối thiểu: {{ discount.min_order_value.toLocaleString() }}đ
-          </div> -->
-                    </div>
+        <div
+          v-if="finalTotal <= 0"
+          class="text-danger small"
+        >
+          Đơn hàng đã giảm hết, không thể áp thêm mã!
+        </div>
+      </div>
 
-                    <div class="voucher-footer">
-                      <div class="voucher-coins">
-                        Đã dùng: {{ discount.used }}/{{ discount.usage_limit }}
-                      </div>
-                      <button class="voucher-button" :class="{ 'has-voucher': selectedDiscount === discount.code }"
-                        :disabled="totalPrice < discount.min_order_value ||
-                          discount.used >= discount.usage_limit ||
-                          (discount.discount_type === 'freeship' && !hasShippingFee)
-                          ">
-                        {{ selectedDiscount === discount.code ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      <div class="voucher-footer">
+        <div class="voucher-coins">
+          Đã dùng: {{ discount.used }}/{{ discount.usage_limit }}
+        </div>
+        <button
+          class="voucher-button"
+          :class="{ 'has-voucher': selectedDiscount === discount.code }"
+          :disabled="
+            totalPrice < discount.min_order_value ||
+            discount.used >= discount.usage_limit ||
+            (discount.discount_type === 'freeship' && !hasShippingFee) ||
+            finalTotal <= 0
+          "
+        >
+          {{ selectedDiscount === discount.code ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
             </div>
-
           </div>
-
 
           <!-- Payment Methods -->
           <div>
@@ -243,12 +279,7 @@
 </template>
 
 <script>
-import {
-  onMounted,
-  computed,
-  ref,
-  watch
-} from 'vue'
+import { onMounted, computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import numeral from 'numeral'
 import axios from 'axios'
@@ -285,7 +316,7 @@ export default {
     //==============
     const note = ref('')
     const paymentMethod = ref('')
-    const activeTab = ref("Tất cả mã")
+    const activeTab = ref('Tất cả mã')
     const showAllVoucher = ref(false)
     const today = dayjs().format('YYYY-MM-DD')
 
@@ -315,19 +346,20 @@ export default {
       discountShipAmount,
       getAllChildCategoryIds,
       fetchUserDiscounts,
-      userDiscounts
+      userDiscounts,
+      pointsDiscountAmount
     } = Discounts()
 
     //==============
     // TAB DISCOUNT
     //==============
-    const tabs = ["Tất cả mã", "Mã của tôi"]
+    const tabs = ['Tất cả mã', 'Mã của tôi']
     const setActive = (tab) => {
       activeTab.value = tab
     }
     const displayedDiscounts = computed(() => {
-      if (activeTab.value === "Tất cả mã") return discountsFiltered.value
-      if (activeTab.value === "Mã của tôi") return userDiscounts.value
+      if (activeTab.value === 'Tất cả mã') return discountsFiltered.value
+      if (activeTab.value === 'Mã của tôi') return userDiscounts.value
       return []
     })
 
@@ -347,6 +379,7 @@ export default {
     //==============
     // ORDER & PAYMENT
     //==============
+
     const check_out = async (orderId) => {
       try {
         if (!paymentMethod.value) return toast.error('Vui lòng chọn phương thức thanh toán.')
@@ -379,8 +412,8 @@ export default {
 
         if (paymentMethod.value === 'COD') {
           if (user.value?.status === 'Block') {
-            toast.error('Tài khoản của bạn đã bị hạn chế. Không thể thanh toán bằng tiền mặt.');
-            return;
+            toast.error('Tài khoản của bạn đã bị hạn chế. Không thể thanh toán bằng tiền mặt.')
+            return
           }
           await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
             order_id: orderId,
@@ -410,11 +443,11 @@ export default {
           return
         }
 
-        const province = provinces.value.find(p => p.ProvinceID === selectedProvince.value)
-        const district = districts.value.find(d => d.DistrictID === selectedDistrict.value)
-        const ward = wards.value.find(w => w.WardCode === selectedWard.value)
+        const province = provinces.value.find((p) => p.ProvinceID === selectedProvince.value)
+        const district = districts.value.find((d) => d.DistrictID === selectedDistrict.value)
+        const ward = wards.value.find((w) => w.WardCode === selectedWard.value)
 
-        const fullAddress = `${form.value.address}, ${ward?.WardName}, ${district?.DistrictName}, ${province?.ProvinceName}`
+        const fullAddress = `${form.address}, ${ward?.WardName}, ${district?.DistrictName}, ${province?.ProvinceName}`
 
         if (!fullAddress || cartItems.value.length === 0) {
           toast.error('Vui lòng nhập địa chỉ và chọn món ăn.')
@@ -424,26 +457,29 @@ export default {
 
         const orderData = {
           user_id: user.value?.id || null,
-          guest_name: form.value.fullname,
-          guest_email: form.value.email,
-          guest_phone: form.value.phone,
+          guest_name: form.fullname,
+          guest_email: form.email,
+          guest_phone: form.phone,
           guest_address: fullAddress,
           note: note.value || '',
           total_price: finalTotal.value || 0,
-          shippingFee: shippingFee.value || 0,
-          money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
+          tpoint_used: pointsDiscountAmount.value,
+          ship_cost: parseInt(shippingFee.value),
+          money_reduce:discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
-          order_detail: cartItems.value.map(item => ({
+          order_detail: cartItems.value.map((item) => ({
             food_id: item.type === 'Food' ? item.id : null,
             combo_id: item.type === 'Combo' ? item.id : null,
             quantity: item.quantity,
             price: item.price,
             type: item.type,
-            toppings: item.toppings.map(t => ({
+            is_deal: item.is_deal,
+            reward_id: item.reward_id,
+            toppings: item.toppings.map((t) => ({
               food_toppings_id: t.food_toppings_id,
-              price: t.price
-            }))
-          }))
+              price: t.price,
+            })),
+          })),
         }
 
         const res = await axios.post('http://127.0.0.1:8000/api/order', orderData)
@@ -482,14 +518,19 @@ export default {
     const selectedService = ref(null)
     const ghnToken = 'ce7a164e-3e1c-11f0-a700-860cdd37d888'
     const hasShippingFee = computed(() => shippingFee.value > 0)
-
+    
     const fetchProvinces = async () => {
       try {
-        const res = await axios.get('https://online-gateway.ghn.vn/shiip/public-api/master-data/province', {
-          headers: { Token: ghnToken }
-        })
+        const res = await axios.get(
+          'https://online-gateway.ghn.vn/shiip/public-api/master-data/province',
+          {
+            headers: { Token: ghnToken },
+          },
+        )
         provinces.value = res.data.data
-        const hcm = provinces.value.find(p => p.ProvinceName.toLowerCase().includes('hồ chí minh'))
+        const hcm = provinces.value.find((p) =>
+          p.ProvinceName.toLowerCase().includes('hồ chí minh'),
+        )
         if (hcm) {
           selectedProvince.value = hcm.ProvinceID
           fetchDistricts()
@@ -508,9 +549,10 @@ export default {
       wards.value = []
 
       try {
-        const res = await axios.post('https://online-gateway.ghn.vn/shiip/public-api/master-data/district',
+        const res = await axios.post(
+          'https://online-gateway.ghn.vn/shiip/public-api/master-data/district',
           { province_id: selectedProvince.value },
-          { headers: { Token: ghnToken } }
+          { headers: { Token: ghnToken } },
         )
         districts.value = res.data.data
       } catch (err) {
@@ -527,9 +569,10 @@ export default {
       wards.value = []
 
       try {
-        const res = await axios.post('https://online-gateway.ghn.vn/shiip/public-api/master-data/ward',
+        const res = await axios.post(
+          'https://online-gateway.ghn.vn/shiip/public-api/master-data/ward',
           { district_id: selectedDistrict.value },
-          { headers: { Token: ghnToken } }
+          { headers: { Token: ghnToken } },
         )
         wards.value = res.data.data
       } catch (err) {
@@ -623,12 +666,13 @@ export default {
       shippingServices,
       selectedService,
       shippingFee,
-      hasShippingFee
+      hasShippingFee,
+
+      pointsDiscountAmount
     }
-  }
+  },
 }
 </script>
-
 
 <style>
 .isLoading-overlay {
@@ -643,7 +687,6 @@ export default {
   justify-content: center;
   align-items: center;
 }
-
 
 .modal-backdrop {
   z-index: 1040;
@@ -674,7 +717,6 @@ export default {
   color: #c92c3c;
   font-weight: 600;
 }
-
 
 .voucher-card {
   display: flex;
@@ -796,5 +838,56 @@ export default {
 .voucher-button.has-voucher:hover {
   background-color: #007d00;
   color: white;
+}
+/**togle btn tpoint */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 18px;
+  cursor: pointer;
+}
+.toggle-switch input[type='checkbox'] {
+  display: none;
+}
+.toggle-switch-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ddd;
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 1px #ccc;
+  transition: background-color 0.3s ease-in-out;
+}
+.toggle-switch-handle {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background-color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+.toggle-switch::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  right: -20px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #aaa;
+  text-shadow: 1px 1px #fff;
+  transition: color 0.3s ease-in-out;
+}
+.toggle-switch input[type='checkbox']:checked + .toggle-switch-background {
+  background-color: #05c46b;
+  box-shadow: inset 0 0 0 1px #04b360;
+}
+.toggle-switch input[type='checkbox']:checked + .toggle-switch-background .toggle-switch-handle {
+  transform: translateX(18px);
 }
 </style>
