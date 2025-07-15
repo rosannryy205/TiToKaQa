@@ -87,11 +87,11 @@
 <script>
 import { ref, computed } from 'vue'
 import { User } from '@/stores/user'
+const { form } = User.setup()
 
 export default {
   setup() {
     const {
-      form,
       user,
       handleSubmit,
       handleImageUpload,

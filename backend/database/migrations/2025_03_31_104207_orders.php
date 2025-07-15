@@ -21,6 +21,8 @@ return new class extends Migration
             $table->enum('order_status', ['Chờ xác nhận', 'Đã xác nhận', 'Đang xử lý', 'Bắt đầu giao', 'Đang giao hàng', 'Giao thành công', 'Giao thất bại', 'Đã hủy', 'Khách đã đến', 'Hoàn thành'])->default('Chờ xác nhận');
             $table->decimal('total_price', 10, 2)->nullable();
             $table->decimal('money_reduce', 10, 2)->nullable();
+            $table->unsignedInteger('tpoint_used')->nullable(); 
+            $table->unsignedInteger('ship_cost')->nullable();
             $table->string('comment')->nullable();
             $table->timestamp('review_time')->nullable();
             $table->boolean('points_awarded')->default(false);
@@ -35,7 +37,6 @@ return new class extends Migration
             $table->string('type_order')->nullable();
             $table->timestamp('check_in_time')->nullable();
             $table->timestamp('expiration_time')->nullable();
-            // $table->enum('reservation_status', ['Chờ Xác Nhận', 'Đã xếp bàn', 'Khách Đã Đến', 'Hoàn Thành', 'Đã hủy'])->default('Chờ Xác Nhận');
         });
     }
 
