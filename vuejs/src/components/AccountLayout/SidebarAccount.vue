@@ -372,6 +372,6 @@ li.list-group-item {
   width: 25px;
 }
 #app > div > div.container.mt-5.fade-in > div > div.col-12.col-md-4.col-lg-3.mb-4.mb-md-0{
-  max-height: 95vh;
+  max-height: 105vh;
 }
 </style>
