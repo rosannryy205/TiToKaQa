@@ -3,7 +3,9 @@
     <div class="main-page-foods container">
       <div class="row d-flex align-items-center justify-content-between">
         <div class="col-md-6 d-none d-lg-flex justify-content-center align-items-center">
-          <span class="fw-bold text-center align-items-center justify-content-center">Thực đơn</span>
+          <span class="fw-bold text-center align-items-center justify-content-center"
+            >Thực đơn</span
+          >
         </div>
         <div class="col-6 d-none d-lg-flex flex-wrap justify-content-center">
           <ul class="menu-grid">
@@ -13,7 +15,11 @@
               </a>
               <ul v-if="parent.children && parent.children.length" class="submenu">
                 <li v-for="child in parent.children" :key="child.id">
-                  <a @click.prevent="getFoodByCategory(child.id)" href="#" class="submenu-link fw-bold text-center">
+                  <a
+                    @click.prevent="getFoodByCategory(child.id)"
+                    href="#"
+                    class="submenu-link fw-bold text-center"
+                  >
                     {{ child.name }}
                   </a>
                 </li>
@@ -24,7 +30,10 @@
       </div>
       <!--small-->
       <div class="col-12 d-lg-none position-relative">
-        <div class="menu-header d-flex justify-content-between align-items-center mt-3" @click="toggleDropdown">
+        <div
+          class="menu-header d-flex justify-content-between align-items-center mt-3"
+          @click="toggleDropdown"
+        >
           <h2 class="menu-title">Thực đơn</h2>
           <div class="menu-icon d-flex align-items-center">
             <i class="fas fa-list-alt"></i>
@@ -34,15 +43,29 @@
 
         <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
           <ul class="list-group">
-            <li v-for="parent in categories" :key="parent.id" class="list-group-item parent-category d-flex">
-              <a @click.prevent="getFoodByCategory(parent.id)" href="#"
-                class="text-decoration-none text-start text-dark fw-bold">
+            <li
+              v-for="parent in categories"
+              :key="parent.id"
+              class="list-group-item parent-category d-flex"
+            >
+              <a
+                @click.prevent="getFoodByCategory(parent.id)"
+                href="#"
+                class="text-decoration-none text-start text-dark fw-bold"
+              >
                 {{ parent.name }}
               </a>
               <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
-                <li v-for="child in parent.children" :key="child.id" class="list-group-item child-category d-flex">
-                  <a @click.prevent="getFoodByCategory(child.id)" href="#"
-                    class="text-decoration-none text-start text-dark fw-bold">
+                <li
+                  v-for="child in parent.children"
+                  :key="child.id"
+                  class="list-group-item child-category d-flex"
+                >
+                  <a
+                    @click.prevent="getFoodByCategory(child.id)"
+                    href="#"
+                    class="text-decoration-none text-start text-dark fw-bold"
+                  >
                     🔻{{ child.name }}
                   </a>
                 </li>
@@ -60,7 +83,11 @@
           <div class="col-12 images-dish d-flex justify-content-between flex-wrap">
             <!---->
             <div class="col-md-6 d-none d-md-block img-dish">
-              <img :src="getImageMenuUrl(selectedCategoryImage || 'mycay.png')" alt="dish-images" class="img-fluid" />
+              <img
+                :src="getImageMenuUrl(selectedCategoryImage || 'mycay.png')"
+                alt="dish-images"
+                class="img-fluid"
+              />
             </div>
 
             <!---->
@@ -70,18 +97,37 @@
           </div>
           <div class="product-list-wrapper container-fluid">
             <div class="row">
-              <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3">
-                <div class="product-card">
-                  <img :src="getImageUrl(item.image)" alt="" class="product-img mx-auto d-block" width="180px" />
-                  <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
-                  <span class="product-dish-desc text-start">
-                    {{ item.description }}
-                  </span>
-                  <p class="product-dish-price fw-bold text-center">
-                    {{ formatNumber(item.price) }} VNĐ
-                  </p>
+              <template v-if="isLoading">
+                <div v-for="n in 8" :key="'skeleton-' + n" class="col-md-3 mb-4">
+                  <div class="product-card skeleton-card p-3">
+                    <div class="skeleton-img mb-3"></div>
+                    <div class="skeleton-line w-100 mb-2"></div>
+                    <div class="skeleton-line w-75 mb-2"></div>
+                    <div class="skeleton-line w-50 mx-auto"></div>
+                  </div>
                 </div>
-              </div>
+              </template>
+
+              <!-- Real Product -->
+              <template v-else>
+                <div v-for="item in foods" :key="item" class="col-md-3 mb-4">
+                  <div class="product-card">
+                    <img
+                      :src="getImageUrl(item.image)"
+                      alt=""
+                      class="product-img mx-auto d-block"
+                      width="180px"
+                    />
+                    <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
+                    <span class="product-dish-desc text-start">
+                      {{ item.description }}
+                    </span>
+                    <p class="product-dish-price fw-bold text-center">
+                      {{ formatNumber(item.price) }} VNĐ
+                    </p>
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -91,8 +137,12 @@
 
   <section class="section-banner m-3 mt-5">
     <div class="banner-deals container-fluid">
-      <img :src="images[currentIndex]" alt="banner" class="img-fluid"
-        style="border-radius: 25px; transition: opacity 0.5s ease" />
+      <img
+        :src="images[currentIndex]"
+        alt="banner"
+        class="img-fluid"
+        style="border-radius: 25px; transition: opacity 0.5s ease"
+      />
       <button @click="changeSlide(-1)" class="trans-left d-none d-lg-block">
         <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
       </button>
@@ -125,14 +175,22 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
-          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
-            aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close position-absolute top-0 end-0 m-2"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
           <div class="row">
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img
+                  :src="getImageUrl(foodDetail.image)"
+                  :alt="foodDetail.name"
+                  class="modal-image img-fluid"
+                />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -152,8 +210,11 @@
                       </select>
                     </div>
                     <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-                    <div v-for="topping in toppingList" :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2">
+                    <div
+                      v-for="topping in toppingList"
+                      :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2"
+                    >
                       <label class="d-flex align-items-center">
                         <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                         {{ topping.name }}
@@ -170,33 +231,45 @@
                 <div class="mt-auto">
                   <div class="text-center mb-2">
                     <div class="qty-control px-2 py-1">
-                      <button type="button" @click="decreaseQuantity" class="btn-lg"
-                        style="background-color: #fff;">-</button>
+                      <button
+                        type="button"
+                        @click="decreaseQuantity"
+                        class="btn-lg"
+                        style="background-color: #fff"
+                      >
+                        -
+                      </button>
                       <span>{{ quantity }}</span>
-                      <button type="button" @click="increaseQuantity" class="btn-lg"
-                        style="background-color: #fff;">+</button>
+                      <button
+                        type="button"
+                        @click="increaseQuantity"
+                        class="btn-lg"
+                        style="background-color: #fff"
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
                   <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
-
             </div>
-
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="fixed-element d-flex align-items-center justify-content-between px-4" v-if="isReservation && orderId">
+  <div
+    class="fixed-element d-flex align-items-center justify-content-between px-4"
+    v-if="isReservation && orderId"
+  >
     <div class="scrolling-container">
-      <div class="scrolling-text">
-        ✨ Chọn món cho đơn đặt bàn của bạn! ✨
-      </div>
+      <div class="scrolling-text">✨ Chọn món cho đơn đặt bàn của bạn! ✨</div>
     </div>
-    <router-link :to="`/reservation-form/${orderId}`" class="btn-confirm text-decoration-none">Xác nhận chọn
-      xong</router-link>
+    <router-link :to="`/reservation-form/${orderId}`" class="btn-confirm text-decoration-none"
+      >Xác nhận chọn xong</router-link
+    >
   </div>
 </template>
 <script>
@@ -229,7 +302,7 @@ export default {
     const spicyLevel = ref([])
     const toppingList = ref({})
 
-    const quantity = ref(1);
+    const quantity = ref(1)
 
     const route = useRoute()
     const orderId = route.params.orderId
@@ -237,7 +310,7 @@ export default {
       return route.name && String(route.name).includes('reservation')
     })
 
-    const isLoading = ref(false)
+    const isLoading = ref(true)
     const isDropdownOpen = ref(false)
     const selectedCategoryName = ref('Món Ăn')
     const selectedCategoryImage = ref('')
@@ -375,8 +448,6 @@ export default {
       }
     }
 
-
-
     const decreaseQuantity = () => {
       if (quantity.value > 1) {
         quantity.value -= 1
@@ -390,14 +461,12 @@ export default {
     const addToCart = () => {
       const user = JSON.parse(localStorage.getItem('user'))
       const userId = user?.id || 'guest'
-      const cartKey = orderId
-        ? `cart_${userId}_reservation_${orderId}`
-        : `cart_${userId}`
+      const cartKey = orderId ? `cart_${userId}_reservation_${orderId}` : `cart_${userId}`
 
       const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
       const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
 
-      let allSelectedToppings = [];
+      let allSelectedToppings = []
 
       if (selectedSpicy) {
         allSelectedToppings.push({
@@ -405,13 +474,13 @@ export default {
           name: selectedSpicy.name,
           price: selectedSpicy.price,
           food_toppings_id: selectedSpicy.pivot?.id || null,
-          is_spicy_level: true
-        });
+          is_spicy_level: true,
+        })
       }
 
       const selectedToppingIds = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')
-      ).map((el) => parseInt(el.value));
+        document.querySelectorAll('input[name="topping[]"]:checked'),
+      ).map((el) => parseInt(el.value))
 
       const normalToppings = toppingList.value
         .filter((topping) => selectedToppingIds.includes(topping.id))
@@ -420,10 +489,10 @@ export default {
           name: topping.name,
           price: topping.price,
           food_toppings_id: topping.pivot?.id || null,
-          is_spicy_level: false
-        }));
+          is_spicy_level: false,
+        }))
 
-      allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+      allSelectedToppings = [...allSelectedToppings, ...normalToppings]
 
       const cartItem = {
         id: foodDetail.value.id,
@@ -434,25 +503,24 @@ export default {
         quantity: quantity.value,
         type: foodDetail.value.type,
         category_id: foodDetail.value.category_id,
-      };
-      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      }
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || []
       const existingItemIndex = cart.findIndex(
         (item) =>
           item.id === cartItem.id &&
-          JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
-      );
+          JSON.stringify(item.toppings.map((t) => t.id).sort()) ===
+            JSON.stringify(cartItem.toppings.map((t) => t.id).sort()),
+      )
 
       if (existingItemIndex !== -1) {
-        cart[existingItemIndex].quantity += 1;
+        cart[existingItemIndex].quantity += 1
       } else {
-        cart.push(cartItem);
+        cart.push(cartItem)
       }
 
-      localStorage.setItem(cartKey, JSON.stringify(cart));
+      localStorage.setItem(cartKey, JSON.stringify(cart))
       toast.success('🛍️ Đã thêm vào giỏ hàng!')
-    };
-
-
+    }
 
     onMounted(async () => {
       await getCategory()
@@ -460,6 +528,19 @@ export default {
       intervalId = setInterval(() => {
         currentIndex.value = (currentIndex.value + 1) % images.length
       }, 3000)
+    })
+    onMounted(async () => {
+      isLoading.value = true
+
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/api/home/api/foods')
+        foods.value = res.data
+        await new Promise((resolve) => setTimeout(resolve, 5000))
+      } catch (e) {
+        console.error(e)
+      } finally {
+        isLoading.value = false
+      }
     })
 
     onBeforeUnmount(() => {
@@ -488,7 +569,7 @@ export default {
       decreaseQuantity,
       quantity,
       orderId,
-      isReservation
+      isReservation,
     }
   },
 }
@@ -553,7 +634,6 @@ export default {
   background-color: #f8d7da;
 }
 
-
 .btn-confirm {
   background-color: #fff;
   color: #cc2c40;
@@ -591,7 +671,6 @@ export default {
     color 0.3s ease,
     transform 0.3s ease;
 }
-
 
 .submenu {
   position: absolute;
@@ -634,5 +713,41 @@ export default {
 
 .submenu-link:hover {
   background-color: #d5d5d565;
+}
+@keyframes pulse {
+  0% {
+    background-color: #f7f7f7;
+  }
+  50% {
+    background-color: #ffffff;
+  }
+  100% {
+    background-color: #f7f7f7;
+  }
+}
+
+.skeleton-card {
+  border-radius: 10px;
+  animation: pulse 1.5s infinite ease-in-out;
+  background: #ffffff;
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.skeleton-img {
+  width: 100%;
+  height: 120px;
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+.skeleton-line {
+  height: 16px;
+  background: #e5e5e5;
+  border-radius: 4px;
+  margin-top: 0.5rem;
 }
 </style>
