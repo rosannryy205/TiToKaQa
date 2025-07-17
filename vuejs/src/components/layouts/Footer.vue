@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <!-- Nút toggle -->
+  <!-- <div>
+     Nút toggle
     <div class="chat-toggle-btn" @click="toggleChat">
       <span v-if="!showChat"><i class="bi bi-chat-dots"></i></span>
       <span v-else class="icon-x"><i class="bi bi-x"></i></span>
     </div>
 
-    <!-- Chatbox -->
+     Chatbox
     <div v-if="showChat" class="chat-wrapper">
       <div class="d-flex justify-content-between">
         <div class="chat-header">
@@ -60,7 +60,7 @@
         </button>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <footer class="bg-white pt-5">
     <div class="container">

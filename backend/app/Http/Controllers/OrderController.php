@@ -132,7 +132,6 @@ class OrderController extends Controller
     {
         try {
 
-
             $guestName = $request->guest_name ?? null;
             $guestPhone = $request->guest_phone ?? null;
             $guestEmail = $request->guest_email ?? null;
@@ -598,7 +597,8 @@ class OrderController extends Controller
                 'order_time' => $reservation->order_time,
                 'order_status' => $reservation->order_status,
                 'total_price' => $reservation->total_price,
-                'ex_price' => $reservation->total_price + $reservation->money_reduce,
+                'tpoint_used' => $reservation->tpoint_used,
+                'ship_cost' => $reservation->ship_cost,
                 'comment' => $reservation->comment,
                 'review_time' => $reservation->review_time,
                 'rating' => $reservation->rating,
@@ -660,7 +660,15 @@ class OrderController extends Controller
                     $food->save();
                 }
             }
-
+            /** restore tpoint */
+            if ($order->user_id && $order->tpoint_used > 0) {
+                $user = User::find($order->user_id);
+                if ($user) {
+                    $user->usable_points += $order->tpoint_used;
+                    $user->save();
+                }
+            }
+            
             // Cập nhật trạng thái đơn hàng
             $order->order_status = 'Đã hủy';
             $order->save();
