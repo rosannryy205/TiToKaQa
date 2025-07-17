@@ -78,3 +78,6 @@ ai đặt bàn mà không có qr code thì lên ytb coi họ chỉ cách tải i
 
 CLOUDINARY_URL=cloudinary://341442476722344:n3tylOnfBQDsRrO5GnixiaSfMWk@daqhc6id1
 
+QUEUE_CONNECTION=database
+
+mở 1 tab terminal chạy lệnh này riêng php artisan queue:work
