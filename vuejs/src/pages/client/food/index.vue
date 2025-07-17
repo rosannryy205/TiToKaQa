@@ -72,7 +72,7 @@
             <div class="row">
               <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3">
                 <div class="product-card">
-                  <img :src="getImageUrl(item.image)" alt="" class="product-img mx-auto d-block" width="180px" />
+                  <img :src="'http://127.0.0.1:8000/storage/img/food/' + item.image" :alt="item.name" class="product-img mx-auto d-block" width="180px" />
                   <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
                   <span class="product-dish-desc text-start">
                     {{ item.description }}
@@ -132,7 +132,7 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -142,7 +142,8 @@
             <div class="col-md-6 d-flex flex-column">
               <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
                 <div class="flex-grow-1">
-                  <div class="topping-container mb-3" v-if="toppingList.length">
+                  <div class="topping-container mb-3" v-if="toppingList.length
+                  || spicyLevel.length ">
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" id="spicyLevel">
@@ -151,7 +152,7 @@
                         </option>
                       </select>
                     </div>
-                    <label class="form-label fw-bold">🧀 Chọn Topping:</label>
+                    <label v-if="toppingList.length" class="form-label fw-bold">🧀 Chọn Topping:</label>
                     <div v-for="topping in toppingList" :key="topping.id"
                       class="d-flex justify-content-between align-items-center mb-2">
                       <label class="d-flex align-items-center">
@@ -387,70 +388,7 @@ export default {
       quantity.value += 1
     }
 
-    const addToCart = () => {
-      const user = JSON.parse(localStorage.getItem('user'))
-      const userId = user?.id || 'guest'
-      const cartKey = orderId
-        ? `cart_${userId}_reservation_${orderId}`
-        : `cart_${userId}`
-
-      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-
-      let allSelectedToppings = [];
-
-      if (selectedSpicy) {
-        allSelectedToppings.push({
-          id: selectedSpicy.id,
-          name: selectedSpicy.name,
-          price: selectedSpicy.price,
-          food_toppings_id: selectedSpicy.pivot?.id || null,
-          is_spicy_level: true
-        });
-      }
-
-      const selectedToppingIds = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')
-      ).map((el) => parseInt(el.value));
-
-      const normalToppings = toppingList.value
-        .filter((topping) => selectedToppingIds.includes(topping.id))
-        .map((topping) => ({
-          id: topping.id,
-          name: topping.name,
-          price: topping.price,
-          food_toppings_id: topping.pivot?.id || null,
-          is_spicy_level: false
-        }));
-
-      allSelectedToppings = [...allSelectedToppings, ...normalToppings];
-
-      const cartItem = {
-        id: foodDetail.value.id,
-        name: foodDetail.value.name,
-        image: foodDetail.value.image,
-        price: foodDetail.value.price,
-        toppings: allSelectedToppings,
-        quantity: quantity.value,
-        type: foodDetail.value.type,
-        category_id: foodDetail.value.category_id,
-      };
-      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-      const existingItemIndex = cart.findIndex(
-        (item) =>
-          item.id === cartItem.id &&
-          JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
-      );
-
-      if (existingItemIndex !== -1) {
-        cart[existingItemIndex].quantity += 1;
-      } else {
-        cart.push(cartItem);
-      }
-
-      localStorage.setItem(cartKey, JSON.stringify(cart));
-      toast.success('🛍️ Đã thêm vào giỏ hàng!')
-    };
+c
 
 
 
