@@ -16,7 +16,7 @@
             <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">
               + Thêm Bàn Mới
             </button>
-            <input type="date" class="form-control rounded" v-model="date" :min="today" @change="getTable" />
+            <input type="date" class="form-control rounded w-25" v-model="date" :min="today" @change="getTable" />
             <div class="filter-status-select">
               <select class="form-control rounded" v-model="filterStatus" @change="getTable">
                 <option value="">Tất cả bàn</option>

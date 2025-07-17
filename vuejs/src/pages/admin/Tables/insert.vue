@@ -130,9 +130,9 @@
                 </select>
               </div>
               <div class="col-12 col-md-6 col-lg-3 mb-3">
-                Tìm kiếm theo tên:
-                <v-select v-model="selectfood" :options="foods" label="name" placeholder="Nhập tên món ăn"
-                  :clearable="true" @input="onFoodSearch" class="form-control rounded" />
+                <label for="foodSearch">Tìm kiếm theo tên món ăn:</label>
+                <input id="foodSearch" type="text" class="form-control rounded" v-model="searchFoodTerm"
+                  placeholder="Nhập tên món ăn" />
               </div>
               <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
                 <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
@@ -295,15 +295,12 @@
                         Tạm tính
                         <span>{{ formatNumber(totalPrice) }} VNĐ</span>
                       </li>
-                      <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
-                        Phí giữ bàn
-                        <span>100,000 VNĐ</span>
-                      </li>
+
                       <li
                         class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
                         Tổng thanh toán
                         <span class="text-danger fw-bold">
-                          {{ formatNumber(totalPrice + 100000) }} VNĐ
+                          {{ formatNumber(totalPrice) }} VNĐ
                         </span>
                       </li>
                     </ul>
@@ -679,7 +676,6 @@ export default {
           guest_count: guest_count.value,
           note: note.value,
           reserved_from: reserved_from,
-          deposit_amount: 100000,
           total_price: totalPrice.value + 100000,
           table_ids: selectedTableIds.value,
           order_detail: cartItems.value.map((item) => ({

@@ -5,6 +5,11 @@
       <span class="visually-hidden">isLoading...</span>
     </div>
   </div> -->
+  <div v-if="isLoading" class="isLoading-overlay d-flex justify-content-center align-items-center">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">Đang xử lý...</span>
+    </div>
+  </div>
   <div class="col-12 col-md-8 col-lg-9">
     <h4 class="fw-bold mb-4">Đơn hàng của tôi</h4>
     <!-- Tabs -->
@@ -36,7 +41,8 @@
               <td>
                 <router-link :to="{ name: 'history-order-detail', params: { id: order.id } }"
                   class="btn btn-outline-primary btn-sm">Xem</router-link>
-                <button v-if="order.order_status ==='Hoàn thành'" class="btn btn-outline-primary btn-sm ms-1" @click="reOrder(order.id)">
+                <button v-if="order.order_status === 'Hoàn thành'" class="btn btn-outline-primary btn-sm ms-1"
+                  @click="reOrder(order.id)">
                   Đặt lại
                 </button>
               </td>
@@ -266,6 +272,7 @@ export default {
       setActive,
       filteredOrders,
       loading,
+      isLoading,
       getStatusBadge,
       avatarUrl,
     };
@@ -334,6 +341,17 @@ li.list-group-item {
 .fade-in {
   animation: fadeIn 0.4s ease-in-out;
 }
+
+.isLoading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+}
+
 
 @keyframes fadeIn {
   from {

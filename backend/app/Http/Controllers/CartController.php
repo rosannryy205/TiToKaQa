@@ -20,8 +20,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
-
-
 class CartController extends Controller
 {
 
@@ -82,6 +80,7 @@ class CartController extends Controller
                     }
                 }
                 if (!empty($data['order_detail'])) {
+                    Log::info('🛒 Chi tiết đơn hàng từ FE:', $data['order_detail']);
                     foreach ($data['order_detail'] as $item) {
                         $orderDetail = Order_detail::create([
                             'order_id' => $order->id,
@@ -91,6 +90,9 @@ class CartController extends Controller
                             'price' => $item['price'],
                             'type' => $item['type'],
                             'is_deal' => $item['is_deal'] ?? false,
+                            'reward_id' => $item['reward_id'] ?? null,
+
+                            'is_deal' => !empty($item['is_deal']) ? 1 : 0,
                             'reward_id' => $item['reward_id'] ?? null,
 
                         ]);
@@ -520,7 +522,6 @@ class CartController extends Controller
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
         }
-
         $oldStatus = $order->order_status;
         $newStatus = $request->order_status;
 

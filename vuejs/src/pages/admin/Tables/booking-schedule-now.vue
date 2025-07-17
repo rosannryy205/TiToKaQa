@@ -33,7 +33,7 @@
       <tbody>
         <template v-if="orderOfTable && orderOfTable.length > 0">
           <tr v-for="order in orderOfTable" :key="order.id">
-            <td>{{ order.id }}</td>
+            <td>{{ order.reservation_code }}</td>
             <td>
               {{ order.guest_name }}
               <br />
