@@ -114,8 +114,8 @@ Route::put('/order-history-info/update-address/{id}', [OrderController::class, '
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/{id}', [UserController::class, 'show']);
-    Route::patch('/user-update/{id}', [UserController::class, 'update']);
-    // Route::post('/user/upload-avatar', [UserController::class, 'uploadAvatar']);
+    Route::patch('/user/updateProfile/{id}', [UserController::class, 'update']);
+    Route::post('/user/{id}/upload-avatar', [UserController::class, 'uploadAvatar']);
 });
 
 Route::post('/insert_staff', [UserController::class, 'insertStaff']);
@@ -201,7 +201,6 @@ Route::post('/admin/food/topping/{food}', [AdminFoodController::class, 'storeTop
 
 
 // topping
-Route::resource('/admin/category_topping', AdminCategoryToppingController::class);
 Route::resource('/admin/toppings', AdminToppingController::class);
 Route::get('/admin/toppingById/{id}', [AdminToppingController::class, 'getToppingById']);
 
@@ -238,6 +237,8 @@ Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
 Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
+Route::get('/get-order-reservation-info', [OrderController::class, 'getOrderReservationInfo']);
+
 
 
 /**client user-point_exchange*/
