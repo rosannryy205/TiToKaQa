@@ -1,64 +1,67 @@
 <template>
-  <div v-if="isLoading" class="isLoading-overlay">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">isLoading...</span>
+  <div>
+    <div v-if="isLoading" class="isLoading-overlay">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">isLoading...</span>
+      </div>
     </div>
-  </div>
-  <div class="container py-4">
-    <h2 class="mb-4 d-flex align-items-center gap-2">
-      <i class="bi bi-person-plus-fill text-success fs-3"></i> Thêm nhân viên mới
-    </h2>
+    <div class="container py-4">
+      <h2 class="mb-4 d-flex align-items-center gap-2">
+        <i class="bi bi-person-plus-fill text-success fs-3"></i> Thêm nhân viên mới
+      </h2>
 
-    <div class="card shadow rounded-4 border-0">
-      <div class="card-body p-4">
-        <form @submit.prevent="submitForm" class="row g-4">
-          <div class="col-md-6">
-            <label class="form-label">
-              <i class="bi bi-person-fill text-primary me-2"></i>Username
-            </label>
-            <input type="text" class="form-control rounded" placeholder="Username tự động được tạo" disabled>
-          </div>
+      <div class="card shadow rounded-4 border-0">
+        <div class="card-body p-4">
+          <form @submit.prevent="submitForm" class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label">
+                <i class="bi bi-person-fill text-primary me-2"></i>Username
+              </label>
+              <input type="text" class="form-control rounded" placeholder="Username tự động được tạo" disabled>
+            </div>
 
-          <div class="col-md-6">
-            <label class="form-label">
-              <i class="bi bi-card-text text-primary me-2"></i>Họ và tên
-            </label>
-            <input v-model="form.fullname" type="text" class="form-control rounded" placeholder="Họ và tên nhân viên"
-              required>
-            <div v-if="errors.fullname" class="text-danger small">{{ errors.fullname }}</div>
-          </div>
+            <div class="col-md-6">
+              <label class="form-label">
+                <i class="bi bi-card-text text-primary me-2"></i>Họ và tên
+              </label>
+              <input v-model="form.fullname" type="text" class="form-control rounded" placeholder="Họ và tên nhân viên"
+                required>
+              <div v-if="errors.fullname" class="text-danger small">{{ errors.fullname }}</div>
+            </div>
 
-          <div class="col-md-6">
-            <label class="form-label">
-              <i class="bi bi-envelope-fill text-primary me-2"></i>Email
-            </label>
-            <input type="email" class="form-control rounded" placeholder="Email sẽ tự động được tạo" disabled>
-          </div>
+            <div class="col-md-6">
+              <label class="form-label">
+                <i class="bi bi-envelope-fill text-primary me-2"></i>Email
+              </label>
+              <input type="email" class="form-control rounded" placeholder="Email sẽ tự động được tạo" disabled>
+            </div>
 
-          <div class="col-md-6">
-            <label class="form-label">
-              <i class="bi bi-lock-fill text-primary me-2"></i>Mật khẩu
-            </label>
-            <input type="password" class="form-control rounded" placeholder="Mật khẩu sẽ tự động được tạo" disabled>
-          </div>
+            <div class="col-md-6">
+              <label class="form-label">
+                <i class="bi bi-lock-fill text-primary me-2"></i>Mật khẩu
+              </label>
+              <input type="password" class="form-control rounded" placeholder="Mật khẩu sẽ tự động được tạo" disabled>
+            </div>
 
-          <div class="col-md-6">
-            <label class="form-label">
-              <i class="bi bi-telephone-fill text-primary me-2"></i>Số điện thoại
-            </label>
-            <input v-model="form.phone" type="text" class="form-control rounded" placeholder="Số điện thoại nhân viên">
-            <div v-if="errors.phone" class="text-danger small">{{ errors.phone }}</div>
-          </div>
+            <div class="col-md-6">
+              <label class="form-label">
+                <i class="bi bi-telephone-fill text-primary me-2"></i>Số điện thoại
+              </label>
+              <input v-model="form.phone" type="text" class="form-control rounded"
+                placeholder="Số điện thoại nhân viên">
+              <div v-if="errors.phone" class="text-danger small">{{ errors.phone }}</div>
+            </div>
 
-          <div class="col-12 d-flex justify-content-end gap-2">
-            <router-link to="/admin/employees" class="btn btn-secondary">
-              <i class="bi bi-arrow-left"></i> Quay lại
-            </router-link>
-            <button type="submit" class="btn btn-success">
-              <i class="bi bi-check-circle-fill"></i> Lưu nhân viên
-            </button>
-          </div>
-        </form>
+            <div class="col-12 d-flex justify-content-end gap-2">
+              <router-link to="/admin/employees" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Quay lại
+              </router-link>
+              <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle-fill"></i> Lưu nhân viên
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
