@@ -1,122 +1,119 @@
 <template v-if="hasPermission('view_combo')">
-  <h3 class="title">Quản lý combo</h3>
+  <div>
+    <h3 class="title">Quản lý combo</h3>
 
-  <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <router-link v-if="hasPermission('create_combo')" :to="{ name: 'insert-combo' }" class="btn btn-add"> + Thêm Combo
-    </router-link>
+    <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
+      <router-link v-if="hasPermission('create_combo')" :to="{ name: 'insert-combo' }" class="btn btn-add"> + Thêm Combo
+      </router-link>
 
-    <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
+      <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
 
-    <select class="custom-select" style="max-width: 80px">
-      <option selected>5</option>
-      <option>10</option>
-      <option>15</option>
-    </select>
-  </div>
+      <select class="custom-select" style="max-width: 80px">
+        <option selected>5</option>
+        <option>10</option>
+        <option>15</option>
+      </select>
+    </div>
 
-  <div class="table-responsive">
-    <table class="table table-bordered">
-      <thead class="table-light">
-        <tr>
-          <th class="d-none d-sm-table-cell"><input type="checkbox" /></th>
-          <th>Tên combo</th>
-          <th>Giá bán</th>
-          <th class="d-none d-md-table-cell">Tuỳ chọn</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in filteredCombos" :key="index">
-          <td class="d-none d-sm-table-cell"><input type="checkbox" /></td>
-          <td>
-            <img :src="`/img/food/${item.image}`" :alt="item.name" class="me-2 img_thumbnail" />
-            {{ item.name }}
-            <div class="d-md-none mt-2 d-flex justify-content-center gap-2 flex-wrap">
-              <button type="button" class="btn btn-outline btn-sm" v-if="hasPermission('edit_combo')">Sửa</button>
-              <button class="btn btn-clean btn-delete btn-sm" v-if="hasPermission('delete_combo')">Xoá</button>
-              <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
-                @click="showComboDetail(item)">
-                Chi tiết
-              </button>
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead class="table-light">
+          <tr>
+            <th class="d-none d-sm-table-cell"><input type="checkbox" /></th>
+            <th>Tên combo</th>
+            <th>Giá bán</th>
+            <th class="d-none d-md-table-cell">Tuỳ chọn</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in filteredCombos" :key="index">
+            <td class="d-none d-sm-table-cell"><input type="checkbox" /></td>
+            <td>
+              <img :src="`/img/food/${item.image}`" :alt="item.name" class="me-2 img_thumbnail" />
+              {{ item.name }}
+              <div class="d-md-none mt-2 d-flex justify-content-center gap-2 flex-wrap">
+                <button type="button" class="btn btn-outline btn-sm" v-if="hasPermission('edit_combo')">Sửa</button>
+                <button class="btn btn-clean btn-delete btn-sm" v-if="hasPermission('delete_combo')">Xoá</button>
+                <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
+                  @click="showComboDetail(item)">
+                  Chi tiết
+                </button>
+              </div>
+            </td>
+            <td>{{ formatNumber(item.price) }} VNĐ</td>
+            <td class="d-none d-md-table-cell">
+              <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <router-link :to="`/admin/update-combo/${item.id}`" class="btn btn-update"
+                  v-if="hasPermission('edit_combo')">Sửa</router-link>
+                <button class="btn btn-clean btn-delete btn-sm" @click="deleteCombo(item.id)"
+                  v-if="hasPermission('delete_combo')">Xoá</button>
+                <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
+                  @click="showComboDetail(item)">
+                  Chi tiết
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button class="btn btn-clean btn-delete" v-if="hasPermission('delete_combo')">Xoá</button>
+
+    <!-- Modal chọn topping -->
+    <div class="modal fade" id="toppingModal" tabindex="-1" aria-labelledby="toppingModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content shadow-sm rounded-3">
+
+          <!-- Header -->
+          <div class="modal-header bg-light">
+            <h5 class="modal-title fw-semibold text-primary" id="toppingModalLabel">
+              Chọn topping cho: {{ selectedFood?.name }}
+            </h5>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" @click="closeModal">
+              &times;
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="modal-body">
+            <div v-if="toppings && toppings.length === 0">
+              <p class="text-muted">Không có topping để chọn.</p>
             </div>
-          </td>
-          <td>{{ formatNumber(item.price) }} VNĐ</td>
-          <td class="d-none d-md-table-cell">
-            <div class="d-flex justify-content-center gap-2 flex-wrap">
-              <router-link :to="`/admin/update-combo/${item.id}`" class="btn btn-update"
-                v-if="hasPermission('edit_combo')">Sửa</router-link>
-              <button class="btn btn-clean btn-delete btn-sm" @click="deleteCombo(item.id)"
-                v-if="hasPermission('delete_combo')">Xoá</button>
-              <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
-                @click="showComboDetail(item)">
-                Chi tiết
-              </button>
+            <div v-else class="table-responsive">
+              <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>#</th>
+                    <th>Tên topping</th>
+                    <th>Giá</th>
+                    <th>Chọn</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(topping, index) in toppings" :key="topping.id">
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ topping.name }}</td>
+                    <td>{{ formatNumber(topping.price) }} đ</td>
+                    <td class="text-center">
+                      <input type="checkbox" class="form-check-input" :value="topping.id"
+                        v-model="selectedToppingIds" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+          </div>
 
-  <button class="btn btn-clean btn-delete" v-if="hasPermission('delete_combo')">Xoá</button>
-
-<!-- Modal chọn topping -->
-<div class="modal fade" id="toppingModal" tabindex="-1" aria-labelledby="toppingModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg">
-    <div class="modal-content shadow-sm rounded-3">
-
-      <!-- Header -->
-      <div class="modal-header bg-light">
-        <h5 class="modal-title fw-semibold text-primary" id="toppingModalLabel">
-          Chọn topping cho: {{ selectedFood?.name }}
-        </h5>
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" @click="closeModal">
-          &times;
-        </button>
-      </div>
-
-      <!-- Body -->
-      <div class="modal-body">
-        <div v-if="toppings.length === 0">
-          <p class="text-muted">Không có topping để chọn.</p>
+          <!-- Footer -->
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="closeModal">Đóng</button>
+            <button type="button" class="btn btn-primary" @click="saveToppings">Lưu</button>
+          </div>
         </div>
-        <div v-else class="table-responsive">
-          <table class="table table-bordered align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>#</th>
-                <th>Tên topping</th>
-                <th>Giá</th>
-                <th>Chọn</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(topping, index) in toppings" :key="topping.id">
-                <td>{{ index + 1 }}</td>
-                <td>{{ topping.name }}</td>
-                <td>{{ formatNumber(topping.price) }} đ</td>
-                <td class="text-center">
-                  <input
-                    type="checkbox"
-                    class="form-check-input"
-                    :value="topping.id"
-                    v-model="selectedToppingIds"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="closeModal">Đóng</button>
-        <button type="button" class="btn btn-primary" @click="saveToppings">Lưu</button>
       </div>
     </div>
   </div>
-</div>
-
 </template>
 
 <script setup>
@@ -128,6 +125,7 @@ import { Permission } from '@/stores/permission'
 
 
 const combo = ref([])
+const toppings = ref([])
 const searchQuery = ref('')
 const selectedCombo = ref(null)
 

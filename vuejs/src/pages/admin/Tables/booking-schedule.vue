@@ -1,160 +1,162 @@
 <template>
-  <div v-if="isLoading" class="isLoading-overlay">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">Đang tải...</span>
-    </div>
-  </div>
-  <div class="d-flex mb-2">
-    <div>
-      <h4>Lịch đặt bàn</h4>
-      <div class="d-flex">
-        <router-link :to="{ name: 'insert-reservation-admin' }" class="btn btn-outline-danger me-2"
-          v-if="hasPermission('create_booking')">
-          + Thêm đơn đặt bàn
-        </router-link>
-        <input type="date" id="datePicker" v-model="selectedDateInput" @change="handleDateInputChange"
-          class="form-control rounded" style="width: 280px;">
+  <div>
+    <div v-if="isLoading" class="isLoading-overlay">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">Đang tải...</span>
       </div>
     </div>
-  </div>
-
-  <FullCalendar :options="calendarOptions" v-if="hasPermission('view_booking')" ref="fullCalendarRef" />
-  <transition name="popup-fade">
-    <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
-      <div class="event-detail-popup" @click.stop>
-        <div class="popup-header">
-          <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
-          <button class="close-button" @click="closeDetailPopup">&times;</button>
+    <div class="d-flex mb-2">
+      <div>
+        <h4>Lịch đặt bàn</h4>
+        <div class="d-flex">
+          <router-link :to="{ name: 'insert-reservation-admin' }" class="btn btn-outline-danger me-2"
+            v-if="hasPermission('create_booking')">
+            + Thêm đơn đặt bàn
+          </router-link>
+          <input type="date" id="datePicker" v-model="selectedDateInput" @change="handleDateInputChange"
+            class="form-control rounded" style="width: 280px;">
         </div>
-        <div class="popup-content" v-if="info">
-          <div class="info-item">
-            <div class="info-block">
-              <i class="bi bi-table"></i>Ngày đặt:
-              <span v-for="(t, index) in info.tables" :key="index">
-                {{ formatDate(t.reserved_from)
-                }}<span v-if="index < info.tables.length - 1">, </span>
-              </span>
-            </div>
-            <div class="info-block">
-              <i class="bi bi-clock"></i>Giờ đặt:
-              <span v-for="(t, index) in info.tables" :key="index">
-                {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
-                }}<span v-if="index < info.tables.length - 1">, </span>
-              </span>
-            </div>
+      </div>
+    </div>
+
+    <FullCalendar :options="calendarOptions" v-if="hasPermission('view_booking')" ref="fullCalendarRef" />
+    <transition name="popup-fade">
+      <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
+        <div class="event-detail-popup" @click.stop>
+          <div class="popup-header">
+            <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
+            <button class="close-button" @click="closeDetailPopup">&times;</button>
           </div>
-          <div class="info-item">
-            <div class="info-block">
-              <i class="fa-solid fa-calendar"></i>
-              <span>Bàn số:
+          <div class="popup-content" v-if="info">
+            <div class="info-item">
+              <div class="info-block">
+                <i class="bi bi-table"></i>Ngày đặt:
                 <span v-for="(t, index) in info.tables" :key="index">
-                  {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
+                  {{ formatDate(t.reserved_from)
+                  }}<span v-if="index < info.tables.length - 1">, </span>
                 </span>
-              </span>
+              </div>
+              <div class="info-block">
+                <i class="bi bi-clock"></i>Giờ đặt:
+                <span v-for="(t, index) in info.tables" :key="index">
+                  {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
+                  }}<span v-if="index < info.tables.length - 1">, </span>
+                </span>
+              </div>
             </div>
-            <div class="info-block">
-              <i class="bi bi-people"></i>
-              <span>Lượng khách:
-                {{ info.guest_count }}
-              </span>
+            <div class="info-item">
+              <div class="info-block">
+                <i class="fa-solid fa-calendar"></i>
+                <span>Bàn số:
+                  <span v-for="(t, index) in info.tables" :key="index">
+                    {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
+                  </span>
+                </span>
+              </div>
+              <div class="info-block">
+                <i class="bi bi-people"></i>
+                <span>Lượng khách:
+                  {{ info.guest_count }}
+                </span>
+              </div>
             </div>
-          </div>
-          <div class="info-item">
-            <div class="info-block">
-              <i class="fa-solid fa-user"></i>
-              <span>Khách hàng: {{ info.guest_name }}</span>
+            <div class="info-item">
+              <div class="info-block">
+                <i class="fa-solid fa-user"></i>
+                <span>Khách hàng: {{ info.guest_name }}</span>
+              </div>
+              <div class="info-block">
+                <i class="bi bi-telephone"></i>
+                <span>SĐT: {{ info.guest_phone }}</span>
+              </div>
             </div>
-            <div class="info-block">
-              <i class="bi bi-telephone"></i>
-              <span>SĐT: {{ info.guest_phone }}</span>
+            <div class="info-item">
+              <div class="info-block">
+                <i class="bi bi-envelope"></i>
+                <span>Email: {{ info.guest_email }}</span>
+              </div>
+              <div class="info-block">
+                <i class="bi bi-card-heading"></i>
+                <span>Ghi chú: {{ info.note || 'Không có' }}</span>
+              </div>
             </div>
-          </div>
-          <div class="info-item">
-            <div class="info-block">
-              <i class="bi bi-envelope"></i>
-              <span>Email: {{ info.guest_email }}</span>
+            <div class="info-item">
+              <div class="info-block">
+                <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
+              </div>
+              <div class="info-block">
+                <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
+              </div>
             </div>
-            <div class="info-block">
-              <i class="bi bi-card-heading"></i>
-              <span>Ghi chú: {{ info.note || 'Không có' }}</span>
+            <div class="info-item">
+              <div class="info-block">
+                <span>
+                  <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
+                </span>
+              </div>
+              <div class="info-block">
+                <i class="bi bi-card-list"></i>
+                <span>Trạng thái đơn:
+                  <select v-model="info.order_status" class="p-1 border rounded-0"
+                    @change="updateStatus(info.id, info.order_status)" :disabled="!hasPermission('edit_booking')">
+                    <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
+                      Chờ xác nhận
+                    </option>
+                    <option value="Đã xác nhận" :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
+                      Đã xác nhận
+                    </option>
+                    <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
+                      Đang xử lý
+                    </option>
+                    <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
+                      Khách đã đến
+                    </option>
+                    <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
+                      Hoàn thành
+                    </option>
+                    <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
+                      Đã hủy
+                    </option>
+                  </select>
+                </span>
+              </div>
             </div>
-          </div>
-          <div class="info-item">
-            <div class="info-block">
-              <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
-            </div>
-            <div class="info-block">
-              <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
-            </div>
-          </div>
-          <div class="info-item">
-            <div class="info-block">
-              <span>
-                <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
-              </span>
-            </div>
-            <div class="info-block">
-              <i class="bi bi-card-list"></i>
-              <span>Trạng thái đơn:
-                <select v-model="info.order_status" class="p-1 border rounded-0"
-                  @change="updateStatus(info.id, info.order_status)" :disabled="!hasPermission('edit_booking')">
-                  <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
-                    Chờ xác nhận
-                  </option>
-                  <option value="Đã xác nhận" :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
-                    Đã xác nhận
-                  </option>
-                  <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
-                    Đang xử lý
-                  </option>
-                  <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
-                    Khách đã đến
-                  </option>
-                  <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
-                    Hoàn thành
-                  </option>
-                  <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
-                    Đã hủy
-                  </option>
-                </select>
-              </span>
-            </div>
-          </div>
-          <div class="info-item1">
-            <i class="bi bi-journals" style="padding-right: 15px"></i>
-            <span>Các món đã đặt</span>
-            <div class="card-custom" style="max-height: 200px; overflow-y: auto">
-              <div class="row align-items-center border-bottom" v-for="item in info.details" :key="item.id">
-                <div class="col-6 p-2">
-                  <div class="item-name">
-                    {{ item.food_name }}
+            <div class="info-item1">
+              <i class="bi bi-journals" style="padding-right: 15px"></i>
+              <span>Các món đã đặt</span>
+              <div class="card-custom" style="max-height: 200px; overflow-y: auto">
+                <div class="row align-items-center border-bottom" v-for="item in info.details" :key="item.id">
+                  <div class="col-6 p-2">
+                    <div class="item-name">
+                      {{ item.food_name }}
+                    </div>
+                    <div class="item-details">
+                      <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3">
+                        <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
+                          + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }}
+                          đ)
+                        </li>
+                      </ul>
+                    </div>
                   </div>
-                  <div class="item-details">
-                    <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3">
-                      <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
-                        + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }}
-                        đ)
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <div class="col-2">{{ item.quantity }}</div>
-                <div class="col-3">
-                  <div class="total-price">
-                    {{ formatNumber(calculateTotalItemPrice(item)) }} VNĐ
+                  <div class="col-2">{{ item.quantity }}</div>
+                  <div class="col-3">
+                    <div class="total-price">
+                      {{ formatNumber(calculateTotalItemPrice(item)) }} VNĐ
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="popup-actions" v-if="hasPermission('edit_booking')">
-          <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
-          <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
+          <div class="popup-actions" v-if="hasPermission('edit_booking')">
+            <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
+            <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
+          </div>
         </div>
       </div>
-    </div>
-  </transition>
+    </transition>
+  </div>
 </template>
 
 <script setup>
@@ -328,11 +330,32 @@ const handleDateClick = (clickDate) => {
 }
 
 onMounted(async () => {
-  await getTable()
-  await getOrderOfTable()
-  selectedDateInput.value = new Date().toISOString().split('T')[0];
-  // console.log(calendarOptions.value.events)
-  // console.log(calendarOptions.value.resources)
+  const params = new URLSearchParams(window.location.search);
+  const hasVnpParams = params.has('vnp_TransactionStatus') || params.has('vnp_TxnRef');
+
+  axios.get('http://127.0.0.1:8000/api/payments/vnpay-return', { params })
+    .then(res => {
+      if (hasVnpParams) {
+        if (res.data.success) {
+          toast.success('Thanh toán thành công!');
+        } else {
+          toast.error('Thanh toán thất bại hoặc có lỗi!');
+        }
+      }
+    })
+    .catch(() => {
+      if (hasVnpParams) {
+        toast.error('Lỗi xác minh thanh toán!');
+      }
+    })
+    .finally(() => {
+      getTable()
+      getOrderOfTable()
+      selectedDateInput.value = new Date().toISOString().split('T')[0];
+      // console.log(calendarOptions.value.events)
+      // console.log(calendarOptions.value.resources)
+    });
+
 })
 
 watch(permissions, (newPermissions) => {
