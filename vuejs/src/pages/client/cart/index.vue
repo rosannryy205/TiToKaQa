@@ -248,6 +248,8 @@ export default {
           timerProgressBar: true
         });
         return;
+      }else {
+        router.push('/payment_if');
       }
     }
     onMounted(() => {
