@@ -56,6 +56,7 @@
   box-shadow: none;
   border-radius: 50%;
 }
+
 input.form-control:focus {
   border-color: #b71c1c;
   box-shadow: none !important;
@@ -130,7 +131,8 @@ input.form-control-cart:focus {
 }
 
 .fixed-price-width {
-  min-width: 130px; /* đủ cho giá lớn như 1.000.000 VND */
+  min-width: 130px;
+  /* đủ cho giá lớn như 1.000.000 VND */
   display: inline-block;
   white-space: nowrap;
 }
@@ -139,7 +141,8 @@ input.form-control-cart:focus {
   display: inline-block;
   width: 100%;
   text-align: right;
-  font-variant-numeric: tabular-nums; /* optional: giúp số đều hơn */
+  font-variant-numeric: tabular-nums;
+  /* optional: giúp số đều hơn */
 }
 
 
@@ -148,9 +151,11 @@ input.form-control-cart:focus {
   max-height: 420px;
   overflow-y: auto;
 }
+
 .fade-in {
   animation: fadeIn 0.4s ease-in-out;
 }
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -162,6 +167,7 @@ input.form-control-cart:focus {
     transform: translateY(0);
   }
 }
+
 /* css trang thanh toán */
 .list-product-scroll {
   max-height: 280px;
@@ -169,13 +175,13 @@ input.form-control-cart:focus {
   padding-right: 5px;
 }
 
-.btn-check-out{
+.btn-check-out {
   background-color: #C92C3C;
   color: white;
   border: none;
 }
 
-.btn-check-out:hover{
+.btn-check-out:hover {
   background-color: #a51928;
   color: white;
   border: none;
@@ -228,11 +234,13 @@ input.form-control-discount {
   padding: 0 10px;
   transition: box-shadow 0.3s ease;
 }
+
 input.form-control-discount:focus {
   border-color: #b71c1c;
   box-shadow: none !important;
   outline: none;
 }
+
 input.form-control-customer,
 select.form-control-customer {
   width: 100%;
@@ -406,14 +414,22 @@ input .form-control-customer:focus {
 
 .input-group {
   display: flex;
-  gap: 10px;
+  /* gap: 10px; */
+}
+
+.input-group-text {
+  margin-top: 10px;
+  height: 48px;
+  margin-right: 10px;
 }
 
 .input-group input[type="text"] {
   flex: 1;
-  padding: 8px;
+  height: 40px;
+  padding: 8px 12px;
+  margin-top: 10px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 20px 20px 0px;
 }
 
 .input-group button {
@@ -421,7 +437,7 @@ input .form-control-customer:focus {
   background-color: #C92C3C;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 0px 20px 20px;
   cursor: pointer;
   transition: 0.3s;
 }
@@ -650,6 +666,7 @@ table td {
   vertical-align: middle;
   text-align: center;
 }
+
 .payment-option {
   cursor: pointer;
   transition: all 0.2s ease;
@@ -708,7 +725,8 @@ table td {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: transparent; /* Không cần màu nền nếu có ảnh */
+  background-color: transparent;
+  /* Không cần màu nền nếu có ảnh */
 }
 
 .voucher-icon {
@@ -871,7 +889,7 @@ table td {
 
 .voucher-title {
   display: -webkit-box;
-  -webkit-line-clamp: 1; 
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -892,6 +910,7 @@ table td {
   display: flex;
   align-items: center;
 }
+
 .voucher-logo {
   min-width: 50px;
   min-height: 50px;
@@ -908,9 +927,11 @@ table td {
   color: #c92c3c;
   font-weight: bold;
 }
-#app > div > div.container-sm.py-4 > div > div.col-md-5 > div > div.d-flex.justify-content-between.mb-2.text-success{
+
+#app>div>div.container-sm.py-4>div>div.col-md-5>div>div.d-flex.justify-content-between.mb-2.text-success {
   border: none !important;
 }
-#app > div > div.container-sm.py-4 > div > div.col-md-5 > div > div.d-flex.justify-content-between.mb-2.text-success > span{
+
+#app>div>div.container-sm.py-4>div>div.col-md-5>div>div.d-flex.justify-content-between.mb-2.text-success>span {
   color: #0f0e0ea3 !important;
 }

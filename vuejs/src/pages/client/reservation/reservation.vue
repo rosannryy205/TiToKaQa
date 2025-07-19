@@ -13,12 +13,8 @@
   <div class="container custom-container">
     <div class="row">
       <div class="col-md-4 booking-image-">
-        <img
-          class="img-fluid img-reservation"
-          src="/img/mo-hinh-lau-nuong-truyen-thong.png"
-          alt="Bản đồ bàn"
-          style="height: 500px; object-fit: cover"
-        />
+        <img class="img-fluid img-reservation" src="/img/mo-hinh-lau-nuong-truyen-thong.png" alt="Bản đồ bàn"
+          style="height: 500px; object-fit: cover" />
       </div>
 
       <div class="col-md-8 col-12 form-section mt-2">
@@ -36,12 +32,7 @@
               </select>
             </div>
             <div class="col-md-3">
-              <input
-                type="number"
-                class="form-control rounded"
-                placeholder="Số lượng người"
-                v-model="guest_count"
-              />
+              <input type="number" class="form-control rounded" placeholder="Số lượng người" v-model="guest_count" />
             </div>
             <div class="col-md-3">
               <button type="submit" class="btn btn-danger1 w-100">Tìm bàn</button>
@@ -53,22 +44,14 @@
         <div class="fs-6 fw-bold mb-3">Kết quả tìm kiếm</div>
 
         <div class="table-container">
-          <div
-            class="table-block"
-            v-for="ban in availableTables"
-            :key="ban.id"
-            @click="chooseTable(ban.id)"
-          >
+          <div class="table-block" v-for="ban in availableTables" :key="ban.id" @click="chooseTable(ban.id)">
             <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
               <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
             </div>
-            <div
-              class="table-rect"
-              :class="{
-                medium: getChairCount(ban.capacity) === 2,
-                large: getChairCount(ban.capacity) === 3,
-              }"
-            >
+            <div class="table-rect" :class="{
+              medium: getChairCount(ban.capacity) === 2,
+              large: getChairCount(ban.capacity) === 3,
+            }">
               B{{ ban.table_number }}
             </div>
             <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
@@ -87,7 +70,7 @@ import axios from 'axios'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { reactive } from 'vue'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2';
 import { Info } from '@/stores/info-order-reservation'
 import { onMounted } from 'vue'
 export default {
@@ -109,7 +92,15 @@ export default {
 
     const findTable = async () => {
       if (!date.value || !time.value) {
-        toast.error('Vui lòng điền đầy đủ thông tin!')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Vui lòng điền đầy đủ thông tin để tìm bàn!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
         return
       }
       const selectedDateTime = new Date(`${date.value}T${time.value}:00`)
@@ -129,10 +120,25 @@ export default {
         })
 
         availableTables.value = res.data.tables || []
-
-        toast.success('Tìm bàn thành công!')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Tìm bàn thành công!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
       } catch (error) {
-        toast.error('Lỗi khi lấy danh sách bàn có thể đặt')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Lỗi khi lấy danh sách bàn có thể đặt',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
         console.error('Lỗi:', error)
       } finally {
         isLoading.value = false
@@ -167,24 +173,52 @@ export default {
     })
 
     const chooseTable = async (table_id) => {
-      try {
-        const reservations_time = `${date.value} ${time.value}`
+      const result = await Swal.fire({
+        title: 'Bạn muốn đặt bàn này?',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+      });
+      if (result.isConfirmed) {
+        try {
+          const reservations_time = `${date.value} ${time.value}`
 
-        const res = await axios.post('http://127.0.0.1:8000/api/choose-table', {
-          user_id: user.value?.id,
-          table_id: table_id,
-          reserved_from: reservations_time,
-          guest_count: guest_count.value,
-        })
+          const res = await axios.post('http://127.0.0.1:8000/api/choose-table', {
+            user_id: user.value?.id,
+            table_id: table_id,
+            reserved_from: reservations_time,
+            guest_count: guest_count.value,
+          })
 
-        const orderId = res.data.order_id
-        router.push({
-          name: 'reservation-form',
-          params: { orderId },
-        })
-      } catch (error) {
-        toast.error('Có lỗi xảy ra, vui lòng thử lại sau.')
-        console.log(error)
+          const orderId = res.data.order_id
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Đã đặt bàn thành công!',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true
+          })
+          router.push({
+            name: 'reservation-form',
+            params: { orderId },
+          })
+        } catch (error) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Có lỗi xảy ra, vui lòng thử lại sau.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
+          console.log(error)
+        }
       }
     }
     onMounted(() => {
@@ -250,9 +284,11 @@ export default {
   align-items: center;
   margin-bottom: 20px;
 }
-.table-block:hover{
+
+.table-block:hover {
   cursor: pointer;
 }
+
 .chairs {
   display: flex;
   justify-content: center;
@@ -278,6 +314,7 @@ export default {
   font-weight: bold;
   font-size: 16px;
 }
+
 .table-rect.medium {
   min-width: 120px;
 }
@@ -302,7 +339,8 @@ export default {
   .table-rect {
     font-size: 0.85rem;
   }
-    .title-shops1 > span {
+
+  .title-shops1>span {
     font-size: 25px;
   }
 

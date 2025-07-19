@@ -68,50 +68,33 @@
 
             <!-- small -->
             <div class="col-12 d-lg-none position-relative">
-        <div
-          class="menu-header d-flex justify-content-between align-items-center mt-3"
-          @click="toggleDropdown"
-        >
-          <h2 class="menu-title">Thực đơn</h2>
-          <div class="menu-icon d-flex align-items-center">
-            <i class="fas fa-list-alt"></i>
-            <span>Danh mục</span>
-          </div>
-        </div>
+              <div class="menu-header d-flex justify-content-between align-items-center mt-3" @click="toggleDropdown">
+                <h2 class="menu-title">Thực đơn</h2>
+                <div class="menu-icon d-flex align-items-center">
+                  <i class="fas fa-list-alt"></i>
+                  <span>Danh mục</span>
+                </div>
+              </div>
 
-        <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
-          <ul class="list-group">
-            <li
-              v-for="parent in categories"
-              :key="parent.id"
-              class="list-group-item parent-category d-flex"
-            >
-              <a
-                @click.prevent="getFoodByCategory(parent.id)"
-                href="#"
-                class="text-decoration-none text-start"
-              >
-                {{ parent.name }}
-              </a>
-              <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
-                <li
-                  v-for="child in parent.children"
-                  :key="child.id"
-                  class="list-group-item child-category d-flex"
-                >
-                  <a
-                    @click.prevent="getFoodByCategory(child.id)"
-                    href="#"
-                    class="text-decoration-none text-start"
-                  >
-                    🔻{{ child.name }}
-                  </a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
+              <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
+                <ul class="list-group">
+                  <li v-for="parent in categories" :key="parent.id" class="list-group-item parent-category d-flex">
+                    <a @click.prevent="getFoodByCategory(parent.id)" href="#" class="text-decoration-none text-start">
+                      {{ parent.name }}
+                    </a>
+                    <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
+                      <li v-for="child in parent.children" :key="child.id"
+                        class="list-group-item child-category d-flex">
+                        <a @click.prevent="getFoodByCategory(child.id)" href="#"
+                          class="text-decoration-none text-start">
+                          🔻{{ child.name }}
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
 
 
             <div class="col-lg-9 align-items-center text-center">
@@ -138,9 +121,9 @@
                     <p class="food-price fw-bold">{{ formatNumber(item.price) }} VNĐ</p>
                     <p class="food-desc">
                       <span class="d-none d-sm-inline">{{ item.description.slice(0, 60)
-                        }}{{ item.description.length > 50 ? '...' : '' }}</span>
+                      }}{{ item.description.length > 50 ? '...' : '' }}</span>
                       <span class="d-inline d-sm-none">{{ item.description.slice(0, 30)
-                        }}{{ item.description.length > 50 ? '...' : '' }}</span>
+                      }}{{ item.description.length > 50 ? '...' : '' }}</span>
                     </p>
                   </div>
                   <div class="col-md-4 food-image">
@@ -193,25 +176,17 @@
   </section>
   <!-- modal food -->
   <div class="modal fade" id="productModal">
- <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
-          <button
-            type="button"
-            class="btn-close position-absolute top-0 end-0 m-2"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
+            aria-label="Close"></button>
           <div class="row">
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img
-                  :src="getImageUrl(foodDetail.image)"
-                  :alt="foodDetail.name"
-                  class="modal-image img-fluid"
-                />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -231,11 +206,8 @@
                       </select>
                     </div>
                     <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-                    <div
-                      v-for="topping in toppingList"
-                      :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2"
-                    >
+                    <div v-for="topping in toppingList" :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2">
                       <label class="d-flex align-items-center">
                         <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                         {{ topping.name }}
@@ -251,17 +223,19 @@
                 <!---->
                 <div class="mt-auto">
                   <div class="text-center mb-2">
-              <div class="qty-control px-2 py-1">
-                <button type="button" @click="decreaseQuantity" class="btn-lg" style="background-color: #fff;">-</button>
-                <span>{{ quantity }}</span>
-                <button type="button" @click="increaseQuantity" class="btn-lg" style="background-color: #fff;">+</button>
-              </div>
-            </div>
+                    <div class="qty-control px-2 py-1">
+                      <button type="button" @click="decreaseQuantity" class="btn-lg"
+                        style="background-color: #fff;">-</button>
+                      <span>{{ quantity }}</span>
+                      <button type="button" @click="increaseQuantity" class="btn-lg"
+                        style="background-color: #fff;">+</button>
+                    </div>
+                  </div>
                   <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
 
-              </div>
+            </div>
 
           </div>
         </div>
@@ -276,7 +250,7 @@ import axios from 'axios'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2';
 
 
 export default {
@@ -445,63 +419,71 @@ export default {
       const cartKey = `cart_${userId}`
 
 
-        const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-        const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
 
-        let allSelectedToppings = [];
+      let allSelectedToppings = [];
 
-        if (selectedSpicy) {
-            allSelectedToppings.push({
-                id: selectedSpicy.id,
-                name: selectedSpicy.name,
-                price: selectedSpicy.price,
-                food_toppings_id: selectedSpicy.pivot?.id || null,
-                is_spicy_level: true
-            });
-        }
+      if (selectedSpicy) {
+        allSelectedToppings.push({
+          id: selectedSpicy.id,
+          name: selectedSpicy.name,
+          price: selectedSpicy.price,
+          food_toppings_id: selectedSpicy.pivot?.id || null,
+          is_spicy_level: true
+        });
+      }
 
-        const selectedToppingIds = Array.from(
-            document.querySelectorAll('input[name="topping[]"]:checked')
-        ).map((el) => parseInt(el.value));
+      const selectedToppingIds = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')
+      ).map((el) => parseInt(el.value));
 
-        const normalToppings = toppingList.value
-            .filter((topping) => selectedToppingIds.includes(topping.id))
-            .map((topping) => ({
-                id: topping.id,
-                name: topping.name,
-                price: topping.price,
-                food_toppings_id: topping.pivot?.id || null,
-                is_spicy_level: false
-            }));
+      const normalToppings = toppingList.value
+        .filter((topping) => selectedToppingIds.includes(topping.id))
+        .map((topping) => ({
+          id: topping.id,
+          name: topping.name,
+          price: topping.price,
+          food_toppings_id: topping.pivot?.id || null,
+          is_spicy_level: false
+        }));
 
-        allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+      allSelectedToppings = [...allSelectedToppings, ...normalToppings];
 
-        const cartItem = {
-            id: foodDetail.value.id,
-            name: foodDetail.value.name,
-            image: foodDetail.value.image,
-            price: foodDetail.value.price,
-            toppings: allSelectedToppings,
-            quantity: quantity.value,
-            type: foodDetail.value.type,
-            category_id: foodDetail.value.category_id
-        };
+      const cartItem = {
+        id: foodDetail.value.id,
+        name: foodDetail.value.name,
+        image: foodDetail.value.image,
+        price: foodDetail.value.price,
+        toppings: allSelectedToppings,
+        quantity: quantity.value,
+        type: foodDetail.value.type,
+        category_id: foodDetail.value.category_id
+      };
 
-        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        const existingItemIndex = cart.findIndex(
-            (item) =>
-                item.id === cartItem.id &&
-                JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
-        );
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      const existingItemIndex = cart.findIndex(
+        (item) =>
+          item.id === cartItem.id &&
+          JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
+      );
 
-        if (existingItemIndex !== -1) {
-            cart[existingItemIndex].quantity += 1;
-        } else {
-            cart.push(cartItem);
-        }
+      if (existingItemIndex !== -1) {
+        cart[existingItemIndex].quantity += 1;
+      } else {
+        cart.push(cartItem);
+      }
 
-        localStorage.setItem(cartKey, JSON.stringify(cart));
-      toast.success('🛍️ Đã thêm vào giỏ hàng!')
+      localStorage.setItem(cartKey, JSON.stringify(cart));
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Đã thêm món vào giỏ hàng!',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      });
     };
     const increaseQuantity = () => {
       quantity.value += 1
