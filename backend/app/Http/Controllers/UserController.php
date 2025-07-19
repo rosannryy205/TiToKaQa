@@ -178,12 +178,12 @@ class UserController extends Controller
         $user = Auth::user();
 
 
-        if ($user->status === 'Block') {
-            Auth::logout(); // Đăng xuất ngay nếu đã login thành công
-            return response()->json([
-                'message' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.'
-            ], 403);
-        }
+        // if ($user->status === 'Block') {
+        //     Auth::logout();
+        //     return response()->json([
+        //         'message' => 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.'
+        //     ], 403);
+        // }
 
 
         /** @var \App\Models\User $user */
@@ -433,6 +433,8 @@ class UserController extends Controller
             return response()->json(['message' => 'Đã xảy ra lỗi server khi cập nhật thông tin.'], 500);
         }
     }
+
+
     protected  function uploadAvatar(Request $request, string $id)
     {
         $user = User::findOrFail($id);
@@ -486,31 +488,37 @@ class UserController extends Controller
                 [
                     'phone' => 'required|digits:10|unique:users,phone',
                     'fullname' => 'required|string|max:255',
+                    'username' => 'required|string|max:255',
+                    'email' => 'required|email|max:255',
+                    'password' => 'required|string|min:6',
                 ],
                 [
                     'phone.required' => 'Vui lòng nhập số điện thoại',
                     'phone.digits' => 'Số điện thoại phải đủ 10 chữ số',
                     'phone.unique' => 'Số điện thoại đã tồn tại',
+
                     'fullname.required' => 'Vui lòng nhập họ và tên',
+
+                    'username.required' => 'Vui lòng nhập tên đăng nhập',
+                    'username.unique' => 'Tên đăng nhập đã tồn tại',
+
+                    'email.required' => 'Vui lòng nhập email',
+                    'email.email' => 'Email không đúng định dạng',
+                    'email.unique' => 'Email đã tồn tại',
+
+                    'password.required' => 'Vui lòng nhập mật khẩu',
+                    'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự',
+                    'password.confirmed' => 'Xác nhận mật khẩu không khớp',
                 ]
             );
 
+
             $user = User::create([
-                'username' => 'temp',
-                'email' => 'temp@gmail.com',
+                'username' => $data['username'],
+                'email' => $data['email'],
                 'phone' => $data['phone'],
-                'password' => bcrypt('temp'),
+                'password' => bcrypt($data['password']),
                 'fullname' => $data['fullname'],
-            ]);
-
-            $generatedEmail = 'staff' . $user->id . '@gmail.com';
-            $generatedPassword = 'staff' . $user->id . 'Titokaqa';
-            $generatedUsername = 'staff' . $user->id;
-
-            $user->update([
-                'email' => $generatedEmail,
-                'password' => $generatedPassword,
-                'username' => $generatedUsername
             ]);
 
             $user->assignRole('quanly');
@@ -525,7 +533,7 @@ class UserController extends Controller
                     'email' => $user->email,
                     'phone' => $user->phone,
                     'fullname' => $user->fullname,
-                    'password_raw' => $generatedPassword,
+                    'password' => $user->password,
                     'role' => $user->getRoleNames()->first()
                 ],
                 'token' => $token
@@ -541,6 +549,40 @@ class UserController extends Controller
                 'message' => 'Đã xảy ra lỗi: ' . $th->getMessage()
             ], 500);
         }
+    }
+
+    public function updateLocation(Request $request)
+    {
+        $request->validate([
+            'lat' => 'required|numeric',
+            'lng' => 'required|numeric',
+            'shipper_id' => 'required|exists:users,id',
+        ]);
+
+        $shipper = User::find($request->shipper_id);
+        $shipper->last_position_lat = $request->lat;
+        $shipper->last_position_lng = $request->lng;
+        $shipper->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getLastLocation($id)
+    {
+        $shipper = User::find($id);
+
+        if (!$shipper) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Shipper không tồn tại'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'lat' => $shipper->last_position_lat,
+            'lng' => $shipper->last_position_lng,
+        ]);
     }
 
     /**
