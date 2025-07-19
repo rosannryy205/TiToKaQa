@@ -136,6 +136,8 @@ import { useRouter } from 'vue-router';
 import numeral from 'numeral'
 import { computed } from 'vue'
 import { Modal } from 'bootstrap';
+import Swal from 'sweetalert2';
+
 export default {
   methods: {
     formatNumber(value) {
@@ -206,20 +208,46 @@ export default {
       updateCartStorage()
     }
 
-    const removeItem = (index) => {
-      const confirmed = window.confirm('Bạn có chắc chắn xóa món này khỏi giỏ hàng ?')
-      if (confirmed) {
+    const removeItem = async (index) => {
+      const result = await Swal.fire({
+        title: 'Bạn có chắc chắn?',
+        text: 'Món này sẽ bị xóa khỏi giỏ hàng!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+      })
+
+      if (result.isConfirmed) {
         cartItems.value.splice(index, 1)
         updateCartStorage()
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Đã xóa món khỏi giỏ hàng!',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true
+        })
       }
     }
 
+
     const goToCheckout = () => {
       if (cartItems.value.length === 0) {
-        alert('Giỏ hàng của bạn đang trống');
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Giỏ hàng của bạn đang trống',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
         return;
-      } else {
-        router.push('/payment_if');
       }
     }
     onMounted(() => {
