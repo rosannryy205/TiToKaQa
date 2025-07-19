@@ -87,11 +87,6 @@
               <span>{{ formatNumber(totalPrice + 100000) }} VNĐ</span>
             </div>
 
-            <div class="d-flex justify-content-between mb-2">
-              <span>Khuyến mãi</span>
-              <span class="text-success">-{{ formatNumber(discountFoodAmount) }} VNĐ</span>
-            </div>
-
             <div class="input-group mb-2">
               <input type="text" class="form-control" placeholder="Nhập mã giảm giá" v-model="discountInput"
                 @keyup.enter="handleDiscountInput" />
@@ -133,7 +128,7 @@
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
-                  v-model="paymentMethod" />
+                  v-model="paymentMethod" disabled/>
                 <label class="form-check-label d-flex align-items-center" for="momo">
                   <span class="me-2">Thanh toán qua Momo</span>
                   <img src="/img/momo.png" height="20" width="20" alt="" />
@@ -256,7 +251,6 @@ export default {
           note: form.value.note || "",
           deposit_amount: 100000,
           total_price: finalTotal.value + 100000,
-          money_reduce: discountFoodAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
@@ -293,6 +287,7 @@ export default {
             amount: finalTotal.value + 100000,
           })
           if (paymentRes.data && paymentRes.data.payment_url) {
+            localStorage.setItem('order_id', orderId)
             localStorage.setItem('payment_method', paymentMethod.value)
             localStorage.removeItem(cartKey)
             window.location.href = paymentRes.data.payment_url
@@ -303,6 +298,7 @@ export default {
         }
         if (paymentMethod.value === 'MOMO') {
           toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value);
           localStorage.removeItem(cartKey);
           // router.push('/payment-result');
@@ -315,10 +311,17 @@ export default {
             amount_paid: finalTotal.value + 100000,
             payment_type: 'Thanh toán toàn bộ',
           })
+          localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey)
           toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
-          router.push('/payment-result');
+          router.push({
+            name: 'payment-result',
+            query: {
+              type: 'order_id',
+              value: orderId
+            }
+          });
         }
       } catch (error) {
         if (error.response && error.response.status === 422 && error.response.data.errors) {

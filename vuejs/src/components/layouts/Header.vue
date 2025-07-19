@@ -59,7 +59,7 @@
               </router-link>
               <template v-else>
                 <div class="d-flex align-items-center">
-                  <router-link to="/update-user" class="text-decoration-none text-primary-red me-2">
+                  <router-link to="/account" class="text-decoration-none text-primary-red me-2">
                     <p v-if="user.username" class="mb-0 username-display">{{ user.username }}</p>
                   </router-link>
                   <button class="icon-btn" @click="handleLogout" title="Đăng xuất">

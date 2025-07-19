@@ -68,7 +68,7 @@
             <td>{{ item.item_id }}</td>
             <td>
               <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
-              {{ item.food_name || item.combo_name}}
+              {{ item.food_name || item.combo_name }}
               <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3 ">
                 <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
                   + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }} đ)
@@ -106,35 +106,40 @@
     </router-link>
 
     <!-- Khi không phải đang giao -->
-      <button v-else class="btn btn-sm btn-outline-secondary mt-2 ms-2 p-2" style="width: 120px;" disabled>
-        Theo dõi đơn
-      </button>
-      <p class="text-muted ms-2 mt-1" style="font-size: 0.9rem;">
-        * Nút theo dõi đơn hàng chỉ khả dụng khi đơn hàng trong trạng thái giao hàng
-      </p>
+    <button v-else class="btn btn-sm btn-outline-secondary mt-2 ms-2 p-2" style="width: 120px;" disabled>
+      Theo dõi đơn
+    </button>
+    <p class="text-muted ms-2 mt-1" style="font-size: 0.9rem;">
+      * Nút theo dõi đơn hàng chỉ khả dụng khi đơn hàng trong trạng thái giao hàng
+    </p>
 
 
 
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
       aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">Thay đổi địa chỉ nhận hàng</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-3 shadow">
+          <div class="modal-header bg-primary text-white rounded-top">
+            <h5 class="modal-title" id="staticBackdropLabel">Thay đổi địa chỉ nhận hàng</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form action="" @submit.prevent="updateAddressForOrder">
+
+          <form @submit.prevent="updateAddressForOrder">
             <div class="modal-body">
-              <textarea v-model="address" cols="55" rows="5"></textarea>
+              <label for="addressTextarea" class="form-label">Địa chỉ mới</label>
+              <textarea id="addressTextarea" v-model="address" class="form-control border-1  rounded-0" rows="4"
+                placeholder="Nhập địa chỉ mới..." required></textarea>
             </div>
+
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button class="btn btn-primary">Thay đổi</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+              <button type="submit" class="btn btn-primary">Thay đổi</button>
             </div>
           </form>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -146,6 +151,7 @@ import { onMounted } from 'vue';
 import axios from 'axios';
 import { ref } from 'vue';
 import { computed } from 'vue';
+import Swal from 'sweetalert2';
 export default {
   methods: {
     goBack() {
@@ -170,26 +176,60 @@ export default {
 
 
     const cancelOrder = async () => {
-      try {
-        isLoading.value = true;
-        if (confirm('Bạn có chắc muốn huỷ đơn này')) {
+      const result = await Swal.fire({
+        title: 'Bạn có chắc muốn hủy đơn này? Hành động này không thể hoàn tác.',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+      });
+      if (result.isConfirmed) {
+        try {
+          isLoading.value = true;
           const status = await axios.put(`http://127.0.0.1:8000/api/order-history-info/cancle/${id}`)
           if (status) {
-            alert('Hủy đơn thành công.')
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Đã hủy thành công!',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true
+            })
           }
+        } catch (error) {
+          console.error(error)
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Hủy thất bại.',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true
+          })
+        } finally {
+          isLoading.value = false
         }
-      } catch (error) {
-        console.error(error)
-        alert('Cập nhật thất bại.')
-      } finally {
-        isLoading.value = false
       }
     }
 
     const updateAddress = async () => {
-      try {
-        isLoading.value = true;
-        if (confirm('Bạn có chắc muốn thay đổi địa chỉ nhận hàng')) {
+      const result = await Swal.fire({
+        title: 'Bạn có chắc muốn thay đổi địa chỉ nhận hàng',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+      });
+      if (result.isConfirmed) {
+        try {
+          isLoading.value = true;
           const status = await axios.put(
             `http://127.0.0.1:8000/api/order-history-info/update-address/${id}`,
             {
@@ -197,16 +237,32 @@ export default {
             }
           );
           if (status) {
-            alert('Thay đổi thành công.');
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Thay đổi thành công!',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true
+            })
             const modal = Modal.getInstance(document.getElementById('staticBackdrop'));
             modal.hide();
           }
+        } catch (error) {
+          console.error(error);
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Cập nhật thất bại!',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true
+          })
+        } finally {
+          isLoading.value = false
         }
-      } catch (error) {
-        console.error(error);
-        alert('Cập nhật thất bại.');
-      } finally {
-        isLoading.value = false
       }
     };
     const showModal = () => {
@@ -288,9 +344,15 @@ h5 {
 
 a {
   text-decoration: none;
-  color: #007bff;
+  color: #c92c3c;
 }
-
+.bg-primary{
+  background-color: #c92c3c !important;
+}
+.btn-primary{
+  background-color: #c92c3c;
+  border: none;
+}
 .isLoading-overlay {
   position: fixed;
   top: 0;
