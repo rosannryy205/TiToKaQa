@@ -110,7 +110,7 @@
 
               <!-- Real Product -->
               <template v-else>
-                <div v-for="item in foods" :key="item" class="col-md-3 mb-4">
+                <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3 mb-4">
                   <div class="product-card">
                     <img
                       :src="getImageUrl(item.image)"
@@ -200,7 +200,8 @@
             <div class="col-md-6 d-flex flex-column">
               <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
                 <div class="flex-grow-1">
-                  <div class="topping-container mb-3" v-if="toppingList.length">
+                  <div class="topping-container mb-3" v-if="toppingList.length
+                  || spicyLevel.length ">
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" id="spicyLevel">
@@ -278,7 +279,6 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { useRoute } from 'vue-router'
-import { toast } from 'vue3-toastify'
 import { computed } from 'vue'
 
 export default {
@@ -457,71 +457,6 @@ export default {
     const increaseQuantity = () => {
       quantity.value += 1
     }
-
-    const addToCart = () => {
-      const user = JSON.parse(localStorage.getItem('user'))
-      const userId = user?.id || 'guest'
-      const cartKey = orderId ? `cart_${userId}_reservation_${orderId}` : `cart_${userId}`
-
-      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
-
-      let allSelectedToppings = []
-
-      if (selectedSpicy) {
-        allSelectedToppings.push({
-          id: selectedSpicy.id,
-          name: selectedSpicy.name,
-          price: selectedSpicy.price,
-          food_toppings_id: selectedSpicy.pivot?.id || null,
-          is_spicy_level: true,
-        })
-      }
-
-      const selectedToppingIds = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked'),
-      ).map((el) => parseInt(el.value))
-
-      const normalToppings = toppingList.value
-        .filter((topping) => selectedToppingIds.includes(topping.id))
-        .map((topping) => ({
-          id: topping.id,
-          name: topping.name,
-          price: topping.price,
-          food_toppings_id: topping.pivot?.id || null,
-          is_spicy_level: false,
-        }))
-
-      allSelectedToppings = [...allSelectedToppings, ...normalToppings]
-
-      const cartItem = {
-        id: foodDetail.value.id,
-        name: foodDetail.value.name,
-        image: foodDetail.value.image,
-        price: foodDetail.value.price,
-        toppings: allSelectedToppings,
-        quantity: quantity.value,
-        type: foodDetail.value.type,
-        category_id: foodDetail.value.category_id,
-      }
-      let cart = JSON.parse(localStorage.getItem(cartKey)) || []
-      const existingItemIndex = cart.findIndex(
-        (item) =>
-          item.id === cartItem.id &&
-          JSON.stringify(item.toppings.map((t) => t.id).sort()) ===
-            JSON.stringify(cartItem.toppings.map((t) => t.id).sort()),
-      )
-
-      if (existingItemIndex !== -1) {
-        cart[existingItemIndex].quantity += 1
-      } else {
-        cart.push(cartItem)
-      }
-
-      localStorage.setItem(cartKey, JSON.stringify(cart))
-      toast.success('🛍️ Đã thêm vào giỏ hàng!')
-    }
-
     onMounted(async () => {
       await getCategory()
       await getFood()
@@ -562,7 +497,6 @@ export default {
       images,
       getFoodByCategory,
       openModal,
-      addToCart,
       toggleDropdown,
       changeSlide,
       increaseQuantity,

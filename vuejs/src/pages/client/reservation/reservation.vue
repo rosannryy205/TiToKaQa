@@ -29,7 +29,8 @@
               </select>
             </div>
             <div class="col-md-3">
-              <input type="number" class="form-control rounded" placeholder="Số lượng người" v-model="guest_count" />
+              <input type="number" class="form-control rounded" placeholder="Số lượng người" v-model="guest_count"
+                min="1" />
             </div>
             <div class="col-md-3">
               <button class="btn btn-danger1 w-100 fw-bold">Tìm bàn</button>
@@ -40,7 +41,7 @@
         <hr />
         <div class="fs-6 fw-bold mb-3">Kết quả tìm kiếm</div>
 
-        <div class="table-container">
+        <div class="table-container" v-if="availableTables.length !== 0">
           <div class="table-block" v-for="ban in availableTables" :key="ban.id" @click="chooseTable(ban.id)">
             <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
               <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
@@ -57,9 +58,28 @@
           </div>
         </div>
 
-        <div  v-if="isLoading"  class="loader-wrapper">
-    <div class="loader"></div>
-  </div>
+        <div v-if="combine == true" class="no-table-alert text-center my-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="#888">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 9l4-4h10l4 4v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9h18M9 13l3 3 3-3" />
+          </svg>
+          <p>Vui lòng liên hệ để được xếp bàn!</p>
+        </div>
+
+        <div v-if="combine == false" class="no-table-alert text-center my-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="#888">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 9l4-4h10l4 4v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9h18M9 13l3 3 3-3" />
+          </svg>
+          <p>Rất tiếc, hiện tại đã hết bàn phù hợp với số lượng khách yêu cầu!</p>
+        </div>
+
+
+        <div v-if="isLoading" class="loader-wrapper">
+          <div class="loader"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -87,12 +107,12 @@ export default {
     const errors = reactive({})
     const availableTables = ref([])
     const table_id = ref(null)
-
+    const combine = ref(false)
     const { info, getInfo, orderId, formatDateTime } = Info.setup()
     const { form, user } = User.setup()
 
     const findTable = async () => {
-      if (!date.value || !time.value) {
+      if (!date.value || !time.value || !guest_count.value) {
         toast.error('Vui lòng điền đầy đủ thông tin!')
         return
       }
@@ -113,7 +133,7 @@ export default {
         })
 
         availableTables.value = res.data.tables || []
-
+        combine.value = res.data.combinedGroup
         toast.success('Tìm bàn thành công!')
       } catch (error) {
         toast.error('Lỗi khi lấy danh sách bàn có thể đặt')
@@ -202,12 +222,12 @@ export default {
       filteredTimeOptions,
       getChairCount,
       chooseTable,
+      combine
     }
   },
 }
 </script>
 <style scoped>
-
 .table-container {
   display: flex;
   flex-wrap: wrap;
@@ -233,6 +253,7 @@ export default {
   gap: 8px;
   margin: 2px 0;
 }
+
 .loader-wrapper {
   height: 50vh;
   display: flex;

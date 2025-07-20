@@ -1,6 +1,6 @@
 <template v-if="hasPermission('edit_booking')">
   <div class="d-flex justify-content-between">
-          <div class="fw-semibold fs-3">Danh sách món</div>
+    <div class="fw-semibold fs-3">Danh sách món</div>
 
     <div>
       <button @click="$router.back()" class="btn btn-outline-secondary rounded-0">
@@ -22,10 +22,11 @@
         </select>
       </div>
       <div class="col-12 col-md-6 col-lg-3 mb-3">
-        Tìm kiếm theo tên:
-        <v-select v-model="selectfood" :options="foods" label="name" placeholder="Nhập tên món ăn" :clearable="true"
-          @input="onFoodSearch" class="form-control rounded" />
+        <label for="foodSearch">Tìm kiếm theo tên món ăn:</label>
+        <input id="foodSearch" type="text" class="form-control rounded" v-model="searchFoodTerm"
+          placeholder="Nhập tên món ăn" />
       </div>
+
       <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
         <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
           <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
