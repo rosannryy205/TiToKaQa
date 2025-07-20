@@ -1,74 +1,78 @@
 <template>
-  <div class="d-flex justify-content-between">
-    <h3 class="text-danger fw-bold">Thêm danh mục</h3>
-    <div>
-      <router-link to="categories" class="btn btn-outline-secondary rounded-0">
-        <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-      </router-link>
+  <div class="row">
+    <div class="col-xl-12 order-xl-1">
+      <div class="d-flex justify-content-between">
+        <h3 class="text-danger fw-bold" style="z-index: 9 !important">Thêm danh mục</h3>
+        <div style="z-index: 9 !important">
+          <router-link to="categories" class="btn btn-outline-secondary rounded-0" >
+            <i class="bi bi-arrow-counterclockwise"></i> Quay lại
+          </router-link>
+        </div>
+      </div>
+
+      <form class="row mt-2">
+        <div class="col-12 col-md-6">
+          <div class="card rounded-0 border-0 shadow mb-4">
+            <div class="card-body">
+              <div class="row">
+                <div class="mb-3">
+                  <label class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                  <input type="text" v-model="name" class="form-control rounded-0" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Danh mục cha</label>
+                  <div class="input-group">
+                    <select class="form-select rounded-0" v-model="parentId" :disabled="isDefault == 1">
+                      <option value="">-- Không --</option>
+                      <option v-for="cat in allParents" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Đặt làm danh mục mặc định</label>
+                  <div class="input-group">
+                    <select class="form-select rounded-0" v-model="isDefault">
+                      <option :value="1">Có</option>
+                      <option :value="0">Không</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Loại danh mục <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <select class="form-select rounded-0" v-model="categoryType">
+                      <option value="food">Món ăn</option>
+                      <option value="topping">Topping</option>
+                    </select>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 mb-4">
+          <div class="card rounded-0 border-0 shadow">
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label">Ảnh danh mục</label>
+                <input class="form-control rounded-0" type="file" @change="handleImageChange">
+                <div class="mb-3 p-2 text-center" v-if="previewImage">
+                  <img :src="previewImage" class="w-50" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <button type="button" class="btn btn-danger-save" @click="addCategory">
+        Thêm danh mục
+      </button>
     </div>
   </div>
-
-  <form class="row mt-2">
-    <div class="col-12 col-md-6">
-      <div class="card rounded-0 border-0 shadow mb-4">
-        <div class="card-body">
-          <div class="row">
-            <div class="mb-3">
-              <label class="form-label">Tên danh mục <span class="text-danger">*</span></label>
-              <input type="text" v-model="name" class="form-control rounded-0" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Danh mục cha</label>
-              <div class="input-group">
-                <select class="form-select rounded-0" v-model="parentId" :disabled="isDefault == 1">
-                  <option value="">-- Không --</option>
-                  <option v-for="cat in allParents" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Đặt làm danh mục mặc định</label>
-              <div class="input-group">
-                <select class="form-select rounded-0" v-model="isDefault">
-                  <option :value="1">Có</option>
-                  <option :value="0">Không</option>
-                </select>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Loại danh mục <span class="text-danger">*</span></label>
-              <div class="input-group">
-                <select class="form-select rounded-0" v-model="categoryType">
-                  <option value="food">Món ăn</option>
-                  <option value="topping">Topping</option>
-                </select>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <div class="col-12 col-md-6 mb-4">
-      <div class="card rounded-0 border-0 shadow">
-        <div class="card-body">
-          <div class="mb-3">
-            <label class="form-label">Ảnh danh mục</label>
-            <input class="form-control rounded-0" type="file" @change="handleImageChange">
-            <div class="mb-3 p-2 text-center" v-if="previewImage">
-              <img :src="previewImage" class="w-50" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
-
-  <button type="button" class="btn btn-danger-save" @click="addCategory">
-    Thêm danh mục
-  </button>
 </template>
 
 <script>
