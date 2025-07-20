@@ -57,15 +57,16 @@
               <tbody v-if="isDesktop" class="fade-in">
                 <tr v-for="order in orders" :key="order.id">
                   <td>#{{ order.id }}</td>
-                    <td>{{ formatDate(order.order_time || order.reservations_time) }}</td>
-                    <td>{{ formatNumber(order.total_price) }}VND</td>
+                  <td>{{ formatDate(order.order_time || order.reservations_time) }}</td>
+                  <td>{{ formatNumber(order.total_price) }}VND</td>
                   <td>
                     <span>
                       {{ order.order_status || order.order_reservation_time }}
                     </span>
                   </td>
                   <td>
-                    <router-link :to="{ name: 'history-order-detail', params: { id: order.id }   }" class="btn btn-outline-primary btn-sm">Xem</router-link>
+                    <router-link :to="{ name: 'history-order-detail', params: { id: order.id } }"
+                      class="btn btn-outline-primary btn-sm">Xem</router-link>
 
                   </td>
                 </tr>
@@ -87,7 +88,8 @@
                             {{ order.order_status || order.order_reservation_time }}
                           </span>
                         </div>
-                        <router-link :to="{ name: 'history-order-detail' }" class="btn btn-outline-primary btn-sm">Xem</router-link>
+                        <router-link :to="{ name: 'history-order-detail' }"
+                          class="btn btn-outline-primary btn-sm">Xem</router-link>
 
                       </div>
                     </div>
@@ -150,6 +152,7 @@ export default {
 
 
 
+
     onMounted(() => {
       getOrderByUser()
       window.addEventListener('resize', handleResize)
@@ -169,7 +172,7 @@ export default {
       orders,
       formatDate,
       isDesktop,
-      formatNumber
+      formatNumber,
     }
   }
 

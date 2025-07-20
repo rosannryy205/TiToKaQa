@@ -59,7 +59,7 @@
             <div v-if="searchResults.length > 0" class="row">
               <div v-for="item in searchResults" :key="item" @click="openModal(item)" class="col-md-3">
                 <div class="product-card">
-                  <img :src="getImageUrl(item.image)" alt="" class="product-img mx-auto d-block" width="180px" />
+                  <img :src="'http://127.0.0.1:8000/storage/img/food/' + item.image"  alt="" class="product-img mx-auto d-block" width="180px" />
                   <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
                   <span class="product-dish-desc text-start">
                     {{ item.description }}
@@ -112,7 +112,7 @@
   </section>
   <!-- Modal -->
   <div class="modal fade" id="productModal">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
           <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
@@ -120,9 +120,9 @@
           <div class="row">
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
+              <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name"
-                  class="modal-image img-fluid" />
+                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -132,7 +132,8 @@
             <div class="col-md-6 d-flex flex-column">
               <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
                 <div class="flex-grow-1">
-                  <div class="topping-container mb-3" v-if="toppingList.length">
+                  <div class="topping-container mb-3" v-if="toppingList.length
+                  || spicyLevel.length ">
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" id="spicyLevel">
@@ -141,7 +142,7 @@
                         </option>
                       </select>
                     </div>
-                    <label class="form-label fw-bold">🧀 Chọn Topping:</label>
+                    <label v-if="toppingList.length" class="form-label fw-bold">🧀 Chọn Topping:</label>
                     <div v-for="topping in toppingList" :key="topping.id"
                       class="d-flex justify-content-between align-items-center mb-2">
                       <label class="d-flex align-items-center">
@@ -151,27 +152,28 @@
                       <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
                     </div>
                   </div>
-                  <div v-else class="mt-5">
+                  <div v-else class="mt-5 none-topping">
                     <p class="text-center text-muted">Không có topping cho món này.</p>
                   </div>
                 </div>
+
                 <!---->
                 <div class="mt-auto">
-
                   <div class="text-center mb-2">
                     <div class="qty-control px-2 py-1">
-                      <button @click="decreaseQuantity" type="button" class="btn-lg"
+                      <button type="button" @click="decreaseQuantity" class="btn-lg"
                         style="background-color: #fff;">-</button>
                       <span>{{ quantity }}</span>
-                      <button @click="increaseQuantity" type="button" class="btn-lg"
+                      <button type="button" @click="increaseQuantity" class="btn-lg"
                         style="background-color: #fff;">+</button>
                     </div>
-
-                  </div> <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                  </div>
+                  <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
 
             </div>
+
           </div>
         </div>
       </div>
@@ -339,7 +341,6 @@ export default {
         console.error(error)
       }
     }
-
     const openModal = async (item) => {
       foodDetail.value = {}
       toppings.value = []
@@ -354,8 +355,8 @@ export default {
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
 
-          spicyLevel.value = toppings.value.filter((item) => item.category_id == 1)
-          toppingList.value = toppings.value.filter((item) => item.category_id == 2)
+          spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
+          toppingList.value = toppings.value.filter((item) => item.category_id == 16)
           toppingList.value.forEach((item) => {
             item.price = item.price || 0
           })

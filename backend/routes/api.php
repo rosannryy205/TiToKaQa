@@ -165,6 +165,7 @@ Route::post('/assign-role/{user_id}', [UserController::class, 'assignSingleRole'
 
 //cart
 Route::post('/order', [CartController::class, 'order']);
+Route::post('/reorder/{id}', [CartController::class, 'reOrder']);
 Route::post('/ordertakecaway', [CartController::class, 'orderTakeAway']);
 Route::put('/update/order/{id}', [OrderController::class, 'reservationUpdate']);
 Route::put('/update/reservation-order/{id}', [OrderController::class, 'reservationUpdatePrice']);
@@ -251,14 +252,14 @@ Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 
 /**client vong quay*/
-Route::get('/lucky-wheel/prizes', [LuckyWheelController::class, 'getPrizes']); 
+Route::get('/lucky-wheel/prizes', [LuckyWheelController::class, 'getPrizes']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/spin', [LuckyWheelController::class, 'spin']); 
-    Route::get('/user-rewards', [LuckyWheelController::class, 'getUserRewards']); 
-    Route::post('/claim-reward', [ClaimPrizesController::class, 'claimPrize']); 
-    Route::get('/spin-status', [LuckyWheelController::class, 'checkSpinStatus']); 
-    Route::get('/deals-food', [DealFoodsController::class, 'getDealsFood']); 
-});    
+    Route::post('/spin', [LuckyWheelController::class, 'spin']);
+    Route::get('/user-rewards', [LuckyWheelController::class, 'getUserRewards']);
+    Route::post('/claim-reward', [ClaimPrizesController::class, 'claimPrize']);
+    Route::get('/spin-status', [LuckyWheelController::class, 'checkSpinStatus']);
+    Route::get('/deals-food', [DealFoodsController::class, 'getDealsFood']);
+});
 
 /**client user-point_exchange*/
 Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');
