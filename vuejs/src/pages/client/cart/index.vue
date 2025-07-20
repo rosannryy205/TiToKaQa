@@ -15,7 +15,7 @@
         <div class="card mb-3" v-for="(item, index) in cartItems" :key="index">
           <div class="card-body d-flex align-items-center flex-wrap">
             <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
-            <img :src="'http://127.0.0.1:8000/storage/img/food/' + item.image" class="cart-img me-3 mb-2"
+            <img :src="getImageUrl(item.image)" class="cart-img me-3 mb-2"
               alt="Mì kim chi Nha Trang" />
 
             <div class="flex-grow-1 mb-2">
@@ -157,7 +157,7 @@
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name"
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name"
                   class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
@@ -233,6 +233,8 @@ import { useRouter } from 'vue-router';
 import numeral from 'numeral'
 import { computed } from 'vue'
 import { Modal } from 'bootstrap';
+import Swal from 'sweetalert2';
+
 import { onBeforeRouteLeave } from 'vue-router'
 import { nextTick } from 'vue'
 import axios from 'axios'
@@ -308,19 +310,47 @@ export default {
       updateCartStorage()
     }
 
-    const removeItem = (index) => {
-      const confirmed = window.confirm('Bạn có chắc chắn xóa món này khỏi giỏ hàng ?')
-      if (confirmed) {
+    const removeItem = async (index) => {
+      const result = await Swal.fire({
+        title: 'Bạn có chắc chắn?',
+        text: 'Món này sẽ bị xóa khỏi giỏ hàng!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+      })
+
+      if (result.isConfirmed) {
         cartItems.value.splice(index, 1)
         updateCartStorage()
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Đã xóa món khỏi giỏ hàng!',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true
+        })
       }
     }
 
+
     const goToCheckout = () => {
       if (cartItems.value.length === 0) {
-        alert('Giỏ hàng của bạn đang trống');
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Giỏ hàng của bạn đang trống',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
         return;
-      } else {
+      }else {
         router.push('/payment_if');
       }
     }

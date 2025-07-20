@@ -87,7 +87,7 @@ public function spin(Request $request)
 
 
 
-    
+
     public function getUserRewards(Request $request)
 {
     try {
@@ -106,5 +106,5 @@ public function spin(Request $request)
     }
 }
 
-    
+
 }
