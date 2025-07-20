@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
                 Combo_detail::class,
                 Discount::class,
                 Table::class,
-                RolePermission::class
+                RolePermission::class,
+                LuckyWheelPrizeSeeder::class,
             ]
         );
     }

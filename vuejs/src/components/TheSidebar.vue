@@ -61,16 +61,22 @@ const { hasPermission, permissions } = Permission(userId);
 import {
   DashboardOutlined,
   AppstoreOutlined,
-  ShoppingOutlined,
-  FieldTimeOutlined,
-  OrderedListOutlined,
-  TagsOutlined,
-  GoldOutlined,
-  TeamOutlined,
   FileAddOutlined,
-  HistoryOutlined,
   UnorderedListOutlined,
+  ShoppingOutlined,
+  GoldOutlined,
+  HistoryOutlined,
+  FieldTimeOutlined,
   TableOutlined,
+  OrderedListOutlined,
+  TeamOutlined,
+  UserAddOutlined,
+  UserOutlined,
+  SafetyOutlined,
+  SolutionOutlined,
+  DeploymentUnitOutlined,
+  DeliveredProcedureOutlined,
+  ProfileOutlined,
 } from '@ant-design/icons-vue'
 
 const sidebarOpen = ref(false)
@@ -174,25 +180,23 @@ const menuItems = [
   {
     key: 'categories-management',
     label: 'Danh mục',
-    icon: UnorderedListOutlined,
-    permission: 'view_category', // Quyền để xem mục Danh mục cha
+    icon: AppstoreOutlined,
+    permission: 'view_category',
     children: [
       {
         key: '/admin/categories',
         to: '/admin/categories',
         label: 'Danh mục món ăn',
-        icon: AppstoreOutlined,
+        icon: ProfileOutlined,
         permission: 'view_category',
       },
-
       {
         key: '/admin/options/category-options',
         to: '/admin/options/category-options',
         label: 'Danh mục topping',
-        icon: AppstoreOutlined,
-        permission: 'view_topping', // Quyền xem topping category
+        icon: DeploymentUnitOutlined,
+        permission: 'view_topping',
       },
-
     ],
   },
   {
@@ -240,24 +244,23 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_topping',
       },
-
     ],
   },
   {
     key: 'order-management',
     label: 'Đơn hàng',
-    icon: HistoryOutlined,
+    icon: SolutionOutlined,
     permission: 'view_order',
     children: [
       {
         key: '/admin/orders/history',
         to: '/admin/orders/history',
         label: 'Danh sách đơn hàng',
-        icon: AppstoreOutlined,
+        icon: UnorderedListOutlined,
         permission: 'view_order',
       },
       {
-        key: '/admin/tables/current-order', // Đã thêm /admin/
+        key: '/admin/tables/current-order',
         to: '/admin/tables/current-order',
         label: 'Đơn hiện thời',
         icon: FieldTimeOutlined,
@@ -273,6 +276,22 @@ const menuItems = [
     ],
   },
   {
+    key: 'delivery-management',
+    label: 'Giao hàng',
+    icon: DeliveredProcedureOutlined,
+    permission: 'view_shipper',
+    children: [
+      {
+        key: '/admin/delivery',
+        to: '/admin/delivery',
+        label: 'Danh sách đơn hàng',
+        icon: AppstoreOutlined,
+        permission: 'view_order',
+      },
+    ],
+  },
+
+  {
     key: 'tables-reservation-management',
     label: 'Bàn và đặt chỗ',
     icon: TableOutlined,
@@ -286,9 +305,16 @@ const menuItems = [
         permission: 'view_table',
       },
       {
-        key: '/admin/tables/booking-schedule', // Đã thêm /admin/
+        key: '/admin/tables/booking-schedule',
         to: '/admin/tables/booking-schedule',
         label: 'Lịch đặt bàn',
+        icon: OrderedListOutlined,
+        permission: 'view_booking',
+      },
+      {
+        key: '/admin/tables/booking-schedule-now',
+        to: '/admin/tables/booking-schedule-now',
+        label: 'Đặt bàn hôm nay',
         icon: OrderedListOutlined,
         permission: 'view_booking',
       },
@@ -302,51 +328,43 @@ const menuItems = [
     ],
   },
   {
-    key: 'role-management', // Thay đổi key để rõ ràng hơn
+    key: 'role-management',
     label: 'Vai trò',
-    icon: TeamOutlined,
-    permission: 'view_role', // Quyền xem vai trò
+    icon: SafetyOutlined,
+    permission: 'view_role',
     children: [
       {
-        key: '/admin/users/list-role', // Đổi key/to để phù hợp với vai trò
+        key: '/admin/users/list-role',
         to: '/admin/users/list-role',
         label: 'Danh sách vai trò',
         icon: UnorderedListOutlined,
         permission: 'view_role',
       },
-      // {
-      //   key: '/admin/roles/insert', // Đổi key/to để phù hợp với vai trò
-      //   to: '/admin/roles/insert',
-      //   label: 'Thêm vai trò',
-      //   icon: TagsOutlined,
-      //   permission: 'create_role',
-      // },
     ],
   },
   {
-    key: 'employee-management', // Thay đổi key để rõ ràng hơn
+    key: 'employee-management',
     label: 'Nhân viên',
-    icon: TeamOutlined,
-    permission: 'view_employee', // Quyền xem nhân viên
+    icon: UserOutlined,
+    permission: 'view_employee',
     children: [
       {
-        key: '/admin/users/list-employee', // Đổi key/to để phù hợp
+        key: '/admin/users/list-employee',
         to: '/admin/users/list-employee',
         label: 'Danh sách nhân viên',
         icon: UnorderedListOutlined,
         permission: 'view_employee',
       },
-
     ],
   },
   {
     key: 'customer-management',
     label: 'Khách hàng',
     icon: TeamOutlined,
-    permission: 'view_customer', // Quyền xem khách hàng
+    permission: 'view_customer',
     children: [
       {
-        key: '/admin/users/list-customer', // Đổi key/to để phù hợp
+        key: '/admin/users/list-customer',
         to: '/admin/users/list-customer',
         label: 'Danh sách khách hàng',
         icon: UnorderedListOutlined,
@@ -362,7 +380,7 @@ const menuItems = [
 
     ],
   },
-]
+];
 </script>
 
 <style scoped>

@@ -1,40 +1,66 @@
 <template>
-  <div>
-    <!-- Nút toggle -->
+  <!-- <div>
+     Nút toggle
     <div class="chat-toggle-btn" @click="toggleChat">
       <span v-if="!showChat"><i class="bi bi-chat-dots"></i></span>
       <span v-else class="icon-x"><i class="bi bi-x"></i></span>
     </div>
 
-    <!-- Chatbox -->
+     Chatbox
     <div v-if="showChat" class="chat-wrapper">
-      <div class="chat-header">
-        <img src="/img/logonew.png" class="avatar" />
-        <span class="fw-semibold">TIKTOKAQA</span>
+      <div class="d-flex justify-content-between">
+        <div class="chat-header">
+          <img src="/img/logonew.png" class="avatar" />
+          <span class="fw-semibold">TIKTOKAQA</span>
+        </div>
+        <div class="pe-3 pt-3">
+          <i class="bi bi-three-dots-vertical"></i>
+        </div>
       </div>
 
-      <div class="chat-body" ref="messageBox">
-        <div class="chat-date">Tuesday, 26 January</div>
 
-        <div v-for="msg in messages" :key="msg.id" class="chat-message" :class="{
-          'my-message': (user.isGuest && msg.sender_guest_id === user.id) ||
-            (!user.isGuest && msg.sender_user_id === user.id),
-          'other-message': !((user.isGuest && msg.sender_guest_id === user.id) ||
-            (!user.isGuest && msg.sender_user_id === user.id)),
-        }">
-          <div class="text">{{ msg.message }}</div>
-          <div class="time">{{ formatTime(msg.created_at) }}</div>
+      <div class="chat-body" ref="messageBox">
+        <div v-for="(msg, index) in messages" :key="msg.id">
+          <div v-if="shouldShowDate(index)" class="chat-date">
+            {{ formatDateLabel(msg.created_at) }}
+          </div>
+
+          <div class="chat-message" :class="{
+            'my-message':
+              (user.isGuest && msg.sender_guest_id === user.id) ||
+              (!user.isGuest && msg.sender_user_id === user.id),
+            'other-message': !(
+              (user.isGuest && msg.sender_guest_id === user.id) ||
+              (!user.isGuest && msg.sender_user_id === user.id)
+            ),
+          }">
+            <div class="text">{{ msg.message }}</div>
+            <div :class="{
+              time:
+                (user.isGuest && msg.sender_guest_id === user.id) ||
+                (!user.isGuest && msg.sender_user_id === user.id),
+              time1: !(
+                (user.isGuest && msg.sender_guest_id === user.id) ||
+                (!user.isGuest && msg.sender_user_id === user.id)
+              ),
+            }">
+              {{ formatTime(msg.created_at) }}
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="chat-input">
+        <button class="btn btn-outline-secondary me-2 rounded border" style="background-color: #fff; color: black">
+          <i class="bi bi-paperclip"></i>
+        </button>
         <input v-model="messageInput" @keyup.enter="sendMessage" placeholder="Nhập tin nhắn....." />
-        <button @click="sendMessage">
+        <button @click="sendMessage" class="rounded">
           <span>➤</span>
         </button>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <footer class="bg-white pt-5">
     <div class="container">
@@ -74,7 +100,7 @@
           <p>Nhận thông tin khuyến mãi và món mới từ Mỳ Cay TITOKAQA.</p>
           <div class="input-group">
             <input type="email" class="form-control" placeholder="Nhập email của bạn" />
-            <button style="background-color: rgb(199, 11, 11)" class="btn btn-danger">
+            <button style="background-color: rgb(199, 11, 11)" class="btn btn-danger-customer">
               Đăng Ký
             </button>
           </div>
@@ -99,7 +125,7 @@ import Pusher from 'pusher-js'
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { nextTick } from 'vue'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 export default {
   setup() {
     const showChat = ref(false)
@@ -116,14 +142,13 @@ export default {
         const randomName = 'Khách_' + Date.now()
         const userid = uuidv4()
         local = { id: userid, username: randomName, isGuest: true }
-        localStorage.setItem('user', JSON.stringify(local))
+        localStorage.setItem('chat', JSON.stringify(local))
       }
       user.value = local
       name.value = local.username
       userId.value = local.id
       return local
     }
-
 
     const toggleChat = () => {
       showChat.value = !showChat.value
@@ -172,17 +197,16 @@ export default {
           messages.value.splice(index, 1, { ...res.data })
         }
 
-
         if (res.data.sender_id && res.data.sender_id !== currentUser.id) {
-          let updatedUser = { ...currentUser };
-          updatedUser.id = res.data.sender_id;
+          let updatedUser = { ...currentUser }
+          updatedUser.id = res.data.sender_id
           if (typeof res.data.is_guest !== 'undefined') {
-            updatedUser.isGuest = res.data.is_guest;
+            updatedUser.isGuest = res.data.is_guest
           }
 
-          localStorage.setItem('user', JSON.stringify(updatedUser));
-          user.value = updatedUser;
-          userId.value = updatedUser.id; // Cập nhật userId.value
+          localStorage.setItem('user', JSON.stringify(updatedUser))
+          user.value = updatedUser
+          userId.value = updatedUser.id // Cập nhật userId.value
         }
 
         if (res.data.conversation_id && res.data.conversation_id !== conversationId) {
@@ -230,6 +254,40 @@ export default {
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
 
+    const formatDateLabel = (datetime) => {
+      const date = new Date(datetime)
+      const now = new Date()
+
+      const isSameDay = (d1, d2) =>
+        d1.getFullYear() === d2.getFullYear() &&
+        d1.getMonth() === d2.getMonth() &&
+        d1.getDate() === d2.getDate()
+
+      const yesterday = new Date()
+      yesterday.setDate(now.getDate() - 1)
+
+      if (isSameDay(date, now)) return 'Hôm nay'
+      if (isSameDay(date, yesterday)) return 'Hôm qua'
+
+      return date.toLocaleDateString('vi-VN', {
+        weekday: 'long',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+    }
+
+    const shouldShowDate = (index) => {
+      if (index === 0) return true
+      const prev = new Date(messages.value[index - 1].created_at)
+      const current = new Date(messages.value[index].created_at)
+      return (
+        prev.getFullYear() !== current.getFullYear() ||
+        prev.getMonth() !== current.getMonth() ||
+        prev.getDate() !== current.getDate()
+      )
+    }
+
     let pusher
     let socketId = ''
 
@@ -258,7 +316,6 @@ export default {
           }
         }
       })
-
     }
 
     onMounted(async () => {
@@ -281,6 +338,8 @@ export default {
       setupPusher,
       user,
       scrollToBottom,
+      shouldShowDate,
+      formatDateLabel,
     }
   },
 }
@@ -320,7 +379,7 @@ export default {
 .chat-wrapper {
   width: 360px;
   height: 500px;
-  border-radius: 15px;
+  border-radius: 10px;
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   display: flex;
@@ -337,7 +396,6 @@ export default {
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .chat-header .avatar {
@@ -366,33 +424,52 @@ export default {
 }
 
 .chat-message {
-  max-width: 75%;
+  max-width: 70%;
   padding: 10px 14px;
-  border-radius: 15px;
-  position: relative;
+  border-radius: 16px;
   font-size: 14px;
   line-height: 1.4;
+  word-break: break-word;
+  display: block;
+  position: relative;
 }
 
 .my-message {
   background: #cc2c40;
-  align-self: flex-end;
   color: #fff;
+  align-self: flex-end;
+  margin-left: auto;
+  display: table;
   border-bottom-right-radius: 0;
 }
 
 .other-message {
-  background: #e0f7e9;
-  align-self: flex-start;
+  background: #ececee;
   color: #000;
+  align-self: flex-start;
+  margin-right: auto;
   border-bottom-left-radius: 0;
+  display: table;
+}
+
+.chat-message .text {
+  white-space: pre-wrap;
 }
 
 .chat-message .time {
   font-size: 10px;
-  color: #ffffff;
+  opacity: 0.7;
   margin-top: 4px;
+  color: inherit;
   text-align: right;
+}
+
+.chat-message .time1 {
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 4px;
+  text-align: left;
+  color: inherit;
 }
 
 .chat-input {
@@ -419,5 +496,10 @@ export default {
   border-radius: 50%;
   cursor: pointer;
   font-size: 18px;
+}
+
+button.btn-danger-customer:hover{
+  color: #fff;
+  background-color: #cc2c40 !important;
 }
 </style>

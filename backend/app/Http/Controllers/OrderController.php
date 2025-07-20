@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Mail\ReservationMail;
 use App\Models\Combo;
 use App\Models\Order;
 use App\Models\Order_detail;
@@ -16,14 +18,15 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use DateTime;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Str;
 
 Carbon::setLocale('vi');
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator as FacadesValidator;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -52,9 +55,53 @@ class OrderController extends Controller
                 ->get();
 
             if ($availableTables->isEmpty()) {
+                $allAvailableTables = Table::whereNotIn('id', $conflictingTableIds)
+                    ->orderBy('table_number', 'asc')
+                    ->get();
+
+                $grouped = $allAvailableTables->sortBy('table_number')->values();
+                $combinedGroup = [];
+                $tempGroup = [];
+                $tempCapacity = 0;
+
+                for ($i = 0; $i < $grouped->count(); $i++) {
+                    $current = $grouped[$i];
+                    $tempGroup[] = $current;
+                    $tempCapacity += $current->capacity;
+
+                    // Nếu bàn tiếp theo liền kề thì tiếp tục cộng dồn
+                    if (
+                        $i + 1 < $grouped->count() &&
+                        $grouped[$i + 1]->table_number == $current->table_number + 1
+                    ) {
+                        continue;
+                    }
+
+                    // Nếu đã đủ chỗ thì lưu nhóm và dừng lại
+                    if ($tempCapacity >= $numberOfGuests) {
+                        $combinedGroup = $tempGroup;
+                        break;
+                    }
+
+                    // Reset nếu không đủ hoặc không liên tiếp
+                    $tempGroup = [];
+                    $tempCapacity = 0;
+                }
+
+                // Nếu có bàn ghép được
+                if (!empty($combinedGroup)) {
+                    return response()->json([
+                        'status' => true,
+                        'combinedGroup' => true,
+                        'message' => 'Liên hệ để được ghép bàn.'
+                    ]);
+                }
+
+                // Nếu không có bàn nào phù hợp
                 return response()->json([
-                    'status' => true,
-                    'tables' => []
+                    'status' => false,
+                    'combinedGroup' => false,
+                    'message' => 'Hiện tại đã hết bàn phù hợp với số lượng khách yêu cầu.'
                 ]);
             }
 
@@ -124,12 +171,19 @@ class OrderController extends Controller
         }
     }
 
+    private function generateReservationCode()
+    {
+        do {
+            $code = strtoupper(Str::random(8));
+        } while (Order::where('reservation_code', $code)->exists());
+
+        return $code;
+    }
 
     // đặt bàn
     public function reservation(Request $request)
     {
         try {
-
 
             $guestName = $request->guest_name ?? null;
             $guestPhone = $request->guest_phone ?? null;
@@ -144,7 +198,7 @@ class OrderController extends Controller
                     $guestEmail = $user->email;
 
 
-                    if ($request->filled('guest_name')) { // sử dụng `filled` để kiểm tra có tồn tại và không rỗng
+                    if ($request->filled('guest_name')) {
                         $guestName = $request->guest_name;
                     }
 
@@ -179,10 +233,11 @@ class OrderController extends Controller
                     'guest_phone' => $guestPhone,
                     'guest_email' => $guestEmail,
                     'note' => $request->note ?? null,
-                    'deposit_amount' => $request->deposit_amount ?? null,
                     'total_price' => $request->total_price ?? null,
                     'money_reduce' => $request->money_reduce ?? null,
                     'order_status' => 'Đã xác nhận',
+                    'reservation_code' => $this->generateReservationCode(),
+
                 ]);
             } else {
                 $orderTime = Carbon::now();
@@ -196,10 +251,10 @@ class OrderController extends Controller
                     'guest_phone' => $guestPhone,
                     'guest_email' => $guestEmail,
                     'note' => $request->note ?? null,
-                    'deposit_amount' => $request->deposit_amount ?? null,
                     'total_price' => $request->total_price ?? null,
                     'money_reduce' => $request->money_reduce ?? null,
                     'order_status' => 'Đã xác nhận',
+                    'reservation_code' => $this->generateReservationCode(),
                 ]);
 
                 $reserved_from = $request->reserved_from;
@@ -253,12 +308,17 @@ class OrderController extends Controller
                     }
                 }
 
-                // Lấy tên món ăn và topping để gửi mail hoặc trả về
                 foreach ($request->order_detail as $item) {
                     $name = null;
-                    if ($item['type'] === 'food' && !empty($item['food_id'])) {
+                    if ($item['type'] === 'Food' && !empty($item['food_id'])) {
                         $food = Food::find($item['food_id']);
                         $name = $food?->name ?? 'Món ăn không tồn tại';
+                        $image = $food?->image;
+                    }
+                    if ($item['type'] === 'Combo' && !empty($item['combo_id'])) {
+                        $combo = Combo::find($item['combo_id']);
+                        $name = $combo?->name ?? 'Món ăn không tồn tại';
+                        $image = $combo?->image;
                     }
 
                     $toppingsWithNames = [];
@@ -276,6 +336,7 @@ class OrderController extends Controller
 
                     $orderDetailsWithNames[] = [
                         'name' => $name,
+                        'image' => $image,
                         'quantity' => $item['quantity'],
                         'price' => $item['price'],
                         'type' => $item['type'],
@@ -283,20 +344,57 @@ class OrderController extends Controller
                     ];
                 }
             }
+            $subtotal = 0;
 
-            // Chuẩn bị dữ liệu gửi mail
+            foreach ($orderDetailsWithNames as $item) {
+                $itemSubtotal = $item['price'] * $item['quantity'];
+                if (!empty($item['toppings'])) {
+                    foreach ($item['toppings'] as $topping) {
+                        $itemSubtotal += $topping['price'] * $item['quantity'];
+                    }
+                }
+
+                $subtotal += $itemSubtotal;
+            }
+
+            $tableInfos = $order->tables->map(function ($table) {
+                return [
+                    'table_number'  => $table->table_number ?? 'Không rõ',
+                    'reserved_from' => $table->pivot->reserved_from,
+                    'reserved_to'   => $table->pivot->reserved_to,
+                ];
+            })->toArray();
+
+            $qrImage = QrCode::format('png')->size(250)->generate('http://localhost:5173/history-order-detail/' . $order->id);
+
+            $filename = 'qr_' . $order->id . '.png';
+            $tempPath = storage_path('app/public/' . $filename);
+            file_put_contents($tempPath, $qrImage);
+
+            $uploadedFileUrl = Cloudinary::upload($tempPath, [
+                'folder' => 'qr_codes'
+            ])->getSecurePath();
+
+            unlink($tempPath);
+
             $mailData = [
                 'order_id' => $order->id,
+                'reservation_code' => $order->reservation_code,
                 'guest_name' => $guestName,
                 'guest_email' => $guestEmail,
                 'guest_phone' => $guestPhone,
+                'guest_count' => $request->guest_count || $order->guest_count,
                 'total_price' => $request->total_price ?? null,
                 'note' => $request->note ?? null,
-                'order_detail' => $orderDetailsWithNames,
+                'order_details' => $orderDetailsWithNames,
+                'tables' => $tableInfos,
+                'subtotal' => $subtotal,
+                'order_status' =>  $order->order_status,
+                'qr_url' => $uploadedFileUrl
             ];
 
-            // Gửi mail nếu cần (bạn có thể bỏ comment và chỉnh sửa nếu cần)
-            // Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
+
+            Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
 
             return response()->json([
                 'status' => true,
@@ -554,7 +652,8 @@ class OrderController extends Controller
                 'order_time' => $reservation->order_time,
                 'order_status' => $reservation->order_status,
                 'total_price' => $reservation->total_price,
-                'ex_price' => $reservation->total_price + $reservation->money_reduce,
+                'tpoint_used' => $reservation->tpoint_used,
+                'ship_cost' => $reservation->ship_cost,
                 'comment' => $reservation->comment,
                 'review_time' => $reservation->review_time,
                 'rating' => $reservation->rating,
@@ -564,7 +663,6 @@ class OrderController extends Controller
                 'guest_address' => $reservation->guest_address,
                 'guest_count' => $reservation->guest_count,
                 'note' => $reservation->note,
-                'deposit_amount' => $reservation->deposit_amount,
                 'money_reduce' => $reservation->money_reduce,
                 'check_in_time' => $reservation->check_in_time,
                 'reservations_time' => $reservation->reservations_time,
@@ -614,27 +712,8 @@ class OrderController extends Controller
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
-
-        // Chỉ cho phép hủy nếu đang ở trạng thái Chờ xác nhận hoặc Đã xác nhận
-        if (!in_array($order->order_status, ['Chờ xác nhận', 'Đã xác nhận'])) {
-            return response()->json(['message' => 'Chỉ có thể hủy đơn khi đang ở trạng thái chờ xác nhận hoặc đã xác nhận.'], 400);
-        }
-
-        DB::beginTransaction();
-        try {
-            // Khôi phục tồn kho
-            foreach ($order->details as $detail) {
-                $food = Food::find($detail->food_id);
-                if ($food) {
-                    $food->stock += $detail->quantity;
-                    $food->quantity_sold -= $detail->quantity;
-                    $food->save();
-                }
-            }
-
-            // Cập nhật trạng thái đơn hàng
-            $order->order_status = 'Đã hủy';
-            $order->save();
+        $order->order_status = 'Đã hủy';
+        $order->save();
 
             // Cập nhật trạng thái thanh toán nếu có
             if ($order->payment) {
@@ -736,7 +815,6 @@ class OrderController extends Controller
                     'guest_address' => $order->guest_address,
                     'guest_count' => $order->guest_count,
                     'note' => $order->note,
-                    'deposit_amount' => $order->deposit_amount,
                     'check_in_time' => $order->check_in_time,
                     'expiration_time' => $order->expiration_time,
                     'money_reduce' => $order->money_reduce,
@@ -816,7 +894,6 @@ class OrderController extends Controller
                     'guest_address' => $order->guest_address,
                     'guest_count' => $order->guest_count,
                     'note' => $order->note,
-                    'deposit_amount' => $order->deposit_amount,
                     'check_in_time' => $order->check_in_time,
                     'expiration_time' => $order->expiration_time,
                     'money_reduce' => $order->money_reduce,
@@ -1151,7 +1228,6 @@ class OrderController extends Controller
                 'guest_address' => $order->guest_address,
                 'guest_count' => $order->guest_count,
                 'note' => $order->note,
-                'deposit_amount' => $order->deposit_amount,
                 'check_in_time' => $order->check_in_time,
                 'expiration_time' => $order->expiration_time,
                 'money_reduce' => $order->money_reduce,

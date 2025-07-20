@@ -259,40 +259,38 @@ export default {
 
       const channel = pusher.subscribe('chat')
       channel.bind('App\\Events\\MessageSent', async (data) => {
-        await getConversation()
-
+        // Kiểm tra nếu là cuộc hội thoại hiện tại
         if (
           selectedConversation.value &&
           data.message.conversation_id === selectedConversation.value.id
         ) {
-          const tempMessageIndex = messages.value.findIndex(
-            (msg) => msg.isTemp &&
+          // Xoá temp message nếu có
+          const tempIndex = messages.value.findIndex(
+            (msg) =>
+              msg.isTemp &&
               msg.message === data.message.message &&
-              ((user.isGuest && msg.sender_id === data.message.sender_guest_id) ||
-                (!user.isGuest && msg.sender_id === data.message.sender_user_id))
+              (
+                (user.isGuest && msg.sender_guest_id === user.id) ||
+                (!user.isGuest && msg.sender_user_id === user.id)
+              )
           );
 
-          if (tempMessageIndex !== -1) {
-            messages.value.splice(tempMessageIndex, 1, data.message);
+          if (tempIndex !== -1) {
+            messages.value.splice(tempIndex, 1, data.message);
           } else {
-            messages.value.push(data.message);
-          }
-
-          scrollToBottom()
-
-          try {
-            const res = await axios.put(
-              `http://127.0.0.1:8000/api/mark-read/${data.message.conversation_id}`,
-            )
-            const current = conversations.value.find((c) => c.id === data.message.conversation_id)
-            if (current) {
-              Object.assign(current, res.data.conversation)
+            const isMyMessage = (user.isGuest && data.message.sender_guest_id === user.id) ||
+              (!user.isGuest && data.message.sender_user_id === user.id);
+            if (!isMyMessage) {
+              messages.value.push(data.message);
             }
-          } catch (err) {
-            console.log(err)
           }
+
+          scrollToBottom();
         }
-      })
+
+        await getConversation();
+      });
+
     })
 
     return {

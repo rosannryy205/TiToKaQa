@@ -68,61 +68,6 @@
               </template>
             </div>
 
-            <!-- <div class="d-none d-lg-block">
-              <router-link :to="{ name: 'delivery', params: { id: order_id   } }" style="color: black;">
-                <div class="loader">
-                  <div class="truckWrapper">
-                    <div class="truckBody">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 198 93" class="trucksvg">
-                        <path stroke-width="3" stroke="#282828" fill="#F83D3D"
-                          d="M135 22.5H177.264C178.295 22.5 179.22 23.133 179.594 24.0939L192.33 56.8443C192.442 57.1332 192.5 57.4404 192.5 57.7504V89C192.5 90.3807 191.381 91.5 190 91.5H135C133.619 91.5 132.5 90.3807 132.5 89V25C132.5 23.6193 133.619 22.5 135 22.5Z">
-                        </path>
-                        <path stroke-width="3" stroke="#282828" fill="#7D7C7C"
-                          d="M146 33.5H181.741C182.779 33.5 183.709 34.1415 184.078 35.112L190.538 52.112C191.16 53.748 189.951 55.5 188.201 55.5H146C144.619 55.5 143.5 54.3807 143.5 53V36C143.5 34.6193 144.619 33.5 146 33.5Z">
-                        </path>
-                        <path stroke-width="2" stroke="#282828" fill="#282828"
-                          d="M150 65C150 65.39 149.763 65.8656 149.127 66.2893C148.499 66.7083 147.573 67 146.5 67C145.427 67 144.501 66.7083 143.873 66.2893C143.237 65.8656 143 65.39 143 65C143 64.61 143.237 64.1344 143.873 63.7107C144.501 63.2917 145.427 63 146.5 63C147.573 63 148.499 63.2917 149.127 63.7107C149.763 64.1344 150 64.61 150 65Z">
-                        </path>
-                        <rect stroke-width="2" stroke="#282828" fill="#FFFCAB" rx="1" height="7" width="5" y="63"
-                          x="187">
-                        </rect>
-                        <rect stroke-width="2" stroke="#282828" fill="#282828" rx="1" height="11" width="4" y="81"
-                          x="193"></rect>
-                        <rect stroke-width="3" stroke="#282828" fill="#DFDFDF" rx="2.5" height="90" width="121" y="1.5"
-                          x="6.5">
-                        </rect>
-                        <rect stroke-width="2" stroke="#282828" fill="#DFDFDF" rx="2" height="4" width="6" y="84" x="1">
-                        </rect>
-                      </svg>
-                    </div>
-                    <div class="truckTires">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 30 30" class="tiresvg">
-                        <circle stroke-width="3" stroke="#282828" fill="#282828" r="13.5" cy="15" cx="15"></circle>
-                        <circle fill="#DFDFDF" r="7" cy="15" cx="15"></circle>
-                      </svg>
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 30 30" class="tiresvg">
-                        <circle stroke-width="3" stroke="#282828" fill="#282828" r="13.5" cy="15" cx="15"></circle>
-                        <circle fill="#DFDFDF" r="7" cy="15" cx="15"></circle>
-                      </svg>
-                    </div>
-                    <div class="road"></div>
-
-                    <svg xml:space="preserve" viewBox="0 0 453.459 453.459" xmlns:xlink="http://www.w3.org/1999/xlink"
-                      xmlns="http://www.w3.org/2000/svg" id="Capa_1" version="1.1" fill="#000000" class="lampPost">
-                      <path d="M252.882,0c-37.781,0-68.686,29.953-70.245,67.358h-6.917v8.954c-26.109,2.163-45.463,10.011-45.463,19.366h9.993
-  c-1.65,5.146-2.507,10.54-2.507,16.017c0,28.956,23.558,52.514,52.514,52.514c28.956,0,52.514-23.558,52.514-52.514
-  c0-5.478-0.856-10.872-2.506-16.017h9.992c0-9.354-19.352-17.204-45.463-19.366v-8.954h-6.149C200.189,38.779,223.924,16,252.882,16
-  c29.952,0,54.32,24.368,54.32,54.32c0,28.774-11.078,37.009-25.105,47.437c-17.444,12.968-37.216,27.667-37.216,78.884v113.914
-  h-0.797c-5.068,0-9.174,4.108-9.174,9.177c0,2.844,1.293,5.383,3.321,7.066c-3.432,27.933-26.851,95.744-8.226,115.459v11.202h45.75
-  v-11.202c18.625-19.715-4.794-87.527-8.227-115.459c2.029-1.683,3.322-4.223,3.322-7.066c0-5.068-4.107-9.177-9.176-9.177h-0.795
-  V196.641c0-43.174,14.942-54.283,30.762-66.043c14.793-10.997,31.559-23.461,31.559-60.277C323.202,31.545,291.656,0,252.882,0z
-  M232.77,111.694c0,23.442-19.071,42.514-42.514,42.514c-23.442,0-42.514-19.072-42.514-42.514c0-5.531,1.078-10.957,3.141-16.017
-  h78.747C231.693,100.736,232.77,106.162,232.77,111.694z"></path>
-                    </svg>
-                  </div>
-                </div>
-              </router-link>
-            </div> -->
 
             <div>
               <router-link to="/cart" class="icon-btn text-dark" title="Giỏ hàng">
@@ -140,6 +85,8 @@
             <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
             <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
             <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
           </ul>
         </div>
       </nav>
@@ -172,9 +119,11 @@
           </div>
 
           <div class="d-flex flex-column align-items-start">
-            <button v-if="!isLoggedIn" class="icon-btn text-dark mb-2" data-bs-toggle="modal" @click="openLoginModal">
-              <i class="bi bi-people me-2"></i> Đăng nhập
-            </button>
+            <router-link v-if="!isLoggedIn" to="/login" class="text-decoration-none text-primary-black">
+              <button class="icon-btn text-dark mb-2">
+                <i class="bi bi-people me-2"></i> Đăng nhập
+              </button>
+            </router-link>
             <template v-else>
               <div class="mb-2">
                 <router-link to="/account/update-user" class="text-decoration-none text-primary-red me-2">
@@ -202,7 +151,7 @@
   </div>
 
   <div class="modal fade" id="searchModal">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
           <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
@@ -210,8 +159,9 @@
           <div class="row">
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
+              <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -221,7 +171,8 @@
             <div class="col-md-6 d-flex flex-column">
               <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
                 <div class="flex-grow-1">
-                  <div class="topping-container mb-3" v-if="toppingList.length">
+                  <div class="topping-container mb-3" v-if="toppingList.length
+                  || spicyLevel.length ">
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" id="spicyLevel">
@@ -230,7 +181,7 @@
                         </option>
                       </select>
                     </div>
-                    <label class="form-label fw-bold">🧀 Chọn Topping:</label>
+                    <label v-if="toppingList.length" class="form-label fw-bold">🧀 Chọn Topping:</label>
                     <div v-for="topping in toppingList" :key="topping.id"
                       class="d-flex justify-content-between align-items-center mb-2">
                       <label class="d-flex align-items-center">
@@ -240,27 +191,28 @@
                       <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
                     </div>
                   </div>
-                  <div v-else class="mt-5">
+                  <div v-else class="mt-5 none-topping">
                     <p class="text-center text-muted">Không có topping cho món này.</p>
                   </div>
                 </div>
+
                 <!---->
                 <div class="mt-auto">
-
                   <div class="text-center mb-2">
                     <div class="qty-control px-2 py-1">
-                      <button @click="decreaseQuantity" type="button" class="btn-lg"
+                      <button type="button" @click="decreaseQuantity" class="btn-lg"
                         style="background-color: #fff;">-</button>
                       <span>{{ quantity }}</span>
-                      <button @click="increaseQuantity" type="button" class="btn-lg"
+                      <button type="button" @click="increaseQuantity" class="btn-lg"
                         style="background-color: #fff;">+</button>
                     </div>
-
-                  </div> <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                  </div>
+                  <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
 
             </div>
+
           </div>
         </div>
       </div>
@@ -275,8 +227,8 @@ import { useUserStore } from '@/stores/userAuth';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
-import * as bootstrap from 'bootstrap';
 import { toast } from 'vue3-toastify';
+import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
 
 // const { formattedTime, isCounting, startCountdown } = useCountdown(60);
@@ -287,7 +239,7 @@ const loginWithGoogle = () => {
 };
 
 const router = useRouter();
-window.bootstrap = bootstrap;
+// window.bootstrap = bootstrap;
 //  Đăng xuất
 const handleLogout = async () => {
   const confirmResult = await Swal.fire({
@@ -450,45 +402,42 @@ const selectItem = (item) => {
   searchQuery.value = item.name;
   showSuggestions.value = false;
   suggestions.value = [];
-
   openModal(item);
 };
 
 const openModal = async (item) => {
-  foodDetail.value = {};
-  toppings.value = [];
-  spicyLevel.value = [];
-  toppingList.value = [];
-  quantity.value = 1;
-
+  foodDetail.value = {}
+  toppings.value = []
+  spicyLevel.value = []
+  toppingList.value = []
+  quantity.value = 1
   try {
     if (item.type === 'food') {
-      const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`);
-      foodDetail.value = { ...res.data, type: 'Food' };
+      const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+      foodDetail.value = { ...res.data, type: 'Food' }
 
-      const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`);
-      toppings.value = res1.data;
+      const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+      toppings.value = res1.data
 
-      spicyLevel.value = toppings.value.filter((tp) => tp.category_id == 1);
-      toppingList.value = toppings.value.filter((tp) => tp.category_id == 2);
-
-      toppingList.value.forEach((tp) => {
-        tp.price = tp.price || 0;
-      });
+      spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
+      toppingList.value = toppings.value.filter((item) => item.category_id == 16)
+      toppingList.value.forEach((item) => {
+        item.price = item.price || 0
+      })
     } else if (item.type === 'combo') {
-      const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`);
-      foodDetail.value = { ...res.data, type: 'Combo' };
+      const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+      foodDetail.value = { ...res.data, type: 'Combo' }
     }
 
-    const modalElement = document.getElementById('searchModal');
+    const modalElement = document.getElementById('searchModal')
     if (modalElement) {
-      const modal = new bootstrap.Modal(modalElement); // dùng bootstrap.Modal
-      modal.show();
+      const modal = new Modal(modalElement)
+      modal.show()
     }
   } catch (error) {
-    console.error('Lỗi khi mở modal chi tiết:', error);
+    console.error(error)
   }
-};
+}
 
 
 // Hàm tìm kiếm sản phẩm khi người dùng nhấn Enter hoặc submit

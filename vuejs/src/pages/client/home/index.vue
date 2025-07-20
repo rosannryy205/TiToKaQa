@@ -4,13 +4,13 @@
     <div class="container text-center">
       <div class="row justify-content-center align-items-stretch">
         <div class="col-4 d-none d-lg-block pt-5 text-start">
-          <div class="title-foods fw-medium fs-5 mt-5">
-            <span>Lẩu và Mỳ cay 7 cấp độ</span>
+          <div class="title-foods fs-5 mt-5">
+            <span class="fw-bold text-dark">Lẩu và Mỳ cay 7 cấp độ</span>
           </div>
           <div class="title-shops d-none d-md-block fw-bold">
-            <span>TITOKAQA</span>
+            <span class="fw-bold">TITOKAQA</span>
           </div>
-          <div class="title-infors fw-normal pe-5">
+          <div class="title-infors fw-normal pe-5 text-dark">
             <span>TITOKAQA là chuỗi nhà hàng thương hiệu ẩm thực Hàn Quốc ra mắt vào năm 2025. Món
               “lẩu”, “mỳ cay” với 7 cung bậc cay đã trở thành cơn sốt đối với giới trẻ lúc bấy giờ.
               TITOKAQA đã trở thành một trong những lựa chọn hàng đầu của giới trẻ Việt Nam khi muốn
@@ -50,7 +50,7 @@
               <nav class="navbar px-0 py-2">
                 <ul class="navbar-nav flex-column w-100">
                   <li v-for="parent in categories" :key="parent.id" class="nav-item dropdown position-relative">
-                    <a @click.prevent="getFoodByCategory(parent.id)" class="nav-link fw-semibold text-start" href="#">
+                    <a @click.prevent="getFoodByCategory(parent.id)" class="nav-link fw-bold text-start" href="#">
                       {{ parent.name }}
                     </a>
 
@@ -76,25 +76,39 @@
                 </div>
               </div>
 
-              <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
-                <ul class="list-group">
-                  <li v-for="parent in categories" :key="parent.id" class="list-group-item parent-category d-flex">
-                    <a @click.prevent="getFoodByCategory(parent.id)" href="#" class="text-decoration-none text-start">
-                      {{ parent.name }}
-                    </a>
-                    <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
-                      <li v-for="child in parent.children" :key="child.id"
-                        class="list-group-item child-category d-flex">
-                        <a @click.prevent="getFoodByCategory(child.id)" href="#"
-                          class="text-decoration-none text-start">
-                          🔻{{ child.name }}
-                        </a>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-            </div>
+        <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
+          <ul class="list-group">
+            <li
+              v-for="parent in categories"
+              :key="parent.id"
+              class="list-group-item parent-category d-flex"
+            >
+              <a
+                @click.prevent="getFoodByCategory(parent.id)"
+                href="#"
+                class="text-decoration-none text-start text-dark fw-bold"
+              >
+                {{ parent.name }}
+              </a>
+              <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
+                <li
+                  v-for="child in parent.children"
+                  :key="child.id"
+                  class="list-group-item child-category d-flex"
+                >
+                  <a
+                    @click.prevent="getFoodByCategory(child.id)"
+                    href="#"
+                    class="text-decoration-none text-start text-dark fw-bold"
+                  >
+                    🔻{{ child.name }}
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
 
 
             <div class="col-lg-9 align-items-center text-center">
@@ -393,8 +407,8 @@ export default {
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
 
-          spicyLevel.value = toppings.value.filter((item) => item.category_id == 1)
-          toppingList.value = toppings.value.filter((item) => item.category_id == 2)
+          spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
+          toppingList.value = toppings.value.filter((item) => item.category_id == 16)
           toppingList.value.forEach((item) => {
             item.price = item.price || 0
           })

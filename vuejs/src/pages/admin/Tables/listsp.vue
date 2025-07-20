@@ -1,37 +1,46 @@
 <template v-if="hasPermission('edit_booking')">
-  <div>
-    <div class="fw-semibold">Danh sách món</div>
-    <div class="mb-3">
-      <hr />
-      <div class="row">
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-          Lọc theo danh mục:
-          <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
-            <option value="">Tất cả món ăn</option>
-            <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
-              {{ item.indent }}{{ item.name }}
-            </option>
-          </select>
-        </div>
-        <div class="col-12 col-md-6 col-lg-3 mb-3">
-          Tìm kiếm theo tên:
-          <v-select v-model="selectfood" :options="foods" label="name" placeholder="Nhập tên món ăn" :clearable="true"
-            @input="onFoodSearch" class="form-control rounded" />
-        </div>
-        <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
-          <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
-            <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
-              <div class="gap-1">
-                <div class="d-flex flex-column align-items-center" @click="openModal(product)">
-                  <img :src="getImageUrl(product.image)" alt="" srcset=""
-                    style="width: 60px; height: 60px; object-fit: cover" />
-                  <div class="product_name text-center mt-1">{{ product.name }}</div>
-                  <strong class="text-danger product_price">
-                    {{ formatNumber(product.price) }} VND
-                  </strong>
-                </div>
+  <div class="d-flex justify-content-between">
+    <div class="fw-semibold fs-3">Danh sách món</div>
+
+    <div>
+      <button @click="$router.back()" class="btn btn-outline-secondary rounded-0">
+        <i class="bi bi-arrow-counterclockwise"></i> Quay lại
+      </button>
+    </div>
+
+  </div>
+  <div class="mb-3">
+    <hr />
+    <div class="row">
+      <div class="col-12 col-md-6 col-lg-3 mb-3">
+        Lọc theo danh mục:
+        <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
+          <option value="">Tất cả món ăn</option>
+          <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
+            {{ item.indent }}{{ item.name }}
+          </option>
+        </select>
+      </div>
+      <div class="col-12 col-md-6 col-lg-3 mb-3">
+        <label for="foodSearch">Tìm kiếm theo tên món ăn:</label>
+        <input id="foodSearch" type="text" class="form-control rounded" v-model="searchFoodTerm"
+          placeholder="Nhập tên món ăn" />
+      </div>
+
+      <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
+        <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
+          <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
+            <div class="gap-1">
+              <div class="d-flex flex-column align-items-center" @click="openModal(product)">
+                <img :src="getImageUrl(product.image)" alt="" srcset=""
+                  style="width: 60px; height: 60px; object-fit: cover" />
+                <div class="product_name text-center mt-1">{{ product.name }}</div>
+                <strong class="text-danger product_price">
+                  {{ formatNumber(product.price) }} VND
+                </strong>
               </div>
             </div>
+          </div>
 
             <div class="d-flex justify-content-center mt-3 w-100">
               <nav>

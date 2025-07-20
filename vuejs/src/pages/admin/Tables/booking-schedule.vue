@@ -1,162 +1,160 @@
 <template>
-  <div>
-    <div v-if="isLoading" class="isLoading-overlay">
-      <div class="spinner-border text-danger" role="status">
-        <span class="visually-hidden">Đang tải...</span>
+  <div v-if="isLoading" class="loader-wrapper1">
+    <div class="loader"></div>
+  </div>
+  <div class="d-flex mb-2">
+    <div>
+      <h4>Lịch đặt bàn</h4>
+      <div class="d-flex">
+        <router-link :to="{ name: 'insert-reservation-admin' }" class="btn btn-outline-danger me-2"
+          v-if="hasPermission('create_booking')">
+          + Thêm đơn đặt bàn
+        </router-link>
+        <input type="date" id="datePicker" v-model="selectedDateInput" @change="handleDateInputChange"
+          class="form-control rounded" style="width: 280px;">
       </div>
     </div>
-    <div class="d-flex mb-2">
-      <div>
-        <h4>Lịch đặt bàn</h4>
-        <div class="d-flex">
-          <router-link :to="{ name: 'insert-reservation-admin' }" class="btn btn-outline-danger me-2"
-            v-if="hasPermission('create_booking')">
-            + Thêm đơn đặt bàn
-          </router-link>
-          <input type="date" id="datePicker" v-model="selectedDateInput" @change="handleDateInputChange"
-            class="form-control rounded" style="width: 280px;">
-        </div>
-      </div>
-    </div>
+  </div>
 
-    <FullCalendar :options="calendarOptions" v-if="hasPermission('view_booking')" ref="fullCalendarRef" />
-    <transition name="popup-fade">
-      <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
-        <div class="event-detail-popup" @click.stop>
-          <div class="popup-header">
-            <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
-            <button class="close-button" @click="closeDetailPopup">&times;</button>
+  <FullCalendar :options="calendarOptions" v-if="hasPermission('view_booking')" ref="fullCalendarRef" />
+  <transition name="popup-fade">
+    <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
+      <div class="event-detail-popup" @click.stop>
+        <div class="popup-header">
+          <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
+          <button class="close-button" @click="closeDetailPopup">&times;</button>
+        </div>
+        <div class="popup-content" v-if="info">
+          <div class="info-item">
+            <div class="info-block">
+              <i class="bi bi-table"></i>Ngày đặt:
+              <span v-for="(t, index) in info.tables" :key="index">
+                {{ formatDate(t.reserved_from)
+                }}<span v-if="index < info.tables.length - 1">, </span>
+              </span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-clock"></i>Giờ đặt:
+              <span v-for="(t, index) in info.tables" :key="index">
+                {{ formatTime(t.reserved_from) }} - {{ formatTime(t.reserved_to)
+                }}<span v-if="index < info.tables.length - 1">, </span>
+              </span>
+            </div>
           </div>
-          <div class="popup-content" v-if="info">
-            <div class="info-item">
-              <div class="info-block">
-                <i class="bi bi-table"></i>Ngày đặt:
+          <div class="info-item">
+            <div class="info-block">
+              <i class="fa-solid fa-calendar"></i>
+              <span>Bàn số:
                 <span v-for="(t, index) in info.tables" :key="index">
-                  {{ formatDate(t.reserved_from)
-                  }}<span v-if="index < info.tables.length - 1">, </span>
+                  {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
                 </span>
-              </div>
-              <div class="info-block">
-                <i class="bi bi-clock"></i>Giờ đặt:
-                <span v-for="(t, index) in info.tables" :key="index">
-                  {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
-                  }}<span v-if="index < info.tables.length - 1">, </span>
-                </span>
-              </div>
+              </span>
             </div>
-            <div class="info-item">
-              <div class="info-block">
-                <i class="fa-solid fa-calendar"></i>
-                <span>Bàn số:
-                  <span v-for="(t, index) in info.tables" :key="index">
-                    {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
-                  </span>
-                </span>
-              </div>
-              <div class="info-block">
-                <i class="bi bi-people"></i>
-                <span>Lượng khách:
-                  {{ info.guest_count }}
-                </span>
-              </div>
+            <div class="info-block">
+              <i class="bi bi-people"></i>
+              <span>Lượng khách:
+                {{ info.guest_count }}
+              </span>
             </div>
-            <div class="info-item">
-              <div class="info-block">
-                <i class="fa-solid fa-user"></i>
-                <span>Khách hàng: {{ info.guest_name }}</span>
-              </div>
-              <div class="info-block">
-                <i class="bi bi-telephone"></i>
-                <span>SĐT: {{ info.guest_phone }}</span>
-              </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <i class="fa-solid fa-user"></i>
+              <span>Khách hàng: {{ info.guest_name }}</span>
             </div>
-            <div class="info-item">
-              <div class="info-block">
-                <i class="bi bi-envelope"></i>
-                <span>Email: {{ info.guest_email }}</span>
-              </div>
-              <div class="info-block">
-                <i class="bi bi-card-heading"></i>
-                <span>Ghi chú: {{ info.note || 'Không có' }}</span>
-              </div>
+            <div class="info-block">
+              <i class="bi bi-telephone"></i>
+              <span>SĐT: {{ info.guest_phone }}</span>
             </div>
-            <div class="info-item">
-              <div class="info-block">
-                <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
-              </div>
-              <div class="info-block">
-                <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
-              </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <i class="bi bi-envelope"></i>
+              <span>Email: {{ info.guest_email }}</span>
             </div>
-            <div class="info-item">
-              <div class="info-block">
-                <span>
-                  <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
-                </span>
-              </div>
-              <div class="info-block">
-                <i class="bi bi-card-list"></i>
-                <span>Trạng thái đơn:
-                  <select v-model="info.order_status" class="p-1 border rounded-0"
-                    @change="updateStatus(info.id, info.order_status)" :disabled="!hasPermission('edit_booking')">
-                    <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
-                      Chờ xác nhận
-                    </option>
-                    <option value="Đã xác nhận" :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
-                      Đã xác nhận
-                    </option>
-                    <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
-                      Đang xử lý
-                    </option>
-                    <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
-                      Khách đã đến
-                    </option>
-                    <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
-                      Hoàn thành
-                    </option>
-                    <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
-                      Đã hủy
-                    </option>
-                  </select>
-                </span>
-              </div>
+            <div class="info-block">
+              <i class="bi bi-card-heading"></i>
+              <span>Ghi chú: {{ info.note || 'Không có' }}</span>
             </div>
-            <div class="info-item1">
-              <i class="bi bi-journals" style="padding-right: 15px"></i>
-              <span>Các món đã đặt</span>
-              <div class="card-custom" style="max-height: 200px; overflow-y: auto">
-                <div class="row align-items-center border-bottom" v-for="item in info.details" :key="item.id">
-                  <div class="col-6 p-2">
-                    <div class="item-name">
-                      {{ item.food_name }}
-                    </div>
-                    <div class="item-details">
-                      <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3">
-                        <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
-                          + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }}
-                          đ)
-                        </li>
-                      </ul>
-                    </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
+            </div>
+            <div class="info-block">
+              <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-block">
+              <span>
+                <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
+              </span>
+            </div>
+            <div class="info-block">
+              <i class="bi bi-card-list"></i>
+              <span>Trạng thái đơn:
+                <select v-model="info.order_status" class="p-1 border rounded-0"
+                  @change="updateStatus(info.id, info.order_status)" :disabled="!hasPermission('edit_booking')">
+                  <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
+                    Chờ xác nhận
+                  </option>
+                  <option value="Đã xác nhận" :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
+                    Đã xác nhận
+                  </option>
+                  <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
+                    Đang xử lý
+                  </option>
+                  <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
+                    Khách đã đến
+                  </option>
+                  <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
+                    Hoàn thành
+                  </option>
+                  <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
+                    Đã hủy
+                  </option>
+                </select>
+              </span>
+            </div>
+          </div>
+          <div class="info-item1">
+            <i class="bi bi-journals" style="padding-right: 15px"></i>
+            <span>Các món đã đặt</span>
+            <div class="card-custom" style="max-height: 200px; overflow-y: auto">
+              <div class="row align-items-center border-bottom" v-for="item in info.details" :key="item.id">
+                <div class="col-6 p-2">
+                  <div class="item-name">
+                    {{ item.food_name }}
                   </div>
-                  <div class="col-2">{{ item.quantity }}</div>
-                  <div class="col-3">
-                    <div class="total-price">
-                      {{ formatNumber(calculateTotalItemPrice(item)) }} VNĐ
-                    </div>
+                  <div class="item-details">
+                    <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3">
+                      <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
+                        + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }}
+                        đ)
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-2">{{ item.quantity }}</div>
+                <div class="col-3">
+                  <div class="total-price">
+                    {{ formatNumber(calculateTotalItemPrice(item)) }} VNĐ
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="popup-actions" v-if="hasPermission('edit_booking')">
-            <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
-            <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
-          </div>
+        </div>
+        <div class="popup-actions" v-if="hasPermission('edit_booking')">
+          <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
+          <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
+          <router-link :to="`/admin/tables-setup/${info.id}`" class="btn edit-button">Xếp bàn</router-link>
         </div>
       </div>
-    </transition>
-  </div>
+    </div>
+  </transition>
+
 </template>
 
 <script setup>
@@ -183,7 +181,7 @@ if (userString) {
     userId.value = user.id
   }
 }
-const { hasPermission, permissions } = Permission(userId)
+const { hasPermission, permissions, isLoadingPermissions } = Permission(userId)
 
 const { formatDate, formatTime, formatNumber, info, getInfo } = Info.setup()
 const router = useRouter()
@@ -191,6 +189,10 @@ const isLoading = ref(false)
 
 const tables = ref([])
 const getTable = async () => {
+  if (!isLoading.value) {
+    isLoading.value = true;
+  }
+
   try {
     const res = await axios.get('http://127.0.0.1:8000/api/all-tables')
     tables.value = res.data;
@@ -203,14 +205,22 @@ const getTable = async () => {
         tableNumber: table.table_number,
       }
     }));
+    isLoading.value = false
 
   } catch (error) {
     console.log(error)
+  } finally {
+    isLoading.value = false;
   }
+
 }
 
 const orderOfTable = ref([])
 const getOrderOfTable = async () => {
+  if (!isLoading.value) {
+    isLoading.value = true;
+  }
+
   try {
     const res = await axios.get('http://127.0.0.1:8000/api/order-tables')
     orderOfTable.value = res.data.orders
@@ -229,8 +239,12 @@ const getOrderOfTable = async () => {
         total_quantity: order.total_quantity,
       },
     }))
+
   } catch (error) {
     console.log(error)
+  } finally {
+    isLoading.value = false
+
   }
 }
 
@@ -323,45 +337,35 @@ const handleDateInputChange = () => {
 const handleDateClick = (clickDate) => {
   // const date = formatDateTime(clickDate.dateStr)
   // const date = formatDateTime1(clickDate.dateStr)
-  localStorage.setItem('selectedDate', clickDate.dateStr)
   router.push({
-    name: 'insert-reservation-admin',
+    name: 'insert-reservation-admin-date',
+    params: { date: clickDate.dateStr } // chỉ lấy YYYY-MM-DD
   })
+
+
 }
 
 onMounted(async () => {
-  const params = new URLSearchParams(window.location.search);
-  const hasVnpParams = params.has('vnp_TransactionStatus') || params.has('vnp_TxnRef');
 
-  axios.get('http://127.0.0.1:8000/api/payments/vnpay-return', { params })
-    .then(res => {
-      if (hasVnpParams) {
-        if (res.data.success) {
-          toast.success('Thanh toán thành công!');
-        } else {
-          toast.error('Thanh toán thất bại hoặc có lỗi!');
-        }
-      }
-    })
-    .catch(() => {
-      if (hasVnpParams) {
-        toast.error('Lỗi xác minh thanh toán!');
-      }
-    })
-    .finally(() => {
-      getTable()
-      getOrderOfTable()
-      selectedDateInput.value = new Date().toISOString().split('T')[0];
-      // console.log(calendarOptions.value.events)
-      // console.log(calendarOptions.value.resources)
-    });
-
+  selectedDateInput.value = new Date().toISOString().split('T')[0];
+  // console.log(calendarOptions.value.events)
+  // console.log(calendarOptions.value.resources)
 })
+const initialTablesLoaded = ref(false);
 
-watch(permissions, (newPermissions) => {
-  getTable()
-  getOrderOfTable()
-}, { immediate: true })
+
+watch(
+  [permissions, isLoadingPermissions],
+  async ([newPermissions, newIsLoadingPermissions]) => {
+    if (newPermissions.length > 0 && !newIsLoadingPermissions && !initialTablesLoaded.value) {
+      await getTable();
+      await getOrderOfTable();
+      initialTablesLoaded.value = true;
+    }
+  },
+  { immediate: true }
+);
+
 
 const calendarOptions = ref({
   plugins: [
@@ -688,6 +692,41 @@ a {
   display: none;
 }
 
+.loader-wrapper1 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(148, 142, 142, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* loader */
+.loader {
+  width: 50px;
+  --b: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000 10%, #f03355) content-box;
+  -webkit-mask:
+    repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
+    radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
+}
+
+@keyframes l4 {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
 /* Đường kẻ thời gian hiện tại (Now Indicator) */
 .fc-timegrid-now-indicator-line {
   border-top: 1px solid rgb(226, 26, 26) !important;
@@ -746,6 +785,7 @@ a {
   color: #333;
   gap: 2px;
   border-left: 8px solid #c92c3c;
+  cursor: pointer;
 }
 
 .fc-datagrid-cell-frame {
