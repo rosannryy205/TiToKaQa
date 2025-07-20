@@ -434,32 +434,6 @@ class UserController extends Controller
         }
     }
 
-    
-    protected  function uploadAvatar(Request $request, string $id)
-    {
-        $user = User::findOrFail($id);
-
-        $request->validate([
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $filename = $file->hashName();
-            $path = $file->storePubliclyAs('avatar', $filename, 'public');
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-            $user->avatar = $path;
-        }
-        $user->save();
-
-        return response()->json([
-            'message' => 'Thông tin và ảnh đại diện đã được cập nhật thành công.',
-            'user' => $user,
-            'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null
-        ]);
-    }
-
 
     protected  function uploadAvatar(Request $request, string $id)
     {

@@ -15,7 +15,7 @@
         <div class="card mb-3" v-for="(item, index) in cartItems" :key="index">
           <div class="card-body d-flex align-items-center flex-wrap">
             <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
-            <img :src="'http://127.0.0.1:8000/storage/img/food/' + item.image" class="cart-img me-3 mb-2"
+            <img :src="getImageUrl(item.image)" class="cart-img me-3 mb-2"
               alt="Mì kim chi Nha Trang" />
 
             <div class="flex-grow-1 mb-2">
@@ -157,7 +157,7 @@
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name"
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name"
                   class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">

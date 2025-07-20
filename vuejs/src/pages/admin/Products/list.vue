@@ -1,4 +1,5 @@
 <template v-if="hasPermission('view_food')">
+  <div>
   <h3 class="title">Quản lý món ăn</h3>
 
     <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
