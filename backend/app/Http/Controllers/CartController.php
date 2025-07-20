@@ -51,7 +51,7 @@ class CartController extends Controller
                     'guest_phone.regex' => 'Số điện thoại không đúng định dạng.',
                     'guest_phone.digits' => 'Số điện thoại không đúng định dạng.',
 
-                    'guest_address.requied' => 'Vui lòng điền địa chỉ nhận hàng',
+                    'guest_address.required' => 'Vui lòng điền địa chỉ nhận hàng',
 
                     'reservations_time.required' => 'Vui lòng nhập ngày nhận bàn.',
                 ]
@@ -70,7 +70,7 @@ class CartController extends Controller
                     'ship_cost' => $data['ship_cost'],
                     'discount_id' => $data['discount_id'],
                     'note' => $data['note'] ?? null,
-                    
+
                 ]);
                 if (!empty($data['user_id']) && !empty($data['tpoint_used'])) {
                     $user = User::find($data['user_id']);
@@ -89,9 +89,12 @@ class CartController extends Controller
                             'quantity' => $item['quantity'],
                             'price' => $item['price'],
                             'type' => $item['type'],
+                            'is_deal' => $item['is_deal'] ?? false,
+                            'reward_id' => $item['reward_id'] ?? null,
+
                             'is_deal' => !empty($item['is_deal']) ? 1 : 0,
-                            'reward_id' => $item['reward_id'] ?? null, 
-                            
+                            'reward_id' => $item['reward_id'] ?? null,
+
                         ]);
 
                         // Trừ stock và cộng quantity_sold nếu là món ăn đơn lẻ
@@ -116,9 +119,10 @@ class CartController extends Controller
                         }
                     }
                 }
-
+                $orderDetailsWithNames = [];
                 foreach ($request->order_detail as $item) {
                     $name = null;
+                    $image = null;
                     if ($item['type'] === 'Food' && !empty($item['food_id'])) {
                         $food = Food::find($item['food_id']);
                         $name = $food?->name ?? 'Món ăn không tồn tại';
@@ -177,10 +181,22 @@ class CartController extends Controller
                     'order_details' => $orderDetailsWithNames,
                     'subtotal' => $subtotal,
                     'order_status' =>  'Chờ xác nhận',
-                    'shippingFee' =>  $order->shippingFee
+                    'shippingFee' =>  $order->ship_cost
+
                 ];
 
-                Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+                try {
+                    Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+                } catch (\Exception $e) {
+                    log::error('Lỗi gửi mail khi đặt hàng: ' . $e->getMessage());
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Đặt hàng thành công (Không gửi được email)',
+                        'warning' => 'Không thể gửi email xác nhận đơn hàng.',
+                        'order_id' => $order->id
+                    ], 200);
+                }
 
                 return response()->json([
                     'status' => true,
@@ -197,6 +213,69 @@ class CartController extends Controller
             ], 422);
         }
     }
+
+    public function reOrder(Request $request, $id)
+    {
+        $oldOrder = Order::with('details.toppings')->find($id);
+
+        if (!$oldOrder) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Đơn hàng không tồn tại'
+            ], 404);
+        }
+
+        $orderDetailData = $oldOrder->details->map(function ($item) {
+            return [
+                'food_id' => $item->food_id,
+                'combo_id' => $item->combo_id,
+                'quantity' => $item->quantity,
+                'price' => $item->price,
+                'type' => $item->type,
+                'is_deal' => $item->is_deal,
+                'reward_id' => $item->reward_id,
+                'toppings' => $item->toppings->map(function ($t) {
+                    return [
+                        'food_toppings_id' => $t->food_toppings_id,
+                        'price' => $t->price
+                    ];
+                })->toArray(),
+            ];
+        })->toArray();
+
+        $orderData = [
+            'user_id' => $oldOrder->user_id,
+            'guest_name' => $oldOrder->guest_name,
+            'guest_phone' => $oldOrder->guest_phone,
+            'guest_email' => $oldOrder->guest_email,
+            'guest_address' => $oldOrder->guest_address,
+            'total_price' => $oldOrder->total_price,
+            'money_reduce' => $oldOrder->money_reduce,
+            'tpoint_used' => $oldOrder->tpoint_used,
+            'ship_cost' => $oldOrder->ship_cost,
+            'order_detail' => $orderDetailData,
+            'discount_id' => $oldOrder->discount_id,
+            'note' => '(Đặt lại từ đơn hàng #' . $oldOrder->id . ')',
+        ];
+
+        try {
+            $newRequest = new Request($orderData);
+            return $this->order($newRequest);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Có lỗi xảy ra khi đặt lại đơn hàng',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
 
     public function orderTakeAway(Request $request)
@@ -476,7 +555,7 @@ class CartController extends Controller
             if ($order->payment) {
                 $payment = $order->payment;
                 if ($newStatus === 'Giao thành công') {
-                    
+
                     $payment->payment_status = 'Đã thanh toán';
                 } elseif (in_array($newStatus, ['Giao thất bại', 'Đã hủy'])) {
                     $payment->payment_status = 'Thanh toán thất bại';
@@ -504,7 +583,7 @@ class CartController extends Controller
                             $reward->is_used = true;
                             $reward->used_at = now();
                             $reward->save();
-        
+
                             Log::info("✅ Reward ID {$reward->id} đã được đánh dấu is_used = true");
                         } else {
                             Log::warning("⚠️ Reward ID {$detail->reward_id} không hợp lệ hoặc đã được dùng.");

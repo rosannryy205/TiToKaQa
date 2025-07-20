@@ -67,7 +67,7 @@
           <tr v-for="item in info.details" :key="item.id">
             <td>{{ item.item_id }}</td>
             <td>
-              <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
+              <img :src="'http://127.0.0.1:8000/storage/img/food/'+item.image" class="me-2" alt="img" width="80px" height="80px">
               {{ item.food_name || item.combo_name}}
               <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3 ">
                 <li v-for="topping in item.toppings" :key="topping.food_toppings_id">

@@ -35,7 +35,7 @@
     <table class="table table-bordered rounded">
       <thead class="table-light">
         <tr>
-          <th><input type="checkbox" @change="toggleSelectAll" :checked="isAllSelected" /></th>
+          <!-- <th><input type="checkbox" @change="toggleSelectAll" :checked="isAllSelected" /></th> -->
           <th>STT</th>
           <th>Tên</th>
           <th>Hình ảnh</th>
@@ -51,7 +51,7 @@
 
 
         <tr v-for="(item, index) in categories" :key="item.id">
-          <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td>
+          <!-- <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td> -->
           <td>{{ index + 1 }}</td>
           <td>{{ item.name }}</td>
           <td>
@@ -65,19 +65,37 @@
           <td class="d-flex justify-content-center gap-2 "
             style="min-height:100px; min-width: 80px; display: flex; align-items: center; justify-content: center;">
             <router-link v-if="item.id !== 1 || hasPermission('edit_category')"
-              :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-outline btn-sm">
+              :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-update btn-sm">
               Sửa
             </router-link>
-            <div v-if="item.default === 0">
-              <button class="btn btn-danger-delete btn-sm" @click="handleDelete(item.id)"
-                v-if="hasPermission('delete_category')">Xoá</button>
-            </div>
+
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
+  <div class="d-block d-lg-none">
+    <div class="card mb-3" v-for="(item, index) in categories" :key="item.id">
+      <div class="row g-0 align-items-center">
+        <div class="col-3 fs-4 fw-bold ps-4">
+          <input type="checkbox" />
+          {{ index + 1 }}
+        </div>
+        <div class="col-9">
+          <div class="card-body">
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text"><span class="label">Danh mục cha:</span> Không có</p>
+            <router-link v-if="item.id !== 1 || hasPermission('edit_category')"
+              :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-update btn-sm">
+              Sửa
+            </router-link>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <!-- Pagination -->
   <nav class="mt-3">
     <ul class="pagination">
@@ -93,34 +111,17 @@
     </ul>
   </nav>
 
-  <div class="mt-2 d-flex justify-content-start">
+  <!-- <div class="mt-2 d-flex justify-content-start">
     <button class="btn btn-danger-delete delete_desktop" @click="handleDeleteSelected"
       :disabled="selectedIds.length === 0">
       Xoá đã chọn ({{ selectedIds.length }})
     </button>
-  </div>
+  </div> -->
 
 
 
   <!-- Mobile View -->
-  <div class="d-block d-lg-none">
-    <div class="card mb-3" v-for="(item, index) in categories" :key="item.id">
-      <div class="row g-0 align-items-center">
-        <div class="col-3 fs-4 fw-bold ps-4">
-          <input type="checkbox" />
-          {{ index + 1 }}
-        </div>
-        <div class="col-9">
-          <div class="card-body">
-            <h5 class="card-title">{{ item.name }}</h5>
-            <p class="card-text"><span class="label">Danh mục cha:</span> Không có</p>
-            <button class="btn btn-outline btn-sm">Sửa</button>
-            <button class="btn btn-danger-delete btn-sm">Xoá</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+
 </template>
 
 <script>

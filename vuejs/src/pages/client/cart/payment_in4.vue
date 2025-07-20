@@ -74,7 +74,8 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
+              <img :src="'http://127.0.0.1:8000/storage/img/food/' + item.image" alt="" class="me-3 rounded" width="80"
+                height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>Loại: {{ item.type }}</div>
@@ -103,26 +104,21 @@
             <span>Phí ship</span>{{ formatNumber(shippingFee) }} VNĐ
           </div>
           <div class="d-flex justify-content-between mb-2">
-            <span>{{ formatNumber(form.usable_points) }} Tpoints</span
-            ><label class="toggle-switch">
-              <input type="checkbox" v-model="form.use_points" 
-              :disabled="form.usable_points <= 0"/>
+            <span>{{ formatNumber(form.usable_points) }} Tpoints</span><label class="toggle-switch">
+              <input type="checkbox" v-model="form.use_points" :disabled="form.usable_points <= 0" />
               <div class="toggle-switch-background">
                 <div class="toggle-switch-handle"></div>
               </div>
             </label>
           </div>
           <div v-if="form.use_points" class="d-flex justify-content-between mb-2 text-success mb-2">
-  Giảm {{ formatNumber(pointsDiscountAmount) }} VNĐ từ Tpoints
-  <br />
-  <span class="text-muted">
-    Còn lại {{ formatNumber(form.usable_points - (pointsDiscountAmount)) }} Tpoints
-  </span>
-</div>
-          <div
-            v-if="discountFoodAmount > 0"
-            class="d-flex justify-content-between mb-2 text-success"
-          >
+            Giảm {{ formatNumber(pointsDiscountAmount) }} VNĐ từ Tpoints
+            <br />
+            <span class="text-muted">
+              Còn lại {{ formatNumber(form.usable_points - (pointsDiscountAmount)) }} Tpoints
+            </span>
+          </div>
+          <div v-if="discountFoodAmount > 0" class="d-flex justify-content-between mb-2 text-success">
             <span>Giảm giá sản phẩm</span> -{{ formatNumber(discountFoodAmount) }} VNĐ
           </div>
           <div v-if="discountShipAmount > 0" class="d-flex justify-content-between mb-2 text-success">
@@ -149,31 +145,24 @@
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
             <div class="order-tabs d-flex flex-nowrap overflow-auto gap-3 mb-4 mt-3">
-              <div
-                v-for="tab in tabs"
-                :key="tab"
-                :class="['tab-item', { active: activeTab === tab }]"
-                @click="setActive(tab)"
-              >
+              <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]"
+                @click="setActive(tab)">
                 {{ tab }}
               </div>
             </div>
             <div class="discount-scroll-wrapper" v-if="isLoggedIn">
               <div v-for="discount in displayedDiscounts" :key="discount.id">
-  <div
-    class="voucher-card mb-3"
-    :class="{
-      'disabled-voucher':
-        totalPrice < discount.min_order_value ||
-        discount.used >= discount.usage_limit ||
-        (discount.discount_type === 'freeship' && !hasShippingFee) ||
-        (discount.category_id &&
-          !cartItems.some((item) =>
-            getAllChildCategoryIds(discount.category_id).includes(Number(item.category_id))
-          )) ||
-        finalTotal <= 0
-    }"
-    @click="
+                <div class="voucher-card mb-3" :class="{
+                  'disabled-voucher':
+                    totalPrice < discount.min_order_value ||
+                    discount.used >= discount.usage_limit ||
+                    (discount.discount_type === 'freeship' && !hasShippingFee) ||
+                    (discount.category_id &&
+                      !cartItems.some((item) =>
+                        getAllChildCategoryIds(discount.category_id).includes(Number(item.category_id))
+                      )) ||
+                    finalTotal <= 0
+                }" @click="
       totalPrice >= discount.min_order_value &&
       discount.used < discount.usage_limit &&
       !(discount.discount_type === 'freeship' && !hasShippingFee) &&
@@ -181,65 +170,51 @@
       (selectedDiscount === discount.code
         ? removeDiscountCode()
         : applyDiscountCode(discount.code))
-    "
-  >
-    <!-- Cột trái -->
-    <div
-      class="voucher-card-left"
-      :class="discount.discount_type === 'freeship' ? 'freeship' : 'salefood'"
-    >
-      <img
-        :src="
-          discount.discount_type === 'freeship'
-            ? '/img/freeship-icon.png'
-            : '/img/discount-icon.png'
-        "
-        alt="icon"
-      />
-      <div class="voucher-card-label">
-        {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
-      </div>
-    </div>
+      ">
+                  <!-- Cột trái -->
+                  <div class="voucher-card-left"
+                    :class="discount.discount_type === 'freeship' ? 'freeship' : 'salefood'">
+                    <img :src="discount.discount_type === 'freeship'
+                        ? '/img/freeship-icon.png'
+                        : '/img/discount-icon.png'
+                      " alt="icon" />
+                    <div class="voucher-card-label">
+                      {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
+                    </div>
+                  </div>
 
-    <!-- Cột phải -->
-    <div class="voucher-card-right">
-      <div>
-        <div class="voucher-code">Mã: {{ discount.code }}</div>
-        <div class="voucher-condition">
-          <i class="fa-regular fa-clock me-1"></i>Hết hạn: {{ discount.end_date }}
-        </div>
-        <div class="voucher-condition">
-          {{ discount.name }}
-        </div>
+                  <!-- Cột phải -->
+                  <div class="voucher-card-right">
+                    <div>
+                      <div class="voucher-code">Mã: {{ discount.code }}</div>
+                      <div class="voucher-condition">
+                        <i class="fa-regular fa-clock me-1"></i>Hết hạn: {{ discount.end_date }}
+                      </div>
+                      <div class="voucher-condition">
+                        {{ discount.name }}
+                      </div>
 
-        <div
-          v-if="finalTotal <= 0"
-          class="text-danger small"
-        >
-          Đơn hàng đã giảm hết, không thể áp thêm mã!
-        </div>
-      </div>
+                      <div v-if="finalTotal <= 0" class="text-danger small">
+                        Đơn hàng đã giảm hết, không thể áp thêm mã!
+                      </div>
+                    </div>
 
-      <div class="voucher-footer">
-        <div class="voucher-coins">
-          Đã dùng: {{ discount.used }}/{{ discount.usage_limit }}
-        </div>
-        <button
-          class="voucher-button"
-          :class="{ 'has-voucher': selectedDiscount === discount.code }"
-          :disabled="
-            totalPrice < discount.min_order_value ||
-            discount.used >= discount.usage_limit ||
-            (discount.discount_type === 'freeship' && !hasShippingFee) ||
-            finalTotal <= 0
-          "
-        >
-          {{ selectedDiscount === discount.code ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+                    <div class="voucher-footer">
+                      <div class="voucher-coins">
+                        Đã dùng: {{ discount.used }}/{{ discount.usage_limit }}
+                      </div>
+                      <button class="voucher-button" :class="{ 'has-voucher': selectedDiscount === discount.code }"
+                        :disabled="totalPrice < discount.min_order_value ||
+                          discount.used >= discount.usage_limit ||
+                          (discount.discount_type === 'freeship' && !hasShippingFee) ||
+                          finalTotal <= 0
+                          ">
+                        {{ selectedDiscount === discount.code ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
             </div>
           </div>
@@ -465,7 +440,7 @@ export default {
           total_price: finalTotal.value || 0,
           tpoint_used: pointsDiscountAmount.value,
           ship_cost: parseInt(shippingFee.value),
-          money_reduce:discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
+          money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.type === 'Food' ? item.id : null,
@@ -518,7 +493,7 @@ export default {
     const selectedService = ref(null)
     const ghnToken = 'ce7a164e-3e1c-11f0-a700-860cdd37d888'
     const hasShippingFee = computed(() => shippingFee.value > 0)
-    
+
     const fetchProvinces = async () => {
       try {
         const res = await axios.get(
@@ -839,6 +814,7 @@ export default {
   background-color: #007d00;
   color: white;
 }
+
 /**togle btn tpoint */
 .toggle-switch {
   position: relative;
@@ -847,9 +823,11 @@ export default {
   height: 18px;
   cursor: pointer;
 }
+
 .toggle-switch input[type='checkbox'] {
   display: none;
 }
+
 .toggle-switch-background {
   position: absolute;
   top: 0;
@@ -861,6 +839,7 @@ export default {
   box-shadow: inset 0 0 0 1px #ccc;
   transition: background-color 0.3s ease-in-out;
 }
+
 .toggle-switch-handle {
   position: absolute;
   top: 2px;
@@ -872,6 +851,7 @@ export default {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease-in-out;
 }
+
 .toggle-switch::before {
   content: '';
   position: absolute;
@@ -883,11 +863,13 @@ export default {
   text-shadow: 1px 1px #fff;
   transition: color 0.3s ease-in-out;
 }
-.toggle-switch input[type='checkbox']:checked + .toggle-switch-background {
+
+.toggle-switch input[type='checkbox']:checked+.toggle-switch-background {
   background-color: #05c46b;
   box-shadow: inset 0 0 0 1px #04b360;
 }
-.toggle-switch input[type='checkbox']:checked + .toggle-switch-background .toggle-switch-handle {
+
+.toggle-switch input[type='checkbox']:checked+.toggle-switch-background .toggle-switch-handle {
   transform: translateX(18px);
 }
 </style>
