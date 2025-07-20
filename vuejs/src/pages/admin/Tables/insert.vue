@@ -6,46 +6,45 @@
       </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap"
-      v-if="hasPermission('create_booking')">
-      <h3 class="text-danger fw-bold mb-2 mb-md-0">Thêm đơn đặt bàn</h3>
-      <div>
-        <button @click="$router.back()" class="btn btn-outline-secondary rounded-0">
-          <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-        </button>
-      </div>
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" v-if="hasPermission('create_booking')">
+    <h3 class="fw-bold mb-2 mb-md-0">Thêm đơn đặt bàn</h3>
+    <div>
+      <button @click="$router.back()" class="btn btn-outline-secondary rounded-0">
+        <i class="bi bi-arrow-counterclockwise"></i> Quay lại
+      </button>
     </div>
+  </div>
 
-    <form class="row mt-2" @submit.prevent="reservation">
-      <div class="col-12">
-        <div class="card rounded-0 border-0 shadow mb-4">
-          <div class="card-body">
-            <div class="row d-flex flex-column flex-lg-row">
-              <div class="col-12 col-lg-5 mb-3">
-                <label for="name" class="form-label fs-5">
-                  Thông tin khách hàng <span class="text-danger">*</span>
+  <form class="row mt-2" @submit.prevent="reservation">
+    <div class="col-12">
+      <div class="card rounded-0 border-0 shadow mb-4">
+        <div class="card-body">
+          <div class="row d-flex flex-column flex-lg-row">
+            <div class="col-12 col-lg-5 mb-3">
+              <label for="name" class="form-label fs-5">
+                Thông tin khách hàng <span class="text-danger">*</span>
+              </label>
+              <v-select v-model="selectguest" :options="guest" label="usernameEmail" placeholder="Chọn khách hàng"
+                :clearable="true" class="form-control rounded" />
+              <div class="mt-2">
+                <label for="name" class="form-label">
+                  Tên khách hàng <span class="text-danger">*</span>
                 </label>
-                <v-select v-model="selectguest" :options="guest" label="usernameEmail" placeholder="Chọn khách hàng"
-                  :clearable="true" class="form-control rounded" />
-                <div class="mt-2">
-                  <label for="name" class="form-label">
-                    Tên khách hàng <span class="text-danger">*</span>
-                  </label>
-                  <input type="text" class="form-control rounded-0" required v-model="guest_name" />
-                  <label for="name" class="form-label">
-                    Số điện thoại <span class="text-danger">*</span>
-                  </label>
-                  <input type="text" class="form-control rounded-0" required v-model="guest_phone" />
-                  <label for="category" class="form-label">
-                    Email
-                  </label>
-                  <input type="text" class="form-control rounded-0" required v-model="guest_email" />
-                  <label for="category" class="form-label">
-                    Ghi chú
-                  </label>
-                  <textarea class="form-control rounded-0" id="description" rows="1" v-model="note"></textarea>
-                </div>
+                <input type="text" class="form-control rounded-2" required v-model="guest_name" />
+                <label for="name" class="form-label">
+                  Số điện thoại <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control rounded-2" required v-model="guest_phone" />
+                <label for="category" class="form-label">
+                  Email
+                </label>
+                <input type="text" class="form-control rounded-2" required v-model="guest_email" />
+                <label for="category" class="form-label">
+                  Ghi chú
+                </label>
+                <textarea class="form-control rounded-2" id="description" rows="1" v-model="note"></textarea>
               </div>
+            </div>
 
               <div class="col-12 col-lg-7 mb-3 pt-3 pt-lg-0 mt-3 mt-lg-0" style="border-left: 1px solid #cccc">
                 <label for="category" class="form-label">
@@ -118,38 +117,38 @@
               </div>
             </div>
 
-            <div class="fw-semibold">Danh sách món</div>
-            <div class="mb-3">
-              <hr />
-              <div class="row">
-                <div class="col-12 col-md-6 col-lg-3 mb-3">
-                  Lọc theo danh mục:
-                  <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
-                    <option value="">Tất cả món ăn</option>
-                    <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
-                      {{ item.indent }}{{ item.name }}
-                    </option>
-                  </select>
-                </div>
-                <div class="col-12 col-md-6 col-lg-3 mb-3">
-                  Tìm kiếm theo tên:
-                  <v-select v-model="selectfood" :options="foods" label="name" placeholder="Nhập tên món ăn"
-                    :clearable="true" @input="onFoodSearch" class="form-control rounded" />
-                </div>
-                <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
-                  <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
-                    <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
-                      <div class="gap-1">
-                        <div class="d-flex flex-column align-items-center" @click="openModal(product)">
-                          <img :src="getImageUrl(product.image)" alt="" srcset=""
-                            style="width: 60px; height: 60px; object-fit: cover" />
-                          <div class="product_name text-center mt-1">{{ product.name }}</div>
-                          <strong class="text-danger product_price">
-                            {{ formatNumber(product.price) }} VND
-                          </strong>
-                        </div>
+          <div class="fw-semibold">Danh sách món</div>
+          <div class="mb-3">
+            <hr />
+            <div class="row">
+              <div class="col-12 col-md-6 col-lg-3 mb-3">
+                Lọc theo danh mục:
+                <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
+                  <option value="">Tất cả món ăn</option>
+                  <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
+                    {{ item.indent }}{{ item.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-12 col-md-6 col-lg-3 mb-3">
+                <label for="foodSearch">Tìm kiếm theo tên món ăn:</label>
+                <input id="foodSearch" type="text" class="form-control rounded" v-model="searchFoodTerm"
+                  placeholder="Nhập tên món ăn" />
+              </div>
+              <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
+                <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
+                  <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
+                    <div class="gap-1">
+                      <div class="d-flex flex-column align-items-center" @click="openModal(product)">
+                        <img :src="getImageUrl(product.image)" alt="" srcset=""
+                          style="width: 60px; height: 60px; object-fit: cover" />
+                        <div class="product_name text-center mt-1">{{ product.name }}</div>
+                        <strong class="text-danger product_price">
+                          {{ formatNumber(product.price) }} VND
+                        </strong>
                       </div>
                     </div>
+                  </div>
 
                     <div class="d-flex justify-content-center mt-3 w-100">
                       <nav>
@@ -292,60 +291,52 @@
                       </div>
                     </div>
 
-                    <div class="pt-0">
-                      <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                          Tạm tính
-                          <span>{{ formatNumber(totalPrice) }} VNĐ</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
-                          Phí giữ bàn
-                          <span>100,000 VNĐ</span>
-                        </li>
-                        <li
-                          class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
-                          Tổng thanh toán
-                          <span class="text-danger fw-bold">
-                            {{ formatNumber(totalPrice + 100000) }} VNĐ
-                          </span>
-                        </li>
-                      </ul>
-                      <hr />
-                      <h6 class="mb-3">Phương thức thanh toán</h6>
-                      <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
-                        <button type="button" class="btn btn-payment" :class="{ active: paymentMethod === 'COD' }"
-                          @click="paymentMethod = 'COD'">
-                          <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
-                          <br />
-                          Tiền mặt
-                        </button>
-                        <button type="button" class="btn btn-payment" :class="{ active: paymentMethod === 'MOMO' }"
-                          @click="paymentMethod = 'MOMO'">
-                          <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
-                          <br />
-                          MoMo
-                        </button>
-                        <button type="button" class="btn btn-payment" :class="{ active: paymentMethod === 'VNPAY' }"
-                          @click="paymentMethod = 'VNPAY'">
-                          <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
-                          <br />
-                          QR code
-                        </button>
-                      </div>
-                      <hr />
-                      <div class="d-flex flex-column flex-sm-row">
-                        <button type="button" @click="$router.back()"
-                          class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
-                          Quay lại
-                        </button>
-                        <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2"
-                          @click="createReservationOnly">
-                          Đặt bàn
-                        </button>
-                        <button class="btn btn-outline-danger flex-fill p-2" type="button" @click="handlePayment">
-                          Thanh toán
-                        </button>
-                      </div>
+                  <div class="pt-0">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Tạm tính
+                        <span>{{ formatNumber(totalPrice) }} VNĐ</span>
+                      </li>
+
+                      <li
+                        class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
+                        Tổng thanh toán
+                        <span class="text-danger fw-bold">
+                          {{ formatNumber(totalPrice) }} VNĐ
+                        </span>
+                      </li>
+                    </ul>
+                    <hr />
+                    <h6 class="mb-3">Phương thức thanh toán</h6>
+                    <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
+                      <button class="btn btn-payment active">
+                        <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
+                        <br />
+                        Tiền mặt
+                      </button>
+                      <button class="btn btn-payment">
+                        <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
+                        <br />
+                        MoMo
+                      </button>
+                      <button class="btn btn-payment">
+                        <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
+                        <br />
+                        QR code
+                      </button>
+                    </div>
+                    <hr />
+                    <div class="d-flex flex-column flex-sm-row">
+                      <button type="button" @click="$router.back()"
+                        class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
+                        Quay lại
+                      </button>
+                      <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
+                        Đặt bàn
+                      </button>
+                      <button class="btn btn-outline-danger flex-fill p-2" type="button">
+                        Thanh toán
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -354,8 +345,8 @@
           </div>
         </div>
       </div>
-    </form>
-  </div>
+    </div>
+  </form>
 </template>
 
 <script>
@@ -367,8 +358,7 @@ import vSelect from 'vue-select'
 import { FoodList } from '@/stores/food'
 import { watch } from 'vue'
 import { Permission } from '@/stores/permission'
-import Swal from 'sweetalert2';
-import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 export default {
   components: {
@@ -431,7 +421,7 @@ export default {
     const selectguest = ref(null)
     const selectfood = ref(null)
     const searchFoodTerm = ref('')
-    const router = useRouter()
+    const route = useRoute()
 
     const onFoodSearch = (event) => {
       searchFoodTerm.value = event.target.value
@@ -485,9 +475,9 @@ export default {
 
     const handleGuestSelection = () => {
       if (selectguest.value && selectguest.value.id !== 'guest') {
-        guest_name.value = selectguest.value.username || selectguest.value.fullname
-        guest_phone.value = selectguest.value.phone
-        guest_email.value = selectguest.value.email
+        guest_name.value = selectguest.value.guest_name
+        guest_phone.value = selectguest.value.guest_phone
+        guest_email.value = selectguest.value.guest_email
       } else {
         guest_name.value = ''
         guest_phone.value = ''
@@ -511,7 +501,9 @@ export default {
         guest.value = [
           guestDefaultOption, //"Khách lẻ" ở đầu mảng
           ...res.data.user.map((g) => ({
-            ...g,
+            guest_name: g.user.fullname || g.user.username,
+            guest_phone: g.user.phone,
+            guest_email: g.user.email,
             usernameEmail: `${g.user.username} - ${g.user.phone}`,
           })),
         ]
@@ -528,13 +520,23 @@ export default {
       isLoading.value = true
       try {
         if (date.value && time.value && guest_count.value) {
-          const datetime = localStorage.getItem('selectedDate') || new Date(`${date.value}T${time.value}:00`)
-          const selectedDateTime = formatDateTime(datetime)
-          const reservedFrom = new Date(selectedDateTime)
-          const reservedTo = reservedFrom.getTime() + 2 * 60 * 60 * 1000
+          let rawDateTime = ''
+
+          if (route.params.date) {
+            rawDateTime = route.params.date
+          } else if (date.value && time.value) {
+            rawDateTime = `${date.value}T${time.value}:00`
+          } else {
+            toast.error('Vui lòng chọn ngày và giờ')
+            return
+          }
+
+          const reservedFrom = new Date(rawDateTime)
+          const reservedTo = new Date(reservedFrom.getTime() + 2 * 60 * 60 * 1000)
 
           const reserved_from = formatDateTime(reservedFrom)
           const reserved_to = formatDateTime(reservedTo)
+
 
           const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
             reserved_from: reserved_from,
@@ -543,7 +545,6 @@ export default {
           })
           availableTables.value = res.data.tables
         } else {
-          // ✅ Nếu không có thông tin đặt bàn thì lấy tất cả bàn
           const res = await axios.get('http://127.0.0.1:8000/api/tables')
           availableTables.value = res.data.tables
         }
@@ -656,35 +657,35 @@ export default {
     }
 
     // hàm đặt bàn
-    const paymentMethod = ref('')
-    const current_order_id = ref(null)
-    const createReservationOnly = async () => {
-      // isLoading.value = true
+    const reservation = async () => {
+      isLoading.value = true
+      let rawDateTime = ''
+
+      if (route.params.date) {
+        rawDateTime = route.params.date
+      } else if (date.value && time.value) {
+        rawDateTime = `${date.value}T${time.value}:00`
+      } else {
+        toast.error('Vui lòng chọn ngày và giờ')
+        return
+      }
+
+      const reservedFrom = new Date(rawDateTime)
+      const reservedTo = new Date(reservedFrom.getTime() + 2 * 60 * 60 * 1000)
+
+      const reserved_from = formatDateTime(reservedFrom)
+      const reserved_to = formatDateTime(reservedTo)
+
       try {
-
-        if (!paymentMethod.value) {
-          await Swal.fire({
-            toast: true,
-            position: 'top-end',
-            title: 'Vui lòng chọn phương thức thanh toán!',
-            icon: 'info',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-          });
-          return;
-        }
-
-        const reservationData = {
+        await axios.post('http://127.0.0.1:8000/api/reservation', {
           user_id: selectguest.value.id === 'guest' ? null : selectguest.value.id,
           guest_name: guest_name.value,
           guest_phone: guest_phone.value,
           guest_email: guest_email.value,
           guest_count: guest_count.value,
           note: note.value,
-          reserved_from: `${date.value} ${time.value}`,
-          deposit_amount: 100000,
-          total_price: 100000,
+          reserved_from: reserved_from,
+          total_price: totalPrice.value + 100000,
           table_ids: selectedTableIds.value,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
@@ -933,11 +934,12 @@ export default {
       }
     })
     onMounted(() => {
+      getAllUser()
       findTable()
 
       time.value = formatTime(localStorage.getItem('selectedDate')) || ''
       date.value = formatDate(localStorage.getItem('selectedDate')) || ''
-      getAllUser()
+
       selectguest.value = 'guest'
       loadCart()
       for (let hour = 1; hour <= 21; hour++) {

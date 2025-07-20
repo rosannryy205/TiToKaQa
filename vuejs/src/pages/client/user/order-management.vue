@@ -1,9 +1,19 @@
 <template>
   <!-- Main Content -->
+  <!-- <div v-if="isLoading" class="isLoading-overlay">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">isLoading...</span>
+    </div>
+  </div> -->
+  <div v-if="isLoading" class="isLoading-overlay d-flex justify-content-center align-items-center">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">Đang xử lý...</span>
+    </div>
+  </div>
   <div class="col-12 col-md-8 col-lg-9">
     <h4 class="fw-bold mb-4">Đơn hàng đã mua</h4>
     <!-- Tabs -->
-    <div class="order-tabs d-flex flex-nowrap overflow-auto gap-1 mb-4">
+    <div class="order-tabs d-flex flex-nowrap overflow-auto gap-3 mb-4">
       <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]" @click="setActive(tab)">
         {{ tab }}
       </div>
@@ -101,6 +111,9 @@
 import { Info } from "@/stores/info-order-reservation";
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import axios from "axios";
+import Swal from 'sweetalert2';
+import { toast } from 'vue3-toastify'
+import { useRouter } from 'vue-router';
 
 export default {
   setup() {
@@ -108,6 +121,7 @@ export default {
     const userId = userData ? JSON.parse(userData).id : null;
     // console.log('User ID:', userId);
     const loading = ref(true);
+    const isLoading = ref(false);
     const orders = ref([]);
     const isDesktop = ref(window.innerWidth >= 768);
 
@@ -174,12 +188,81 @@ export default {
     };
 
 
+
+    const reOrder = async (orderId) => {
+      const result = await Swal.fire({
+        title: 'Xác nhận đặt lại?',
+        text: 'Bạn có chắc muốn đặt lại đơn hàng này?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#ca111f',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Đặt lại',
+        cancelButtonText: 'Hủy',
+      });
+
+      if (!result.isConfirmed) return;
+
+      isLoading.value = true;
+
+      try {
+        const res = await axios.post(`http://127.0.0.1:8000/api/reorder/${orderId}`, {}, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          }
+        });
+
+        console.log(" RES:", res);
+        console.log(" DATA:", res.data);
+
+        if (res.data.status === true) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end', // Góc trên bên phải
+            icon: 'success',
+            title: 'Đặt lại đơn hàng thành công!',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+          });
+
+          await getOrderByUser();
+          return;
+        }
+
+        // Trường hợp response không lỗi HTTP nhưng không đúng định dạng mong đợi
+        let errorMsg = res.data.message || 'Không thể đặt lại đơn hàng.';
+        if (res.data.error) errorMsg += `\n\n${res.data.error}`;
+        if (res.data.errors) {
+          const errorList = Object.values(res.data.errors).flat().join('\n');
+          errorMsg += `\n\n${errorList}`;
+        }
+        Swal.fire('Lỗi', errorMsg, 'error');
+
+      } catch (err) {
+        console.log(" Axios bị lỗi:");
+        console.log(err); // log toàn bộ object lỗi
+        let errorMsg = err.response?.data?.message || 'Lỗi không xác định từ máy chủ.';
+        const errorList = err.response?.data?.errors
+          ? Object.values(err.response.data.errors).flat().join('\n')
+          : err.response?.data?.error || '';
+        if (errorList) {
+          errorMsg += `\n\n${errorList}`;
+        }
+        Swal.fire('Lỗi', errorMsg, 'error');
+      }
+      finally {
+        isLoading.value = false;
+      }
+    };
+
     onMounted(() => {
       getOrderByUser();
       window.addEventListener("resize", handleResize);
       handleResize();
       // console.log('Lịch sử đơn hàng:', info)
     });
+
     onBeforeUnmount(() => {
       window.removeEventListener("resize", handleResize);
     });
@@ -189,7 +272,7 @@ export default {
       formatDate,
       isDesktop,
       formatNumber,
-
+      reOrder,
       tabs,
       activeTab,
       setActive,
@@ -270,6 +353,16 @@ li.list-group-item {
 
 .fade-in {
   animation: fadeIn 0.4s ease-in-out;
+}
+
+.isLoading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 

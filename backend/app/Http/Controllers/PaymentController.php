@@ -84,7 +84,6 @@ class PaymentController extends Controller
                 'payment_method' => 'VNPAY',
                 'payment_time' => null,
                 'payment_status' => 'Đang chờ xử lý',
-                'payment_type' => $validated['payment_type'] ?? 'Thanh toán toàn bộ',
             ]);
 
             return response()->json(['payment_url' => $vnp_Url]);
@@ -180,7 +179,6 @@ class PaymentController extends Controller
             $validated = $request->validate([
                 'order_id' => 'required|exists:orders,id',
                 'amount_paid' => 'required|numeric',
-                'payment_type' => 'nullable|string',
             ]);
 
             DB::beginTransaction();
@@ -191,7 +189,6 @@ class PaymentController extends Controller
                 'payment_method' => 'COD',
                 'payment_status' => 'Đang chờ xử lý',
                 'payment_time' => Carbon::now('Asia/Ho_Chi_Minh'),
-                'payment_type' => $validated['payment_type'] ?? 'Thanh toán toàn bộ',
             ]);
 
             $order = Order::find($validated['order_id']);

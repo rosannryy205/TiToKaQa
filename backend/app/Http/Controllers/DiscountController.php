@@ -69,7 +69,8 @@ class DiscountController extends Controller
     {
         $user = auth()->user();
         $discounts = $user->discounts()
-        ->withPivot(['point_used', 'exchanged_at', 'expiry_at'])
+        ->withPivot(['point_used', 'exchanged_at', 'expiry_at', 'source'])
+        ->orderBy('pivot_exchanged_at', 'desc')
         ->get(); 
         return response()->json($discounts);
     }

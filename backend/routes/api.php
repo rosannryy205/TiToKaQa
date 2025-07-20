@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ChatRealTimeController;
+use App\Http\Controllers\ClaimPrizesController;
 use App\Http\Controllers\ComboController;
+use App\Http\Controllers\DealFoodsController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
@@ -23,6 +25,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\TableController;
+use App\Http\Controllers\LuckyWheelController;
 use Illuminate\Http\Request;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
@@ -49,6 +52,7 @@ Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']
 
 //reservation-client
 Route::post('/reservation', [OrderController::class, 'reservation']);
+Route::post('/reservation-by-chatbot', [ChatbotController::class, 'combine']);
 Route::get('/order-reservation-info', [OrderController::class, 'getInfoReservation']);
 Route::post('/choose-table', [OrderController::class, 'chooseTable']);
 
@@ -161,6 +165,7 @@ Route::post('/assign-role/{user_id}', [UserController::class, 'assignSingleRole'
 
 //cart
 Route::post('/order', [CartController::class, 'order']);
+Route::post('/reorder/{id}', [CartController::class, 'reOrder']);
 Route::post('/ordertakecaway', [CartController::class, 'orderTakeAway']);
 Route::put('/update/order/{id}', [OrderController::class, 'reservationUpdate']);
 Route::put('/update/reservation-order/{id}', [OrderController::class, 'reservationUpdatePrice']);
@@ -172,6 +177,13 @@ Route::post('/order/{id}/cancel', [OrderController::class, 'handelOrderCancel'])
 Route::get('/order_detail/{id}', [CartController::class, 'get_order_detail']);
 Route::get('/get_all_orders', [CartController::class, 'get_all_orders']);
 Route::put('/update/{id}/status', [CartController::class, 'update_status']);
+Route::middleware('auth:sanctum')->get('/shipper/orders', [OrderController::class, 'getOrdersByShipper']);
+Route::post('/selected_orders', [OrderController::class, 'assignShipper']);
+Route::get('/shipper/{id}/active-orders', [OrderController::class, 'getShipperOrders']);
+Route::post('/shipper/update-location', [UserController::class, 'updateLocation']);
+Route::get('/shipper/{id}/last-location', [UserController::class, 'getLastLocation']);
+
+
 
 
 //discount
@@ -240,11 +252,19 @@ Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPaymen
 Route::get('/get-order-reservation-info', [OrderController::class, 'getOrderReservationInfo']);
 
 
+/**client vong quay*/
+Route::get('/lucky-wheel/prizes', [LuckyWheelController::class, 'getPrizes']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/spin', [LuckyWheelController::class, 'spin']);
+    Route::get('/user-rewards', [LuckyWheelController::class, 'getUserRewards']);
+    Route::post('/claim-reward', [ClaimPrizesController::class, 'claimPrize']);
+    Route::get('/spin-status', [LuckyWheelController::class, 'checkSpinStatus']);
+    Route::get('/deals-food', [DealFoodsController::class, 'getDealsFood']);
+});
 
 /**client user-point_exchange*/
 Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');
 Route::get('/user-vouchers', [DiscountController::class, 'getUserDiscounts'])->middleware('auth:sanctum');
-
 /** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 // Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
