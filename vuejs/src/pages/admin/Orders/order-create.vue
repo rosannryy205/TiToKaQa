@@ -1,9 +1,10 @@
 <template v-if="hasPermission('create_order')">
-  <div v-if="isLoading" class="isLoading-overlay">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">Đang tải...</span>
+  <div>
+    <div v-if="isLoading" class="isLoading-overlay">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">Đang tải...</span>
+      </div>
     </div>
-  </div>
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
       <h3 class="text-danger fw-bold mb-2 mb-md-0">Thêm đơn hàng</h3>
