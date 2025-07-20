@@ -5,7 +5,7 @@ import Swal from 'sweetalert2'
 export const User = {
   setup() {
     const user = ref(null)    
-  const loading = ref(true); // Controls loading spinner/state visibility
+  const loading = ref(true);
     const isLoggedIn = ref(false);
 
     const userLocal = JSON.parse(localStorage.getItem('user'))
@@ -83,9 +83,9 @@ export const User = {
     const handleSubmit = async () => {
       try {
         const updateProfile = {
-          fullname: form.value.fullname || '',
-          phone: form.value.phone || '',
-          address: form.value.address || '',
+          fullname: form.fullname || '',
+          phone: form.phone || '',
+          address: form.address || '',
         }
         await axios.patch(
           `http://127.0.0.1:8000/api/user/updateProfile/${user.value.id}`,

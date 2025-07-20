@@ -44,7 +44,7 @@ body {
 }
 
 .header .main-nav-links .nav-link {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: bold;
   text-transform: uppercase;
   transition: color 0.3s ease, transform 0.3s ease;
@@ -58,7 +58,7 @@ body {
 .icon-btn {
   border: none;
   background: none;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: #333;
   transition: color 0.3s ease, transform 0.3s ease;
   padding: 0.25rem 0.5rem;
@@ -125,7 +125,7 @@ body {
 .input-wrapper .icon-search-submit:focus-within ~ .input-search,
 .input-wrapper .input-search:focus {
   box-shadow: none;
-  width: 350px;
+  width: 250px;
   border-radius: 0px;
   background-color: transparent;
   border-bottom: 3px solid #c92c3c;
