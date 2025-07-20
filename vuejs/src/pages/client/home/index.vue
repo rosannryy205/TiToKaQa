@@ -228,8 +228,8 @@
   </section>
   <section class="populars-infors-pots">
     <!---->
-    <section class="combo-display container py-5">
-      <h2 class="fw-bold mb-4 text-center">Combo Nhiều Người Gọi</h2>
+    <section class="popular-searches container py-4">
+      <h2 class="fw-bold mb-3 text-start text-md-start">Combo Nhiều Người Gọi</h2>
       <div class="row text-center justify-content-center">
         <template v-if="isLoading">
           <div v-for="n in 3" :key="n" class="col-4 mb-3">
@@ -239,9 +239,13 @@
         </template>
 
         <template v-else>
+          <div class="row d-flex">
           <div v-for="combo in combos" :key="combo.id" class="col-12 col-md-4 mb-4 text-center">
             <img :src="getImageUrl(combo.image)" class="img-fluid mb-2" />
-            <div class="combo-name fw-bold">{{ combo.name }}</div>
+            <div class="view-more">
+              <a href="#" class="link fw-bold">{{ combo.name }}</a>
+            </div>
+          </div>
           </div>
         </template>
       </div>
@@ -609,7 +613,7 @@ export default {
       } catch (e) {
         console.error(e)
       } finally {
-        isLoading.value = false
+        // isLoading.value = false
       }
     })
     onMounted(async () => {
