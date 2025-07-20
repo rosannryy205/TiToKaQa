@@ -6,7 +6,7 @@
   </div>
 
   <div v-else class="container mt-5 fade-in">
-    <div class="row g-4">
+    <div class="row g-4" >
       <div class="col-12 col-md-4 col-lg-3 mb-4 mb-md-0">
         <div class="card shadow border-0 h-100 text-center py-4 px-3">
           <div class="d-flex flex-column flex-md-row align-items-center mb-3">
@@ -88,13 +88,6 @@
                   {{ rankProgressPercent }}%
                 </div>
               </div>
-
-              <!-- 🔸 Mốc điểm -->
-              <div class="mt-3 text-start small text-muted">
-                <div><strong>500+</strong> điểm: Hạng Bạc</div>
-                <div><strong>1000+</strong> điểm: Hạng Vàng</div>
-                <div><strong>3000+</strong> điểm: Kim Cương</div>
-              </div>
             </div>
           </div>
           <div class="mb-3">
@@ -134,6 +127,15 @@
                 <i class="bi bi-chevron-right text-secondary"></i>
               </li>
             </router-link>
+            <router-link to="/account/deal-food" class="text-decoration-none text-dark">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-bold">Deal Sở Hữu</div>
+                  <div class="small text-muted">Kho Deal của tôi</div>
+                </div>
+                <i class="bi bi-chevron-right text-secondary"></i>
+              </li>
+            </router-link>
           </ul>
         </div>
       </div>
@@ -145,11 +147,11 @@
 <script>
 import { ref, computed } from 'vue'
 import { User } from '@/stores/user'
+const { form } = User.setup()
 
 export default {
   setup() {
     const {
-      form,
       user,
       handleSubmit,
       handleImageUpload,
@@ -169,23 +171,23 @@ export default {
     ]
 
     const currentRank = computed(() => {
-      if (form.value.rank_points < 500) return null
-      return [...ranks].reverse().find((rank) => form.value.rank_points >= rank.min)
+      if (form.rank_points < 500) return null
+      return [...ranks].reverse().find((rank) => form.rank_points >= rank.min)
     })
 
     const nextRank = computed(() => {
       if (!currentRank.value) return ranks[0]
-      return ranks.find((rank) => rank.min > form.value.rank_points)
+      return ranks.find((rank) => rank.min > form.rank_points)
     })
 
     const rankImage = computed(() => currentRank.value?.icon || '/public/img/item/padlock.png')
     const rankColor = computed(() => currentRank.value?.color || '#6c757d')
     const formRank = computed(() => currentRank.value?.name || 'Chưa có hạng')
 
-    form.value.rank = formRank.value
+    form.rank = formRank.value
 
     const neededPoints = computed(() => {
-      return nextRank.value ? nextRank.value.min - form.value.rank_points : 0
+      return nextRank.value ? nextRank.value.min - form.rank_points : 0
     })
 
     const nextRankName = computed(() => {
@@ -196,7 +198,7 @@ export default {
       if (!nextRank.value) return 100
       const currentMin = currentRank.value?.min || 0
       const total = nextRank.value.min - currentMin
-      const progress = form.value.rank_points - currentMin
+      const progress = form.rank_points - currentMin
       return Math.min(100, Math.round((progress / total) * 100))
     })
 
@@ -362,5 +364,8 @@ li.list-group-item {
 
 .logo-member {
   width: 25px;
+}
+#app > div > div.container.mt-5.fade-in > div > div.col-12.col-md-4.col-lg-3.mb-4.mb-md-0{
+  max-height: 105vh;
 }
 </style>

@@ -22,88 +22,80 @@
 
 
 
-      </div>
-
-
-      <span class="vd">Hiển thị</span>
-      <select v-model.number="pagination.pageSize" class="form-select w-auto rounded">
-        <option :value="5">5</option>
-        <option :value="10">10</option>
-        <option :value="15">15</option>
-        <option :value="30">30</option>
-        <option :value="60">60</option>
-      </select>
     </div>
 
-    <div class="table-responsive d-none d-lg-block">
-      <table class="table table-bordered">
-        <thead class="table-light">
-          <tr>
-            <th>Mã KH</th>
-            <th>Username</th>
-            <th>Họ và tên</th>
-            <th>Số điện thoại</th>
-            <th>Email</th>
-            <th>Địa chỉ</th>
-            <th>Vai trò</th>
-            <th>Trạng thái</th>
-            <th>Tuỳ chọn</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="user in paginatedUsers" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.username }}</td>
-            <td>{{ user.fullname ? user.fullname : 'Chưa cập nhật' }}</td>
-            <td>{{ user.phone ? user.phone : 'Chưa cập nhật' }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.address ? user.address : 'Chưa cập nhật' }}</td>
-            <td>{{ getRoleName(user.roles) }}</td>
-            <td>
-              {{ user.status }}
-            </td>
-            <td class="d-flex justify-content-center gap-2">
-              <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
-                data-bs-target="#userDetailModal">
-                Chi tiết
-              </button>
 
-              <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
-                class="btn btn-danger-delete">Khoá</button>
-              <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở
-                Khóa</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="d-flex justify-content-end mt-3 me-2">
-        <ul class="pagination pagination-sm">
-          <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
-            <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage - 1)">
-              <i class="bi bi-chevron-left"></i>
-            </a>
-          </li>
+    <span class="vd">Hiển thị</span>
+    <select v-model.number="pagination.pageSize" class="form-select w-auto rounded">
+      <option :value="5">5</option>
+      <option :value="10">10</option>
+      <option :value="15">15</option>
+      <option :value="30">30</option>
+      <option :value="60">60</option>
+    </select>
+  </div>
 
-          <li class="page-item" v-for="page in visiblePages" :key="page"
-            :class="{ active: pagination.currentPage === page }">
-            <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-          </li>
+  <div class="table-responsive d-none d-lg-block">
+    <table class="table table-bordered">
+      <thead class="table-light">
+        <tr>
+          <th>Mã KH</th>
+          <th>Username</th>
+          <th>Họ và tên</th>
+          <th>Số điện thoại</th>
+          <th>Email</th>
+          <th>Địa chỉ</th>
+          <th>Vai trò</th>
+          <th>Trạng thái</th>
+          <th>Tuỳ chọn</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="user in paginatedUsers" :key="user.id">
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.fullname ? user.fullname : 'Chưa cập nhật' }}</td>
+          <td>{{ user.phone ? user.phone : 'Chưa cập nhật' }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.address ? user.address : 'Chưa cập nhật' }}</td>
+          <td>{{ getRoleName(user.roles) }}</td>
+          <td>
+            {{ user.status === "Active" ? 'Hoạt động' : 'Hạn chế' }}
+          </td>
+          <td class="d-flex justify-content-center gap-2">
+            <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
+              data-bs-target="#userDetailModal">
+              Chi tiết
+            </button>
 
-          <li class="page-item" :class="{ disabled: pagination.currentPage === totalPages }">
-            <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage + 1)">
-              <i class="bi bi-chevron-right"></i>
-            </a>
-          </li>
-        </ul>
-      </div>
+            <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
+              class="btn btn-danger-delete">Khoá</button>
+            <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở Khóa</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="d-flex justify-content-end mt-3 me-2">
+      <ul class="pagination pagination-sm">
+        <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
+          <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage - 1)">
+            <i class="bi bi-chevron-left"></i>
+          </a>
+        </li>
 
+        <li class="page-item" v-for="page in visiblePages" :key="page"
+          :class="{ active: pagination.currentPage === page }">
+          <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+        </li>
 
-      <div v-if="isEmployee">
-        <p>*Mật khẩu là (username)Titokaqa <br>
-          VD: staff1Titokaqa
-        </p>
-      </div>
-    </div>
+        <li class="page-item" :class="{ disabled: pagination.currentPage === totalPages }">
+          <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage + 1)">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </li>
+      </ul>
+    </div>z
+  </div>
 
     <!-- <button class="btn btn-danger-delete delete_desktop">Xoá</button> -->
 

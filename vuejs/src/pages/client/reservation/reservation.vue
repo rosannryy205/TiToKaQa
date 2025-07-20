@@ -1,9 +1,6 @@
 <template>
-  <div v-if="isLoading" class="isLoading-overlay">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">isLoading...</span>
-    </div>
-  </div>
+
+
   <div class="row d-flex text-center">
     <div class="title-shops1 d-sm-block fw-bold mt-5">
       <span>ĐẶT BÀN CÙNG CHÚNG TÔI!</span>
@@ -32,10 +29,11 @@
               </select>
             </div>
             <div class="col-md-3">
-              <input type="number" class="form-control rounded" placeholder="Số lượng người" v-model="guest_count" />
+              <input type="number" class="form-control rounded" placeholder="Số lượng người" v-model="guest_count"
+                min="1" />
             </div>
             <div class="col-md-3">
-              <button type="submit" class="btn btn-danger1 w-100">Tìm bàn</button>
+              <button class="btn btn-danger1 w-100 fw-bold">Tìm bàn</button>
             </div>
           </div>
         </form>
@@ -43,7 +41,7 @@
         <hr />
         <div class="fs-6 fw-bold mb-3">Kết quả tìm kiếm</div>
 
-        <div class="table-container">
+        <div class="table-container" v-if="availableTables.length !== 0">
           <div class="table-block" v-for="ban in availableTables" :key="ban.id" @click="chooseTable(ban.id)">
             <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
               <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
@@ -58,6 +56,29 @@
               <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n"></div>
             </div>
           </div>
+        </div>
+
+        <div v-if="combine == true" class="no-table-alert text-center my-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="#888">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 9l4-4h10l4 4v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9h18M9 13l3 3 3-3" />
+          </svg>
+          <p>Vui lòng liên hệ để được xếp bàn!</p>
+        </div>
+
+        <div v-if="combine == false" class="no-table-alert text-center my-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="none" viewBox="0 0 24 24" stroke="#888">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 9l4-4h10l4 4v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9h18M9 13l3 3 3-3" />
+          </svg>
+          <p>Rất tiếc, hiện tại đã hết bàn phù hợp với số lượng khách yêu cầu!</p>
+        </div>
+
+
+        <div v-if="isLoading" class="loader-wrapper">
+          <div class="loader"></div>
         </div>
       </div>
     </div>
@@ -86,12 +107,12 @@ export default {
     const errors = reactive({})
     const availableTables = ref([])
     const table_id = ref(null)
-
+    const combine = ref(false)
     const { info, getInfo, orderId, formatDateTime } = Info.setup()
     const { form, user } = User.setup()
 
     const findTable = async () => {
-      if (!date.value || !time.value) {
+      if (!date.value || !time.value || !guest_count.value) {
         Swal.fire({
           toast: true,
           position: 'top-end',
@@ -120,6 +141,7 @@ export default {
         })
 
         availableTables.value = res.data.tables || []
+        combine.value = res.data.combinedGroup
         Swal.fire({
           toast: true,
           position: 'top-end',
@@ -252,24 +274,12 @@ export default {
       filteredTimeOptions,
       getChairCount,
       chooseTable,
+      combine
     }
   },
 }
 </script>
 <style scoped>
-.isLoading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background-color: rgba(148, 142, 142, 0.8);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .table-container {
   display: flex;
   flex-wrap: wrap;
@@ -294,6 +304,35 @@ export default {
   justify-content: center;
   gap: 8px;
   margin: 2px 0;
+}
+
+.loader-wrapper {
+  height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* loader */
+.loader {
+  width: 50px;
+  --b: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  padding: 1px;
+  background: conic-gradient(#0000 10%, #f03355) content-box;
+  -webkit-mask:
+    repeating-conic-gradient(#0000 0deg, #000 1deg 20deg, #0000 21deg 36deg),
+    radial-gradient(farthest-side, #0000 calc(100% - var(--b) - 1px), #000 calc(100% - var(--b)));
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  animation: l4 1s infinite steps(10);
+}
+
+@keyframes l4 {
+  to {
+    transform: rotate(1turn);
+  }
 }
 
 .chair {

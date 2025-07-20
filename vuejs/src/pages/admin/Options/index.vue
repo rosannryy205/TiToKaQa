@@ -1,15 +1,14 @@
-<template>
-  <div>
-    <h3 class="title">Quản lý toppings</h3>
+<template v-if="hasPermission('view_topping')">
+  <h3 class="title">Quản lý toppings</h3>
 
-    <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-      <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addToppingModal">
-        + Thêm toppings
-      </button>
-      <div class="col-12 col-md-6 col-lg-3 fram" style="max-width: 250px;">
-        <v-select v-model="selectTopping" :options="toppings" label="name" placeholder="Nhập tên món ăn"
-          :clearable="true" @input="onToppingSearch" class="uniform-input" />
-      </div>
+  <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
+    <button type="button" class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addToppingModal" v-if="hasPermission('create_topping')">
+      + Thêm toppings
+    </button>
+    <div class="col-12 col-md-6 col-lg-3 fram" style="max-width: 250px;">
+      <v-select v-model="selectTopping" :options="toppings" label="name" placeholder="Nhập tên món ăn" :clearable="true"
+        @input="onToppingSearch" class="uniform-input" />
+    </div>
 
       <div class="d-flex align-items-center me-2">
         <span class="vd me-2 text-nowrap">Danh mục</span>
@@ -31,56 +30,57 @@
     </div>
 
 
-    <div class="table-responsive d-none d-lg-block">
-      <table class="table table-bordered rounded">
-        <thead class="table-light">
-          <tr>
-            <th><input type="checkbox" /></th>
-            <!-- <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll"/></th> -->
-            <th>Tên</th>
-            <th>Danh mục</th>
-            <th>Giá</th>
-            <th>Tuỳ chọn</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(topping) in paginatedToppings" :key="topping.id">
-            <td><input type="checkbox" :value="topping.id" /></td>
-            <!-- <td><input type="checkbox" :value="topping.id" v-model="selectedToppingIds" /></td> -->
-            <td>{{ topping.name }}</td>
-            <td>{{ topping.category_name }}</td>
-            <td>{{ formatNumber(topping.price) }} VNĐ</td>
-            <td class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
-              <button type="button" class="btn btn-outline btn-sm" data-bs-toggle="modal"
-                data-bs-target="#updateToppingModal"
-                @click="getToppingById(topping.id); selectedToppingId = topping.id">Sửa</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="table-responsive d-none d-lg-block">
+    <table class="table table-bordered rounded">
+      <thead class="table-light">
+        <tr>
+          <th><input type="checkbox" /></th>
+          <!-- <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll"/></th> -->
+          <th>Tên</th>
+          <th>Danh mục</th>
+          <th>Giá</th>
+          <th>Tuỳ chọn</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(topping) in paginatedToppings" :key="topping.id">
+          <td><input type="checkbox" :value="topping.id" /></td>
+          <!-- <td><input type="checkbox" :value="topping.id" v-model="selectedToppingIds" /></td> -->
+          <td>{{ topping.name }}</td>
+          <td>{{ topping.category_name }}</td>
+          <td>{{ formatNumber(topping.price) }} VNĐ</td>
+          <td class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+            <button type="button" class="btn btn-outline btn-sm" data-bs-toggle="modal"
+              data-bs-target="#updateToppingModal"
+              @click="getToppingById(topping.id); selectedToppingId = topping.id" v-if="hasPermission('edit_topping')">Sửa</button>
+            <button class="btn btn-danger-delete btn-sm" @click="deletedTopping(topping.id)" v-if="hasPermission('delete_topping')">Xoá</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <button class="btn btn-danger-delete delete_desktop">Xoá</button>
+  <button class="btn btn-danger-delete delete_desktop" v-if="hasPermission('delete_topping')">Xoá</button>
 
-    <!-- Mobile View -->
-    <div class="d-block d-lg-none">
-      <div class="card mb-3">
-        <div class=" row g-0 align-items-center" v-for="(topping, index) in paginatedToppings" :key="topping.id">
-          <div class="col-3 d-flex align-items-center gap-2 p-2">
-            <input type="checkbox" :value="topping.id" />
-            <span>{{ index + 1 }}</span>
-          </div>
-          <div class="col-9">
-            <div class="card-body p-2">
-              <h5 class="card-title mb-1">{{ topping.name }}</h5>
-              <p class="card-text mb-1"><span class="label">Danh mục:</span> {{ topping.category_name }}</p>
-              <p class="card-text mb-2"><span class="label">Giá:</span> {{ formatNumber(topping.price) }} VNĐ</p>
-              <button class="btn btn-outline btn-sm me-2" data-bs-toggle="modal" data-bs-target="#updateToppingModal"
-                @click="getToppingById(topping.id); selectedToppingId = topping.id">Sửa</button>
-            </div>
+  <!-- Mobile View -->
+  <div class="d-block d-lg-none">
+    <div class="card mb-3">
+      <div class=" row g-0 align-items-center" v-for="(topping, index) in paginatedToppings" :key="topping.id">
+        <div class="col-3 d-flex align-items-center gap-2 p-2">
+          <input type="checkbox" :value="topping.id" />
+          <span>{{ index + 1 }}</span>
+        </div>
+        <div class="col-9">
+          <div class="card-body p-2">
+            <h5 class="card-title mb-1">{{ topping.name }}</h5>
+            <p class="card-text mb-1"><span class="label">Danh mục:</span> {{ topping.category_name }}</p>
+            <p class="card-text mb-2"><span class="label">Giá:</span> {{ formatNumber(topping.price) }} VNĐ</p>
+            <button class="btn btn-outline btn-sm me-2" v-if="hasPermission('edit_topping')">Sửa</button>
+            <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_topping')">Xoá</button>
           </div>
         </div>
       </div>
+    </div>
 
       <!-- <div class="card mb-3">
       <div class="row g-0 align-items-center" >
@@ -193,11 +193,10 @@
                 v-model.number="formTopping.price" min="0" required />
             </div>
 
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Đóng</button>
-            <button type="button" class="btn btn-add" @click="updateTopping(selectedToppingId)">Cập nhật</button>
-          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Đóng</button>
+          <button type="button" class="btn btn-add" @click="updateTopping(selectedToppingId)">Cập nhật</button>
         </div>
       </div>
     </div>
@@ -211,6 +210,8 @@ import { ref, onMounted, computed, watch } from 'vue';
 import numeral from 'numeral';
 import { toast } from "vue3-toastify";
 import Swal from 'sweetalert2';
+import { Permission } from '@/stores/permission'
+
 
 export default {
   methods: {
@@ -235,7 +236,15 @@ export default {
       price: '',
       category_id: '',
     })
-
+    const userId = ref(null)
+    const userString = localStorage.getItem('user')
+    if (userString) {
+      const user = JSON.parse(userString)
+      if (user && user.id !== undefined) {
+        userId.value = user.id
+      }
+    }
+const { hasPermission, permissions } = Permission(userId)
     const token = localStorage.getItem('token');
     const fetchTopping = async () => {
       try {
@@ -398,6 +407,10 @@ export default {
       getToppingById,
       selectedToppingId,
       updateTopping,
+      deletedTopping,
+      hasPermission,
+      userString,
+      userId
     }
   }
 }

@@ -36,7 +36,7 @@ export const FoodList = {
     const getCategory = async () => {
       try {
         const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`)
-        categories.value = res.data
+        categories.value = res.data  .filter(item => item.type === 'food')
         categories.value.shift()
       } catch (error) {
         console.error(error)

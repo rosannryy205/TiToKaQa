@@ -25,6 +25,8 @@ class User extends Authenticatable
         'avatar',
         'address',
         'fullname',
+        'last_position_lat',
+        'last_position_lng',
         'verify_code',
         'verify_expiry',
         'role_id',
@@ -68,9 +70,10 @@ class User extends Authenticatable
     public function discounts()
 {
     return $this->belongsToMany(Discount::class, 'discount_user', 'user_id', 'discount_id')
-        ->withPivot(['point_used', 'exchanged_at', 'expiry_at'])
+        ->withPivot(['point_used', 'exchanged_at', 'expiry_at', 'source'])
         ->withTimestamps();
 }
+
 
 
 

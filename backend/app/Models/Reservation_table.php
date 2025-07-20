@@ -18,7 +18,7 @@ class Reservation_table extends Model
         'reserved_to'
     ];
 
-     public function order() {
+    public function order() {
         return $this->belongsTo(Order::class, 'order_id');
     }
 

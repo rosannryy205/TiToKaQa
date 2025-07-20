@@ -19,10 +19,11 @@ return new class extends Migration
             $table->dateTime('exchanged_at');
             $table->dateTime('expiry_at');   
             $table->dateTime('used_at')->nullable(); 
+            $table->string('source')->nullable();
             $table->timestamps();
             $table->unique(['user_id', 'discount_id']);
         });
-        
+
     }
     /**
      * Reverse the migrations.

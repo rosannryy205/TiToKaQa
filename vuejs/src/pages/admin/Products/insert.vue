@@ -1,13 +1,12 @@
 <template>
-  <div>
-    <div class="d-flex justify-content-between">
-      <h3 class="text-danger fw-bold">Thêm món ăn</h3>
-      <div>
-        <RouterLink to="/admin/products" class="btn btn-outline-secondary rounded-0">
-          <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-        </RouterLink>
-      </div>
+  <div class="d-flex justify-content-between">
+    <h3 class="text-danger fw-bold">Thêm món ăn</h3>
+    <div>
+      <RouterLink to="/admin/products" class="btn btn-outline-secondary rounded-0">
+        <i class="bi bi-arrow-counterclockwise"></i> Quay lại
+      </RouterLink>
     </div>
+  </div>
 
     <form class="row mt-2" @submit.prevent="addFood">
       <div class="col-md-8">
@@ -106,6 +105,16 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2';
+import { Permission } from '@/stores/permission'
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
 
 
 // Dữ liệu món ăn mới

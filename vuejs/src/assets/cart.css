@@ -680,11 +680,6 @@ table td {
   border: 2px solid #0d6efd;
   background-color: #e7f1ff;
 }
-
-
-
-
-
 /* ===== Scroll container ===== */
 .discount-scroll-wrapper {
   max-height: 250px;
@@ -725,8 +720,7 @@ table td {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: transparent;
-  /* Không cần màu nền nếu có ảnh */
+  background-color: transparent; /* Không cần màu nền nếu có ảnh */
 }
 
 .voucher-icon {
@@ -910,7 +904,6 @@ table td {
   display: flex;
   align-items: center;
 }
-
 .voucher-logo {
   min-width: 50px;
   min-height: 50px;
@@ -927,8 +920,7 @@ table td {
   color: #c92c3c;
   font-weight: bold;
 }
-
-#app>div>div.container-sm.py-4>div>div.col-md-5>div>div.d-flex.justify-content-between.mb-2.text-success {
+#app > div > div.container-sm.py-4 > div > div.col-md-5 > div > div.d-flex.justify-content-between.mb-2.text-success{
   border: none !important;
 }
 

@@ -77,8 +77,14 @@ const admin = [
         },
       },
       {
-        path: 'tables/:orderId',
-        name: 'admin-tables-list',
+        path: 'tables-change/:orderId',
+        name: 'admin-tables-list-change',
+        component: () => import('../pages/admin/Tables/list.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: 'tables-setup/:orderId',
+        name: 'admin-tables-list-setup',
         component: () => import('../pages/admin/Tables/list.vue'),
         meta: {
           requiresAdmin: true,
@@ -93,6 +99,12 @@ const admin = [
           requiresAdmin: true,
           headerSize: 'sm'
         },
+      },
+      {
+        path: "tables/booking-schedule-now",
+        name: "admin-tables-booking-schedule-now",
+        component: () => import("../pages/admin/Tables/booking-schedule-now.vue"),
+        meta: { requiresAdmin: true },
       },
       {
         path: "tables/current-order",
@@ -111,6 +123,12 @@ const admin = [
           requiresAdmin: true,
           headerSize: 'sm'
         },
+      },
+      {
+        path: 'tables/insert-reservation/:date',
+        name: 'insert-reservation-admin-date',
+        component: () => import('../pages/admin/Tables/insert.vue'),
+        meta: { requiresAdmin: true },
       },
       {
         path: "orders/orders-detail/:id",
@@ -306,6 +324,24 @@ const admin = [
           requiresAdmin: true,
           headerSize: 'sm'
         },
+      },
+      {
+        path: '/admin/delivery',
+        name: 'admin/delivery',
+        component: () => import('../pages/admin/Shipper/index.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: '/admin/delivery_map/:id',
+        name: 'admin/delivery_map',
+        component: () => import('../pages/admin/Shipper/delivery_map.vue'),
+        meta: { requiresAdmin: true },
+      },
+      {
+        path: '/admin/select_order',
+        name: 'admin/select_order',
+        component: () => import('../pages/admin/Shipper/select_order.vue'),
+        meta: { requiresAdmin: true },
       },
     ],
   }

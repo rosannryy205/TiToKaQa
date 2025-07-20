@@ -17,16 +17,18 @@ class Order extends Model
         'guest_email',
         'guest_count',
         'note',
-        'deposit_amount',
         'expiration_time',
         'total_price',
         'money_reduce',
+        'tpoint_used',
+        'ship_cost',
         'user_id',
         'discount_id',
         'guest_address',
         'order_time',
         'order_status',
-        'type_order',
+        'shippingFee',
+        'reservation_code',
 
     ];
     public function details()
@@ -47,4 +49,5 @@ class Order extends Model
     {
         return $this->hasOne(Payment::class, 'order_id');
     }
+
 }

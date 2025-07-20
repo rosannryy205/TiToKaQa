@@ -67,8 +67,8 @@
           <tr v-for="item in info.details" :key="item.id">
             <td>{{ item.item_id }}</td>
             <td>
-              <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
-              {{ item.food_name || item.combo_name }}
+              <img :src="'http://127.0.0.1:8000/storage/img/food/'+item.image" class="me-2" alt="img" width="80px" height="80px">
+              {{ item.food_name || item.combo_name}}
               <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3 ">
                 <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
                   + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }} đ)
@@ -82,8 +82,9 @@
         </tbody>
       </table>
       <div class="text-end">
-        <p>Tạm tính: {{ formatNumber(info.ex_price) }} VNĐ</p>
-        <p>Khuyến mãi: {{ formatNumber(info.money_reduce) }} VNĐ</p>
+        <p>Phí ship: {{ formatNumber(info.ship_cost) }} VNĐ</p>
+        <p>Khuyến mãi: -{{ formatNumber(info.money_reduce) }} VNĐ</p>
+        <p>Trừ điểm Tpoint: -{{ formatNumber(info.tpoint_used) }} VNĐ</p>
         <h5>Tổng cộng (VAT): {{ formatNumber(info.total_price) }} VNĐ</h5>
       </div>
     </div>
@@ -99,7 +100,7 @@
 
 
     <!-- Khi đơn hàng đang giao -->
-    <router-link :to="{ name: 'delivery', params: { id: info.id } }" v-if="info.order_status === 'Đang giao hàng'">
+    <router-link :to="{ name: 'delivery', params: { id: info.id } }" v-if="info.order_status === 'Bắt đầu giao'">
       <button class="btn btn-sm btn-outline-danger mt-2 ms-2 p-2" style="width: 120px;">
         Theo dõi đơn
       </button>

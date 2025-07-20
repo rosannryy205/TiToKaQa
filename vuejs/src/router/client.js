@@ -37,6 +37,18 @@ const client = [
         meta: { title: 'Đặt bàn' },
       },
       {
+        path: 'luckywheel',
+        name: 'luckywheel',
+        component: () => import('../pages/client/luckywheel/luckywheel.vue'),
+        meta: { title: 'Vòng quay may mắn' },
+      },
+      {
+        path: 'flashsale',
+        name: 'flashsale',
+        component: () => import('../pages/client/flashsale/index.vue'),
+        meta: { title: 'Vòng quay may mắn' },
+      },
+      {
         path: 'reservation-form/:orderId',
         name: 'reservation-form',
         component: () => import('../pages/client/reservation/reservation-form.vue'),
@@ -122,12 +134,17 @@ const client = [
             meta: { title: 'Quản lý đơn hàng' },
           },
           {
+            path: 'deal-food',
+            name: 'deal-food',
+            component: () => import('../pages/client/user/deal-food.vue'),
+            meta: { title: 'Kho Deal Đã Nhận' },
+          },
+          {
             path: 'history-order',
             name: 'history-order',
             component: () => import('../pages/client/user/history-order.vue'),
             meta: { title: 'Lịch sử đơn hàng' },
           },
-
         ]
       },
       {

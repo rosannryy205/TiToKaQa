@@ -1,10 +1,9 @@
-<template>
-  <div>
-    <div v-if="isLoading" class="isLoading-overlay">
-      <div class="spinner-border text-danger" role="status">
-        <span class="visually-hidden">Đang tải...</span>
-      </div>
+<template v-if="hasPermission('create_order')">
+  <div v-if="isLoading" class="isLoading-overlay">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">Đang tải...</span>
     </div>
+  </div>
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
       <h3 class="text-danger fw-bold mb-2 mb-md-0">Thêm đơn hàng</h3>
@@ -282,6 +281,8 @@ import { Cart } from '@/stores/cart'
 import vSelect from 'vue-select'
 import { FoodList } from '@/stores/food'
 import { useRouter } from 'vue-router'
+import { Permission } from '@/stores/permission'
+
 
 export default {
   components: {
@@ -329,7 +330,15 @@ export default {
     const note = ref('')
     const selectguest = ref(null)
     const guest = ref([])
-
+    const userId = ref(null)
+    const userString = localStorage.getItem('user')
+    if (userString) {
+      const user = JSON.parse(userString)
+      if (user && user.id !== undefined) {
+        userId.value = user.id
+      }
+    }
+    const { hasPermission, permissions } = Permission(userId)
     const paginatedFoods = computed(() => {
       const filtered = foods.value.filter((food) =>
         food.name.toLowerCase().includes(searchFoodTerm.value.toLowerCase())
@@ -358,9 +367,11 @@ export default {
         }
 
         guest.value = [
-          guestDefaultOption, //"Khách lẻ" ở đầu mảng
+          guestDefaultOption,
           ...res.data.user.map((g) => ({
-            ...g,
+            id: g.user.id,
+            username: g.user.username,
+            fullname: g.user.fullname,
             usernameEmail: `${g.user.username} - ${g.user.phone}`,
           })),
         ]
@@ -588,6 +599,9 @@ export default {
       handleGuestSelection,
 
       paymentMethod,
+      hasPermission,
+      userString,
+      userId
     }
   },
 }

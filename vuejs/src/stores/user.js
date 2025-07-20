@@ -1,20 +1,11 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
-import { toast } from "vue3-toastify";
+import { form } from '@/stores/userForm'
 import Swal from 'sweetalert2'
-
 export const User = {
   setup() {
     const user = ref(null)
-    const form = ref({
-      fullname: '',
-      email: '',
-      phone: '',
-      address: '',
-      avatar: null,
-      username: ''
-    })
-    const loading = ref(true);
+  const loading = ref(true); // Controls loading spinner/state visibility
     const isLoggedIn = ref(false);
 
     const userLocal = JSON.parse(localStorage.getItem('user'))
@@ -24,34 +15,38 @@ export const User = {
         const res = await axios.get(`http://127.0.0.1:8000/api/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
-          }
+          },
         })
+
         user.value = res.data
-        form.value = {
-          fullname: res.data.fullname || res.data.username,
-          email: res.data.email,
-          phone: res.data.phone || '',
-          address: res.data.address || '',
-          username: res.data.username || '',
-          avatar: res.data.avatar
-            ? (res.data.avatar.startsWith('http') ? res.data.avatar : `http://127.0.0.1:8000/storage/${res.data.avatar}`)
-            : null,
-          rank_points: res.data.rank_points,
-          usable_points: res.data.usable_points,
-          rank: res.data.rank,
-        },
-          tempAvatar.value = null;
+        form.fullname = res.data.fullname || res.data.username
+        form.email = res.data.email
+        form.phone = res.data.phone || ''
+        form.address = res.data.address || ''
+        form.username = res.data.username || ''
+        form.avatar = res.data.avatar
+          ? (res.data.avatar.startsWith('http')
+            ? res.data.avatar
+            : `http://127.0.0.1:8000/storage/${res.data.avatar}`)
+          : null
+        form.rank_points = res.data.rank_points
+        form.usable_points = res.data.usable_points
+        form.rank = res.data.rank
+        form.use_points = false
+
+        tempAvatar.value = null
       } catch (error) {
         console.error('Không lấy được thông tin người dùng', error)
       }
     }
 
-    const tempAvatar = ref(null);
+
+    const tempAvatar = ref(null)
     const avatarUrl = computed(() => {
       if (tempAvatar.value) {
-        return tempAvatar.value;
+        return tempAvatar.value
       }
-      return form.value.avatar;
+      return form.avatar;
     });
     const handleImageUpload = async (event) => {
       const file = event.target.files[0];
@@ -122,6 +117,10 @@ export const User = {
             }
           });
 
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
+        user.value = null
+        isLoggedIn.value = false
 
           localStorage.removeItem('user');
           localStorage.removeItem('token');
@@ -150,8 +149,7 @@ export const User = {
           })
         }
       }
-    };
-
+    }
 
     const handleSubmit = async () => {
       try {
@@ -188,9 +186,7 @@ export const User = {
           timerProgressBar: true,
         })
       }
-    };
-
-
+    }
 
     const getInitial = (fullname) => {
       if (!fullname) return '?'
@@ -201,16 +197,15 @@ export const User = {
       if (userLocal?.id) {
         personally(userLocal.id)
           .then(() => {
-            isLoggedIn.value = !!user.value;
+            isLoggedIn.value = !!user.value
           })
           .finally(() => {
             loading.value = false
           })
         // console.log(form.value.avatar);
-
       } else {
-        console.warn('Không tìm thấy user trong localStorage');
-        isLoggedIn.value = false;
+        console.warn('Không tìm thấy user trong localStorage')
+        isLoggedIn.value = false
       }
     })
     return {
@@ -221,7 +216,7 @@ export const User = {
       handleLogout,
       getInitial,
       loading,
-      avatarUrl
+      avatarUrl,
     }
   },
 }

@@ -5,8 +5,6 @@
   text-decoration: none;
   list-style: none;
 }
-/*header da refactor*/
-/* General Reset (giữ nguyên nếu bạn muốn) */
 * {
   margin: 0;
   padding: 0;
@@ -21,48 +19,49 @@ body {
 }
 
 /* Header Styles */
-.header {
-  /* position-sticky, top-0, bg-white, bg-opacity-90, shadow-sm, z-3 đã được xử lý bằng class Bootstrap */
-}
+/* .header {
+} */
 
 .header .navbar {
-  padding-top: 0.5rem; /* Điều chỉnh padding nếu cần */
+  padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
 
 .header .navbar-brand img.logo {
-  display: block; /* Mặc định img là inline */
+  display: block;
 }
 
-
-
-/* Nav links Desktop (Menu Bottom) */
+.header .navbar-toggler {
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  border: 1px solid transparent;
+}
+.header .navbar-toggler:focus {
+  box-shadow: none;
+}
 .header .navbar-bottom {
-  border-top: 1px solid #e0e0e0; /* Màu border nhẹ nhàng hơn */
+  border-top: 1px solid #e0e0e0;
 }
 
 .header .main-nav-links .nav-link {
-  font-size: 1rem; /* Hoặc 18px */
+  font-size: 1rem;
   font-weight: bold;
   text-transform: uppercase;
   transition: color 0.3s ease, transform 0.3s ease;
-  padding: 0.5rem 1rem; /* Padding cho nav-link */
+  padding: 0.5rem 1rem;
 }
 
 .header .main-nav-links .nav-link:hover {
   color: #c92c3c;
-  transform: scale(1.05); /* Hiệu ứng scale nhẹ hơn */
+  transform: scale(1.05);
 }
-
-/* Icon Buttons (chung cho desktop và mobile nếu có thể) */
 .icon-btn {
-
   border: none;
   background: none;
-  font-size: 1.5rem; /* Kích thước icon (22-24px) */
-  color: #333; /* Màu icon mặc định */
+  font-size: 1.5rem;
+  color: #333;
   transition: color 0.3s ease, transform 0.3s ease;
-  padding: 0.25rem 0.5rem; /* Thêm padding để dễ click */
+  padding: 0.25rem 0.5rem;
   cursor: pointer;
 }
 
@@ -74,31 +73,27 @@ body {
     font-weight: 500;
 }
 .text-primary-red {
-    color: #c92c3c !important; /* Màu cho username hoặc các link đặc biệt */
+    color: #c92c3c !important;
 }
 .text-primary-red:hover {
     color: #a32330 !important;
 }
-
-
 /* Search Input Styles */
 .input-wrapper {
   display: flex;
   align-items: center;
-  /* gap: 15px;  Nếu cần khoảng cách giữa button và input */
-  /* position: relative; đã có class bootstrap */
 }
 
 .input-search {
   border-style: none;
-  height: 40px; /* Giảm chiều cao 1 chút */
-  width: 40px;  /* Bằng với icon button ban đầu */
+  height: 40px;
+  width: 40px;
   padding: 0.5rem;
   outline: none;
   border-radius: 50%;
   transition: width 0.5s ease-in-out, border-radius 0.5s ease-in-out, background-color 0.5s ease-in-out, border-bottom 0.5s ease-in-out;
-  background-color: transparent; /* Hoặc màu nền nhẹ */
-  padding-right: 35px; /* Để icon không bị che */
+  background-color: transparent;
+  padding-right: 35px;
   font-size: 0.9rem;
 }
 
@@ -123,11 +118,11 @@ body {
   border-radius: 50%;
   background-color: transparent;
   transition: 0.2s linear;
-  padding: 0; /* Reset padding cho button chứa SVG */
+  padding: 0;
 }
 
 /* Animation khi focus search */
-.input-wrapper .icon-search-submit:focus-within ~ .input-search, /* Hỗ trợ click icon để expand */
+.input-wrapper .icon-search-submit:focus-within ~ .input-search,
 .input-wrapper .input-search:focus {
   box-shadow: none;
   width: 350px;
@@ -142,7 +137,7 @@ body {
   position: absolute;
   top: 100%;
   left: 0;
-  width: 350px; /* Bằng width của input khi expand */
+  width: 350px;
   background-color: white;
   border: 1px solid #ddd;
   border-top: none;
@@ -152,7 +147,7 @@ body {
   margin: 0;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 1000; /* Đảm bảo dropdown nổi trên các element khác */
+  z-index: 1000;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 .suggestion-dropdown li {
@@ -172,8 +167,18 @@ body {
 
 
 /* Offcanvas Styles */
+.navbar-nav .nav-link {
+  transition: transform 0.3s ease, color 0.3s ease;
+  display: inline-block;
+}
+
+.navbar-nav .nav-link:hover {
+  transform: scale(1.1);
+  color: #c92c3c;
+}
+
 .offcanvas {
-  width: 280px; /* Tăng nhẹ độ rộng cho offcanvas */
+  width: 280px;
 }
 .offcanvas-header {
   border-bottom: 1px solid #e0e0e0;
@@ -186,7 +191,7 @@ body {
   font-size: 1rem;
   font-weight: 500;
   color: #333;
-  border-bottom: 1px solid #f0f0f0; /* Đường kẻ mờ giữa các link */
+  border-bottom: 1px solid #f0f0f0;
 }
 .offcanvas-nav-links .nav-link:hover {
   background-color: #f8f9fa;
@@ -198,10 +203,10 @@ body {
   padding-top: 1.5rem;
   border-top: 1px solid #e0e0e0;
 }
-.offcanvas-body .mobile-actions .input-wrapper { /* Style cho search trong offcanvas */
+.offcanvas-body .mobile-actions .input-wrapper {
     width: 100%;
 }
-.offcanvas-body .mobile-actions .input-search { /* Input search trong offcanvas mở rộng sẵn */
+.offcanvas-body .mobile-actions .input-search {
     width: 100%;
     border-radius: 4px;
     background-color: #f5f5f5;
@@ -213,31 +218,30 @@ body {
 }
 
 .offcanvas-body .mobile-actions .icon-btn {
-  font-size: 1rem; /* Font size cho text trong offcanvas action */
-  display: flex; /* Để icon và text thẳng hàng */
+  font-size: 1rem;
+  display: flex;
   align-items: center;
 }
 .offcanvas-body .mobile-actions .icon-btn i {
-  font-size: 1.25rem; /* Kích thước riêng cho icon nếu cần */
+  font-size: 1.25rem;
 }
 /* Responsive Adjustments (Sử dụng breakpoints của Bootstrap nếu có thể) */
 /* Bootstrap lg breakpoint là 992px */
 @media (max-width: 991.98px) {
-  /* Các style riêng cho mobile/tablet nếu cần mà Bootstrap class chưa xử lý */
   .header .navbar-brand {
-    margin-left: auto; /* Đẩy logo ra giữa khi toggler xuất hiện bên trái */
+    margin-left: auto;
     margin-right: auto;
-    /* Hoặc dùng flex trên parent của toggler và brand để căn chỉnh */
+
   }
 }
 
 /* Ví dụ cho các màn hình nhỏ hơn nữa nếu cần */
 @media (max-width: 575.98px) {
   .header .navbar-brand img.logo {
-    width: 60px; /* Giảm kích thước logo trên màn hình rất nhỏ */
+    width: 60px;
   }
   .offcanvas {
-    width: 250px; /* Giảm độ rộng offcanvas trên mobile nhỏ */
+    width: 250px;
   }
 }
 /**/
@@ -249,7 +253,7 @@ body {
   color: #c92c3c;
 }
 .title-shops{
-  margin-bottom: 35px;
+  margin-bottom: 10px;
 }
 .title-shops1 > span {
   font-size: 40px;
