@@ -102,7 +102,7 @@
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
-                  v-model="paymentMethod" disabled/>
+                  v-model="paymentMethod" disabled />
                 <label class="form-check-label d-flex align-items-center" for="momo">
                   <span class="me-2">Thanh toán qua Momo</span>
                   <img src="/img/momo.png" height="20" width="20" alt="" />
@@ -210,15 +210,23 @@ export default {
 
       try {
         if (!paymentMethod.value) {
-          toast.error('Vui lòng chọn phương thức thanh toán!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng chọn phương thức thanh toán!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           return
         }
         const orderData = {
           id: orderId,
-          guest_name: form.value.fullname || form.value.username,
-          guest_phone: form.value.phone,
-          guest_email: form.value.email,
-          note: form.value.note || "",
+          guest_name: form.fullname || form.username,
+          guest_phone: form.phone,
+          guest_email: form.email,
+          note: form.note || "",
           total_price: finalTotal.value,
           money_reduce: discountFoodAmount.value,
           discount_id: discountId.value || null,
@@ -249,7 +257,15 @@ export default {
 
         if (paymentMethod.value === 'VNPAY') {
           if (!orderId || finalTotal.value <= 0) {
-            toast.error('Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.');
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
             return;
           }
           const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
@@ -262,7 +278,15 @@ export default {
             localStorage.removeItem(cartKey)
             window.location.href = paymentRes.data.payment_url
           } else {
-            toast.error('Không tạo được link thanh toán VNPAY.')
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Không tạo được link thanh toán VNPAY.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
           }
           return
         }
@@ -274,25 +298,26 @@ export default {
           // router.push('/payment-result');
           return
         }
-        if (paymentMethod.value === 'COD') {
-          await new Promise((resolve) => setTimeout(resolve, 300))
-          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
-            order_id: orderId,
-            amount_paid: finalTotal.value + 100000,
-          })
-          localStorage.setItem('order_id', orderId)
-          localStorage.setItem('payment_method', paymentMethod.value)
-          localStorage.removeItem(cartKey)
-          toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
-          router.push({
-            name: 'payment-result',
-            query: {
-              type: 'order_id',
-              value: orderId
-            }
-          });
-        }
+        // if (paymentMethod.value === 'COD') {
+        //   await new Promise((resolve) => setTimeout(resolve, 300))
+        //   await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+        //     order_id: orderId,
+        //     amount_paid: finalTotal.value + 100000,
+        //   })
+        //   localStorage.setItem('order_id', orderId)
+        //   localStorage.setItem('payment_method', paymentMethod.value)
+        //   localStorage.removeItem(cartKey)
+        //   toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
+        //   router.push({
+        //     name: 'payment-result',
+        //     query: {
+        //       type: 'order_id',
+        //       value: orderId
+        //     }
+        //   });
+        // }
       } catch (error) {
+        console.error(error)
         if (error.response && error.response.status === 422 && error.response.data.errors) {
           let validationErrors = ''
           for (const field in error.response.data.errors) {
@@ -305,10 +330,25 @@ export default {
               validationErrors += 'Lỗi không xác định. ';
             }
           }
-
-          toast.error(`${validationErrors.trim()}`)
+           Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: `${validationErrors.trim()}`,
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
         } else {
-          toast.error('Đặt bàn thất bại, vui lòng thử lại!')
+          Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Đặt bàn thất bại, vui lòng thử lại!',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
         }
 
       } finally {

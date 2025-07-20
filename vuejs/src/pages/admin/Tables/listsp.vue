@@ -1,4 +1,5 @@
 <template v-if="hasPermission('edit_booking')">
+  <div>
   <div class="d-flex justify-content-between">
     <div class="fw-semibold fs-3">Danh sách món</div>
 

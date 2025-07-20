@@ -5,7 +5,7 @@ import Swal from 'sweetalert2'
 export const User = {
   setup() {
     const user = ref(null)
-  const loading = ref(true); // Controls loading spinner/state visibility
+    const loading = ref(true); // Controls loading spinner/state visibility
     const isLoggedIn = ref(false);
 
     const userLocal = JSON.parse(localStorage.getItem('user'))
@@ -52,16 +52,16 @@ export const User = {
       const file = event.target.files[0];
 
       if (!file) {
-        form.value.avatar = null;
+        form.avatar = null;
         tempAvatar.value = null;
         return;
       }
 
-      form.value.avatar = file;
+      form.avatar = file;
       tempAvatar.value = URL.createObjectURL(file);
 
       const formData = new FormData();
-      formData.append("avatar", form.value.avatar);
+      formData.append("avatar", form.avatar);
 
       try {
         const response = await axios.post(`http://127.0.0.1:8000/api/user/${user.value.id}/upload-avatar`, formData, {
@@ -70,7 +70,7 @@ export const User = {
             // 'Content-Type': 'multipart/form-data'
           }
         });
-        form.value.avatar = response.data.avatar_url;
+        form.avatar = response.data.avatar_url;
         tempAvatar.value = null;
 
         Swal.fire({
@@ -117,10 +117,10 @@ export const User = {
             }
           });
 
-        localStorage.removeItem('user')
-        localStorage.removeItem('token')
-        user.value = null
-        isLoggedIn.value = false
+          localStorage.removeItem('user')
+          localStorage.removeItem('token')
+          user.value = null
+          isLoggedIn.value = false
 
           localStorage.removeItem('user');
           localStorage.removeItem('token');
@@ -154,9 +154,9 @@ export const User = {
     const handleSubmit = async () => {
       try {
         const updateProfile = {
-          "fullname": form.value.fullname || "",
-          "phone": form.value.phone || "",
-          "address": form.value.address || "",
+          "fullname": form.fullname || "",
+          "phone": form.phone || "",
+          "address": form.address || "",
         }
         await axios.patch(`http://127.0.0.1:8000/api/user/updateProfile/${user.value.id}`, updateProfile, {
           headers: {

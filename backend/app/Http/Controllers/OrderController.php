@@ -712,8 +712,35 @@ class OrderController extends Controller
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
-        $order->order_status = 'Đã hủy';
-        $order->save();
+
+        // Chỉ cho phép hủy nếu đang ở trạng thái Chờ xác nhận hoặc Đã xác nhận
+        if (!in_array($order->order_status, ['Chờ xác nhận', 'Đã xác nhận'])) {
+            return response()->json(['message' => 'Chỉ có thể hủy đơn khi đang ở trạng thái chờ xác nhận hoặc đã xác nhận.'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Khôi phục tồn kho
+            foreach ($order->details as $detail) {
+                $food = Food::find($detail->food_id);
+                if ($food) {
+                    $food->stock += $detail->quantity;
+                    $food->quantity_sold -= $detail->quantity;
+                    $food->save();
+                }
+            }
+            /** restore tpoint */
+            if ($order->user_id && $order->tpoint_used > 0) {
+                $user = User::find($order->user_id);
+                if ($user) {
+                    $user->usable_points += $order->tpoint_used;
+                    $user->save();
+                }
+            }
+
+            // Cập nhật trạng thái đơn hàng
+            $order->order_status = 'Đã hủy';
+            $order->save();
 
             // Cập nhật trạng thái thanh toán nếu có
             if ($order->payment) {

@@ -133,7 +133,7 @@ export default {
       "Chờ xác nhận",
       "Đã xác nhận",
       "Đang xử lý",
-      "Đang giao hàng",
+      "Bắt đầu giao",
       "Giao thành công",
       "Đã hủy",
     ];

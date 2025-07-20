@@ -431,6 +431,14 @@ input .form-control-customer:focus {
   border: 1px solid #ccc;
   border-radius: 20px 20px 0px;
 }
+.input-group input[type="email"] {
+  flex: 1;
+  height: 40px;
+  padding: 8px 12px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 20px 20px 0px;
+}
 
 .input-group button {
   padding: 8px 12px;
@@ -556,6 +564,7 @@ input .form-control-customer:focus {
   .discount-code label {
     font-size: 14px;
   }
+
 }
 
 /* cart css */

@@ -72,7 +72,7 @@
             <div class="row">
               <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3">
                 <div class="product-card">
-                  <img :src="'http://127.0.0.1:8000/storage/img/food/' + item.image" :alt="item.name" class="product-img mx-auto d-block" width="180px" />
+                  <img :src="getImageUrl(item.image)" :alt="item.name" class="product-img mx-auto d-block" width="180px" />
                   <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
                   <span class="product-dish-desc text-start">
                     {{ item.description }}
@@ -132,7 +132,7 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ

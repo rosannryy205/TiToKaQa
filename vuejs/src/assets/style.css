@@ -948,17 +948,17 @@ footer {
   }
 
   footer .input-group {
-    justify-content: center;
-    flex-direction: column;
-    gap: 10px;
+    display: flex;
+    /* gap: 10px; */
   }
 
   footer .input-group input {
-    width: 100% !important;
+    width: 70% !important;
   }
 
   footer .input-group button {
-    width: 100%;
+    width: 25%;
+    font-size: 16px;
   }
 
   footer .text-lg-start,

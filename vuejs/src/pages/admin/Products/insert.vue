@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('create_food')">
   <div class="d-flex justify-content-between">
     <h3 class="text-danger fw-bold">Thêm món ăn</h3>
     <div>
@@ -6,7 +6,6 @@
         <i class="bi bi-arrow-counterclockwise"></i> Quay lại
       </RouterLink>
     </div>
-  </div>
 
     <form class="row mt-2" @submit.prevent="addFood">
       <div class="col-md-8">
