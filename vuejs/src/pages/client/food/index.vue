@@ -186,7 +186,7 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -272,6 +272,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { useRoute } from 'vue-router'
+import Swal from 'sweetalert2';
 import { computed } from 'vue'
 
 export default {
@@ -450,6 +451,81 @@ export default {
     const increaseQuantity = () => {
       quantity.value += 1
     }
+
+    const addToCart = () => {
+      const user = JSON.parse(localStorage.getItem('user'))
+      const userId = user?.id || 'guest'
+      const cartKey = orderId
+        ? `cart_${userId}_reservation_${orderId}`
+        : `cart_${userId}`
+
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+
+      let allSelectedToppings = [];
+
+      if (selectedSpicy) {
+        allSelectedToppings.push({
+          id: selectedSpicy.id,
+          name: selectedSpicy.name,
+          price: selectedSpicy.price,
+          food_toppings_id: selectedSpicy.pivot?.id || null,
+          is_spicy_level: true
+        });
+      }
+
+      const selectedToppingIds = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')
+      ).map((el) => parseInt(el.value));
+
+      const normalToppings = toppingList.value
+        .filter((topping) => selectedToppingIds.includes(topping.id))
+        .map((topping) => ({
+          id: topping.id,
+          name: topping.name,
+          price: topping.price,
+          food_toppings_id: topping.pivot?.id || null,
+          is_spicy_level: false
+        }));
+
+      allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+
+      const cartItem = {
+        id: foodDetail.value.id,
+        name: foodDetail.value.name,
+        image: foodDetail.value.image,
+        price: foodDetail.value.price,
+        toppings: allSelectedToppings,
+        quantity: quantity.value,
+        type: foodDetail.value.type,
+        category_id: foodDetail.value.category_id,
+      };
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      const existingItemIndex = cart.findIndex(
+        (item) =>
+          item.id === cartItem.id &&
+          JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
+      );
+
+      if (existingItemIndex !== -1) {
+        cart[existingItemIndex].quantity += 1;
+      } else {
+        cart.push(cartItem);
+      }
+
+      localStorage.setItem(cartKey, JSON.stringify(cart));
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Đã thêm món vào giỏ hàng!',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      });
+
+    };
+
 
 
     onMounted(async () => {

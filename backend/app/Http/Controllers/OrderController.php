@@ -673,6 +673,21 @@ class OrderController extends Controller
             ]
         ], 200);
     }
+    public function getOrderReservationInfo(Request $request)
+    {
+        $type = $request->input('type');
+        $value = $request->input('value');
+
+        if ($type === 'user_id') {
+            $orders = Order::where('user_id', $value)->latest()->take(1)->get();
+        } else if ($type === 'order_id') {
+            $orders = Order::where('id', $value)->get();
+        } else {
+            return response()->json(['orders' => []]);
+        }
+
+        return response()->json(['orders' => $orders]);
+    }
 
     //lấy tất cả order theo user
     public function getInfoOrderByUser(Request $request)
@@ -722,7 +737,7 @@ class OrderController extends Controller
                     $user->save();
                 }
             }
-            
+
             // Cập nhật trạng thái đơn hàng
             $order->order_status = 'Đã hủy';
             $order->save();
