@@ -1,343 +1,344 @@
 <template>
-  <div v-if="isLoading" class="isLoading-overlay">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">Đang tải...</span>
+  <div>
+    <div v-if="isLoading" class="isLoading-overlay">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">Đang tải...</span>
+      </div>
     </div>
-  </div>
 
-  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" v-if="hasPermission('create_booking')">
-    <h3 class="fw-bold mb-2 mb-md-0">Thêm đơn đặt bàn</h3>
-    <div>
-      <button @click="$router.back()" class="btn btn-outline-secondary rounded-0">
-        <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-      </button>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap"
+      v-if="hasPermission('create_booking')">
+      <h3 class="fw-bold mb-2 mb-md-0">Thêm đơn đặt bàn</h3>
+      <div>
+        <button @click="$router.back()" class="btn btn-outline-secondary rounded-0">
+          <i class="bi bi-arrow-counterclockwise"></i> Quay lại
+        </button>
+      </div>
     </div>
-  </div>
 
-  <form class="row mt-2" @submit.prevent="reservation">
-    <div class="col-12">
-      <div class="card rounded-0 border-0 shadow mb-4">
-        <div class="card-body">
-          <div class="row d-flex flex-column flex-lg-row">
-            <div class="col-12 col-lg-5 mb-3">
-              <label for="name" class="form-label fs-5">
-                Thông tin khách hàng <span class="text-danger">*</span>
-              </label>
-              <v-select v-model="selectguest" :options="guest" label="usernameEmail" placeholder="Chọn khách hàng"
-                :clearable="true" class="form-control rounded" />
-              <div class="mt-2">
-                <label for="name" class="form-label">
-                  Tên khách hàng <span class="text-danger">*</span>
+    <form class="row mt-2" @submit.prevent="reservation">
+      <div class="col-12">
+        <div class="card rounded-0 border-0 shadow mb-4">
+          <div class="card-body">
+            <div class="row d-flex flex-column flex-lg-row">
+              <div class="col-12 col-lg-5 mb-3">
+                <label for="name" class="form-label fs-5">
+                  Thông tin khách hàng <span class="text-danger">*</span>
                 </label>
-                <input type="text" class="form-control rounded-2" required v-model="guest_name" />
-                <label for="name" class="form-label">
-                  Số điện thoại <span class="text-danger">*</span>
-                </label>
-                <input type="text" class="form-control rounded-2" required v-model="guest_phone" />
+                <v-select v-model="selectguest" :options="guest" label="usernameEmail" placeholder="Chọn khách hàng"
+                  :clearable="true" class="form-control rounded" />
+                <div class="mt-2">
+                  <label for="name" class="form-label">
+                    Tên khách hàng <span class="text-danger">*</span>
+                  </label>
+                  <input type="text" class="form-control rounded-2" required v-model="guest_name" />
+                  <label for="name" class="form-label">
+                    Số điện thoại <span class="text-danger">*</span>
+                  </label>
+                  <input type="text" class="form-control rounded-2" required v-model="guest_phone" />
+                  <label for="category" class="form-label">
+                    Email
+                  </label>
+                  <input type="text" class="form-control rounded-2" required v-model="guest_email" />
+                  <label for="category" class="form-label">
+                    Ghi chú
+                  </label>
+                  <textarea class="form-control rounded-2" id="description" rows="1" v-model="note"></textarea>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-7 mb-3 pt-3 pt-lg-0 mt-3 mt-lg-0" style="border-left: 1px solid #cccc">
                 <label for="category" class="form-label">
-                  Email
+                  Tìm bàn <span class="text-danger">*</span>
                 </label>
-                <input type="text" class="form-control rounded-2" required v-model="guest_email" />
-                <label for="category" class="form-label">
-                  Ghi chú
-                </label>
-                <textarea class="form-control rounded-2" id="description" rows="1" v-model="note"></textarea>
+                <div class="row mb-3 gx-2 gy-2">
+                  <div class="col-12 col-sm-4">
+                    <input type="date" class="form-control rounded" v-model="date" :min="today" @change="findTable" />
+                  </div>
+                  <div class="col-12 col-sm-4">
+                    <select class="form-control rounded" v-model="time" @change="findTable">
+                      <option value="">Chọn giờ</option>
+                      <option v-for="time in filteredTimeOptions" :key="time" :value="time">
+                        {{ time }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-sm-4">
+                    <input type="number" class="form-control rounded" placeholder="Số lượng người" v-model="guest_count"
+                      @change="findTable" />
+                  </div>
+                </div>
+                <div class="table-container">
+                  <div class="table-block" v-for="ban in paginatedTables" :key="ban.id">
+                    <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+                      <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
+                    </div>
+                    <div @click="toggleTable(ban.id)" :class="[
+                      selectedTableIds.includes(ban.id) ? 'table-rect1' : 'table-rect',
+                      {
+                        medium: getChairCount(ban.capacity) === 2,
+                        large: getChairCount(ban.capacity) === 3,
+                        billed: ban.status === 'Đã đặt trước',
+                        'billed-text': ban.status === 'Đã đặt trước',
+                        reservation: ban.status === 'Có khách',
+                        'reservation-text': ban.status === 'Có khách',
+                      },
+                    ]">
+                      Bàn {{ ban.name || ban.id }}
+                    </div>
+                    <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+                      <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-center mt-3 w-100">
+                  <nav>
+                    <ul class="pagination">
+                      <li class="page-item" :class="{ disabled: currentPage.tables === 1 }">
+                        <button class="page-link" @click="goToPage(currentPage.tables - 1, 'tables')">
+                          «
+                        </button>
+                      </li>
+
+                      <li v-for="page in totalPagesTables" :key="page" class="page-item"
+                        :class="{ active: currentPage.tables === page }">
+                        <button type="button" class="page-link" @click="goToPage(page, 'tables')">
+                          {{ page }}
+                        </button>
+                      </li>
+
+                      <li class="page-item" :class="{ disabled: currentPage.tables === totalPagesTables }">
+                        <button type="button" class="page-link" @click="goToPage(currentPage.tables + 1, 'tables')">
+                          »
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
               </div>
             </div>
 
-            <div class="col-12 col-lg-7 mb-3 pt-3 pt-lg-0 mt-3 mt-lg-0" style="border-left: 1px solid #cccc">
-              <label for="category" class="form-label">
-                Tìm bàn <span class="text-danger">*</span>
-              </label>
-              <div class="row mb-3 gx-2 gy-2">
-                <div class="col-12 col-sm-4">
-                  <input type="date" class="form-control rounded" v-model="date" :min="today" @change="findTable" />
-                </div>
-                <div class="col-12 col-sm-4">
-                  <select class="form-control rounded" v-model="time" @change="findTable">
-                    <option value="">Chọn giờ</option>
-                    <option v-for="time in filteredTimeOptions" :key="time" :value="time">
-                      {{ time }}
+            <div class="fw-semibold">Danh sách món</div>
+            <div class="mb-3">
+              <hr />
+              <div class="row">
+                <div class="col-12 col-md-6 col-lg-3 mb-3">
+                  Lọc theo danh mục:
+                  <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
+                    <option value="">Tất cả món ăn</option>
+                    <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
+                      {{ item.indent }}{{ item.name }}
                     </option>
                   </select>
                 </div>
-                <div class="col-12 col-sm-4">
-                  <input type="number" class="form-control rounded" placeholder="Số lượng người" v-model="guest_count"
-                    @change="findTable" />
+                <div class="col-12 col-md-6 col-lg-3 mb-3">
+                  <label for="foodSearch">Tìm kiếm theo tên món ăn:</label>
+                  <input id="foodSearch" type="text" class="form-control rounded" v-model="searchFoodTerm"
+                    placeholder="Nhập tên món ăn" />
                 </div>
-              </div>
-              <div class="table-container">
-                <div class="table-block" v-for="ban in paginatedTables" :key="ban.id">
-                  <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                    <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n"></div>
-                  </div>
-                  <div @click="toggleTable(ban.id)" :class="[
-                    selectedTableIds.includes(ban.id) ? 'table-rect1' : 'table-rect',
-                    {
-                      medium: getChairCount(ban.capacity) === 2,
-                      large: getChairCount(ban.capacity) === 3,
-                      billed: ban.status === 'Đã đặt trước',
-                      'billed-text': ban.status === 'Đã đặt trước',
-                      reservation: ban.status === 'Có khách',
-                      'reservation-text': ban.status === 'Có khách',
-                    },
-                  ]">
-                    Bàn {{ ban.name || ban.id }}
-                  </div>
-                  <div class="chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                    <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="d-flex justify-content-center mt-3 w-100">
-                <nav>
-                  <ul class="pagination">
-                    <li class="page-item" :class="{ disabled: currentPage.tables === 1 }">
-                      <button class="page-link" @click="goToPage(currentPage.tables - 1, 'tables')">
-                        «
-                      </button>
-                    </li>
+                <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
+                  <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
+                    <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
+                      <div class="gap-1">
+                        <div class="d-flex flex-column align-items-center" @click="openModal(product)">
+                          <img :src="getImageUrl(product.image)" alt="" srcset=""
+                            style="width: 60px; height: 60px; object-fit: cover" />
+                          <div class="product_name text-center mt-1">{{ product.name }}</div>
+                          <strong class="text-danger product_price">
+                            {{ formatNumber(product.price) }} VND
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
 
-                    <li v-for="page in totalPagesTables" :key="page" class="page-item"
-                      :class="{ active: currentPage.tables === page }">
-                      <button type="button" class="page-link" @click="goToPage(page, 'tables')">
-                        {{ page }}
-                      </button>
-                    </li>
+                    <div class="d-flex justify-content-center mt-3 w-100">
+                      <nav>
+                        <ul class="pagination">
+                          <li class="page-item" :class="{ disabled: currentPage.foods === 1 }">
+                            <button type="button" class="page-link" @click="goToPage(currentPage.foods - 1, 'foods')">
+                              «
+                            </button>
+                          </li>
 
-                    <li class="page-item" :class="{ disabled: currentPage.tables === totalPagesTables }">
-                      <button type="button" class="page-link" @click="goToPage(currentPage.tables + 1, 'tables')">
-                        »
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
-            </div>
-          </div>
+                          <li v-for="page in totalPagesFoods" :key="page" class="page-item"
+                            :class="{ active: currentPage.foods === page }">
+                            <button type="button" class="page-link" @click="goToPage(page, 'foods')">
+                              {{ page }}
+                            </button>
+                          </li>
 
-          <div class="fw-semibold">Danh sách món</div>
-          <div class="mb-3">
-            <hr />
-            <div class="row">
-              <div class="col-12 col-md-6 col-lg-3 mb-3">
-                Lọc theo danh mục:
-                <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
-                  <option value="">Tất cả món ăn</option>
-                  <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
-                    {{ item.indent }}{{ item.name }}
-                  </option>
-                </select>
-              </div>
-              <div class="col-12 col-md-6 col-lg-3 mb-3">
-                Tìm kiếm theo tên:
-                <v-select v-model="selectfood" :options="foods" label="name" placeholder="Nhập tên món ăn"
-                  :clearable="true" @input="onFoodSearch" class="form-control rounded" />
-              </div>
-              <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
-                <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
-                  <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
-                    <div class="gap-1">
-                      <div class="d-flex flex-column align-items-center" @click="openModal(product)">
-                        <img :src="getImageUrl(product.image)" alt="" srcset=""
-                          style="width: 60px; height: 60px; object-fit: cover" />
-                        <div class="product_name text-center mt-1">{{ product.name }}</div>
-                        <strong class="text-danger product_price">
-                          {{ formatNumber(product.price) }} VND
-                        </strong>
+                          <li class="page-item" :class="{ disabled: currentPage.foods === totalPagesFoods }">
+                            <button type="button" class="page-link" @click="goToPage(currentPage.foods + 1, 'foods')">
+                              »
+                            </button>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+
+                  <div class="modal fade" id="productModal">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content rounded-2 p-1">
+                        <div class="modal-body">
+                          <div class="title">
+                            <i class="bi bi-bag-plus-fill"></i>
+                            Thêm đơn hàng
+                          </div>
+                          <div class="d-flex align-items-center p-2 border rounded shadow-sm" style="max-width: 500px">
+                            <img :src="getImageUrl(foodDetail.image)" class="rounded me-3 border"
+                              style="width: 60px; height: 60px; object-fit: cover" alt="Drink" />
+                            <div class="flex-grow-1">
+                              <div class="text-dark fw-semibold mb-2">{{ foodDetail.name }}</div>
+                              <div class="d-flex justify-content-between align-items-center">
+                                <div class="fw-semibold" style="font-size: 14px">
+                                  {{ formatNumber(foodDetail.price) }}VNĐ
+                                </div>
+                                <div class="input-group input-group-sm" style="width: 100px">
+                                  <button class="btn btn-outline-secondary" @click="decreaseQuantity" type="button">
+                                    −
+                                  </button>
+                                  <span>{{ quantity }}</span>
+                                  <button class="btn btn-outline-secondary" @click="increaseQuantity" type="button">
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <form @submit.prevent="handleAddToCartClick">
+                          <div style="max-height: 400px; overflow-y: auto" class="pe-3 ps-3" v-if="toppingList.length">
+                            <div class="mb-3">
+                              <div class="mb-3" v-if="spicyLevel.length">
+                                <label for="spicyLevel" class="form-label fw-bold text-danger">🌶 Mức độ cay:</label>
+                                <select class="form-select rounded" id="spicyLevel">
+                                  <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                                    {{ item.name }}
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <label class="form-label fw-bold text-danger">🧀 Chọn Topping:</label>
+                            <div v-for="topping in toppingList" :key="topping.id"
+                              class="d-flex justify-content-between align-items-center mb-2">
+                              <label class="d-flex align-items-center text-dark">
+                                <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
+                                {{ topping.name }}
+                              </label>
+                              <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+                            </div>
+                          </div>
+                          <div v-else class="mt-5">
+                            <p class="text-center text-muted">Không có topping cho món này.</p>
+                          </div>
+
+                          <div class="modal-footer border-0">
+                            <button class="btn btn-danger1 w-100 fw-bold" type="submit">
+                              🛒 Thêm vào đơn hàng
+                            </button>
+                          </div>
+                        </form>
                       </div>
                     </div>
                   </div>
 
-                  <div class="d-flex justify-content-center mt-3 w-100">
-                    <nav>
-                      <ul class="pagination">
-                        <li class="page-item" :class="{ disabled: currentPage.foods === 1 }">
-                          <button type="button" class="page-link" @click="goToPage(currentPage.foods - 1, 'foods')">
-                            «
-                          </button>
+                  <div class="col-12 col-lg-4 border p-3 mt-3 mt-lg-0">
+                    <div class="d-flex justify-content-between border-bottom mb-3">
+                      <h5>Chi tiết</h5>
+                      <a href="#" class="text-danger fw-semibold" @click.prevent="clearCart">Xoá tất cả</a>
+                    </div>
+                    <div style="max-height: 200px; overflow-y: auto" class="pe-1">
+                      <div class="border rounded p-3 mb-3" style="background-color: #fff"
+                        v-for="(item, index) in cartItems" :key="index">
+                        <div class="d-flex align-items-start border-bottom mb-2 pb-1">
+                          <img :src="getImageUrl(item.image)" class="rounded me-2"
+                            style="width: 60px; height: 60px; object-fit: cover" />
+
+                          <div class="flex-grow-1" style="max-height: 200px; overflow-y: auto">
+                            <div class="fw-semibold">{{ item.name }}</div>
+
+                            <div class="d-flex justify-content-between">
+                              <div class="text-muted small" v-if="item.toppings.length">
+                                <div v-for="(topping, i) in item.toppings" :key="i">
+                                  + {{ topping.name }} ({{ formatNumber(topping.price) }} VNĐ)
+                                </div>
+                              </div>
+                              <div v-else class="text-muted small">Không có topping</div>
+                              <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer"
+                                @click="removeItem(index)"></i>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div class="d-flex align-items-center border rounded" style="background-color: #f8f9fa">
+                            <button type="button" class="btn border-0 fw-bold bg-white"
+                              style="background-color: transparent" @click="decreaseQuantity1(index)">
+                              −
+                            </button>
+                            <span class="px-2">{{ item.quantity }}</span>
+                            <button type="button" class="btn border-0 fw-bold bg-white"
+                              style="background-color: transparent" @click="increaseQuantity2(index)">
+                              +
+                            </button>
+                          </div>
+                          <div class="fw-bold fs-6">{{ formatNumber(totalPriceItem(item)) }} VNĐ</div>
+                        </div>
+                      </div>
+                      <div v-if="cartItems.length === 0" class="text-center text-muted py-3">
+                        Giỏ hàng trống.
+                      </div>
+                    </div>
+
+                    <div class="pt-0">
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                          Tạm tính
+                          <span>{{ formatNumber(totalPrice) }} VNĐ</span>
                         </li>
 
-                        <li v-for="page in totalPagesFoods" :key="page" class="page-item"
-                          :class="{ active: currentPage.foods === page }">
-                          <button type="button" class="page-link" @click="goToPage(page, 'foods')">
-                            {{ page }}
-                          </button>
-                        </li>
-
-                        <li class="page-item" :class="{ disabled: currentPage.foods === totalPagesFoods }">
-                          <button type="button" class="page-link" @click="goToPage(currentPage.foods + 1, 'foods')">
-                            »
-                          </button>
+                        <li
+                          class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
+                          Tổng thanh toán
+                          <span class="text-danger fw-bold">
+                            {{ formatNumber(totalPrice) }} VNĐ
+                          </span>
                         </li>
                       </ul>
-                    </nav>
-                  </div>
-                </div>
-
-                <div class="modal fade" id="productModal">
-                  <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content rounded-2 p-1">
-                      <div class="modal-body">
-                        <div class="title">
-                          <i class="bi bi-bag-plus-fill"></i>
-                          Thêm đơn hàng
-                        </div>
-                        <div class="d-flex align-items-center p-2 border rounded shadow-sm" style="max-width: 500px">
-                          <img :src="getImageUrl(foodDetail.image)" class="rounded me-3 border"
-                            style="width: 60px; height: 60px; object-fit: cover" alt="Drink" />
-                          <div class="flex-grow-1">
-                            <div class="text-dark fw-semibold mb-2">{{ foodDetail.name }}</div>
-                            <div class="d-flex justify-content-between align-items-center">
-                              <div class="fw-semibold" style="font-size: 14px">
-                                {{ formatNumber(foodDetail.price) }}VNĐ
-                              </div>
-                              <div class="input-group input-group-sm" style="width: 100px">
-                                <button class="btn btn-outline-secondary" @click="decreaseQuantity" type="button">
-                                  −
-                                </button>
-                                <span>{{ quantity }}</span>
-                                <button class="btn btn-outline-secondary" @click="increaseQuantity" type="button">
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                      <hr />
+                      <h6 class="mb-3">Phương thức thanh toán</h6>
+                      <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
+                        <button class="btn btn-payment active">
+                          <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
+                          <br />
+                          Tiền mặt
+                        </button>
+                        <button class="btn btn-payment">
+                          <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
+                          <br />
+                          MoMo
+                        </button>
+                        <button class="btn btn-payment">
+                          <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
+                          <br />
+                          QR code
+                        </button>
                       </div>
-                      <form @submit.prevent="handleAddToCartClick">
-                        <div style="max-height: 400px; overflow-y: auto" class="pe-3 ps-3" v-if="toppingList.length">
-                          <div class="mb-3">
-                            <div class="mb-3" v-if="spicyLevel.length">
-                              <label for="spicyLevel" class="form-label fw-bold text-danger">🌶 Mức độ cay:</label>
-                              <select class="form-select rounded" id="spicyLevel">
-                                <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
-                                  {{ item.name }}
-                                </option>
-                              </select>
-                            </div>
-                          </div>
-
-                          <label class="form-label fw-bold text-danger">🧀 Chọn Topping:</label>
-                          <div v-for="topping in toppingList" :key="topping.id"
-                            class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="d-flex align-items-center text-dark">
-                              <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
-                              {{ topping.name }}
-                            </label>
-                            <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
-                          </div>
-                        </div>
-                        <div v-else class="mt-5">
-                          <p class="text-center text-muted">Không có topping cho món này.</p>
-                        </div>
-
-                        <div class="modal-footer border-0">
-                          <button class="btn btn-danger1 w-100 fw-bold" type="submit">
-                            🛒 Thêm vào đơn hàng
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-12 col-lg-4 border p-3 mt-3 mt-lg-0">
-                  <div class="d-flex justify-content-between border-bottom mb-3">
-                    <h5>Chi tiết</h5>
-                    <a href="#" class="text-danger fw-semibold" @click.prevent="clearCart">Xoá tất cả</a>
-                  </div>
-                  <div style="max-height: 200px; overflow-y: auto" class="pe-1">
-                    <div class="border rounded p-3 mb-3" style="background-color: #fff"
-                      v-for="(item, index) in cartItems" :key="index">
-                      <div class="d-flex align-items-start border-bottom mb-2 pb-1">
-                        <img :src="getImageUrl(item.image)" class="rounded me-2"
-                          style="width: 60px; height: 60px; object-fit: cover" />
-
-                        <div class="flex-grow-1" style="max-height: 200px; overflow-y: auto">
-                          <div class="fw-semibold">{{ item.name }}</div>
-
-                          <div class="d-flex justify-content-between">
-                            <div class="text-muted small" v-if="item.toppings.length">
-                              <div v-for="(topping, i) in item.toppings" :key="i">
-                                + {{ topping.name }} ({{ formatNumber(topping.price) }} VNĐ)
-                              </div>
-                            </div>
-                            <div v-else class="text-muted small">Không có topping</div>
-                            <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
-                          </div>
-                        </div>
+                      <hr />
+                      <div class="d-flex flex-column flex-sm-row">
+                        <button type="button" @click="$router.back()"
+                          class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
+                          Quay lại
+                        </button>
+                        <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
+                          Đặt bàn
+                        </button>
+                        <button class="btn btn-outline-danger flex-fill p-2" type="button">
+                          Thanh toán
+                        </button>
                       </div>
-
-                      <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center border rounded" style="background-color: #f8f9fa">
-                          <button type="button" class="btn border-0 fw-bold bg-white"
-                            style="background-color: transparent" @click="decreaseQuantity1(index)">
-                            −
-                          </button>
-                          <span class="px-2">{{ item.quantity }}</span>
-                          <button type="button" class="btn border-0 fw-bold bg-white"
-                            style="background-color: transparent" @click="increaseQuantity2(index)">
-                            +
-                          </button>
-                        </div>
-                        <div class="fw-bold fs-6">{{ formatNumber(totalPriceItem(item)) }} VNĐ</div>
-                      </div>
-                    </div>
-                    <div v-if="cartItems.length === 0" class="text-center text-muted py-3">
-                      Giỏ hàng trống.
-                    </div>
-                  </div>
-
-                  <div class="pt-0">
-                    <ul class="list-group list-group-flush">
-                      <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Tạm tính
-                        <span>{{ formatNumber(totalPrice) }} VNĐ</span>
-                      </li>
-                      <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
-                        Phí giữ bàn
-                        <span>100,000 VNĐ</span>
-                      </li>
-                      <li
-                        class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
-                        Tổng thanh toán
-                        <span class="text-danger fw-bold">
-                          {{ formatNumber(totalPrice + 100000) }} VNĐ
-                        </span>
-                      </li>
-                    </ul>
-                    <hr />
-                    <h6 class="mb-3">Phương thức thanh toán</h6>
-                    <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
-                      <button class="btn btn-payment active">
-                        <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
-                        <br />
-                        Tiền mặt
-                      </button>
-                      <button class="btn btn-payment">
-                        <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
-                        <br />
-                        MoMo
-                      </button>
-                      <button class="btn btn-payment">
-                        <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
-                        <br />
-                        QR code
-                      </button>
-                    </div>
-                    <hr />
-                    <div class="d-flex flex-column flex-sm-row">
-                      <button type="button" @click="$router.back()"
-                        class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
-                        Quay lại
-                      </button>
-                      <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
-                        Đặt bàn
-                      </button>
-                      <button class="btn btn-outline-danger flex-fill p-2" type="button">
-                        Thanh toán
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -346,14 +347,13 @@
           </div>
         </div>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 </template>
 
 <script>
 import axios from 'axios'
 import { ref, computed, onMounted } from 'vue'
-import { toast } from 'vue3-toastify'
 import { Info } from '@/stores/info-order-reservation'
 import { Cart } from '@/stores/cart'
 import vSelect from 'vue-select'
@@ -643,7 +643,15 @@ export default {
         }
       }
       if (!consecutive && tempSelected.length > 1) {
-        toast.error('Vui lòng chọn các bàn có số liền kề nhau!')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          title: 'Vui lòng chọn các bàn có số liền kề nhau!',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
         return
       }
 
@@ -653,22 +661,6 @@ export default {
     // hàm đặt bàn
     const reservation = async () => {
       isLoading.value = true
-      let rawDateTime = ''
-
-      if (route.params.date) {
-        rawDateTime = route.params.date
-      } else if (date.value && time.value) {
-        rawDateTime = `${date.value}T${time.value}:00`
-      } else {
-        toast.error('Vui lòng chọn ngày và giờ')
-        return
-      }
-
-      const reservedFrom = new Date(rawDateTime)
-      const reservedTo = new Date(reservedFrom.getTime() + 2 * 60 * 60 * 1000)
-
-      const reserved_from = formatDateTime(reservedFrom)
-      const reserved_to = formatDateTime(reservedTo)
 
       try {
         await axios.post('http://127.0.0.1:8000/api/reservation', {
@@ -678,7 +670,7 @@ export default {
           guest_email: guest_email.value,
           guest_count: guest_count.value,
           note: note.value,
-          reserved_from: reserved_from,
+          reserved_from: `${date.value} ${time.value}`,
           deposit_amount: 100000,
           total_price: totalPrice.value + 100000,
           table_ids: selectedTableIds.value,
@@ -695,24 +687,231 @@ export default {
           })),
         })
 
-        toast.success('Đặt bàn thành công!')
-        clearCart()
+        const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/reservation', reservationData)
+        if (orderCreationResponse.data && orderCreationResponse.data.order_id) {
+          current_order_id.value = orderCreationResponse.data.order_id
+          await Swal.fire({
+            toast: true,
+            position: 'top-end',
+            title: 'Đơn hàng đã được tạo thành công!',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
+          if (paymentMethod.value === 'VNPAY') {
+            const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+              order_id: current_order_id.value,
+              amount: 100000,
+              return_url: 'http://localhost:5173/admin/tables/booking-schedule',
+            })
+            if (paymentRes.data.payment_url) {
+              localStorage.setItem('payment_method', paymentMethod.value)
+              // localStorage.removeItem(cartKey.value)
+              await Swal.fire({
+                title: 'Đang chuyển hướng sang VNPAY...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                  Swal.showLoading()
+                }
+              })
+              window.location.href = paymentRes.data.payment_url
+            } else {
+              throw new Error('Không tạo được link thanh toán VNPAY!')
+            }
+            return
+          }
+          if (paymentMethod.value === 'MOMO') {
+            await Swal.fire({
+              toast: true,
+              position: 'top-end',
+              title: 'Chức năng thanh toán MoMo đang được phát triển!',
+              icon: 'info',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true,
+            });
+            return;
+          }
+          if (paymentMethod.value === 'COD') {
+            await new Promise((resolve) => setTimeout(resolve, 300))
+            await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+              order_id: current_order_id.value,
+              amount_paid: 100000,
+              payment_type: 'Thanh toán toàn bộ',
+            })
+
+            localStorage.setItem('payment_method', paymentMethod.value)
+            await Swal.fire({
+              toast: true,
+              position: 'top-end',
+              title: 'Thanh toán bàn bằng tiền mặt thành công!',
+              icon: 'success',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true,
+            });
+            // router.push('/admin/tables/current-order');
+          }
+          clearCart();
+          // guest_name.value = '';
+          // guest_phone.value = '';
+          // guest_email.value = '';
+          // note.value = '';
+          router.push('/admin/tables/booking-schedule');
+        } else {
+          await Swal.fire({
+            toast: false,
+            position: 'top-end',
+            title: 'Lỗi: Không nhận được order_id từ server.',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
+          isLoading.value = false
+          return
+        }
+        // toast.success('Đặt bàn thành công!')
+        // clearCart()
       } catch (error) {
         console.error('Lỗi khi đặt bàn:', error)
+        let errorMessage = 'Đặt bàn hoặc thanh toán thất bại, vui lòng thử lại!';
+        let swalOptions = {
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        };
         if (error.response && error.response.status === 422 && error.response.data.errors) {
-          let validationErrors = ''
+
+          let validationMessages = [];
           for (const field in error.response.data.errors) {
-            validationErrors += error.response.data.errors[field].join(' ') + ' '
+            validationMessages.push(...error.response.data.errors[field]);
           }
-          toast.error(`${validationErrors.trim()}`)
-        } else {
-          toast.error('Đặt bàn thất bại, vui lòng thử lại!')
+          errorMessage = validationMessages.join('\n');
+
+          swalOptions = {
+            toast: false,
+            // position: 'center',
+            title: 'Lỗi xác thực dữ liệu!',
+            html: errorMessage,
+            icon: 'error',
+            showConfirmButton: true, // Cần nút xác nhận để người dùng tự đóng
+            timer: undefined, // Không tự đóng
+            timerProgressBar: false,
+          };
+        } else if (error.response && error.response.data && error.response.data.message) {
+          errorMessage = error.response.data.message;
         }
+        await Swal.fire({
+          ...swalOptions,
+          title: swalOptions.title || errorMessage,
+          text: swalOptions.html ? undefined : errorMessage
+        });
       } finally {
         isLoading.value = false
       }
     }
+    const handlePayment = async () => {
+      isLoading.value = true;
+      try {
+        if (!guest_name.value) {
+          await Swal.fire({
+            toast: true,
+            position: 'top-end',
+            title: 'Vui lòng nhập đầy đủ thông tin khách hàng!',
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
+          return
+        }
+        if (cartItems.value.length === 0) {
+          await Swal.fire({
+            toast: true,
+            position: 'top-end',
+            title: 'Giỏ hàng trống! Vui lòng thêm món ăn!',
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
+          return
+        }
+        if (!paymentMethod.value) {
+          await Swal.fire({
+            toast: true,
+            position: 'top-end',
+            title: 'Vui lòng chọn phương thức thanh toán!',
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
+          return;
+        }
+        if (!current_order_id.value) {
+          await Swal.fire({
+            toast: true,
+            position: 'top-end',
+            title: 'Không có đơn hàng nào để thanh toán. Vui lòng tạo đơn hàng trước!',
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
+          isLoading.value = false;
+          return;
+        }
+        if (paymentMethod.value === 'VNPAY') {
+          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+            order_id: current_order_id.value,
+            amount: totalPrice.value,
+            return_url: 'http://localhost:5173/admin/tables/current-order',
+          })
+          if (paymentRes.data.payment_url) {
+            localStorage.setItem('payment_method', paymentMethod.value)
+            // localStorage.removeItem(cartKey.value)
+            window.location.href = paymentRes.data.payment_url
+          } else {
+            toast.error('Không tạo được link thanh toán VNPAY.')
+          }
+          clearCart();
+          guest_name.value = '';
+          note.value = '';
+          router.push('/admin/tables/booking-schedule');
+          return
+        }
+        if (paymentMethod.value === 'MOMO') {
+          toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          // localStorage.setItem('payment_method', paymentMethod.value);
+          return;
+        }
+        if (paymentMethod.value === 'COD') {
+          await new Promise((resolve) => setTimeout(resolve, 300))
+          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+            order_id: current_order_id.value,
+            amount_paid: totalPrice.value,
+            payment_type: 'Thanh toán toàn bộ',
+          })
 
+          localStorage.setItem('payment_method', paymentMethod.value)
+          // localStorage.removeItem(cartKey.value)
+          toast.success('Thanh toán bàn bằng tiền mặt thành công!')
+          clearCart();
+          router.push('/admin/tables/booking-schedule');
+        }
+
+      } catch {
+
+      }
+    }
     watch(selectguest, handleGuestSelection)
     watch(selectfood, (newValue) => {
       if (newValue === null) {
@@ -756,7 +955,8 @@ export default {
       getChairCount,
       formatDate,
       formatTime,
-      reservation,
+      createReservationOnly,
+      handlePayment,
       guest_email,
       user_id,
       selectguest,
@@ -766,6 +966,7 @@ export default {
       toggleTable,
       selectedTableIds,
       guest,
+      paymentMethod,
 
       currentPage,
       paginatedTables,

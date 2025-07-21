@@ -1,6 +1,7 @@
 <template v-if="hasPermission('edit_booking')">
+  <div>
   <div class="d-flex justify-content-between">
-          <div class="fw-semibold fs-3">Danh sách món</div>
+    <div class="fw-semibold fs-3">Danh sách món</div>
 
     <div>
       <button @click="$router.back()" class="btn btn-outline-secondary rounded-0">
@@ -22,10 +23,11 @@
         </select>
       </div>
       <div class="col-12 col-md-6 col-lg-3 mb-3">
-        Tìm kiếm theo tên:
-        <v-select v-model="selectfood" :options="foods" label="name" placeholder="Nhập tên món ăn" :clearable="true"
-          @input="onFoodSearch" class="form-control rounded" />
+        <label for="foodSearch">Tìm kiếm theo tên món ăn:</label>
+        <input id="foodSearch" type="text" class="form-control rounded" v-model="searchFoodTerm"
+          placeholder="Nhập tên món ăn" />
       </div>
+
       <div class="col-12 d-flex flex-column flex-lg-row gap-3 align-items-start">
         <div class="col-12 col-lg-8 d-flex flex-wrap justify-content-center justify-content-lg-start">
           <div class="box p-2 m-1" v-for="product in paginatedFoods" :key="product.id">
@@ -41,202 +43,203 @@
             </div>
           </div>
 
-          <div class="d-flex justify-content-center mt-3 w-100">
-            <nav>
-              <ul class="pagination">
-                <li class="page-item" :class="{ disabled: currentPage.foods === 1 }">
-                  <button type="button" class="page-link" @click="goToPage(currentPage.foods - 1, 'foods')">
-                    «
-                  </button>
-                </li>
+            <div class="d-flex justify-content-center mt-3 w-100">
+              <nav>
+                <ul class="pagination">
+                  <li class="page-item" :class="{ disabled: currentPage.foods === 1 }">
+                    <button type="button" class="page-link" @click="goToPage(currentPage.foods - 1, 'foods')">
+                      «
+                    </button>
+                  </li>
 
-                <li v-for="page in totalPagesFoods" :key="page" class="page-item"
-                  :class="{ active: currentPage.foods === page }">
-                  <button type="button" class="page-link" @click="goToPage(page, 'foods')">
-                    {{ page }}
-                  </button>
-                </li>
+                  <li v-for="page in totalPagesFoods" :key="page" class="page-item"
+                    :class="{ active: currentPage.foods === page }">
+                    <button type="button" class="page-link" @click="goToPage(page, 'foods')">
+                      {{ page }}
+                    </button>
+                  </li>
 
-                <li class="page-item" :class="{ disabled: currentPage.foods === totalPagesFoods }">
-                  <button type="button" class="page-link" @click="goToPage(currentPage.foods + 1, 'foods')">
-                    »
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-
-        <div class="modal fade" id="productModal">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-2 p-1">
-              <div class="modal-body">
-                <div class="title">
-                  <i class="bi bi-bag-plus-fill"></i>
-                  Thêm đơn hàng
-                </div>
-                <div class="d-flex align-items-center p-2 border rounded shadow-sm" style="max-width: 500px">
-                  <img :src="getImageUrl(foodDetail.image)" class="rounded me-3 border"
-                    style="width: 60px; height: 60px; object-fit: cover" alt="Drink" />
-                  <div class="flex-grow-1">
-                    <div class="text-dark fw-semibold mb-2">{{ foodDetail.name }}</div>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div class="fw-semibold" style="font-size: 14px">
-                        {{ formatNumber(foodDetail.price) }}VNĐ
-                      </div>
-                      <div class="input-group input-group-sm" style="width: 100px">
-                        <button class="btn btn-outline-secondary" @click="decreaseQuantity" type="button">
-                          −
-                        </button>
-                        <span>{{ quantity }}</span>
-                        <button class="btn btn-outline-secondary" @click="increaseQuantity" type="button">
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <form @submit.prevent="handleAddToCartClick">
-                <div style="max-height: 400px; overflow-y: auto" class="pe-3 ps-3" v-if="toppingList.length">
-                  <div class="mb-3">
-                    <div class="mb-3" v-if="spicyLevel.length">
-                      <label for="spicyLevel" class="form-label fw-bold text-danger">
-                        🌶 Mức độ cay:</label>
-                      <select class="form-select rounded" id="spicyLevel">
-                        <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
-                          {{ item.name }}
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <label class="form-label fw-bold text-danger">🧀 Chọn Topping:</label>
-                  <div v-for="topping in toppingList" :key="topping.id"
-                    class="d-flex justify-content-between align-items-center mb-2">
-                    <label class="d-flex align-items-center text-dark">
-                      <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
-                      {{ topping.name }}
-                    </label>
-                    <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
-                  </div>
-                </div>
-                <div v-else class="mt-5">
-                  <p class="text-center text-muted">Không có topping cho món này.</p>
-                </div>
-
-                <div class="modal-footer border-0">
-                  <button class="btn btn-danger1 w-100 fw-bold" type="submit">
-                    🛒 Thêm vào đơn hàng
-                  </button>
-                </div>
-              </form>
+                  <li class="page-item" :class="{ disabled: currentPage.foods === totalPagesFoods }">
+                    <button type="button" class="page-link" @click="goToPage(currentPage.foods + 1, 'foods')">
+                      »
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
-        </div>
 
-        <div class="col-12 col-lg-4 border p-3 mt-3 mt-lg-0">
-          <form @submit.prevent="submitCart(orderId)">
-            <div class="d-flex justify-content-between border-bottom mb-3">
-              <h5>Chi tiết</h5>
-              <a href="#" class="text-danger fw-semibold" @click.prevent="clearCart">Xoá tất cả</a>
-            </div>
-            <div style="max-height: 200px; overflow-y: auto" class="pe-1">
-              <div class="border rounded p-3 mb-3" style="background-color: #fff" v-for="(item, index) in cartItems"
-                :key="index">
-                <div class="d-flex align-items-start border-bottom mb-2 pb-1">
-                  <img :src="getImageUrl(item.image)" class="rounded me-2"
-                    style="width: 60px; height: 60px; object-fit: cover" alt="Shrimp fried spicy sauce" />
-
-                  <div class="flex-grow-1" style="max-height: 200px; overflow-y: auto">
-                    <div class="fw-semibold">{{ item.name }}</div>
-
-                    <div class="d-flex justify-content-between">
-
-                      <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
-                    </div>
-
-                    <div class="text-muted small" v-if="item.toppings.length">
-                      <div v-for="(topping, i) in item.toppings" :key="i">
-                        + {{ topping.name }} ({{ formatNumber(topping.price) }} VNĐ)
+          <div class="modal fade" id="productModal">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content rounded-2 p-1">
+                <div class="modal-body">
+                  <div class="title">
+                    <i class="bi bi-bag-plus-fill"></i>
+                    Thêm đơn hàng
+                  </div>
+                  <div class="d-flex align-items-center p-2 border rounded shadow-sm" style="max-width: 500px">
+                    <img :src="getImageUrl(foodDetail.image)" class="rounded me-3 border"
+                      style="width: 60px; height: 60px; object-fit: cover" alt="Drink" />
+                    <div class="flex-grow-1">
+                      <div class="text-dark fw-semibold mb-2">{{ foodDetail.name }}</div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div class="fw-semibold" style="font-size: 14px">
+                          {{ formatNumber(foodDetail.price) }}VNĐ
+                        </div>
+                        <div class="input-group input-group-sm" style="width: 100px">
+                          <button class="btn btn-outline-secondary" @click="decreaseQuantity" type="button">
+                            −
+                          </button>
+                          <span>{{ quantity }}</span>
+                          <button class="btn btn-outline-secondary" @click="increaseQuantity" type="button">
+                            +
+                          </button>
+                        </div>
                       </div>
                     </div>
-                    <div v-else class="text-muted small">Không có topping</div>
                   </div>
                 </div>
+                <form @submit.prevent="handleAddToCartClick">
+                  <div style="max-height: 400px; overflow-y: auto" class="pe-3 ps-3" v-if="toppingList.length">
+                    <div class="mb-3">
+                      <div class="mb-3" v-if="spicyLevel.length">
+                        <label for="spicyLevel" class="form-label fw-bold text-danger">
+                          🌶 Mức độ cay:</label>
+                        <select class="form-select rounded" id="spicyLevel">
+                          <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                            {{ item.name }}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
 
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="d-flex align-items-center border rounded" style="background-color: #f8f9fa">
-                    <button type="button" class="btn border-0 fw-bold bg-white" style="background-color: transparent"
-                      @click="decreaseQuantity1(index)">
-                      −
-                    </button>
-                    <span class="px-2">{{ item.quantity }}</span>
-                    <button type="button" class="btn border-0 fw-bold bg-white" style="background-color: transparent"
-                      @click="increaseQuantity2(index)">
-                      +
+                    <label class="form-label fw-bold text-danger">🧀 Chọn Topping:</label>
+                    <div v-for="topping in toppingList" :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2">
+                      <label class="d-flex align-items-center text-dark">
+                        <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
+                        {{ topping.name }}
+                      </label>
+                      <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+                    </div>
+                  </div>
+                  <div v-else class="mt-5">
+                    <p class="text-center text-muted">Không có topping cho món này.</p>
+                  </div>
+
+                  <div class="modal-footer border-0">
+                    <button class="btn btn-danger1 w-100 fw-bold" type="submit">
+                      🛒 Thêm vào đơn hàng
                     </button>
                   </div>
-                  <div class="fw-bold fs-6">{{ formatNumber(totalPriceItem(item)) }} VNĐ</div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-lg-4 border p-3 mt-3 mt-lg-0">
+            <form @submit.prevent="submitCart(orderId)">
+              <div class="d-flex justify-content-between border-bottom mb-3">
+                <h5>Chi tiết</h5>
+                <a href="#" class="text-danger fw-semibold" @click.prevent="clearCart">Xoá tất cả</a>
+              </div>
+              <div style="max-height: 200px; overflow-y: auto" class="pe-1">
+                <div class="border rounded p-3 mb-3" style="background-color: #fff" v-for="(item, index) in cartItems"
+                  :key="index">
+                  <div class="d-flex align-items-start border-bottom mb-2 pb-1">
+                    <img :src="getImageUrl(item.image)" class="rounded me-2"
+                      style="width: 60px; height: 60px; object-fit: cover" alt="Shrimp fried spicy sauce" />
+
+                    <div class="flex-grow-1" style="max-height: 200px; overflow-y: auto">
+                      <div class="fw-semibold">{{ item.name }}</div>
+
+                      <div class="d-flex justify-content-between">
+
+                        <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
+                      </div>
+
+                      <div class="text-muted small" v-if="item.toppings.length">
+                        <div v-for="(topping, i) in item.toppings" :key="i">
+                          + {{ topping.name }} ({{ formatNumber(topping.price) }} VNĐ)
+                        </div>
+                      </div>
+                      <div v-else class="text-muted small">Không có topping</div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center border rounded" style="background-color: #f8f9fa">
+                      <button type="button" class="btn border-0 fw-bold bg-white" style="background-color: transparent"
+                        @click="decreaseQuantity1(index)">
+                        −
+                      </button>
+                      <span class="px-2">{{ item.quantity }}</span>
+                      <button type="button" class="btn border-0 fw-bold bg-white" style="background-color: transparent"
+                        @click="increaseQuantity2(index)">
+                        +
+                      </button>
+                    </div>
+                    <div class="fw-bold fs-6">{{ formatNumber(totalPriceItem(item)) }} VNĐ</div>
+                  </div>
+                </div>
+                <div v-if="cartItems.length === 0" class="text-center text-muted py-3">
+                  Giỏ hàng trống.
                 </div>
               </div>
-              <div v-if="cartItems.length === 0" class="text-center text-muted py-3">
-                Giỏ hàng trống.
-              </div>
-            </div>
 
-            <div class="pt-0">
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  Tạm tính
-                  <span>{{ formatNumber(totalPrice) }} VNĐ</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
-                  Phí giữ bàn
-                  <span>100,000 VNĐ</span>
-                </li>
-                <li
-                  class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
-                  Tổng thanh toán
-                  <span class="text-danger fw-bold">
-                    {{ formatNumber(totalPrice + 100000) }} VNĐ
-                  </span>
-                </li>
-              </ul>
-              <hr />
-              <h6 class="mb-3">Phương thức thanh toán</h6>
-              <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
-                <button class="btn btn-payment active" type="button">
-                  <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
-                  <br />
-                  Tiền mặt
-                </button>
-                <button class="btn btn-payment" type="button">
-                  <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
-                  <br />
-                  MoMo
-                </button>
-                <button class="btn btn-payment" type="button">
-                  <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
-                  <br />
-                  QR code
-                </button>
+              <div class="pt-0">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Tạm tính
+                    <span>{{ formatNumber(totalPrice) }} VNĐ</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                    Phí giữ bàn
+                    <span>100,000 VNĐ</span>
+                  </li>
+                  <li
+                    class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
+                    Tổng thanh toán
+                    <span class="text-danger fw-bold">
+                      {{ formatNumber(totalPrice + 100000) }} VNĐ
+                    </span>
+                  </li>
+                </ul>
+                <hr />
+                <h6 class="mb-3">Phương thức thanh toán</h6>
+                <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
+                  <button class="btn btn-payment active" type="button">
+                    <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
+                    <br />
+                    Tiền mặt
+                  </button>
+                  <button class="btn btn-payment" type="button">
+                    <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
+                    <br />
+                    MoMo
+                  </button>
+                  <button class="btn btn-payment" type="button">
+                    <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
+                    <br />
+                    QR code
+                  </button>
+                </div>
+                <hr />
+                <div class="d-flex flex-column flex-sm-row">
+                  <button type="button" @click="$router.back()"
+                    class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
+                    Quay lại
+                  </button>
+                  <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
+                    Lưu lại
+                  </button>
+                  <button class="btn btn-outline-danger flex-fill p-2" type="button">
+                    Thanh toán
+                  </button>
+                </div>
               </div>
-              <hr />
-              <div class="d-flex flex-column flex-sm-row">
-                <button type="button" @click="$router.back()"
-                  class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
-                  Quay lại
-                </button>
-                <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
-                  Lưu lại
-                </button>
-                <button class="btn btn-outline-danger flex-fill p-2" type="button">
-                  Thanh toán
-                </button>
-              </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>

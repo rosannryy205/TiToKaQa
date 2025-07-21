@@ -434,7 +434,7 @@ class UserController extends Controller
         }
     }
 
-    
+
     protected  function uploadAvatar(Request $request, string $id)
     {
         $user = User::findOrFail($id);

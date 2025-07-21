@@ -25,19 +25,16 @@
             </div>
             <div class="mb-3">
               <label for="" class="form-label">Email</label>
-
               <input type="email" class="form-control rounded border shadow-sm" placeholder="Email" v-model="form.email"
                 required />
             </div>
             <div class="mb-3">
               <label for="" class="form-label">Số điện thoại <b class="text-danger">*</b></label>
-
               <input type="text" class="form-control rounded border shadow-sm" placeholder="Số điện thoại"
                 v-model="form.phone" required />
             </div>
             <div class="mb-3">
               <label for="" class="form-label">Ghi chú</label>
-
               <textarea class="form-control rounded border shadow-sm" rows="3" placeholder="Ghi chú"
                 v-model="note"></textarea>
             </div>
@@ -51,7 +48,11 @@
 
         <!-- Cột phải -->
         <div class="col-lg-6 ffff">
-          <div class="section-title1">Thanh toán</div>
+          <div class="section-title1 d-flex justify-between">
+            <div>Thanh Toán</div>
+            <div v-if="cart_reservation != null"><router-link :to="`/food/${orderId}`" class="fs-6 text-white pb-2">Thêm
+                món</router-link></div>
+          </div>
           <div class="border pt-4">
             <div v-if="!cartItems.length > 0">
               <router-link :to="`/food/${orderId}`" class="bi bi-plus-circle-fill pb-2"></router-link>
@@ -59,8 +60,7 @@
                 Chọn món trước khi đến nhà hàng
               </div>
             </div>
-
-            <div class="list-product-scroll1 mb-3">
+            <div class="list-product-scroll1 mb-3" v-if="cart_reservation != null">
               <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
                 <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
                 <div class="flex-grow-1">
@@ -83,44 +83,11 @@
               </div>
             </div>
           </div>
-          <div class="card-payment1 border shadow-sm bg-white p-4 rounded-bottom">
-            <div class="d-flex justify-content-between mb-2">
-              <span>Tạm tính</span>
-              <span>{{ formatNumber(totalPrice + 100000) }} VNĐ</span>
-            </div>
+          <div class="card-payment1 border shadow-sm bg-white p-4 rounded-bottom" v-if="cart_reservation != null">
 
-            <div class="d-flex justify-content-between mb-2">
-              <span>Khuyến mãi</span>
-              <span class="text-success">-{{ formatNumber(discountFoodAmount) }} VNĐ</span>
-            </div>
-
-            <div class="input-group mb-2">
-              <input type="text" class="form-control" placeholder="Nhập mã giảm giá" v-model="discountInput"
-                @keyup.enter="handleDiscountInput" />
-              <button class="btn btn-outline-secondary" type="button" @click="handleDiscountInput">
-                Áp dụng
-              </button>
-            </div>
-
-            <div v-if="discounts.length" class="mb-3">
-              <small class="text-muted">Chọn mã giảm giá:
-                <span v-for="discount in discounts" :key="discount.id" class="badge" :class="{
-                  'bg-success text-white': selectedDiscount === discount.code,
-                  'bg-light text-dark': selectedDiscount !== discount.code,
-                }" style="cursor: pointer; margin-right: 6px" @click="applyDiscountCode(discount.code)">
-                  {{ discount.code }}
-                </span>
-                <span v-if="selectedDiscount" class="badge bg-danger text-white" style="cursor: pointer"
-                  @click="selectedDiscount = ''">
-                  Bỏ chọn
-                </span>
-              </small>
-            </div>
-
-            <hr />
             <div class="d-flex justify-content-between mb-3">
               <strong class="fs-5">Tổng cộng (VAT)</strong>
-              <strong class="text-danger fs-5">{{ formatNumber(finalTotal + 100000) }} VNĐ</strong>
+              <strong class="text-danger fs-5">{{ formatNumber(finalTotal) }} VNĐ</strong>
             </div>
 
             <div class="mb-3">
@@ -135,20 +102,13 @@
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
-                  v-model="paymentMethod" />
+                  v-model="paymentMethod" disabled />
                 <label class="form-check-label d-flex align-items-center" for="momo">
                   <span class="me-2">Thanh toán qua Momo</span>
                   <img src="/img/momo.png" height="20" width="20" alt="" />
                 </label>
               </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="payment" id="cod" value="COD"
-                  v-model="paymentMethod" />
-                <label class="form-check-label d-flex align-items-center" for="cod">
-                  <span class="me-2">Thanh toán khi nhận hàng (COD)</span>
-                  <img src="/img/cod.png" height="30" width="30" alt="" />
-                </label>
-              </div>
+
             </div>
 
             <button type="submit" class="btn btn-danger1 w-100 mt-3">Thanh toán</button>
@@ -187,6 +147,7 @@ export default {
     const user1 = JSON.parse(localStorage.getItem("user")) || {};
     const userId = user1?.id || "guest";
     const orderId = route.params.orderId;
+    const cart_reservation = JSON.parse(localStorage.getItem(`cart_${userId}_reservation_${orderId}`)) || null;
     const minutes = ref(5);
     const seconds = ref(0);
     let countdownInterval = null;
@@ -249,17 +210,24 @@ export default {
 
       try {
         if (!paymentMethod.value) {
-          toast.error('Vui lòng chọn phương thức thanh toán!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng chọn phương thức thanh toán!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           return
         }
         const orderData = {
           id: orderId,
-          guest_name: form.value.fullname || form.value.username,
-          guest_phone: form.value.phone,
-          guest_email: form.value.email,
-          note: form.value.note || "",
-          deposit_amount: 100000,
-          total_price: finalTotal.value + 100000,
+          guest_name: form.fullname || form.username,
+          guest_phone: form.phone,
+          guest_email: form.email,
+          note: form.note || "",
+          total_price: finalTotal.value,
           money_reduce: discountFoodAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
@@ -289,7 +257,15 @@ export default {
 
         if (paymentMethod.value === 'VNPAY') {
           if (!orderId || finalTotal.value <= 0) {
-            toast.error('Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.');
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
             return;
           }
           const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
@@ -297,41 +273,82 @@ export default {
             amount: finalTotal.value + 100000,
           })
           if (paymentRes.data && paymentRes.data.payment_url) {
+            localStorage.setItem('order_id', orderId)
             localStorage.setItem('payment_method', paymentMethod.value)
             localStorage.removeItem(cartKey)
             window.location.href = paymentRes.data.payment_url
           } else {
-            toast.error('Không tạo được link thanh toán VNPAY.')
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Không tạo được link thanh toán VNPAY.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
           }
           return
         }
         if (paymentMethod.value === 'MOMO') {
           toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value);
           localStorage.removeItem(cartKey);
           // router.push('/payment-result');
           return
         }
-        if (paymentMethod.value === 'COD') {
-          await new Promise((resolve) => setTimeout(resolve, 300))
-          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
-            order_id: orderId,
-            amount_paid: finalTotal.value + 100000,
-          })
-          localStorage.setItem('payment_method', paymentMethod.value)
-          localStorage.removeItem(cartKey)
-          toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
-          router.push('/payment-result');
-        }
+        // if (paymentMethod.value === 'COD') {
+        //   await new Promise((resolve) => setTimeout(resolve, 300))
+        //   await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+        //     order_id: orderId,
+        //     amount_paid: finalTotal.value + 100000,
+        //   })
+        //   localStorage.setItem('order_id', orderId)
+        //   localStorage.setItem('payment_method', paymentMethod.value)
+        //   localStorage.removeItem(cartKey)
+        //   toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
+        //   router.push({
+        //     name: 'payment-result',
+        //     query: {
+        //       type: 'order_id',
+        //       value: orderId
+        //     }
+        //   });
+        // }
       } catch (error) {
+        console.error(error)
         if (error.response && error.response.status === 422 && error.response.data.errors) {
           let validationErrors = ''
           for (const field in error.response.data.errors) {
-            validationErrors += error.response.data.errors[field].join(' ') + ' '
+            const fieldErrors = error.response.data.errors[field];
+            if (Array.isArray(fieldErrors)) {
+              validationErrors += fieldErrors.join(' ') + ' ';
+            } else if (typeof fieldErrors === 'string') {
+              validationErrors += fieldErrors + ' ';
+            } else {
+              validationErrors += 'Lỗi không xác định. ';
+            }
           }
-          toast.error(`${validationErrors.trim()}`)
+           Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: `${validationErrors.trim()}`,
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
         } else {
-          toast.error('Đặt bàn thất bại, vui lòng thử lại!')
+          Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Đặt bàn thất bại, vui lòng thử lại!',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
         }
 
       } finally {
@@ -419,7 +436,8 @@ export default {
       userId,
       paymentMethod,
       cartKey,
-      isLoading
+      isLoading,
+      cart_reservation
     };
   },
 };
@@ -433,6 +451,8 @@ export default {
   font-weight: bold;
   border-radius: 5px 5px 0 0;
   font-size: 18px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .bi-plus-circle-fill {

@@ -35,14 +35,15 @@ class PointService
     public function redeemDiscount(User $user, int $discountId)
     {
         $discount = Discount::find($discountId);
-    
+
         if (!$discount) {
             return response()->json([
                 'status' => 'fail',
                 'message' => 'Mã giảm giá không tồn tại.'
             ], 404);
         }
-    
+
+        // Kiểm tra điểm
         $requiredPoints = $discount->cost ?? 0;
         if ($user->usable_points < $requiredPoints) {
             return response()->json([
@@ -50,38 +51,49 @@ class PointService
                 'message' => 'Bạn không đủ TCoin để đổi mã này.'
             ], 400);
         }
-    
         $already = DB::table('discount_user')
             ->where('user_id', $user->id)
             ->where('discount_id', $discount->id)
             ->first();
-    
+
         if ($already) {
             return response()->json([
                 'status' => 'fail',
                 'message' => 'Bạn đã đổi mã này rồi. Vui lòng kiểm tra kho của bạn!'
             ], 409);
         }
-    
+
         DB::beginTransaction();
         try {
             $now = now();
-    
+            if ($discount->source === 'system' && $discount->end_date < $now) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Mã giảm giá đã hết hạn!',
+                ]);
+            }
+            $source = $discount->source === 'system' ? 'discount' : 'tpoint';
+            $expiry = ($discount->source === 'system' && $discount->end_date)
+                ? $discount->end_date
+                : $now->copy()->addDays(7);
             $user->decrement('usable_points', $requiredPoints);
-    
             DB::table('discount_user')->insert([
-                'user_id' => auth()->id(),
+                'user_id'     => $user->id,
                 'discount_id' => $discount->id,
-                'point_used' => $discount->cost,
+                'point_used'  => $discount->cost,
+                'source'       => $source,
                 'exchanged_at' => $now,
-                'expiry_at' => $now->copy()->addDays(7),
-                'created_at' => $now,
-                'updated_at' => $now,
+                'expiry_at'   => $expiry,
+                'created_at'  => $now,
+                'updated_at'  => $now,
             ]);
+
             DB::commit();
+
             return response()->json([
                 'status' => 'success',
-                'message' => 'Đổi mã thành công!'
+                'message' => 'Đổi mã thành công!',
+                'data' => $discount
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -92,5 +104,4 @@ class PointService
             ], 500);
         }
     }
-    
 }
