@@ -27,7 +27,7 @@ return new class extends Migration
             $table->enum('status', ['active', 'inactive'])->default('active'); 
             $table->integer('used')->default(0);
             $table->integer('usage_limit')->default(1);
-            $table->enum('source', ['system', 'point_exchange'])->default('system')->comment('Nguồn voucher');
+            $table->enum('source', ['system', 'point_exchange', 'lucky_wheel'])->default('system')->comment('Nguồn voucher');
             $table->integer('cost')->nullable()->default(0)->comment('Xu cần để đổi voucher nếu là point_exchange');
             $table->string('condition')->nullable()->comment('Điều kiện tối thiểu để được áp dụng mã giảm giá');
             $table->string('custom_condition_note')->nullable()->comment('Ghi chú điều kiện đặc biệt như thời hạn sử dụng sau khi đổi');

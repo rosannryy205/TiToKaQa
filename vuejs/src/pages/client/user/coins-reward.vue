@@ -7,13 +7,22 @@
       </div>
       <div class="d-flex flex-wrap gap-2">
         <button
-          @click="onSelectCategory({ id: null })"
+          @click="selectAll"
           :class="[
             'voucher-brand-btn d-flex align-items-center',
-            selectedCategory === null ? 'active' : '',
+            selectedCategory === null && !showExpiredOnly ? 'active' : '',
           ]"
         >
           Tất cả
+        </button>
+        <button
+          @click="selectFreeshipOnly"
+          :class="[
+            'voucher-brand-btn d-flex align-items-center btn-sm',
+            showOnlyFreeship ? 'active' : '',
+          ]"
+        >
+          Freeship
         </button>
         <button
           @click="onSelectCategory(category)"
@@ -31,25 +40,42 @@
           />
           {{ category.name }}
         </button>
+        <button
+          @click="selectExpiredOnly"
+          :class="[
+            'voucher-brand-btn d-flex align-items-center btn-sm',
+            showExpiredOnly ? 'active' : '',
+          ]"
+        >
+          Mã hết hạn
+        </button>
       </div>
     </div>
+
+    <!-- Tìm kiếm -->
     <div>
       <div class="d-flex align-items-center mb-3" style="gap: 10px">
-      <input
-        v-model="voucherCode"
-        type="text"
-        class="form-control"
-        placeholder="Tìm mã voucher tại đây"
-        style="max-width: 400px; font-size: 14px; border-radius: 0.25rem"
-      />
-      <button class="btn btn-save-discount px-4">Lưu</button>
-    </div>
-      <div class="d-flex align-items-center mb-2">
-        <h5 class="fw-bold mb-0 title-discount-hot">Mã giảm giá nổi bật</h5>
+        <input
+          v-model="voucherCode"
+          type="text"
+          class="form-control"
+          placeholder="Tìm mã voucher tại đây"
+          style="max-width: 400px; font-size: 14px; border-radius: 0.25rem"
+        />
       </div>
+
+      <div class="d-flex align-items-center mb-3 mt-4" v-if="!showExpiredOnly">
+        <h5 class="fw-bold mb-0 title-discount-hot mb-2">Mã giảm giá nổi bật</h5>
+      </div>
+
+      <!-- Danh sách mã -->
       <div class="row g-3">
         <div class="col-md-6" v-for="discount in filteredDiscounts" :key="discount.id">
-          <div class="d-flex shadow-sm bg-white rounded overflow-hidden" style="min-height: 110px">
+          <div
+            class="d-flex shadow-sm bg-white rounded overflow-hidden position-relative"
+            style="min-height: 110px"
+            :class="{ 'expired-discount': isExpired(discount) }"
+          >
             <!-- Cột trái -->
             <div
               class="text-white d-flex flex-column justify-content-center align-items-center"
@@ -62,16 +88,14 @@
                 {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
               </div>
             </div>
+
+            <!-- Cột phải -->
             <div class="flex-grow-1 px-3 py-2" style="width: 72%">
               <div class="fw-bold mb-1 text-truncate">Mã: {{ discount.name }}</div>
-              <div
-                class="text-muted small mb-1 text-truncate d-block"
-                style="max-width: 100%; overflow: hidden"
-              >
+              <div class="text-muted small mb-1 text-truncate d-block">
                 <i class="bi bi-clock me-1"></i>{{ discount.custom_condition_note }}
               </div>
-
-              <div class="text-muted small mb-1 text-truncate" style="max-width: 100%">
+              <div class="text-muted small mb-1 text-truncate">
                 <a
                   href="#"
                   class="ms-1 text-primary"
@@ -89,15 +113,30 @@
                 <button
                   class="btn"
                   @click="redeemDiscount(discount.id, discount.code, discount.cost)"
-                  :class="
-                    hasVoucher(discount.code) ? 'btn-sm has-voucher' : 'btn-sm btn-outline-danger'
-                  "
-                  :disabled="hasVoucher(discount.code)"
+                  :class="[
+                    'btn-sm',
+                    isExpired(discount)
+                      ? 'btn-secondary text-muted'
+                      : hasVoucher(discount.code)
+                        ? 'has-voucher'
+                        : 'btn-outline-danger',
+                  ]"
+                  :disabled="isExpired(discount) || hasVoucher(discount.code)"
                 >
-                  {{ hasVoucher(discount.code) ? 'Đã đổi' : 'Đổi ngay' }}
+                  {{
+                    isExpired(discount)
+                      ? 'Hết hạn'
+                      : hasVoucher(discount.code)
+                        ? 'Đã đổi'
+                        : 'Đổi ngay'
+                  }}
                 </button>
               </div>
             </div>
+            <div
+              v-if="isExpired(discount)"
+              class="expired-overlay position-absolute top-0 start-0 w-100 h-100"
+            ></div>
           </div>
         </div>
       </div>
@@ -138,125 +177,126 @@
     </div>
   </div>
 </template>
-
 <script setup>
-import { onMounted, ref, watch, computed } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { Modal } from 'bootstrap'
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import { toast } from 'vue3-toastify'
 import { useUserStore } from '@/stores/userAuth'
 import { FoodList } from '@/stores/food'
-import Swal from 'sweetalert2'
 import { Discounts } from '@/stores/discount'
-//=======================
-// State & Store
-//=======================
+
+// Stores
 const userStore = useUserStore()
-const token = userStore.token
-
 const { getCategory, categories } = FoodList.setup()
-const {
-    getImageByType,
-    formatCurrency,
-    fetchUserDiscounts,
-    userDiscounts,
+const { getImageByType, formatCurrency, fetchUserDiscounts, userDiscounts } = Discounts()
 
-    } = Discounts()
-//=======================
-// Danh mục & Lọc mã giảm giá theo danh mục
-//=======================
-const selectedCategory = ref(null)
-
-const onSelectCategory = async (category) => {
-  selectedCategory.value = category.id
-  await getPointExchangeDiscounts()
-}
-
-const filteredDiscounts = computed(() => {
-  const keyword = voucherCode.value.toLowerCase()
-
-  return pointsExchangeDiscounts.value.filter(discount => {
-    const matchCategory =
-      !selectedCategory.value || discount.category_id === selectedCategory.value
-
-    const matchKeyword =
-      !voucherCode.value || discount.name.toLowerCase().includes(keyword)
-
-    return matchCategory && matchKeyword
-  })
-})
-
-
-//=======================
-// Danh sách mã giảm giá đổi xu
-//=======================
+// States
 const pointsExchangeDiscounts = ref([])
+const selectedCategory = ref(null)
+const showExpiredOnly = ref(false)
+const showOnlyFreeship = ref(false)
+const voucherCode = ref('')
 
-const getPointExchangeDiscounts = async () => {
-  try {
-    const response = await axios.get('http://127.0.0.1:8000/api/discounts', {
-      params: { source: 'point_exchange' },
-      headers: {
-        Authorization: `Bearer ${token}`,
-        category_id: selectedCategory.value || undefined,
-      },
-    })
-    pointsExchangeDiscounts.value = response.data
-  } catch (err) {
-    toast.error('Không thể tải mã giảm giá đổi xu!', err)
-  }
-}
-
-//=======================
-// Modal điều kiện voucher
-//=======================
+// Modal
 const conditionModalRef = ref(null)
 let conditionModalInstance = null
 const selectedVoucherCondition = ref('')
 const selectedVoucherName = ref('')
 
-const showConditionModal = (condition, name) => {
-  selectedVoucherCondition.value = condition
-  selectedVoucherName.value = name
-  conditionModalInstance?.show()
-}
-
-const hideConditionModal = () => {
-  conditionModalInstance?.hide()
-}
-//=======================
-// redeemDiscount - Đổi mã giảm giá bằng xu
-//=======================
-const redeemDiscount = async (discountId, code = '', points = 0) => {
-  if (!discountId) {
-    toast.warning('Không tìm thấy mã giảm giá!')
-    return
+// Fetch danh sách mã đổi xu
+const getPointExchangeDiscounts = async () => {
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/api/discounts', {
+      params: { source: 'point_exchange' },
+      headers: {
+        Authorization: `Bearer ${userStore.token}`,
+        category_id: selectedCategory.value || undefined,
+      },
+    })
+    pointsExchangeDiscounts.value = response.data
+  } catch (err) {
+    toast.error('Không thể tải mã giảm giá đổi xu!')
   }
+}
 
-  const confirmResult = await Swal.fire({
+// Xử lý chọn danh mục
+const onSelectCategory = async (category) => {
+  selectedCategory.value = category.id
+  showExpiredOnly.value = false
+  showOnlyFreeship.value = false
+  await getPointExchangeDiscounts()
+}
+
+const selectAll = () => {
+  selectedCategory.value = null
+  showExpiredOnly.value = false
+  showOnlyFreeship.value = false
+  getPointExchangeDiscounts()
+}
+
+const selectFreeshipOnly = () => {
+  selectedCategory.value = null
+  showExpiredOnly.value = false
+  showOnlyFreeship.value = true
+  getPointExchangeDiscounts()
+}
+
+const selectExpiredOnly = () => {
+  selectedCategory.value = null
+  showExpiredOnly.value = true
+  showOnlyFreeship.value = false
+  getPointExchangeDiscounts()
+}
+
+// Kiểm tra hết hạn
+const isExpired = (discount) => {
+  return discount.end_date && new Date(discount.end_date) < new Date()
+}
+
+// Lọc danh sách mã
+const filteredDiscounts = computed(() => {
+  const keyword = voucherCode.value.toLowerCase()
+
+  return pointsExchangeDiscounts.value.filter((discount) => {
+    const matchCategory = !selectedCategory.value || discount.category_id === selectedCategory.value
+
+    const matchKeyword = !voucherCode.value || discount.name.toLowerCase().includes(keyword)
+
+    const expired = isExpired(discount)
+    const matchExpired = showExpiredOnly.value ? expired : !expired
+
+    const matchFreeship = !showOnlyFreeship.value || discount.discount_type === 'freeship'
+
+    return matchCategory && matchKeyword && matchExpired && matchFreeship
+  })
+})
+
+// Đổi mã
+const redeemDiscount = async (discountId, code = '', points = 0) => {
+  if (!discountId) return toast.warning('Không tìm thấy mã giảm giá!')
+
+  const confirm = await Swal.fire({
     title: 'Xác nhận đổi mã giảm giá?',
-    html: `<p>Bạn sẽ dùng <strong>${points} xu</strong> để đổi mã <strong>${code}</strong>.</p><p>Hành động không thể hoàn tác!</p>`,
+    html: `<p>Dùng <strong>${points} xu</strong> để đổi mã <strong>${code}</strong>.</p>`,
     icon: 'question',
     showCancelButton: true,
     confirmButtonText: 'Đổi ngay',
     cancelButtonText: 'Huỷ',
     confirmButtonColor: '#e3342f',
     cancelButtonColor: '#6c757d',
-    reverseButtons: true,
-    focusCancel: true,
   })
 
-  if (!confirmResult.isConfirmed) return
+  if (!confirm.isConfirmed) return
 
   try {
-    const token = localStorage.getItem('token')
-
     const response = await axios.post(
       'http://127.0.0.1:8000/api/redeem-discount',
       { discount_id: discountId },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${userStore.token}`,
           Accept: 'application/json',
         },
         withCredentials: true,
@@ -273,46 +313,42 @@ const redeemDiscount = async (discountId, code = '', points = 0) => {
         title: 'Đổi mã thành công!',
         showConfirmButton: false,
         timer: 2000,
-        timerProgressBar: true,
       })
       await fetchUserDiscounts()
     } else {
       await Swal.fire({
         icon: 'warning',
         title: 'Không thể đổi mã!',
-        text: response.data.message || 'Vui lòng thử lại sau.',
-        confirmButtonColor: '#e3342f',
+        text: response.data.message || 'Vui lòng thử lại.',
       })
     }
   } catch (error) {
     console.error(error)
-
-    const errorMessage = error.response?.data?.message || 'Đổi mã thất bại, vui lòng thử lại sau!'
-
     await Swal.fire({
       icon: 'error',
       title: 'Lỗi hệ thống!',
-      text: errorMessage,
-      confirmButtonColor: '#e3342f',
+      text: error.response?.data?.message || 'Đổi mã thất bại!',
     })
   }
 }
 
-//=======================
-// userVouchers - Kiểm tra mã đã đổi
-//=======================
-
+// Kiểm tra user đã có voucher chưa
 const hasVoucher = (code) => {
-  return userDiscounts.value.some(voucher => voucher.code === code)
+  return userDiscounts.value.some((v) => v.code === code)
 }
 
-//=======================
-// search voucher
-//=======================
-const voucherCode = ref('');
-//=======================
-// onMounted
-//=======================
+// Modal điều kiện voucher
+const showConditionModal = (condition, name) => {
+  selectedVoucherCondition.value = condition
+  selectedVoucherName.value = name
+  conditionModalInstance?.show()
+}
+
+const hideConditionModal = () => {
+  conditionModalInstance?.hide()
+}
+
+// Mounted
 onMounted(async () => {
   await getPointExchangeDiscounts()
   await fetchUserDiscounts()
@@ -339,90 +375,62 @@ onMounted(async () => {
   background: #f0f0f0;
 }
 
-.category-icon {
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-}
-
-.voucher-card {
-  padding: 5px;
-}
-
-.voucher-card img {
-  width: auto;
-  height: 120px;
-  display: block;
-  margin: 0 auto 10px auto;
-}
-
-.voucher-card .card-body {
-  padding: 5px;
-}
-
-.voucher-card h6 {
-  font-size: 14px;
-  margin-bottom: 6px;
-}
-.coins-exchange {
-  color: rgb(119, 119, 119) !important;
-}
-.coins {
-  width: 15px !important;
-  height: 15px !important;
-  margin: 6px 5px 5px 5px !important;
-}
-.title-cate-discount,
-.title-discount-hot {
-  color: #c92c3c;
-}
-@media (max-width: 576px) {
-  .voucher-brand-btn {
-    font-size: 13px;
-    padding: 6px 10px;
-  }
-
-  .category-icon {
-    width: 18px;
-    height: 18px;
-  }
-
-  .voucher-card img {
-    height: 120px;
-  }
+.voucher-brand-btn.active {
+  background-color: #c92c3c;
+  color: white;
 }
 
 .btn-sm {
   color: #c92c3c;
   border: 1px solid #c92c3c;
 }
-.has-voucher {
-  color: #007d00;
-  border: 1px solid #007d00;
-}
+
 .btn-sm:hover {
   background-color: #c92c3c;
   color: white;
 }
-.voucher-brand-btn.active {
-  background-color: #c92c3c;
-  color: white;
+
+.has-voucher {
+  color: #007d00;
+  border: 1px solid #007d00;
 }
-.voucher-brand-btn {
-  font-size: 1rem; 
-  padding: 4px 8px;   
-  border-radius: 4px;
+
+.expired-discount {
+  opacity: 0.6;
+  pointer-events: none;
+  filter: grayscale(0.6);
 }
-.btn-save-discount {
-  color: #c92c3c;
-  border: 1px solid #c92c3c;
+
+.expired-overlay {
+  background-color: rgba(255, 255, 255, 0.05);
+  z-index: 2;
 }
-.btn-save-discount:hover {
-  background-color: #c92c3c;
-  color: white;
+
+.coins {
+  width: 15px;
+  height: 15px;
+  margin: 6px 5px 5px 5px;
 }
+
 .category-icon {
-  width: 20px;      
+  width: 20px;
   height: 20px;
+  object-fit: contain;
+}
+
+.title-cate-discount,
+.title-discount-hot {
+  color: #c92c3c;
+}
+#app
+  > div
+  > div.container.mt-5.fade-in
+  > div
+  > div.container.py-3.position-relative.col-12.col-md-8.col-lg-9
+  > div:nth-child(2)
+  > div.row.g-3 {
+  max-height: 61vh;
+  overflow-y: auto;
+  padding: 6px;
 }
 </style>
