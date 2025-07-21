@@ -78,30 +78,30 @@ export default {
       window.location.href = 'http://127.0.0.1:8000/api/auth/google/redirect';
     },
 
-async handleLogin() {
-  this.loginError = '';
-  this.loading = true;
+    async handleLogin() {
+      this.loginError = '';
+      this.loading = true;
 
-  try {
-    const response = await axios.post('http://127.0.0.1:8000/api/login', this.loginData);
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/api/login', this.loginData);
 
-    // Lưu user và token vào store
-    this.userStore.setUser(response.data.user, response.data.token);
+        // Lưu user và token vào store
+        this.userStore.setUser(response.data.user, response.data.token);
 
-    // Hiển thị toast đăng nhập thành công
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'success',
-      title: 'Đăng nhập thành công!',
-      showConfirmButton: false,
-      timer: 2000,
-      timerProgressBar: true
-    });
+        // Hiển thị toast đăng nhập thành công
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Đăng nhập thành công!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
 
-    // Reset form
-    this.loginData.login = '';
-    this.loginData.password = '';
+        // Reset form
+        this.loginData.login = '';
+        this.loginData.password = '';
 
         // Điều hướng
         if (response.data.user.role === 'quanly' || response.data.user.role === 'nhanvien' || response.data.user.role === 'nhanvienkho') {
@@ -113,22 +113,34 @@ async handleLogin() {
       } catch (error) {
         console.error('Lỗi đăng nhập:', error);
 
+        let message = 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+
         if (error.response?.status === 422) {
           const errors = error.response.data.errors;
           const firstKey = Object.keys(errors)[0];
-          this.loginError = errors[firstKey][0];
+          message = errors[firstKey][0];
         } else if (error.response?.status === 401) {
-          this.loginError = 'Sai email hoặc mật khẩu!';
+          message = 'Sai email hoặc mật khẩu!';
         } else if (error.response?.status === 403) {
-          this.loginError = error.response.data.message || 'Tài khoản của bạn không được phép đăng nhập.';
+          message = error.response.data.message || 'Tài khoản của bạn không được phép đăng nhập.';
         } else if (error.response?.status === 500) {
-          this.loginError = error.response.data.message || 'Lỗi máy chủ. Vui lòng thử lại sau.';
+          message = 'Lỗi máy chủ. Vui lòng thử lại sau.';
         } else if (error.request) {
-          this.loginError = 'Không thể kết nối đến máy chủ. Kiểm tra internet.';
-        } else {
-          this.loginError = 'Đã có lỗi xảy ra. Vui lòng thử lại.';
+          message = 'Không thể kết nối đến máy chủ. Kiểm tra kết nối mạng.';
         }
-      } finally {
+
+        // ❗️Báo lỗi bằng toast
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: message,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+      finally {
         this.loading = false;
       }
     },

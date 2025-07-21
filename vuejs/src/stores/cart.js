@@ -27,14 +27,14 @@ export function Cart() {
   // }
 
   const cartKey = computed(() => {
-  return isAdmin.value
-    ? orderId.value
-      ? `cart_admin_reservation_${orderId.value}`
-      : `cart_admin_reservation`
-    : orderId.value
-      ? `cart_${userId}_reservation_${orderId.value}`
-      : `cart_${userId}`
-})
+    return isAdmin.value
+      ? orderId.value
+        ? `cart_admin_reservation_${orderId.value}`
+        : `cart_admin_reservation`
+      : orderId.value
+        ? `cart_${userId}_reservation_${orderId.value}`
+        : `cart_${userId}`
+  })
 
   const loadCart = async () => {
     const storedCart = localStorage.getItem(cartKey.value)
@@ -58,7 +58,7 @@ export function Cart() {
     }, 0)
   })
 
-  const addToCart = (foodDetail, quantity, toppings) => {
+  const addToCart = (foodDetail, quantity, toppings, isDeal = false) => {
     console.log(isAdmin.value);
 
     const newCartItem = {
@@ -69,19 +69,22 @@ export function Cart() {
       toppings: toppings,
       quantity: quantity,
       type: foodDetail.type,
-      category_id: foodDetail.category_id
+      category_id: foodDetail.category_id,
+      is_deal: isDeal
+
     }
       const existingItemIndex = cartItems.value.findIndex(
         (item) =>
           item.id === newCartItem.id &&
-          // item.spicyLevel === newCartItem.spicyLevel &&
-          JSON.stringify(item.toppings.sort((a,b) => a.id - b.id)) === JSON.stringify(newCartItem.toppings.sort((a,b) => a.id - b.id)),
+        JSON.stringify(item.toppings.sort((a, b) => a.id - b.id)) ===
+        JSON.stringify(newCartItem.toppings.sort((a, b) => a.id - b.id)) &&
+      item.is_deal === newCartItem.is_deal
       )
 
     if (existingItemIndex !== -1) {
-        cartItems.value[existingItemIndex].quantity += newCartItem.quantity
+      cartItems.value[existingItemIndex].quantity += newCartItem.quantity
     } else {
-        cartItems.value.push(newCartItem)
+      cartItems.value.push(newCartItem)
     }
 
     saveCart()
@@ -121,7 +124,7 @@ export function Cart() {
   const totalPriceItem = (item) => {
     const itemPrice = Number(item.price) * item.quantity
     const toppingPrice =
-      item.type === 'food'
+      item.type === 'Food'
         ? item.toppings.reduce((sum, topping) => {
             return sum + Number(topping.price) * item.quantity
           }, 0)
@@ -162,6 +165,6 @@ export function Cart() {
     increaseQuantity2,
     decreaseQuantity1,
     clearCart,
-    cartKey
+    cartKey,
   }
 }

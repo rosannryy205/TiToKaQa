@@ -68,57 +68,67 @@
 
             <!-- small -->
             <div class="col-12 d-lg-none position-relative">
-        <div
-          class="menu-header d-flex justify-content-between align-items-center mt-3"
-          @click="toggleDropdown"
-        >
-          <h2 class="menu-title">Thực đơn</h2>
-          <div class="menu-icon d-flex align-items-center">
-            <i class="fas fa-list-alt"></i>
-            <span>Danh mục</span>
-          </div>
-        </div>
-
-        <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
-          <ul class="list-group">
-            <li
-              v-for="parent in categories"
-              :key="parent.id"
-              class="list-group-item parent-category d-flex"
-            >
-              <a
-                @click.prevent="getFoodByCategory(parent.id)"
-                href="#"
-                class="text-decoration-none text-start text-dark fw-bold"
-              >
-                {{ parent.name }}
-              </a>
-              <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
-                <li
-                  v-for="child in parent.children"
-                  :key="child.id"
-                  class="list-group-item child-category d-flex"
-                >
-                  <a
-                    @click.prevent="getFoodByCategory(child.id)"
-                    href="#"
-                    class="text-decoration-none text-start text-dark fw-bold"
-                  >
-                    🔻{{ child.name }}
-                  </a>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </div>
-      </div>
-
+              <div class="menu-header d-flex justify-content-between align-items-center mt-3" @click="toggleDropdown">
+                <h2 class="menu-title">Thực đơn</h2>
+                <div class="menu-icon d-flex align-items-center">
+                  <i class="fas fa-list-alt"></i>
+                  <span>Danh mục</span>
+                </div>
+              </div>
+              <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
+                <ul class="list-group">
+                  <li v-for="parent in categories" :key="parent.id" class="list-group-item parent-category d-flex">
+                    <a @click.prevent="getFoodByCategory(parent.id)" href="#"
+                      class="text-decoration-none text-start text-dark fw-bold">
+                      {{ parent.name }}
+                    </a>
+                    <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
+                      <li v-for="child in parent.children" :key="child.id"
+                        class="list-group-item child-category d-flex">
+                        <a @click.prevent="getFoodByCategory(child.id)" href="#"
+                          class="text-decoration-none text-start text-dark fw-bold">
+                          🔻{{ child.name }}
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
 
             <div class="col-lg-9 align-items-center text-center">
               <div class="title-food-menu text-center d-flex">
                 <span class="title-food-menu fw-bold">{{ selectedCategoryName || 'Món Ăn' }}</span>
               </div>
-              <section v-for="item in foods" :key="item.id" class="foods-homepages">
+              <section v-if="isLoading">
+                <div v-for="n in 4" :key="n" class="foods-homepages">
+                  <!-- Giống item.id % 2 !== 0 -->
+                  <div v-if="n % 2 !== 0" class="food-box-left row align-items-center">
+                    <div class="col-md-4 food-image">
+                      <div class="skeleton-box skeleton-img w-100"></div>
+                    </div>
+                    <div class="col-md-8 food-content bg-white text-end">
+                      <div class="skeleton-box skeleton-title mb-2 w-75 ms-auto" style="height: 24px"></div>
+                      <div class="skeleton-box skeleton-price mb-2 w-50 ms-auto" style="height: 20px"></div>
+                      <div class="skeleton-box skeleton-desc w-75 ms-auto" style="height: 16px"></div>
+                    </div>
+                  </div>
+
+                  <!-- Giống item.id % 2 === 0 -->
+                  <div v-else class="food-box-right row align-items-center">
+                    <div class="col-md-8 food-content bg-white text-start">
+                      <div class="skeleton-box skeleton-title mb-2 w-75" style="height: 24px"></div>
+                      <div class="skeleton-box skeleton-price mb-2 w-50" style="height: 20px"></div>
+                      <div class="skeleton-box skeleton-desc w-75" style="height: 16px"></div>
+                    </div>
+                    <div class="col-md-4 food-image">
+                      <div class="skeleton-box skeleton-img w-100"></div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section v-else v-for="item in foods" :key="item.id" class="foods-homepages">
                 <div v-if="item.id % 2 !== 0" class="food-box-left row align-items-center" @click="openModal(item)">
                   <div class="col-md-4 food-image">
                     <img :src="getImageUrl(item.image)" class="img-fluid" />
@@ -137,14 +147,18 @@
                     <h2 class="food-title fw-bold">{{ item.name }}</h2>
                     <p class="food-price fw-bold">{{ formatNumber(item.price) }} VNĐ</p>
                     <p class="food-desc">
-                      <span class="d-none d-sm-inline">{{ item.description.slice(0, 60)
-                        }}{{ item.description.length > 50 ? '...' : '' }}</span>
-                      <span class="d-inline d-sm-none">{{ item.description.slice(0, 30)
-                        }}{{ item.description.length > 50 ? '...' : '' }}</span>
+                      <span class="d-none d-sm-inline">
+                        {{ item.description.slice(0, 60)
+                        }}{{ item.description.length > 50 ? '...' : '' }}
+                      </span>
+                      <span class="d-inline d-sm-none">
+                        {{ item.description.slice(0, 30)
+                        }}{{ item.description.length > 50 ? '...' : '' }}
+                      </span>
                     </p>
                   </div>
                   <div class="col-md-4 food-image">
-                    <img :src="getImageUrl(item.image)" alt="Mì Kim Chi Thập Cẩm" class="img-fluid" />
+                    <img :src="getImageUrl(item.image)" class="img-fluid" />
                   </div>
                 </div>
               </section>
@@ -158,16 +172,24 @@
     <!---->
     <section class="popular-searches container py-4">
       <h2 class="fw-bold mb-3 text-start text-md-start">Combo Nhiều Người Gọi</h2>
-      <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
-        <div class="row d-flex">
-          <!--combo-->
-          <div v-for="combo in combos" :key="combo.id" @click="openModal(combo)" class="col-4">
-            <img :src="getImageUrl(combo.image)" width="100%" />
-            <div class="view-more">
-              <a href="#" class="link fw-bold">{{ combo.name }}</a>
+      <div class="row text-center justify-content-center">
+        <template v-if="isLoading">
+          <div v-for="n in 3" :key="n" class="col-4 mb-3">
+            <div class="combo-skeleton-img w-100 mb-2"></div>
+            <div class="combo-skeleton-text w-75"></div>
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="row d-flex">
+            <div v-for="combo in combos" :key="combo.id" class="col-12 col-md-4 mb-4 text-center">
+              <img :src="getImageUrl(combo.image)" class="img-fluid mb-2" />
+              <div class="view-more">
+                <a href="#" class="link fw-bold">{{ combo.name }}</a>
+              </div>
             </div>
           </div>
-        </div>
+        </template>
       </div>
     </section>
 
@@ -193,25 +215,17 @@
   </section>
   <!-- modal food -->
   <div class="modal fade" id="productModal">
- <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
-          <button
-            type="button"
-            class="btn-close position-absolute top-0 end-0 m-2"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
+            aria-label="Close"></button>
           <div class="row">
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img
-                  :src="getImageUrl(foodDetail.image)"
-                  :alt="foodDetail.name"
-                  class="modal-image img-fluid"
-                />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -231,11 +245,8 @@
                       </select>
                     </div>
                     <label class="form-label fw-bold">🧀 Chọn Topping:</label>
-                    <div
-                      v-for="topping in toppingList"
-                      :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2"
-                    >
+                    <div v-for="topping in toppingList" :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2">
                       <label class="d-flex align-items-center">
                         <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                         {{ topping.name }}
@@ -251,33 +262,32 @@
                 <!---->
                 <div class="mt-auto">
                   <div class="text-center mb-2">
-              <div class="qty-control px-2 py-1">
-                <button type="button" @click="decreaseQuantity" class="btn-lg" style="background-color: #fff;">-</button>
-                <span>{{ quantity }}</span>
-                <button type="button" @click="increaseQuantity" class="btn-lg" style="background-color: #fff;">+</button>
-              </div>
-            </div>
+                    <div class="qty-control px-2 py-1">
+                      <button type="button" @click="decreaseQuantity" class="btn-lg" style="background-color: #fff">
+                        -
+                      </button>
+                      <span>{{ quantity }}</span>
+                      <button type="button" @click="increaseQuantity" class="btn-lg" style="background-color: #fff">
+                        +
+                      </button>
+                    </div>
+                  </div>
                   <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
-
-              </div>
-
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-
 </template>
 <script>
 import axios from 'axios'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
-import { toast } from 'vue3-toastify'
-
+import Swal from 'sweetalert2';
 
 export default {
   name: 'HomePage',
@@ -298,11 +308,11 @@ export default {
     const spicyLevel = ref([])
     const toppingList = ref({})
 
-    const isLoading = ref(false)
+    const isLoading = ref(true)
     const isDropdownOpen = ref(false)
     const selectedCategoryName = ref('Món Ăn')
 
-    const quantity = ref(1);
+    const quantity = ref(1)
 
     const currentIndex = ref(0)
     const images = [
@@ -368,7 +378,9 @@ export default {
           }
         }
 
-        selectedCategoryName.value = childName ? `${parentName} > ${childName}` : parentName || 'Món Ăn'
+        selectedCategoryName.value = childName
+          ? `${parentName} > ${childName}`
+          : parentName || 'Món Ăn'
 
         const selectedCategory = categories.value.find((c) => c.id === categoryId)
         if (selectedCategory?.children?.length) {
@@ -444,75 +456,87 @@ export default {
       const userId = user?.id || 'guest'
       const cartKey = `cart_${userId}`
 
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
 
-        const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-        const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+      let allSelectedToppings = []
 
-        let allSelectedToppings = [];
+      if (selectedSpicy) {
+        allSelectedToppings.push({
+          id: selectedSpicy.id,
+          name: selectedSpicy.name,
+          price: selectedSpicy.price,
+          food_toppings_id: selectedSpicy.pivot?.id || null,
+          is_spicy_level: true,
+        })
+      }
 
-        if (selectedSpicy) {
-            allSelectedToppings.push({
-                id: selectedSpicy.id,
-                name: selectedSpicy.name,
-                price: selectedSpicy.price,
-                food_toppings_id: selectedSpicy.pivot?.id || null,
-                is_spicy_level: true
-            });
-        }
+      const selectedToppingIds = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked'),
+      ).map((el) => parseInt(el.value))
 
-        const selectedToppingIds = Array.from(
-            document.querySelectorAll('input[name="topping[]"]:checked')
-        ).map((el) => parseInt(el.value));
+      const normalToppings = toppingList.value
+        .filter((topping) => selectedToppingIds.includes(topping.id))
+        .map((topping) => ({
+          id: topping.id,
+          name: topping.name,
+          price: topping.price,
+          food_toppings_id: topping.pivot?.id || null,
+          is_spicy_level: false,
+        }))
 
-        const normalToppings = toppingList.value
-            .filter((topping) => selectedToppingIds.includes(topping.id))
-            .map((topping) => ({
-                id: topping.id,
-                name: topping.name,
-                price: topping.price,
-                food_toppings_id: topping.pivot?.id || null,
-                is_spicy_level: false
-            }));
+      allSelectedToppings = [...allSelectedToppings, ...normalToppings]
 
-        allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+      const cartItem = {
+        id: foodDetail.value.id,
+        name: foodDetail.value.name,
+        image: foodDetail.value.image,
+        price: foodDetail.value.price,
+        toppings: allSelectedToppings,
+        quantity: quantity.value,
+        type: foodDetail.value.type,
+        category_id: foodDetail.value.category_id,
+      }
 
-        const cartItem = {
-            id: foodDetail.value.id,
-            name: foodDetail.value.name,
-            image: foodDetail.value.image,
-            price: foodDetail.value.price,
-            toppings: allSelectedToppings,
-            quantity: quantity.value,
-            type: foodDetail.value.type,
-            category_id: foodDetail.value.category_id
-        };
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || []
+      const existingItemIndex = cart.findIndex(
+        (item) =>
+          item.id === cartItem.id &&
+          JSON.stringify(item.toppings.map((t) => t.id).sort()) ===
+            JSON.stringify(cartItem.toppings.map((t) => t.id).sort()),
+      )
 
-        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-        const existingItemIndex = cart.findIndex(
-            (item) =>
-                item.id === cartItem.id &&
-                JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
-        );
+      if (existingItemIndex !== -1) {
+        cart[existingItemIndex].quantity += 1
+      } else {
+        cart.push(cartItem)
+      }
 
-        if (existingItemIndex !== -1) {
-            cart[existingItemIndex].quantity += 1;
-        } else {
-            cart.push(cartItem);
-        }
-
-        localStorage.setItem(cartKey, JSON.stringify(cart));
+      localStorage.setItem(cartKey, JSON.stringify(cart))
       toast.success('🛍️ Đã thêm vào giỏ hàng!')
-    };
+    }
     const increaseQuantity = () => {
       quantity.value += 1
     }
-
 
     const decreaseQuantity = () => {
       if (quantity.value > 1) {
         quantity.value -= 1
       }
     }
+    onMounted(async () => {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/api/home/api/foods')
+        const res1 = await axios.get('http://127.0.0.1:8000/api/home/api/combos')
+        foods.value = res.data
+        combos.value = res1.data
+        await new Promise((resolve) => setTimeout(resolve, 5000))
+      } catch (e) {
+        console.error(e)
+      } finally {
+        isLoading.value = false
+      }
+    })
     onMounted(async () => {
       await getCategory()
       await getFood()
@@ -546,7 +570,7 @@ export default {
       changeSlide,
       quantity,
       increaseQuantity,
-      decreaseQuantity
+      decreaseQuantity,
     }
   },
 }
@@ -555,5 +579,98 @@ export default {
 <style>
 .animation-duration {
   animation-duration: 2500ms !important;
+}
+
+/**food */
+.skeleton-box {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 37%, #f0f0f0 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s infinite linear;
+  border-radius: 4px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.skeleton-box.skeleton-img {
+  height: 180px;
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+}
+
+@media (max-width: 576px) {
+  .skeleton-box.skeleton-img {
+    height: 120px;
+  }
+}
+
+@media (max-width: 400px) {
+  .skeleton-box.skeleton-img {
+    height: 100px;
+  }
+}
+
+/**combo */
+.skeleton-box {
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-img {
+  height: 140px;
+}
+
+.skeleton-text {
+  height: 18px;
+}
+
+@media (max-width: 576px) {
+  .skeleton-img {
+    height: 100px;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/**combo */
+/* Chỉ dùng cho combo section */
+.combo-skeleton-img {
+  background: #eee;
+  border-radius: 8px;
+  height: 180px;
+}
+
+.combo-skeleton-text {
+  background: #ddd;
+  border-radius: 6px;
+  height: 16px;
+}
+
+/* Responsive cho màn nhỏ */
+@media (max-width: 576px) {
+  .combo-skeleton-img {
+    height: 120px;
+  }
 }
 </style>
