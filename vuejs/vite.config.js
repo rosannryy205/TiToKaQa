@@ -6,13 +6,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    vue({
-    template: {
-      compilerOptions: {
-        isCustomElement: (tag) => tag === 'df-messenger'
-      }
-    }
-  }),
+    vue(),
     vueDevTools(),
   ],
   resolve: {

@@ -136,7 +136,7 @@ class PaymentController extends Controller
                     ]);
 
                     $order = Order::find($payment->order_id);
-                    if ($order && $order->status == 'Pending Payment') {
+                    if ($order && $order->status == 'Đang chờ xử lý') {
                         $order->update(['status' => 'Đã thanh toán']);
                     }
                     $responseCode = "00";
@@ -151,7 +151,7 @@ class PaymentController extends Controller
                     ]);
 
                     $order = Order::find($payment->order_id);
-                    if ($order && $order->status == 'Pending Payment') {
+                    if ($order && $order->status == 'Đang chờ xử lý') {
                         $order->update(['status' => 'Thanh toán thất bại']);
                     }
                     $responseCode = "02";
@@ -165,7 +165,11 @@ class PaymentController extends Controller
             $message = "Đã xảy ra lỗi hệ thống trong quá trình xử lý thanh toán";
         }
 
-        return response()->json(['RspCode' => $responseCode, 'Message' => $message]);
+        return response()->json([
+            'RspCode' => $responseCode,
+            'Message' => $message,
+            'success' => true,
+            'order_id' => $payment->order_id ?? null,]);
     }
 
     public function handleCodPayment(Request $request)

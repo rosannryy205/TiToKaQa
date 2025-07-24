@@ -1,63 +1,64 @@
 <template v-if="hasPermission('view_combo')">
-  <h3 class="title">Quản lý combo</h3>
+  <div>
+    <h3 class="title">Quản lý combo</h3>
 
-  <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <router-link v-if="hasPermission('create_combo')" :to="{ name: 'insert-combo' }" class="btn btn-add"> + Thêm Combo
-    </router-link>
+    <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
+      <router-link v-if="hasPermission('create_combo')" :to="{ name: 'insert-combo' }" class="btn btn-add"> + Thêm Combo
+      </router-link>
 
-    <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
+      <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
 
-    <select class="custom-select" style="max-width: 80px">
-      <option selected>5</option>
-      <option>10</option>
-      <option>15</option>
-    </select>
-  </div>
+      <select class="custom-select" style="max-width: 80px">
+        <option selected>5</option>
+        <option>10</option>
+        <option>15</option>
+      </select>
+    </div>
 
-  <div class="table-responsive">
-    <table class="table table-bordered">
-      <thead class="table-light">
-        <tr>
-          <th class="d-none d-sm-table-cell"><input type="checkbox" /></th>
-          <th>Tên combo</th>
-          <th>Giá bán</th>
-          <th class="d-none d-md-table-cell">Tuỳ chọn</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in filteredCombos" :key="index">
-          <td class="d-none d-sm-table-cell"><input type="checkbox" /></td>
-          <td>
-            <img :src="`/img/food/${item.image}`" :alt="item.name" class="me-2 img_thumbnail" />
-            {{ item.name }}
-            <div class="d-md-none mt-2 d-flex justify-content-center gap-2 flex-wrap">
-              <button type="button" class="btn btn-outline btn-sm" v-if="hasPermission('edit_combo')">Sửa</button>
-              <button class="btn btn-clean btn-delete btn-sm" v-if="hasPermission('delete_combo')">Xoá</button>
-              <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
-                @click="showComboDetail(item)">
-                Chi tiết
-              </button>
-            </div>
-          </td>
-          <td>{{ formatNumber(item.price) }} VNĐ</td>
-          <td class="d-none d-md-table-cell">
-            <div class="d-flex justify-content-center gap-2 flex-wrap">
-              <router-link :to="`/admin/update-combo/${item.id}`" class="btn btn-update"
-                v-if="hasPermission('edit_combo')">Sửa</router-link>
-              <button class="btn btn-clean btn-delete btn-sm" @click="deleteCombo(item.id)"
-                v-if="hasPermission('delete_combo')">Xoá</button>
-              <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
-                @click="showComboDetail(item)">
-                Chi tiết
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead class="table-light">
+          <tr>
+            <th class="d-none d-sm-table-cell"><input type="checkbox" /></th>
+            <th>Tên combo</th>
+            <th>Giá bán</th>
+            <th class="d-none d-md-table-cell">Tuỳ chọn</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in filteredCombos" :key="index">
+            <td class="d-none d-sm-table-cell"><input type="checkbox" /></td>
+            <td>
+              <img :src="`/img/food/${item.image}`" :alt="item.name" class="me-2 img_thumbnail" />
+              {{ item.name }}
+              <div class="d-md-none mt-2 d-flex justify-content-center gap-2 flex-wrap">
+                <button type="button" class="btn btn-outline btn-sm" v-if="hasPermission('edit_combo')">Sửa</button>
+                <button class="btn btn-clean btn-delete btn-sm" v-if="hasPermission('delete_combo')">Xoá</button>
+                <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
+                  @click="showComboDetail(item)">
+                  Chi tiết
+                </button>
+              </div>
+            </td>
+            <td>{{ formatNumber(item.price) }} VNĐ</td>
+            <td class="d-none d-md-table-cell">
+              <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <router-link :to="`/admin/update-combo/${item.id}`" class="btn btn-update"
+                  v-if="hasPermission('edit_combo')">Sửa</router-link>
+                <button class="btn btn-clean btn-delete btn-sm" @click="deleteCombo(item.id)"
+                  v-if="hasPermission('delete_combo')">Xoá</button>
+                <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
+                  @click="showComboDetail(item)">
+                  Chi tiết
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <button class="btn btn-clean btn-delete" v-if="hasPermission('delete_combo')">Xoá</button>
+    <button class="btn btn-clean btn-delete" v-if="hasPermission('delete_combo')">Xoá</button>
 
   <!--modal-->
   <div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
@@ -135,6 +136,7 @@ import { Permission } from '@/stores/permission'
 // useMenu().onSelectedKeys(['admin-roles'])
 
 const combo = ref([])
+const toppings = ref([])
 const searchQuery = ref('')
 const selectedCombo = ref(null)
 

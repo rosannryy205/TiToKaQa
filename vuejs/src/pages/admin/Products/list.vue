@@ -1,7 +1,8 @@
 <template v-if="hasPermission('view_food')">
+  <div>
   <h3 class="title">Quản lý món ăn</h3>
 
-  <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
+    <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
 
     <router-link :to="{ name: 'insert-food' }" class="btn btn-add" v-if="hasPermission('create_food')">
       + Thêm món ăn
@@ -10,30 +11,30 @@
     <input type="text" v-model="searchText" placeholder="Tìm món ăn..." class="clean-input" />
 
 
-    <span class="vd">Lọc</span>
-    <select class="clean-select" v-model="selectedCategory">
-      <option value="">Tất cả danh mục</option>
+      <span class="vd">Lọc</span>
+      <select class="clean-select" v-model="selectedCategory">
+        <option value="">Tất cả danh mục</option>
 
-      <template v-for="category in categories" :key="category.id">
-        <option :value="category.id">{{ category.name }}</option>
-        <option v-for="child in category.children" :key="'child-' + child.id" :value="child.id">
-          &nbsp;&nbsp;-- {{ child.name }}
-        </option>
-      </template>
-    </select>
+        <template v-for="category in categories" :key="category.id">
+          <option :value="category.id">{{ category.name }}</option>
+          <option v-for="child in category.children" :key="'child-' + child.id" :value="child.id">
+            &nbsp;&nbsp;-- {{ child.name }}
+          </option>
+        </template>
+      </select>
 
-    <span class="vd">Hiển thị</span>
-    <select class="custom-select" v-model="limit">
-      <option :value="5">5</option>
-      <option :value="10">10</option>
-      <option :value="15">15</option>
-    </select>
-  </div>
+      <span class="vd">Hiển thị</span>
+      <select class="custom-select" v-model="limit">
+        <option :value="5">5</option>
+        <option :value="10">10</option>
+        <option :value="15">15</option>
+      </select>
+    </div>
 
 
 
-  <!-- Table Responsive -->
-  <!-- <div class="table-responsive d-none d-lg-block">
+    <!-- Table Responsive -->
+    <!-- <div class="table-responsive d-none d-lg-block">
     <table class="table table-bordered rounded">
       <thead class="table-light">
         <tr>
@@ -93,7 +94,7 @@
     <table class="table table-bordered">
       <thead class="table-light">
         <tr>
-          <th><input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" /></th>
+          <!-- <th><input type="checkbox" :checked="isAllSelected" @change="toggleSelectAll" /></th> -->
           <th>Món ăn</th>
           <th>Danh mục</th>
           <th>Giá thành</th>
@@ -103,7 +104,7 @@
       </thead>
       <tbody>
         <tr v-for="food in foods" :key="food.id">
-          <td><input type="checkbox" :value="food.id" v-model="selectedFoods" /></td>
+          <!-- <td><input type="checkbox" :value="food.id" v-model="selectedFoods" /></td> -->
           <td style="max-width: 220px;" class="text-start">
             <img :src="'http://127.0.0.1:8000/storage/img/food/' + food.image" :alt="food.name"
               class="me-2 img_thumbnail" style="width:80px" />
@@ -121,129 +122,145 @@
             <button class="btn btn-clean btn-delete btn-sm" @click="deleteFood(food.id)"
               v-if="hasPermission('delete_food')">Xoá</button>
 
-            <button @click="toggleStatus(food)" class="btn btn-toggle-status"
-              :class="food.status === 'active' ? 'btn-outline-secondary' : 'btn-outline-success'"
-              style="min-width: 60px">
-              {{ food.status === 'active' ? 'Ẩn' : 'Hiện' }}
-            </button>
-            <button class="btn btn-outline-primary btn-sm" @click="openToppingModal(food)">
-              Topping
-            </button>
+              <button @click="toggleStatus(food)" class="btn btn-toggle-status"
+                :class="food.status === 'active' ? 'btn-outline-secondary' : 'btn-outline-success'"
+                style="min-width: 60px">
+                {{ food.status === 'active' ? 'Ẩn' : 'Hiện' }}
+              </button>
+              <button class="btn btn-outline-primary btn-sm" @click="openToppingModal(food)">
+                Topping
+              </button>
 
-            <!-- <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#toppingModal">Toppings</button> -->
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-
-  <!-- Modal chọn topping -->
-  <div class="modal fade" id="toppingModal" tabindex="-1" aria-labelledby="toppingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-      <div class="modal-content shadow-sm">
-        <div class="modal-header bg-light">
-          <h5 class="modal-title text-danger text-center" id="toppingModalLabel">
-            Chọn topping cho: {{ selectedFood?.name }}
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-
-        <div class="modal-body">
-          <div v-if="loadingToppingModal" class="text-center py-5">
-            <div class="spinner-border text-danger" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">Đang tải topping...</p>
-          </div>
-          <div v-else>
-            <div v-if="Array.isArray(toppings) && toppings.length === 0">
-              Không có topping để hiển thị.
-            </div>
+              <!-- <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#toppingModal">Toppings</button> -->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
 
-            <div v-else class="table-responsive">
-              <table class="table table-bordered align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>Chọn</th>
-                    <th>Tên topping</th>
-                    <th>Giá</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="topping in toppings" :key="topping.id">
-                    <td class="text-center">
-                      <input class="form-check-input" type="checkbox" :value="topping.id"
-                        v-model="selectedToppingIds" />
-                    </td>
-                    <td>{{ topping.name }}</td>
-                    <td>{{ formatNumber(topping.price) }} đ</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+    <!-- Modal chọn topping -->
+    <div class="modal fade" id="toppingModal" tabindex="-1" aria-labelledby="toppingModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content shadow-sm">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title text-danger text-center" id="toppingModalLabel">
+              Chọn topping cho: {{ selectedFood?.name }}
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
 
-        </div>
+          <div class="modal-body">
+            <div v-if="loadingToppingModal" class="text-center py-5">
+              <div class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-2">Đang tải topping...</p>
+            </div>
+            <div v-else>
+              <div v-if="Array.isArray(toppings) && toppings.length === 0">
+                Không có topping để hiển thị.
+              </div>
 
-        <div class="modal-footer bg-light">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-          <button class="btn btn-primary" @click="saveToppings">Lưu</button>
+
+              <div v-else class="table-responsive">
+                <table class="table table-bordered align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Chọn</th>
+                      <th>Tên topping</th>
+                      <th>Giá</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="topping in toppings" :key="topping.id">
+                      <td class="text-center">
+                        <input class="form-check-input" type="checkbox" :value="topping.id"
+                          v-model="selectedToppingIds" />
+                      </td>
+                      <td>{{ topping.name }}</td>
+                      <td>{{ formatNumber(topping.price) }} đ</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="modal-footer bg-light">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button class="btn btn-primary" @click="saveToppings">Lưu</button>
+          </div>
         </div>
       </div>
     </div>
+
+
+  <!-- Mobile View -->
+ <div class="d-block d-lg-none">
+    <div
+      class="card mb-3"
+      v-for="(food, index) in foods"
+      :key="food.id"
+    >
+      <div class="row g-0 align-items-center">
+        <div class="col-3 d-flex p-1">
+            <img :src="'http://127.0.0.1:8000/storage/img/food/' + food.image" alt="Mỳ kim chi hải sản" class="img-fluid rounded" />
+        </div>
+        <div class="col-9">
+          <div class="card-body">
+            <h5 class="card-title">{{ food.name }}</h5>
+            <p class="card-text"><strong>Danh mục:</strong> {{ food.category_name }}</p>
+            <p class="card-text"><strong>Giá:</strong> {{ food.price.toLocaleString() }} VNĐ</p>
+            <p class="card-text"><strong>Số lượng:</strong> {{ food.quantity }}</p>
+            <router-link :to="{ name: 'update-food', params: { id: food.id } }" v-if="hasPermission('edit_food')">
+              <button type="button" class="btn btn-update ms-1 ">
+                Sửa
+              </button>
+            </router-link>
+             <button @click="toggleStatus(food)" class="btn btn-toggle-status"
+              :class="food.status === 'active' ? 'btn-outline-secondary ms-1 ' : 'btn-outline-success ms-1 '"
+              style="min-width: 60px">
+              {{ food.status === 'active' ? 'Ẩn' : 'Hiện' }}
+            </button>
+            <button class="btn btn-outline-primary btn-sm ms-1 " @click="openToppingModal(food)">
+              Topping
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal topping -->
   </div>
 
 
-
-
+  <!-- nút chuyển trang  -->
   <nav class="mt-4">
     <ul class="pagination">
       <li class="page-item" :class="{ disabled: currentPage === 1 }">
         <button class="page-link" @click="currentPage--" :disabled="currentPage === 1">«</button>
       </li>
 
-      <li v-for="page in lastPage" :key="page" class="page-item" :class="{ active: currentPage === page }">
-        <button class="page-link" @click="currentPage = page">{{ page }}</button>
-      </li>
+        <li v-for="page in lastPage" :key="page" class="page-item" :class="{ active: currentPage === page }">
+          <button class="page-link" @click="currentPage = page">{{ page }}</button>
+        </li>
 
       <li class="page-item" :class="{ disabled: currentPage === lastPage }">
         <button class="page-link" @click="currentPage++" :disabled="currentPage === lastPage">»</button>
       </li>
     </ul>
   </nav>
-  <button class="btn btn-danger-delete delete_desktop" @click="deleteSelectedFoods"
-    :disabled="selectedFoods.length === 0">Xoá đã chọn({{ selectedFoods.length }})</button>
+  <!-- <button class="btn btn-danger-delete delete_desktop" @click="deleteSelectedFoods"
+    :disabled="selectedFoods.length === 0">Xoá đã chọn({{ selectedFoods.length }})</button> -->
 
 
 
-  <!-- Mobile View -->
-  <div class="d-block d-lg-none">
-    <div class="card mb-3">
-      <div class="row g-0 align-items-center">
-        <div class="col-3 d-flex p-1">
-          <input type="checkbox" name="" id="">
-          <img src="/img/food/mykimchihaisan.webp" alt="Mỳ kim chi hải sản" class="img-fluid rounded" />
-        </div>
-        <div class="col-9">
-          <div class="card-body">
-            <h5 class="card-title">Mỳ kim chi hải sản</h5>
-            <p class="card-text"><strong>Danh mục:</strong> Mỳ cay</p>
-            <p class="card-text"><strong>Giá:</strong> 55,000 VNĐ</p>
-            <p class="card-text"><strong>Số lượng:</strong> 10</p>
-            <button class="btn-outline btn-primary btn-sm">Sửa</button>
-            <button class="btn-outline btn-danger-delete btn-sm">Xoá</button>
-            <button class="btn-outline btn-warning btn-sm">Ẩn</button><button class="btn btn-dark btn-sm"
-              data-bs-toggle="modal" data-bs-target="#toppingModal">Toppings</button>
-          </div>
-        </div>
-      </div>
-    </div>
+
+  <!-- <button class="btn-outline btn-danger-delete delete_mobile">Xoá</button> -->
+
   </div>
-  <button class="btn-outline btn-danger-delete delete_mobile">Xoá</button>
-
-
 </template>
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
@@ -419,57 +436,57 @@ const toggleSelectAll = () => {
   }
 };
 
-const deleteSelectedFoods = async () => {
-  const confirmResult = await Swal.fire({
-    title: 'Xác nhận xoá?',
-    text: `Bạn có chắc muốn xoá ${selectedFoods.value.length} món đã chọn?`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Xoá',
-    cancelButtonText: 'Huỷ'
-  });
+// const deleteSelectedFoods = async () => {
+//   const confirmResult = await Swal.fire({
+//     title: 'Xác nhận xoá?',
+//     text: `Bạn có chắc muốn xoá ${selectedFoods.value.length} món đã chọn?`,
+//     icon: 'warning',
+//     showCancelButton: true,
+//     confirmButtonColor: '#d33',
+//     cancelButtonColor: '#3085d6',
+//     confirmButtonText: 'Xoá',
+//     cancelButtonText: 'Huỷ'
+//   });
 
-  if (confirmResult.isConfirmed) {
-    try {
-      await axios.post('http://127.0.0.1:8000/api/admin/foods/delete-multiple', {
-        ids: selectedFoods.value
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+//   if (confirmResult.isConfirmed) {
+//     try {
+//       await axios.post('http://127.0.0.1:8000/api/admin/foods/delete-multiple', {
+//         ids: selectedFoods.value
+//       }, {
+//         headers: {
+//           Authorization: `Bearer ${localStorage.getItem('token')}`
+//         }
+//       });
 
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Đã xoá thành công',
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true
-      });
+//       Swal.fire({
+//         toast: true,
+//         position: 'top-end',
+//         icon: 'success',
+//         title: 'Đã xoá thành công',
+//         showConfirmButton: false,
+//         timer: 2000,
+//         timerProgressBar: true
+//       });
 
-      selectedFoods.value = [];
-      fetchFoods();
+//       selectedFoods.value = [];
+//       fetchFoods();
 
-    } catch (error) {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'error',
-        title: error.response?.data?.message || 'Xoá thất bại',
-        showConfirmButton: false,
-        timer: 2500,
-        timerProgressBar: true
-      });
-    }
-  }
+//     } catch (error) {
+//       Swal.fire({
+//         toast: true,
+//         position: 'top-end',
+//         icon: 'error',
+//         title: error.response?.data?.message || 'Xoá thất bại',
+//         showConfirmButton: false,
+//         timer: 2500,
+//         timerProgressBar: true
+//       });
+//     }
+//   }
 
 
 
-};
+// };
 
 const toggleStatus = async (food) => {
   const newStatus = food.status === 'active' ? 'inactive' : 'active';

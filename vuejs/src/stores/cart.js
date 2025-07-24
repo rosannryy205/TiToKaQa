@@ -57,7 +57,7 @@ export function Cart() {
     return cartItems.value.reduce((sum, item) => {
       const basePrice = Number(item.price) * item.quantity
       const toppingPrice =
-        item.type === 'Food'
+        item.type === 'food'
           ? item.toppings.reduce((tsum, topping) => {
               return tsum + Number(topping.price) * item.quantity
             }, 0)
@@ -132,7 +132,7 @@ export function Cart() {
   const totalPriceItem = (item) => {
     const itemPrice = Number(item.price) * item.quantity
     const toppingPrice =
-      item.type === 'Food'
+      item.type === 'food'
         ? item.toppings.reduce((sum, topping) => {
             return sum + Number(topping.price) * item.quantity
           }, 0)

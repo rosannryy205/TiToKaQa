@@ -103,26 +103,21 @@
             <span>Phí ship</span>{{ formatNumber(shippingFee) }} VNĐ
           </div>
           <div class="d-flex justify-content-between mb-2">
-            <span>{{ formatNumber(form.usable_points) }} Tpoints</span
-            ><label class="toggle-switch">
-              <input type="checkbox" v-model="form.use_points" 
-              :disabled="form.usable_points <= 0"/>
+            <span>{{ formatNumber(form.usable_points) }} Tpoints</span><label class="toggle-switch">
+              <input type="checkbox" v-model="form.use_points" :disabled="form.usable_points <= 0" />
               <div class="toggle-switch-background">
                 <div class="toggle-switch-handle"></div>
               </div>
             </label>
           </div>
           <div v-if="form.use_points" class="d-flex justify-content-between mb-2 text-success mb-2">
-  Giảm {{ formatNumber(pointsDiscountAmount) }} VNĐ từ Tpoints
-  <br />
-  <span class="text-muted">
-    Còn lại {{ formatNumber(form.usable_points - (pointsDiscountAmount)) }} Tpoints
-  </span>
-</div>
-          <div
-            v-if="discountFoodAmount > 0"
-            class="d-flex justify-content-between mb-2 text-success"
-          >
+            Giảm {{ formatNumber(pointsDiscountAmount) }} VNĐ từ Tpoints
+            <br />
+            <span class="text-muted">
+              Còn lại {{ formatNumber(form.usable_points - (pointsDiscountAmount)) }} Tpoints
+            </span>
+          </div>
+          <div v-if="discountFoodAmount > 0" class="d-flex justify-content-between mb-2 text-success">
             <span>Giảm giá sản phẩm</span> -{{ formatNumber(discountFoodAmount) }} VNĐ
           </div>
           <div v-if="discountShipAmount > 0" class="d-flex justify-content-between mb-2 text-success">
@@ -149,97 +144,76 @@
               <button class="btn btn-outline-primary" @click="handleDiscountInput">Áp dụng</button>
             </div>
             <div class="order-tabs d-flex flex-nowrap overflow-auto gap-3 mb-4 mt-3">
-              <div
-                v-for="tab in tabs"
-                :key="tab"
-                :class="['tab-item', { active: activeTab === tab }]"
-                @click="setActive(tab)"
-              >
+              <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]"
+                @click="setActive(tab)">
                 {{ tab }}
               </div>
             </div>
             <div class="discount-scroll-wrapper" v-if="isLoggedIn">
               <div v-for="discount in displayedDiscounts" :key="discount.id">
-  <div
-    class="voucher-card mb-3"
-    :class="{
-      'disabled-voucher':
-        totalPrice < discount.min_order_value ||
-        discount.used >= discount.usage_limit ||
-        (discount.discount_type === 'freeship' && !hasShippingFee) ||
-        (discount.category_id &&
-          !cartItems.some((item) =>
-            getAllChildCategoryIds(discount.category_id).includes(Number(item.category_id))
-          )) ||
-        finalTotal <= 0
-    }"
-    @click="
-      totalPrice >= discount.min_order_value &&
-      discount.used < discount.usage_limit &&
-      !(discount.discount_type === 'freeship' && !hasShippingFee) &&
-      finalTotal > 0 &&
-      (selectedDiscount === discount.code
-        ? removeDiscountCode()
-        : applyDiscountCode(discount.code))
-    "
-  >
-    <!-- Cột trái -->
-    <div
-      class="voucher-card-left"
-      :class="discount.discount_type === 'freeship' ? 'freeship' : 'salefood'"
-    >
-      <img
-        :src="
-          discount.discount_type === 'freeship'
-            ? '/img/freeship-icon.png'
-            : '/img/discount-icon.png'
-        "
-        alt="icon"
-      />
-      <div class="voucher-card-label">
-        {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
-      </div>
-    </div>
+                <div class="voucher-card mb-3" :class="{
+                  'disabled-voucher':
+                    totalPrice < discount.min_order_value ||
+                    discount.used >= discount.usage_limit ||
+                    (discount.discount_type === 'freeship' && !hasShippingFee) ||
+                    (discount.category_id &&
+                      !cartItems.some((item) =>
+                        getAllChildCategoryIds(discount.category_id).includes(Number(item.category_id))
+                      )) ||
+                    finalTotal <= 0
+                }" @click="
+                  totalPrice >= discount.min_order_value &&
+                  discount.used < discount.usage_limit &&
+                  !(discount.discount_type === 'freeship' && !hasShippingFee) &&
+                  finalTotal > 0 &&
+                  (selectedDiscount === discount.code
+                    ? removeDiscountCode()
+                    : applyDiscountCode(discount.code))
+                  ">
+                  <!-- Cột trái -->
+                  <div class="voucher-card-left"
+                    :class="discount.discount_type === 'freeship' ? 'freeship' : 'salefood'">
+                    <img :src="discount.discount_type === 'freeship'
+                      ? '/img/freeship-icon.png'
+                      : '/img/discount-icon.png'
+                      " alt="icon" />
+                    <div class="voucher-card-label">
+                      {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
+                    </div>
+                  </div>
 
-    <!-- Cột phải -->
-    <div class="voucher-card-right">
-      <div>
-        <div class="voucher-code">Mã: {{ discount.code }}</div>
-        <div class="voucher-condition">
-          <i class="fa-regular fa-clock me-1"></i>Hết hạn: {{ discount.end_date }}
-        </div>
-        <div class="voucher-condition">
-          {{ discount.name }}
-        </div>
+                  <!-- Cột phải -->
+                  <div class="voucher-card-right">
+                    <div>
+                      <div class="voucher-code">Mã: {{ discount.code }}</div>
+                      <div class="voucher-condition">
+                        <i class="fa-regular fa-clock me-1"></i>Hết hạn: {{ discount.end_date }}
+                      </div>
+                      <div class="voucher-condition">
+                        {{ discount.name }}
+                      </div>
 
-        <div
-          v-if="finalTotal <= 0"
-          class="text-danger small"
-        >
-          Đơn hàng đã giảm hết, không thể áp thêm mã!
-        </div>
-      </div>
+                      <div v-if="finalTotal <= 0" class="text-danger small">
+                        Đơn hàng đã giảm hết, không thể áp thêm mã!
+                      </div>
+                    </div>
 
-      <div class="voucher-footer">
-        <div class="voucher-coins">
-          Đã dùng: {{ discount.used }}/{{ discount.usage_limit }}
-        </div>
-        <button
-          class="voucher-button"
-          :class="{ 'has-voucher': selectedDiscount === discount.code }"
-          :disabled="
-            totalPrice < discount.min_order_value ||
-            discount.used >= discount.usage_limit ||
-            (discount.discount_type === 'freeship' && !hasShippingFee) ||
-            finalTotal <= 0
-          "
-        >
-          {{ selectedDiscount === discount.code ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+                    <div class="voucher-footer">
+                      <div class="voucher-coins">
+                        Đã dùng: {{ discount.used }}/{{ discount.usage_limit }}
+                      </div>
+                      <button class="voucher-button" :class="{ 'has-voucher': selectedDiscount === discount.code }"
+                        :disabled="totalPrice < discount.min_order_value ||
+                          discount.used >= discount.usage_limit ||
+                          (discount.discount_type === 'freeship' && !hasShippingFee) ||
+                          finalTotal <= 0
+                          ">
+                        {{ selectedDiscount === discount.code ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
             </div>
           </div>
@@ -256,6 +230,8 @@
               </label>
             </div>
             <div class="form-check">
+              <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO" v-model="paymentMethod"
+                disabled />
               <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
                 v-model="paymentMethod" />
               <label class="form-check-label d-flex align-items-center" for="momo">
@@ -291,6 +267,7 @@ import { Discounts } from '@/stores/discount'
 import { Cart } from '@/stores/cart'
 import { User } from '@/stores/user'
 import { useShippingStore } from '@/stores/shippingStore'
+import Swal from 'sweetalert2';
 import { storeToRefs } from 'pinia'
 
 const shippingStore = useShippingStore()
@@ -382,11 +359,20 @@ export default {
 
     const check_out = async (orderId) => {
       try {
-        if (!paymentMethod.value) return toast.error('Vui lòng chọn phương thức thanh toán.')
 
         if (paymentMethod.value === 'VNPAY') {
-          if (!orderId || finalTotal.value <= 0)
-            return toast.error('Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.')
+          if (!orderId || finalTotal.value <= 0) {
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: 'Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            return
+          }
 
           const res = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
             order_id: orderId,
@@ -394,17 +380,35 @@ export default {
           })
 
           if (res.data?.payment_url) {
+            localStorage.setItem('order_id', orderId)
             localStorage.setItem('payment_method', paymentMethod.value)
             localStorage.removeItem(cartKey.value)
             window.location.href = res.data.payment_url
           } else {
-            toast.error('Không tạo được link thanh toán VNPAY.')
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: 'Không tạo được link thanh toán VNPAY.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
           }
           return
         }
 
         if (paymentMethod.value === 'MOMO') {
-          toast.info('Chức năng thanh toán MoMo đang được phát triển!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Chức năng thanh toán MoMo đang được phát triển!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
+          // localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey.value)
           return
@@ -412,37 +416,76 @@ export default {
 
         if (paymentMethod.value === 'COD') {
           if (user.value?.status === 'Block') {
-            toast.error('Tài khoản của bạn đã bị hạn chế. Không thể thanh toán bằng tiền mặt.')
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Tài khoản của bạn đã bị hạn chế. Không thể thanh toán bằng tiền mặt.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
             return
           }
           await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
             order_id: orderId,
             amount_paid: finalTotal.value,
           })
+          localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey.value)
           toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
-          router.push('/payment-result')
+          router.push({
+            name: 'payment-result',
+            query: {
+              type: 'order_id',
+              value: orderId
+            }
+          })
         }
       } catch (error) {
         console.error(error)
-        toast.error(error?.response?.data?.message || 'Thanh toán thất bại!')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Thanh toán thất bại: ' + error.response.data.message,
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
       }
     }
 
     const submitOrder = async () => {
-      if (!paymentMethod.value) {
-        toast.error('Vui lòng chọn phương thức thanh toán trước khi đặt hàng.');
-        return;
-      }
       isLoading.value = true
       try {
         if (!selectedProvince.value || !selectedDistrict.value || !selectedWard.value) {
-          alert('Vui lòng chọn đầy đủ địa chỉ.')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           isLoading.value = false
           return
         }
-
+        if (!paymentMethod.value) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng chọn phương thức thanh toán trước khi đặt hàng!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
+          isLoading.value = false
+          return
+        }
         const province = provinces.value.find((p) => p.ProvinceID === selectedProvince.value)
         const district = districts.value.find((d) => d.DistrictID === selectedDistrict.value)
         const ward = wards.value.find((w) => w.WardCode === selectedWard.value)
@@ -450,7 +493,15 @@ export default {
         const fullAddress = `${form.address}, ${ward?.WardName}, ${district?.DistrictName}, ${province?.ProvinceName}`
 
         if (!fullAddress || cartItems.value.length === 0) {
-          toast.error('Vui lòng nhập địa chỉ và chọn món ăn.')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng nhập địa chỉ và thêm món ăn vào giỏ hàng.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           isLoading.value = false
           return
         }
@@ -465,11 +516,11 @@ export default {
           total_price: finalTotal.value || 0,
           tpoint_used: pointsDiscountAmount.value,
           ship_cost: parseInt(shippingFee.value),
-          money_reduce:discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
+          money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
-            food_id: item.type === 'Food' ? item.id : null,
-            combo_id: item.type === 'Combo' ? item.id : null,
+            food_id: item.type === 'food' ? item.id : null,
+            combo_id: item.type === 'combo' ? item.id : null,
             quantity: item.quantity,
             price: item.price,
             type: item.type,
@@ -485,7 +536,15 @@ export default {
         const res = await axios.post('http://127.0.0.1:8000/api/order', orderData)
 
         if (res.data?.status && res.data.order_id) {
-          toast.success('Đơn hàng đã được tạo thành công!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Đơn hàng đã được tạo thành công!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           if (orderData.discount_id) {
             await axios.post('http://127.0.0.1:8000/api/discounts/use', {
               discount_id: orderData.discount_id,
@@ -494,11 +553,27 @@ export default {
           }
           await check_out(res.data.order_id)
         } else {
-          toast.error('Không nhận được ID đơn hàng từ server.')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Không nhận được ID đơn hàng từ server.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
         }
       } catch (err) {
         console.error(err)
-        toast.error(err?.response?.data?.message || 'Đặt hàng thất bại.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: err?.response?.data?.message || 'Đặt hàng thất bại.',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
       } finally {
         isLoading.value = false
       }
@@ -518,7 +593,7 @@ export default {
     const selectedService = ref(null)
     const ghnToken = 'ce7a164e-3e1c-11f0-a700-860cdd37d888'
     const hasShippingFee = computed(() => shippingFee.value > 0)
-    
+
     const fetchProvinces = async () => {
       try {
         const res = await axios.get(
@@ -839,6 +914,7 @@ export default {
   background-color: #007d00;
   color: white;
 }
+
 /**togle btn tpoint */
 .toggle-switch {
   position: relative;
@@ -847,9 +923,11 @@ export default {
   height: 18px;
   cursor: pointer;
 }
+
 .toggle-switch input[type='checkbox'] {
   display: none;
 }
+
 .toggle-switch-background {
   position: absolute;
   top: 0;
@@ -861,6 +939,7 @@ export default {
   box-shadow: inset 0 0 0 1px #ccc;
   transition: background-color 0.3s ease-in-out;
 }
+
 .toggle-switch-handle {
   position: absolute;
   top: 2px;
@@ -872,6 +951,7 @@ export default {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease-in-out;
 }
+
 .toggle-switch::before {
   content: '';
   position: absolute;
@@ -883,11 +963,13 @@ export default {
   text-shadow: 1px 1px #fff;
   transition: color 0.3s ease-in-out;
 }
-.toggle-switch input[type='checkbox']:checked + .toggle-switch-background {
+
+.toggle-switch input[type='checkbox']:checked+.toggle-switch-background {
   background-color: #05c46b;
   box-shadow: inset 0 0 0 1px #04b360;
 }
-.toggle-switch input[type='checkbox']:checked + .toggle-switch-background .toggle-switch-handle {
+
+.toggle-switch input[type='checkbox']:checked+.toggle-switch-background .toggle-switch-handle {
   transform: translateX(18px);
 }
 </style>

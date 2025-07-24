@@ -162,6 +162,7 @@ Route::post('/assign-role/{user_id}', [UserController::class, 'assignSingleRole'
 
 //cart
 Route::post('/order', [CartController::class, 'order']);
+Route::post('/reorder/{id}', [CartController::class, 'reOrder']);
 Route::post('/ordertakecaway', [CartController::class, 'orderTakeAway']);
 Route::put('/update/order/{id}', [OrderController::class, 'reservationUpdate']);
 Route::put('/update/reservation-order/{id}', [OrderController::class, 'reservationUpdatePrice']);
@@ -209,7 +210,6 @@ Route::post('/admin/food/topping/{food}', [AdminFoodController::class, 'storeTop
 
 
 // topping
-Route::resource('/admin/category_topping', AdminCategoryToppingController::class);
 Route::resource('/admin/toppings', AdminToppingController::class);
 Route::get('/admin/toppingById/{id}', [AdminToppingController::class, 'getToppingById']);
 
@@ -246,6 +246,8 @@ Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
 Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
+Route::get('/get-order-reservation-info', [OrderController::class, 'getOrderReservationInfo']);
+
 
 /**client vong quay*/
 Route::get('/lucky-wheel/prizes', [LuckyWheelController::class, 'getPrizes']);
