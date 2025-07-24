@@ -254,7 +254,7 @@ export default {
           }
           const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
             order_id: orderId,
-            amount: finalTotal.value + 100000,
+            amount: finalTotal.value,
           })
           if (paymentRes.data && paymentRes.data.payment_url) {
             localStorage.setItem('payment_method', paymentMethod.value)

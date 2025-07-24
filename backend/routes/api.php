@@ -98,11 +98,8 @@ Route::delete('/permission/{id}', [PermissionController::class, 'deletePermissio
 
 
 // message
-Route::get('/messages', [ChatRealTimeController::class, 'getMessages']);
-Route::post('/messages/send', [ChatRealTimeController::class, 'sendMessage']);
-Route::get('/conversations', [ChatRealTimeController::class, 'getConversationToAdmin']);
-Route::put('/assign-conversation-admin/{id}', [ChatRealTimeController::class, 'assignAdmin']);
-Route::put('/mark-read/{id}', [ChatRealTimeController::class, 'markRead']);
+Route::post('/messages/send', [ChatBotController::class, 'handleMessage']);
+
 
 
 
@@ -251,14 +248,14 @@ Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 
 /**client vong quay*/
-Route::get('/lucky-wheel/prizes', [LuckyWheelController::class, 'getPrizes']); 
+Route::get('/lucky-wheel/prizes', [LuckyWheelController::class, 'getPrizes']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/spin', [LuckyWheelController::class, 'spin']); 
-    Route::get('/user-rewards', [LuckyWheelController::class, 'getUserRewards']); 
-    Route::post('/claim-reward', [ClaimPrizesController::class, 'claimPrize']); 
-    Route::get('/spin-status', [LuckyWheelController::class, 'checkSpinStatus']); 
-    Route::get('/deals-food', [DealFoodsController::class, 'getDealsFood']); 
-});    
+    Route::post('/spin', [LuckyWheelController::class, 'spin']);
+    Route::get('/user-rewards', [LuckyWheelController::class, 'getUserRewards']);
+    Route::post('/claim-reward', [ClaimPrizesController::class, 'claimPrize']);
+    Route::get('/spin-status', [LuckyWheelController::class, 'checkSpinStatus']);
+    Route::get('/deals-food', [DealFoodsController::class, 'getDealsFood']);
+});
 
 /**client user-point_exchange*/
 Route::post('/redeem-discount', [DiscountController::class, 'redeem'])->middleware('auth:sanctum');

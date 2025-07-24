@@ -191,6 +191,7 @@ export default {
         console.log(error)
       }
     }
+
     onMounted(() => {
       for (let hour = 8; hour <= 21; hour++) {
         let hourStr = hour < 10 ? '0' + hour : '' + hour

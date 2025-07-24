@@ -99,7 +99,7 @@
                 </div>
               </div>
               <form @submit.prevent="handleAddToCartClick">
-                <div style="max-height: 400px; overflow-y: auto" class="pe-3 ps-3" v-if="toppingList.length">
+                <div style="max-height: 400px; overflow-y: auto" class="pe-3 ps-3" v-if="toppingList.length || spicyLevel.length">
                   <div class="mb-3">
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold text-danger">
@@ -297,7 +297,7 @@ export default {
 
     const onFoodSearch = (event) => {
       searchFoodTerm.value = event.target.value
-      currentPage.value.foods = 1 // reset về trang đầu tiên khi tìm kiếm mới
+      currentPage.value.foods = 1
     }
 
     const currentPage = ref({
