@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendReservationMail;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Mail\ReservationMail;
 use App\Models\Combo;
@@ -26,6 +27,7 @@ date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
@@ -305,12 +307,12 @@ class OrderController extends Controller
 
                 foreach ($request->order_detail as $item) {
                     $name = null;
-                    if ($item['type'] === 'Food' && !empty($item['food_id'])) {
+                    if ($item['type'] === 'food' && !empty($item['food_id'])) {
                         $food = Food::find($item['food_id']);
                         $name = $food?->name ?? 'Món ăn không tồn tại';
                         $image = $food?->image;
                     }
-                    if ($item['type'] === 'Combo' && !empty($item['combo_id'])) {
+                    if ($item['type'] === 'combo' && !empty($item['combo_id'])) {
                         $combo = Combo::find($item['combo_id']);
                         $name = $combo?->name ?? 'Món ăn không tồn tại';
                         $image = $combo?->image;
@@ -403,6 +405,8 @@ class OrderController extends Controller
             ], 422);
         }
     }
+
+
 
 
     //load món đã đặt
@@ -667,6 +671,21 @@ class OrderController extends Controller
 
             ]
         ], 200);
+    }
+    public function getOrderReservationInfo(Request $request)
+    {
+        $type = $request->input('type');
+        $value = $request->input('value');
+
+        if ($type === 'user_id') {
+            $orders = Order::where('user_id', $value)->latest()->take(1)->get();
+        } else if ($type === 'order_id') {
+            $orders = Order::where('id', $value)->get();
+        } else {
+            return response()->json(['orders' => []]);
+        }
+
+        return response()->json(['orders' => $orders]);
     }
 
     //lấy tất cả order theo user

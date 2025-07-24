@@ -59,7 +59,9 @@
               <div class="text-center fw-medium fs-6 pb-4">
                 Chọn món trước khi đến nhà hàng
               </div>
+
             </div>
+
             <div class="list-product-scroll1 mb-3" v-if="cart_reservation != null">
               <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
                 <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
@@ -77,17 +79,21 @@
                   <div>Giá: {{ formatNumber(item.price) }} VNĐ</div>
                   <hr />
                 </div>
-                <div class="text-end ms-2">
-                  <strong>{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
+                <div class="me-2">
+                  <strong class="me-2">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
+                  <span class="badge text-bg-secondary" @click="openModalToEditTopping(item, index)"
+                    style="cursor: pointer;">Sửa</span>
                 </div>
               </div>
             </div>
           </div>
+          <div class="pt-1" v-if="cart_reservation == null">
+            <button class="btn btn-outline-danger rounded-1 p-2 w-100">Đặt bàn</button>
+          </div>
           <div class="card-payment1 border shadow-sm bg-white p-4 rounded-bottom" v-if="cart_reservation != null">
-
             <div class="d-flex justify-content-between mb-3">
               <strong class="fs-5">Tổng cộng (VAT)</strong>
-              <strong class="text-danger fs-5">{{ formatNumber(finalTotal) }} VNĐ</strong>
+              <strong class="text-danger fs-5">{{ formatNumber(totalPrice) }} VNĐ</strong>
             </div>
 
             <div class="mb-3">
@@ -102,9 +108,17 @@
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
-                  v-model="paymentMethod" />
+                  v-model="paymentMethod" disabled />
                 <label class="form-check-label d-flex align-items-center" for="momo">
                   <span class="me-2">Thanh toán qua Momo</span>
+                  <img src="/img/momo.png" height="20" width="20" alt="" />
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="payment" id="momo" value="COD"
+                  v-model="paymentMethod" />
+                <label class="form-check-label d-flex align-items-center" for="momo">
+                  <span class="me-2">Thanh toán qua COD</span>
                   <img src="/img/momo.png" height="20" width="20" alt="" />
                 </label>
               </div>
@@ -116,6 +130,84 @@
         </div>
       </div>
     </form>
+  </div>
+
+  <div class="modal fade" id="productModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content custom-modal modal-ct">
+        <div class="modal-body position-relative">
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+          <div class="row">
+            <!-- Cột hình ảnh -->
+            <div class="col-md-6 border-end">
+              <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
+              <div class="text-center mb-3">
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
+              </div>
+              <p class="text-danger fw-bold fs-5 text-center">
+                {{ formatNumber(foodDetail.price) }} VNĐ
+              </p>
+              <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
+            </div>
+
+            <!-- Cột chọn topping -->
+            <div class="col-md-6 d-flex flex-column">
+              <form @submit.prevent="editCartIndex !== null ? updateToppingInCart() : addToCart()"
+                class="d-flex flex-column h-100">
+                <div class="flex-grow-1">
+                  <div class="topping-container mb-3" v-if="toppingList.length || spicyLevel.length">
+                    <!-- Mức cay -->
+                    <div class="mb-3" v-if="spicyLevel.length">
+                      <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
+                      <select class="form-select" id="spicyLevel">
+                        <option v-for="item in spicyLevel" :key="item.id" :value="item.id">
+                          {{ item.name }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <!-- Topping -->
+                    <label v-if="toppingList.length" class="form-label fw-bold">🧀 Chọn Topping:</label>
+                    <div v-for="topping in toppingList" :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2">
+                      <label class="d-flex align-items-center">
+                        <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
+                        {{ topping.name }}
+                      </label>
+                      <span class="text-muted small">{{ formatNumber(topping.price) }} VND</span>
+                    </div>
+                  </div>
+
+                  <div v-else class="mt-5 none-topping">
+                    <p class="text-center text-muted">Không có topping cho món này.</p>
+                  </div>
+                </div>
+
+                <!-- Nút điều khiển -->
+                <div class="mt-auto">
+                  <div class="text-center mb-2">
+                    <div class="qty-control px-2 py-1">
+                      <button type="button" @click="decreaseQuantity" class="btn-lg"
+                        style="background-color: #fff;">-</button>
+                      <span>{{ quantity }}</span>
+                      <button type="button" @click="increaseQuantity" class="btn-lg"
+                        style="background-color: #fff;">+</button>
+                    </div>
+                  </div>
+
+                  <!-- Nút động -->
+                  <button type="submit" class="btn btn-danger w-100 fw-bold">
+                    Cập nhật topping
+                  </button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -130,6 +222,9 @@ import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { Info } from '@/stores/info-order-reservation'
+import { FoodList } from '@/stores/food'
+import { nextTick } from 'vue'
+
 export default {
   methods: {
     formatNumber(value) {
@@ -154,15 +249,11 @@ export default {
     const { form, user } = User.setup();
     const { getInfo, info } = Info.setup();
     const {
-      discounts,
-      discountInput,
-      selectedDiscount,
-      discountId,
-      applyDiscountCode,
-      handleDiscountInput,
-      finalTotal,
-      discountFoodAmount,
-    } = Discounts()
+      foodDetail,
+      spicyLevel,
+      toppingList,
+      openModal,
+    } = FoodList.setup()
 
     const {
       cartKey, cartItems, totalPriceItem, loadCart, totalPrice
@@ -210,18 +301,24 @@ export default {
 
       try {
         if (!paymentMethod.value) {
-          toast.error('Vui lòng chọn phương thức thanh toán!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng chọn phương thức thanh toán!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           return
         }
         const orderData = {
           id: orderId,
-          guest_name: form.value.fullname || form.value.username,
-          guest_phone: form.value.phone,
-          guest_email: form.value.email,
-          note: form.value.note || "",
-          total_price: finalTotal.value,
-          money_reduce: discountFoodAmount.value,
-          discount_id: discountId.value || null,
+          guest_name: form.fullname || form.username,
+          guest_phone: form.phone,
+          guest_email: form.email,
+          note: form.note || "",
+          total_price: totalPrice.value,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
             combo_id: null,
@@ -248,25 +345,43 @@ export default {
         localStorage.removeItem(cartKey);
 
         if (paymentMethod.value === 'VNPAY') {
-          if (!orderId || finalTotal.value <= 0) {
-            toast.error('Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.');
+          if (!orderId || totalPrice.value <= 0) {
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
             return;
           }
           const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
             order_id: orderId,
-            amount: finalTotal.value,
+            amount: totalPrice.value,
           })
           if (paymentRes.data && paymentRes.data.payment_url) {
+            localStorage.setItem('order_id', orderId)
             localStorage.setItem('payment_method', paymentMethod.value)
             localStorage.removeItem(cartKey)
             window.location.href = paymentRes.data.payment_url
           } else {
-            toast.error('Không tạo được link thanh toán VNPAY.')
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Không tạo được link thanh toán VNPAY.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
           }
           return
         }
         if (paymentMethod.value === 'MOMO') {
           toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value);
           localStorage.removeItem(cartKey);
           // router.push('/payment-result');
@@ -276,14 +391,22 @@ export default {
           await new Promise((resolve) => setTimeout(resolve, 300))
           await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
             order_id: orderId,
-            amount_paid: finalTotal.value + 100000,
+            amount_paid: totalPrice.value,
           })
+          localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey)
           toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
-          router.push('/payment-result');
+          router.push({
+            name: 'payment-result',
+            query: {
+              type: 'order_id',
+              value: orderId
+            }
+          });
         }
       } catch (error) {
+        console.error(error)
         if (error.response && error.response.status === 422 && error.response.data.errors) {
           let validationErrors = ''
           for (const field in error.response.data.errors) {
@@ -296,10 +419,25 @@ export default {
               validationErrors += 'Lỗi không xác định. ';
             }
           }
-
-          toast.error(`${validationErrors.trim()}`)
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: `${validationErrors.trim()}`,
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
         } else {
-          toast.error('Đặt bàn thất bại, vui lòng thử lại!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Đặt bàn thất bại, vui lòng thử lại!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
         }
 
       } finally {
@@ -316,7 +454,118 @@ export default {
         console.error('❌ Lỗi khi gọi check_out:', error)
       }
     }
+    const quantity = ref(1)
+    const editCartIndex = ref(null)
+    const openModalToEditTopping = async (item, index) => {
+      editCartIndex.value = index;
+      quantity.value = item.quantity
+      try {
+        await openModal(item)
 
+        await nextTick(() => {
+          // Set mức cay đã chọn
+          const spicy = item.toppings.find(t => t.is_spicy_level);
+          if (spicy) {
+            const select = document.getElementById('spicyLevel');
+            if (select) {
+              select.value = spicy.id;
+            }
+          }
+
+          // Set topping đã chọn
+          const selectedToppingIds = item.toppings
+            .filter(t => !t.is_spicy_level)
+            .map(t => t.id);
+          const checkboxes = document.querySelectorAll('input[name="topping[]"]');
+          checkboxes.forEach((checkbox) => {
+            checkbox.checked = selectedToppingIds.includes(parseInt(checkbox.value));
+          });
+        });
+
+      } catch (error) {
+        console.error(' Lỗi khi mở modal chọn lại topping:', error);
+      }
+    };
+
+
+    const updateToppingInCart = () => {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const userId = user?.id || 'guest';
+      const cartKey = `cart_${userId}_reservation_${orderId}`;
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value);
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId);
+
+      let allSelectedToppings = [];
+
+      if (selectedSpicy) {
+        allSelectedToppings.push({
+          id: selectedSpicy.id,
+          name: selectedSpicy.name,
+          price: selectedSpicy.price,
+          food_toppings_id: selectedSpicy.pivot?.id || null,
+          is_spicy_level: true
+        });
+      }
+
+      const selectedToppingIds = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')
+      ).map((el) => parseInt(el.value));
+
+      const normalToppings = toppingList.value
+        .filter((topping) => selectedToppingIds.includes(topping.id))
+        .map((topping) => ({
+          id: topping.id,
+          name: topping.name,
+          price: topping.price,
+          food_toppings_id: topping.pivot?.id || null,
+          is_spicy_level: false
+        }));
+
+      allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+
+      const updatedItem = {
+        ...cart[editCartIndex.value],
+        toppings: allSelectedToppings,
+        quantity: quantity.value
+      };
+
+      // Kiểm tra xem món mới này đã tồn tại trong giỏ chưa (trừ chính nó)
+      const duplicateIndex = cart.findIndex(
+        (item, i) =>
+          i !== editCartIndex.value &&
+          item.id === updatedItem.id &&
+          JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(updatedItem.toppings.map(t => t.id).sort())
+      );
+
+      if (duplicateIndex !== -1) {
+        // Nếu trùng món khác → cộng dồn số lượng, xóa item hiện tại
+        cart[duplicateIndex].quantity += updatedItem.quantity;
+        cart.splice(editCartIndex.value, 1);
+      } else {
+        // Nếu không trùng → cập nhật món hiện tại
+        cart[editCartIndex.value] = updatedItem;
+      }
+
+      // Lưu lại
+      localStorage.setItem(cartKey, JSON.stringify(cart));
+      cartItems.value = cart;
+
+      // Reset
+      editCartIndex.value = null;
+      document.querySelector('#productModal .btn-close')?.click();
+
+      toast.success(' Đã cập nhật topping thành công!');
+    };
+
+    const increaseQuantity = () => {
+      quantity.value++
+    }
+
+    const decreaseQuantity = () => {
+      if (quantity.value > 1) quantity.value--
+    }
     // const notify = async () => {
     //   const status = info.value;
     //   const now = new Date();
@@ -368,14 +617,6 @@ export default {
       loadCart,
       totalPriceItem,
       totalPrice,
-      discountFoodAmount,
-      finalTotal,
-      discountInput,
-      selectedDiscount,
-      discounts,
-      applyDiscountCode,
-      handleDiscountInput,
-      discountId,
       reservation,
       updateCountdown,
       countdownInterval,
@@ -388,7 +629,18 @@ export default {
       paymentMethod,
       cartKey,
       isLoading,
-      cart_reservation
+      cart_reservation,
+      editCartIndex,
+      openModalToEditTopping,
+      updateToppingInCart,
+      foodDetail,
+      spicyLevel,
+      toppingList,
+      quantity,
+      openModal,
+      increaseQuantity,
+      decreaseQuantity,
+
     };
   },
 };

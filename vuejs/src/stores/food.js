@@ -190,6 +190,7 @@ export const FoodList = {
       getCategory,
       getAllCategory,
       allCates,
+      quantity
     }
   },
 }
