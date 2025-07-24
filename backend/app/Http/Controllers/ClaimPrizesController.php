@@ -19,12 +19,12 @@ class ClaimPrizesController extends Controller
         $request->validate([
             'spin_id' => 'required|exists:lucky_wheel_spins,id',
         ]);
-    
+
         $spin = LuckyWheelSpin::where('id', $request->spin_id)
             ->where('user_id', $user->id)
             ->where('is_claimed', false)
             ->first();
-    
+
         if (!$spin) {
             return response()->json(['message' => 'Phần thưởng không hợp lệ hoặc đã nhận.'], 400);
         }
@@ -47,7 +47,7 @@ class ClaimPrizesController extends Controller
                 'expired_at' => now()->addDays(7),
                 'food_snapshot' => $food->toArray()
             ]);
-            
+
             $reward->food = $food;
         }
         if ($spin->prize_type === 'discount') {
@@ -61,7 +61,7 @@ class ClaimPrizesController extends Controller
                     $newExpiry = now()->lt($currentExpiry)
                         ? \Carbon\Carbon::parse($currentExpiry)->addDays(7)
                         : now()->addDays(7);
-    
+
                     $user->discounts()->updateExistingPivot($discount->id, [
                         'expiry_at' => $newExpiry,
                     ]);
@@ -79,7 +79,7 @@ class ClaimPrizesController extends Controller
             'is_claimed' => true,
             'claimed_at' => now(),
         ]);
-    
+
         return response()->json([
             'message' => 'Nhận quà thành công',
         'data' => [
@@ -91,5 +91,5 @@ class ClaimPrizesController extends Controller
         ]);
     }
 
-   
+
 }
