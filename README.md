@@ -89,3 +89,5 @@ npm install laravel-echo
 npm install chart.js npm install vue-chartjs@5 chart.js@^4 npm install tween.js npm install perfect-scrollbar npm install -D sass
 
 npm install flatpickr
+
+mở tab chạy php artisan queue:work -> chạy jobs (demo chatbot)
