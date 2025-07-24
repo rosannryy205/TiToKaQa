@@ -69,7 +69,6 @@ class OrderController extends Controller
                     $tempGroup[] = $current;
                     $tempCapacity += $current->capacity;
 
-                    // Nếu bàn tiếp theo liền kề thì tiếp tục cộng dồn
                     if (
                         $i + 1 < $grouped->count() &&
                         $grouped[$i + 1]->table_number == $current->table_number + 1
@@ -77,18 +76,15 @@ class OrderController extends Controller
                         continue;
                     }
 
-                    // Nếu đã đủ chỗ thì lưu nhóm và dừng lại
                     if ($tempCapacity >= $numberOfGuests) {
                         $combinedGroup = $tempGroup;
                         break;
                     }
 
-                    // Reset nếu không đủ hoặc không liên tiếp
                     $tempGroup = [];
                     $tempCapacity = 0;
                 }
 
-                // Nếu có bàn ghép được
                 if (!empty($combinedGroup)) {
                     return response()->json([
                         'status' => true,
@@ -97,7 +93,6 @@ class OrderController extends Controller
                     ]);
                 }
 
-                // Nếu không có bàn nào phù hợp
                 return response()->json([
                     'status' => false,
                     'combinedGroup' => false,
@@ -722,7 +717,7 @@ class OrderController extends Controller
                     $user->save();
                 }
             }
-            
+
             // Cập nhật trạng thái đơn hàng
             $order->order_status = 'Đã hủy';
             $order->save();
