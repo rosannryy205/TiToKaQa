@@ -91,7 +91,7 @@ import axios from 'axios'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { reactive } from 'vue'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2';
 import { Info } from '@/stores/info-order-reservation'
 import { onMounted } from 'vue'
 export default {
@@ -113,7 +113,15 @@ export default {
 
     const findTable = async () => {
       if (!date.value || !time.value || !guest_count.value) {
-        toast.error('Vui lòng điền đầy đủ thông tin!')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Vui lòng điền đầy đủ thông tin để tìm bàn!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
         return
       }
       const selectedDateTime = new Date(`${date.value}T${time.value}:00`)
@@ -134,9 +142,25 @@ export default {
 
         availableTables.value = res.data.tables || []
         combine.value = res.data.combinedGroup
-        toast.success('Tìm bàn thành công!')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Tìm bàn thành công!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
       } catch (error) {
-        toast.error('Lỗi khi lấy danh sách bàn có thể đặt')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Lỗi khi lấy danh sách bàn có thể đặt',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
         console.error('Lỗi:', error)
       } finally {
         isLoading.value = false
@@ -171,24 +195,52 @@ export default {
     })
 
     const chooseTable = async (table_id) => {
-      try {
-        const reservations_time = `${date.value} ${time.value}`
+      const result = await Swal.fire({
+        title: 'Bạn muốn đặt bàn này?',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+      });
+      if (result.isConfirmed) {
+        try {
+          const reservations_time = `${date.value} ${time.value}`
 
-        const res = await axios.post('http://127.0.0.1:8000/api/choose-table', {
-          user_id: user.value?.id,
-          table_id: table_id,
-          reserved_from: reservations_time,
-          guest_count: guest_count.value,
-        })
+          const res = await axios.post('http://127.0.0.1:8000/api/choose-table', {
+            user_id: user.value?.id,
+            table_id: table_id,
+            reserved_from: reservations_time,
+            guest_count: guest_count.value,
+          })
 
-        const orderId = res.data.order_id
-        router.push({
-          name: 'reservation-form',
-          params: { orderId },
-        })
-      } catch (error) {
-        toast.error('Có lỗi xảy ra, vui lòng thử lại sau.')
-        console.log(error)
+          const orderId = res.data.order_id
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Đã đặt bàn thành công!',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true
+          })
+          router.push({
+            name: 'reservation-form',
+            params: { orderId },
+          })
+        } catch (error) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Có lỗi xảy ra, vui lòng thử lại sau.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
+          console.log(error)
+        }
       }
     }
 

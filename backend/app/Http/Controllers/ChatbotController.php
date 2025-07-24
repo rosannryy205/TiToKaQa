@@ -58,9 +58,9 @@ class ChatbotController extends Controller
             //     $job->handle($dialogflowService);
             // }
 
-                $dialogflowService = app(DialogflowService::class); // lấy instance từ service container của Laravel
-                $job = new ProcessDialogflowMessage($sessionId, $message);
-                $job->handle($dialogflowService);
+            $dialogflowService = app(DialogflowService::class); // lấy instance từ service container của Laravel
+            $job = new ProcessDialogflowMessage($sessionId, $message);
+            $job->handle($dialogflowService);
 
             return response()->json(['status' => 'Tin nhắn đang được xử lý.'], 200);
         } catch (\Exception $e) {
@@ -324,15 +324,10 @@ class ChatbotController extends Controller
             ]
         ]);
 
-        // // Đẩy gửi mail vào job queue
+        // Đẩy gửi mail vào job queue
         dispatch(new SendReservationMail(
             $order->id,
-            // $guestName,
-            // $guestEmail,
-            // $guestPhone,
-            // $numberOfGuests,
-            // $request->total_price ?? null,
-            // $request->note ?? null
+            $orderDetails = null
         ));
 
         Log::info('Đã đẩy job gửi mail vào hàng đợi');
@@ -573,4 +568,3 @@ class ChatbotController extends Controller
         }
     }
 }
-

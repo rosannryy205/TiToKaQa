@@ -3,6 +3,9 @@
 namespace App\Jobs;
 
 use App\Mail\ReservationMail;
+use App\Models\Combo;
+use App\Models\Food;
+use App\Models\Food_topping;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,10 +21,12 @@ class SendReservationMail implements ShouldQueue
     use InteractsWithQueue, Queueable, SerializesModels;
 
     protected $orderId;
+    protected $orderDetails;
 
-    public function __construct($orderId)
+    public function __construct($orderId, $orderDetails)
     {
         $this->orderId = $orderId;
+        $this->orderDetails = $orderDetails;
     }
 
     public function handle()
@@ -31,6 +36,62 @@ class SendReservationMail implements ShouldQueue
             Log::error("SendReservationMailJob: Không tìm thấy đơn hàng ID {$this->orderId}");
             return;
         }
+
+        $orderDetailsWithNames = [];
+        $subtotal = 0;
+
+        if (!empty($this->orderDetails)) {
+            foreach ($this->orderDetails as $item) {
+                $name = null;
+                if ($item['type'] === 'food' && !empty($item['food_id'])) {
+                    $food = Food::find($item['food_id']);
+                    $name = $food?->name ?? 'Món ăn không tồn tại';
+                    $image = $food?->image;
+                }
+                if ($item['type'] === 'combo' && !empty($item['combo_id'])) {
+                    $combo = Combo::find($item['combo_id']);
+                    $name = $combo?->name ?? 'Món ăn không tồn tại';
+                    $image = $combo?->image;
+                }
+
+                $toppingsWithNames = [];
+                if (!empty($item['toppings'])) {
+                    foreach ($item['toppings'] as $topping) {
+                        $foodToppingModel = Food_topping::find($topping['food_toppings_id']);
+                        $toppingModel = $foodToppingModel?->toppings;
+
+                        $toppingsWithNames[] = [
+                            'name' => $toppingModel?->name ?? 'Topping không tồn tại',
+                            'price' => $topping['price']
+                        ];
+                    }
+                }
+
+                $orderDetailsWithNames[] = [
+                    'name' => $name,
+                    'image' => $image,
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'type' => $item['type'],
+                    'toppings' => $toppingsWithNames,
+                ];
+            }
+        }
+        $subtotal = 0;
+
+        foreach ($orderDetailsWithNames as $item) {
+            $itemSubtotal = $item['price'] * $item['quantity'];
+            if (!empty($item['toppings'])) {
+                foreach ($item['toppings'] as $topping) {
+                    $itemSubtotal += $topping['price'] * $item['quantity'];
+                }
+            }
+
+            $subtotal += $itemSubtotal;
+        }
+
+
+
 
         $tableInfos = $order->tables->map(function ($table) {
             return [
@@ -58,23 +119,17 @@ class SendReservationMail implements ShouldQueue
             'guest_name' => $order->guest_name,
             'guest_email' => $order->guest_email,
             'guest_phone' => $order->guest_phone,
-            'guest_count' => $order->guest_count,
+            'guest_count' => $order->guest_phone,
             'total_price' => $order->total_price ?? null,
             'note' => $order->note ?? null,
-            'order_details' => null,
+            'order_details' => $orderDetailsWithNames,
             'tables' => $tableInfos,
-            'subtotal' => null,
-            'order_status' =>  'Đã xác nhận',
+            'subtotal' => $subtotal,
+            'order_status' =>  $order->order_status,
             'qr_url' => $uploadedFileUrl
         ];
 
-        if (empty($mailData['guest_email'])) {
-        Log::error("SendReservationMailJob: guest_email trống");
-        return;
-    }
-        // Gửi mail
-        Mail::to($order->guest_email)->send(new ReservationMail($mailData));
 
-        Log::info("SendReservationMailJob: Đã gửi mail xác nhận đơn hàng ID {$order->id}");
+        Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
     }
 }

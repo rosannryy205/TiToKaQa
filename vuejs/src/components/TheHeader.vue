@@ -71,6 +71,7 @@ import {
 } from '@ant-design/icons-vue';
 import Swal from 'sweetalert2';
 
+
 const props = defineProps({
   collapsed: Boolean,
 });
