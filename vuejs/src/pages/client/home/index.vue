@@ -288,6 +288,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2';
+import { toast } from 'vue3-toastify';
 
 export default {
   name: 'HomePage',
@@ -422,11 +423,11 @@ export default {
       try {
         //combo
         const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
-        foodDetail.value = { ...res.data, type: 'Combo' }
+        foodDetail.value = { ...res.data, type: 'combo' }
 
         if (item.type === 'food') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
-          foodDetail.value = { ...res.data, type: 'Food' }
+          foodDetail.value = { ...res.data, type: 'food' }
 
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
@@ -438,7 +439,7 @@ export default {
           })
         } else if (item.type === 'combo') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
-          foodDetail.value = { ...res.data, type: 'Combo' }
+          foodDetail.value = { ...res.data, type: 'combo' }
         }
 
         const modalElement = document.getElementById('productModal')
@@ -503,7 +504,7 @@ export default {
         (item) =>
           item.id === cartItem.id &&
           JSON.stringify(item.toppings.map((t) => t.id).sort()) ===
-            JSON.stringify(cartItem.toppings.map((t) => t.id).sort()),
+          JSON.stringify(cartItem.toppings.map((t) => t.id).sort()),
       )
 
       if (existingItemIndex !== -1) {

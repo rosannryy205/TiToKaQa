@@ -125,8 +125,8 @@ export const FoodList = {
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
 
-          spicyLevel.value = toppings.value.filter((item) => item.category_id == 1)
-          toppingList.value = toppings.value.filter((item) => item.category_id == 2)
+          spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
+          toppingList.value = toppings.value.filter((item) => item.category_id == 16)
           toppingList.value.forEach((item) => {
             item.price = item.price || 0
           })
@@ -135,6 +135,8 @@ export const FoodList = {
           foodDetail.value = { ...res.data, type: 'combo' }
         }
 
+        console.log('topping' + toppingList.value);
+        console.log('topping1' + spicyLevel.value);
         const modalElement = document.getElementById('productModal')
         if (modalElement) {
           const modal = new Modal(modalElement)
@@ -144,6 +146,8 @@ export const FoodList = {
         console.error(error)
       }
     }
+
+
 
     const flatCategoryList = computed(() => {
       const result = []
@@ -185,7 +189,8 @@ export const FoodList = {
       getImageMenuUrl,
       getCategory,
       getAllCategory,
-      allCates
+      allCates,
+      quantity
     }
   },
 }
