@@ -98,11 +98,8 @@ Route::delete('/permission/{id}', [PermissionController::class, 'deletePermissio
 
 
 // message
-Route::get('/messages', [ChatRealTimeController::class, 'getMessages']);
-Route::post('/messages/send', [ChatRealTimeController::class, 'sendMessage']);
-Route::get('/conversations', [ChatRealTimeController::class, 'getConversationToAdmin']);
-Route::put('/assign-conversation-admin/{id}', [ChatRealTimeController::class, 'assignAdmin']);
-Route::put('/mark-read/{id}', [ChatRealTimeController::class, 'markRead']);
+Route::post('/messages/send', [ChatBotController::class, 'handleMessage']);
+
 
 
 
