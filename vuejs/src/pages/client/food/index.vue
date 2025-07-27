@@ -244,7 +244,7 @@
                       </button>
                     </div>
                   </div>
-                  <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                  <button class="btn btn-danger w-100 fw-bold" >🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
             </div>
@@ -575,6 +575,7 @@ export default {
       quantity,
       orderId,
       isReservation,
+      addToCart
     }
   },
 }

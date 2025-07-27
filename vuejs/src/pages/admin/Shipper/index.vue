@@ -1,116 +1,119 @@
 <template>
-  <div v-if="isLoading" class="isLoading-overlay">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">isLoading...</span>
+  <div>
+    <div v-if="isLoading" class="isLoading-overlay">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">isLoading...</span>
+      </div>
     </div>
-  </div>
-  <div class="container py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-      <h2 class="fw-bold fs-4 mb-0 text-primary d-flex align-items-center">
-        <i class="bi bi-truck-front-fill me-2"></i>Đơn hàng đang giao
-      </h2>
-      <router-link to="/admin/select_order" class="ms-auto">
-        <button class="btn btn-ship fw-semibold">
-          <i class="bi bi-list-check me-1"></i> Chọn đơn giao
-        </button>
-      </router-link>
-    </div>
+    <div class="container py-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <h2 class="fw-bold fs-4 mb-0 text-primary d-flex align-items-center">
+          <i class="bi bi-truck-front-fill me-2"></i>Đơn hàng đang giao
+        </h2>
+        <router-link to="/admin/select_order" class="ms-auto">
+          <button class="btn btn-ship fw-semibold">
+            <i class="bi bi-list-check me-1"></i> Chọn đơn giao
+          </button>
+        </router-link>
+      </div>
 
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-      <div class="col" v-for="order in orders" :key="order.id">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-body d-flex flex-column">
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-2  w-100">
-              <h5 class="card-title mb-0">
-                <i class="bi bi-receipt-cutoff text-info me-2"></i>#Mã đơn hàng: {{ order.id }}
-              </h5>
-              <span :class="statusBadgeClass(order.order_status)">
-                <i :class="statusIcon(order.order_status)" class="me-1"></i>{{ statusLabel(order.order_status) }}
-              </span>
-            </div>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" v-for="order in orders" :key="order.id">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex flex-column">
+              <!-- Header -->
+              <div class="d-flex justify-content-between align-items-center mb-2  w-100">
+                <h5 class="card-title mb-0">
+                  <i class="bi bi-receipt-cutoff text-info me-2"></i>#Mã đơn hàng: {{ order.id }}
+                </h5>
+                <span :class="statusBadgeClass(order.order_status)">
+                  <i :class="statusIcon(order.order_status)" class="me-1"></i>{{ statusLabel(order.order_status) }}
+                </span>
+              </div>
 
-            <!-- Customer Info -->
-            <ul class="list-unstyled small text-muted mb-3">
-              <li><i class="bi bi-person-circle me-2 text-secondary"></i><strong>Khách:</strong> {{ order.guest_name
-                }}</li>
-              <li><i class="bi bi-telephone-fill me-2 text-secondary"></i><strong>SĐT:</strong> {{ order.guest_phone }}
-              </li>
-              <li class="d-flex align-items-start">
-                <i class="bi bi-geo-alt-fill me-2 text-secondary"></i>
-                <strong class="me-1">Địa chỉ:</strong>
-                <div class="text-truncate d-inline-block" :title="order.guest_address"
-                  style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                  {{ order.guest_address }}
-                </div>
-              </li>
+              <!-- Customer Info -->
+              <ul class="list-unstyled small text-muted mb-3">
+                <li><i class="bi bi-person-circle me-2 text-secondary"></i><strong>Khách:</strong> {{ order.guest_name
+                  }}</li>
+                <li><i class="bi bi-telephone-fill me-2 text-secondary"></i><strong>SĐT:</strong> {{ order.guest_phone
+                  }}
+                </li>
+                <li class="d-flex align-items-start">
+                  <i class="bi bi-geo-alt-fill me-2 text-secondary"></i>
+                  <strong class="me-1">Địa chỉ:</strong>
+                  <div class="text-truncate d-inline-block" :title="order.guest_address"
+                    style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    {{ order.guest_address }}
+                  </div>
+                </li>
 
 
-              <li><i class="bi bi-clock-fill me-2 text-secondary"></i><strong>Thời gian:</strong> {{ order.order_time
-                }}</li>
-            </ul>
+                <li><i class="bi bi-clock-fill me-2 text-secondary"></i><strong>Thời gian:</strong> {{ order.order_time
+                  }}</li>
+              </ul>
 
-            <!-- Order Items -->
-            <div class="mb-3 flex-grow-1 d-flex flex-column w-100">
-              <strong class="text-dark"><i class="bi bi-list-ul me-2"></i>Chi tiết đơn hàng:</strong>
+              <!-- Order Items -->
+              <div class="mb-3 flex-grow-1 d-flex flex-column w-100">
+                <strong class="text-dark"><i class="bi bi-list-ul me-2"></i>Chi tiết đơn hàng:</strong>
 
-              <div class="order-items-scroll mt-2 flex-grow-1 w-100">
-                <ul class="list-group list-group-flush small w-100" v-if="order.details && order.details.length > 0">
-                  <li class="list-group-item px-0" v-for="food in order.details" :key="food.id">
-                    <div class="d-flex justify-content-between">
-                      <div>
-                        <div>🍽️ {{ food.food_name }}</div>
-                        <div class="text-muted small">Số lượng: {{ food.quantity }}</div>
+                <div class="order-items-scroll mt-2 flex-grow-1 w-100">
+                  <ul class="list-group list-group-flush small w-100" v-if="order.details && order.details.length > 0">
+                    <li class="list-group-item px-0" v-for="food in order.details" :key="food.id">
+                      <div class="d-flex justify-content-between">
+                        <div>
+                          <div>🍽️ {{ food.food_name }}</div>
+                          <div class="text-muted small">Số lượng: {{ food.quantity }}</div>
+                        </div>
+                        <span class="fw-semibold">{{ formatCurrency(food.price) }}</span>
                       </div>
-                      <span class="fw-semibold">{{ formatCurrency(food.price) }}</span>
-                    </div>
-                    <ul v-if="food.toppings && food.toppings.length > 0" class="ps-4 mt-1 mb-0">
-                      <li v-for="(topping, tIndex) in food.toppings" :key="tIndex"
-                        class="text-muted d-flex justify-content-between">
-                        <span><i class="bi bi-plus-circle me-1 text-success"></i>{{ topping.topping_name }}</span>
-                        <span class="text-success">{{ formatCurrency(topping.price || 0) }}</span>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
+                      <ul v-if="food.toppings && food.toppings.length > 0" class="ps-4 mt-1 mb-0">
+                        <li v-for="(topping, tIndex) in food.toppings" :key="tIndex"
+                          class="text-muted d-flex justify-content-between">
+                          <span><i class="bi bi-plus-circle me-1 text-success"></i>{{ topping.topping_name }}</span>
+                          <span class="text-success">{{ formatCurrency(topping.price || 0) }}</span>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="text-end fw-bold mt-2 text-primary w-100">
+                  Tổng: {{ formatCurrency(order.total_price) }}
+                </div>
               </div>
 
-              <div class="text-end fw-bold mt-2 text-primary w-100">
-                Tổng: {{ formatCurrency(order.total_price) }}
+
+
+
+              <!-- Status Select -->
+              <div class="mb-3 w-100">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-shield-check me-1 text-dark"></i>Trạng thái giao hàng:
+                </label>
+                <input type="text" class="form-control bg-light" :value="order.order_status" readonly />
               </div>
+
+
+              <!-- Note -->
+              <p class="card-text text-secondary">
+                <i class="bi bi-chat-left-text-fill me-2"></i><strong>Ghi chú:</strong> {{ order.note || 'Không có' }}
+              </p>
+
+              <button class="btn btn-outline-danger-custom mt-3" @click="goToTracking(order.id)">
+                Xem hành trình giao hàng
+              </button>
+
             </div>
-
-
-
-
-            <!-- Status Select -->
-            <div class="mb-3 w-100">
-              <label class="form-label fw-semibold">
-                <i class="bi bi-shield-check me-1 text-dark"></i>Trạng thái giao hàng:
-              </label>
-              <input type="text" class="form-control bg-light" :value="order.order_status" readonly />
-            </div>
-
-
-            <!-- Note -->
-            <p class="card-text text-secondary">
-              <i class="bi bi-chat-left-text-fill me-2"></i><strong>Ghi chú:</strong> {{ order.note || 'Không có' }}
-            </p>
-
-            <button class="btn btn-outline-danger-custom mt-3" @click="goToTracking(order.id)">
-              Xem hành trình giao hàng
-            </button>
-
           </div>
         </div>
       </div>
-    </div>
 
-    <div v-if="orders.length === 0" class="text-center text-muted mt-5">
-      <i class="bi bi-emoji-frown fs-1 text-secondary"></i>
-      <p class="mt-3">Hiện tại bạn chưa được giao đơn hàng nào.</p>
+      <div v-if="orders.length === 0" class="text-center text-muted mt-5">
+        <i class="bi bi-emoji-frown fs-1 text-secondary"></i>
+        <p class="mt-3">Hiện tại bạn chưa được giao đơn hàng nào.</p>
 
+      </div>
     </div>
   </div>
 </template>
@@ -286,5 +289,4 @@ button.btn-outline-danger-custom:hover {
   color: white !important;
   border-color: #C92C3C !important;
 }
-
 </style>
