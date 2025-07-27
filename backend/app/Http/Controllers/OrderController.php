@@ -648,6 +648,7 @@ class OrderController extends Controller
             'info' => [
                 'id' => $reservation->id,
                 'user_id' => $reservation->user_id,
+                'shipper_id' => $reservation->shipper_id,
                 'discount_id' => $reservation->discount_id,
                 'order_time' => $reservation->order_time,
                 'order_status' => $reservation->order_status,

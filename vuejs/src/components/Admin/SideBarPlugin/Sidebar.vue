@@ -49,6 +49,8 @@ import {
   HistoryOutlined,
   UnorderedListOutlined,
   TableOutlined,
+  DeliveredProcedureOutlined,
+  FileTextOutlined
 } from '@ant-design/icons-vue'
 const props = defineProps({
   backgroundColor: {
@@ -156,6 +158,21 @@ const menuItems = [
     ],
   },
   {
+    key: 'foods_post',
+    label: 'Bài viết',
+    icon: FileTextOutlined, // hoặc ReadOutlined, ProfileOutlined, EditOutlined
+    permission: 'view_order',
+    children: [
+      {
+        key: '/admin/foods_post',
+        to: '/admin/foods_post',
+        label: 'Danh sách bài viết',
+        icon: AppstoreOutlined,
+        permission: 'view_order',
+      },
+    ],
+  },
+  {
     key: 'order-management',
     label: 'Đơn hàng',
     icon: HistoryOutlined,
@@ -181,6 +198,21 @@ const menuItems = [
         label: 'Thêm đơn hàng',
         icon: FileAddOutlined,
         permission: 'create_order',
+      },
+    ],
+  },
+  {
+    key: 'delivery-management',
+    label: 'Giao hàng',
+    icon: DeliveredProcedureOutlined,
+    permission: 'view_shipper',
+    children: [
+      {
+        key: '/admin/delivery',
+        to: '/admin/delivery',
+        label: 'Danh sách đơn hàng',
+        icon: AppstoreOutlined,
+        permission: 'view_order',
       },
     ],
   },
@@ -295,10 +327,11 @@ onMounted(() => {
 
 </script>
 
-<style  scoped>
+<style scoped>
 .title-admin {
   font-family: 'TAN HEADLINE', sans-serif;
 }
+
 @media (min-width: 992px) {
 
   .navbar-search-form-mobile,

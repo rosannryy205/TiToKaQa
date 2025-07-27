@@ -68,7 +68,7 @@
             <td>{{ item.item_id }}</td>
             <td>
               <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
-              {{ item.food_name || item.combo_name}}
+              {{ item.food_name || item.combo_name }}
               <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3 ">
                 <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
                   + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }} đ)
@@ -98,9 +98,9 @@
     <button v-if="info.order_status == 'Chờ xác nhận' || info.order_status == 'Đã xác nhận'"
       @click="cancelOrderForOrder" class="btn btn-danger1 mt-2 ms-2 p-2" style="width: 100px;">Hủy đơn</button>
 
-
     <!-- Khi đơn hàng đang giao -->
-    <router-link :to="{ name: 'delivery', params: { id: info.id } }" v-if="info.order_status === 'Bắt đầu giao'">
+    <router-link :to="{ name: 'delivery', params: { id: info.id } }"
+      v-if="info.order_status === 'Bắt đầu giao' && info.shipper_id != null">
       <button class="btn btn-sm btn-outline-danger mt-2 ms-2 p-2" style="width: 120px;">
         Theo dõi đơn
       </button>
@@ -347,13 +347,16 @@ a {
   text-decoration: none;
   color: #c92c3c;
 }
-.bg-primary{
+
+.bg-primary {
   background-color: #c92c3c !important;
 }
-.btn-primary{
+
+.btn-primary {
   background-color: #c92c3c;
   border: none;
 }
+
 .isLoading-overlay {
   position: fixed;
   top: 0;
