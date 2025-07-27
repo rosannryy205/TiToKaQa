@@ -15,8 +15,7 @@
         <div class="card mb-3" v-for="(item, index) in cartItems" :key="index">
           <div class="card-body d-flex align-items-center flex-wrap">
             <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
-            <img :src="getImageUrl(item.image)" class="cart-img me-3 mb-2"
-              alt="Mì kim chi Nha Trang" />
+            <img :src="getImageUrl(item.image)" class="cart-img me-3 mb-2" alt="Mì kim chi Nha Trang" />
 
             <div class="flex-grow-1 mb-2">
 
@@ -157,8 +156,7 @@
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <div class="text-center mb-3">
-                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name"
-                  class="modal-image img-fluid" />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -350,7 +348,7 @@ export default {
           timerProgressBar: true
         });
         return;
-      }else {
+      } else {
         router.push('/payment_if');
       }
     }
@@ -374,8 +372,8 @@ export default {
       try {
         if (item.type === 'food') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
-          foodDetail.value = { ...res.data, type: 'Food' }
-          console.log(foodeDetail.value);
+          foodDetail.value = { ...res.data, type: 'food' }
+          console.log(foodDetail.value);
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
           console.log(toppings.value);
@@ -386,7 +384,7 @@ export default {
           })
         } else if (item.type === 'combo') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
-          foodDetail.value = { ...res.data, type: 'Combo' }
+          foodDetail.value = { ...res.data, type: 'combo' }
         }
 
         const modalElement = document.getElementById('productModal')
@@ -407,9 +405,9 @@ export default {
       try {
         // Gọi API để lấy lại thông tin món (food hoặc combo)
         let res;
-        if (item.type === 'Food') {
+        if (item.type === 'food') {
           res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`);
-          foodDetail.value = { ...res.data, type: 'Food' };
+          foodDetail.value = { ...res.data, type: 'food' };
 
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`);
           toppings.value = res1.data;
@@ -419,9 +417,9 @@ export default {
           toppingList.value.forEach((i) => {
             i.price = i.price || 0;
           });
-        } else if (item.type === 'Combo') {
+        } else if (item.type === 'combo') {
           res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`);
-          foodDetail.value = { ...res.data, type: 'Combo' };
+          foodDetail.value = { ...res.data, type: 'combo' };
         }
 
         // ⚠️ Phải mở modal tại đây — đảm bảo sau khi foodDetail đã có

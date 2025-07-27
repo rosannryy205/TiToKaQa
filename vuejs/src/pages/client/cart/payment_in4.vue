@@ -74,8 +74,7 @@
           <!-- Cart Items -->
           <div class="list-product-scroll mb-3">
             <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
-              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80"
-                height="80" />
+              <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
                 <div>Loại: {{ item.type }}</div>
@@ -520,8 +519,8 @@ export default {
           money_reduce: discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
           discount_id: discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
-            food_id: item.type === 'Food' ? item.id : null,
-            combo_id: item.type === 'Combo' ? item.id : null,
+            food_id: item.type === 'food' ? item.id : null,
+            combo_id: item.type === 'combo' ? item.id : null,
             quantity: item.quantity,
             price: item.price,
             type: item.type,
@@ -554,7 +553,7 @@ export default {
           }
           await check_out(res.data.order_id)
         } else {
-           Swal.fire({
+          Swal.fire({
             toast: true,
             position: 'top-end',
             icon: 'error',
@@ -567,14 +566,14 @@ export default {
       } catch (err) {
         console.error(err)
         Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'error',
-            title: err?.response?.data?.message || 'Đặt hàng thất bại.',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true
-          });
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: err?.response?.data?.message || 'Đặt hàng thất bại.',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
       } finally {
         isLoading.value = false
       }
