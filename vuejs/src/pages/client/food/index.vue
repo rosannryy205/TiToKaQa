@@ -43,7 +43,7 @@
                 <li v-for="child in parent.children" :key="child.id" class="list-group-item child-category d-flex">
                   <a @click.prevent="getFoodByCategory(child.id)" href="#"
                     class="text-decoration-none text-start text-dark fw-bold">
-                    🔻{{ child.name }}
+                    {{ child.name }}
                   </a>
                 </li>
               </ul>
@@ -388,7 +388,7 @@ export default {
       quantity.value += 1
     }
 
-c
+
 
 
 
