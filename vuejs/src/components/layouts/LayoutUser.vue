@@ -20,7 +20,6 @@
 <script>
 import TheHeader from './Header.vue';
 import TheFooter from './Footer.vue';
-
 export default {
   name: "ChatBot",
   components: {

@@ -526,6 +526,7 @@ export default {
             price: item.price,
             type: item.type,
             is_deal: item.is_deal,
+            is_flash_sale: item.is_flash_sale,
             reward_id: item.reward_id,
             toppings: item.toppings.map((t) => ({
               food_toppings_id: t.food_toppings_id,

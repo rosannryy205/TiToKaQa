@@ -33,7 +33,7 @@ Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
 Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
 Route::get('/home', [HomeController::class, 'index']);
-
+Route::get('/flash-sale/foods', [FoodController::class, 'getFlashSaleFoods']);
 //search
 // Route::get('/foods/search', [FoodController::class, 'search'])   ;
 
@@ -112,7 +112,7 @@ Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/order-history-info', [OrderController::class, 'getInfoOrderByUser']);
 });
-Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
+Route::put('/order-history-info/cancle/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
 
 // Route::resource('user', UserController::class);

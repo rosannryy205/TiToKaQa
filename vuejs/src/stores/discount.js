@@ -75,6 +75,7 @@ export function Discounts() {
           Authorization: `Bearer ${userStore.token}`,
         },
       })
+      console.log("🎁 Vouchers người dùng hiện có:", res.data);
       userDiscounts.value = res.data
     } catch (error) {
       console.error(error)

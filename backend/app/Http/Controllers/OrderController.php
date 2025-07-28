@@ -720,16 +720,20 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         try {
-            // Khôi phục tồn kho
             foreach ($order->details as $detail) {
                 $food = Food::find($detail->food_id);
                 if ($food) {
-                    $food->stock += $detail->quantity;
-                    $food->quantity_sold -= $detail->quantity;
+                    if ($detail->is_flash_sale) {
+                        $food->flash_sale_quantity += $detail->quantity;
+                        $food->flash_sale_sold -= $detail->quantity;
+                    } else {
+                        $food->stock += $detail->quantity;
+                        $food->quantity_sold -= $detail->quantity;
+                    }
                     $food->save();
                 }
             }
-            /** restore tpoint */
+            /** restone tpoint */
             if ($order->user_id && $order->tpoint_used > 0) {
                 $user = User::find($order->user_id);
                 if ($user) {
