@@ -1,12 +1,18 @@
 <template>
-  <div v-if="loading" class="d-flex justify-content-center align-items-center" style="min-height: 50vh;">
+  <div
+    v-if="loading"
+    class="d-flex justify-content-center align-items-center"
+    style="min-height: 50vh"
+  >
     <div class="spinner-border text-danger" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
   <div v-else-if="cartItems.length > 0" class="container-sm fade-in">
-    <span style="color: #000;"><router-link to="/home" style="text-decoration: none; color: #000; ">Trang
-        chủ</router-link> / Giỏ hàng</span>
+    <span style="color: #000"
+      ><router-link to="/home" style="text-decoration: none; color: #000">Trang chủ</router-link> /
+      Giỏ hàng</span
+    >
     <h3 class="mb-4">Giỏ hàng của bạn</h3>
     <div class="row">
       <!-- Danh sách sản phẩm -->
@@ -14,13 +20,24 @@
         <!-- Sản phẩm -->
         <div class="card mb-3" v-for="(item, index) in cartItems" :key="index">
           <div class="card-body d-flex align-items-center flex-wrap">
-            <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
-            <img :src="getImageUrl(item.image)" class="cart-img me-3 mb-2"
-              alt="Mì kim chi Nha Trang" />
+            <i
+              class="bi bi-x-circle me-3 mb-2"
+              style="cursor: pointer"
+              @click="removeItem(index)"
+            ></i>
+            <img
+              :src="getImageUrl(item.image)"
+              class="cart-img me-3 mb-2"
+              alt="Mì kim chi Nha Trang"
+            />
 
             <div class="flex-grow-1 mb-2">
-
-              <h5 class="mb-1 product-title"><strong>{{ item.name }}</strong></h5>
+              <h5 class="mb-1 product-title">
+                <strong>{{ item.name }}</strong>
+              </h5>
+              <h5 v-if="item.is_flash_sale" class="mb-1 product-title">
+                <strong>Flashsale</strong>
+              </h5>
               <p class="text-muted mb-2">{{ item.spicyLevel }}</p>
 
               <p class="text-muted mb-2">
@@ -35,8 +52,7 @@
                 <span v-else>Không có</span>
               </p>
               <p class="text-muted mb-2">Số lượng: {{ item.quantity }}</p>
-              <p class="mb-0 "><strong>Giá: </strong>{{ formatNumber(item.price) }} VNĐ</p>
-
+              <p class="mb-0"><strong>Giá: </strong>{{ formatNumber(item.price) }} VNĐ</p>
             </div>
 
             <div class="text-center me-5 mb-2">
@@ -51,17 +67,15 @@
               <strong class="price-text">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
             </div>
             <!-- Nút chọn topping góc dưới bên phải -->
-            <button class="btn btn-outline-primary btn-sm position-absolute m-2" style="bottom: 0; right: 0;"
-              @click="openModalToEditTopping(item, index)">
+            <button
+              class="btn btn-outline-primary btn-sm position-absolute m-2"
+              style="bottom: 0; right: 0"
+              @click="openModalToEditTopping(item, index)"
+            >
               Topping
             </button>
-
-
-
           </div>
-
         </div>
-
       </div>
 
       <!-- Thông tin thanh toán -->
@@ -94,16 +108,18 @@
     </div>
   </div>
   <div v-else class="container-sm fade-in">
-    <span style="color: #000;"><router-link to="/home" style="text-decoration: none; color: #000; ">Trang
-        chủ</router-link> / Giỏ hàng</span>
+    <span style="color: #000"
+      ><router-link to="/home" style="text-decoration: none; color: #000">Trang chủ</router-link> /
+      Giỏ hàng</span
+    >
     <h3 class="mb-4">Giỏ hàng của bạn</h3>
     <div class="row">
       <!-- Danh sách sản phẩm -->
       <div class="col-12 col-lg-8 mb-4">
-        <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 300px">
           <div class="text-center">
             <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
-              <img src="/public/img/giohang.png" alt="Giỏ hàng rỗng" width="60px">
+              <img src="/public/img/giohang.png" alt="Giỏ hàng rỗng" width="60px" />
               <p class="mb-0">Chưa có sản phẩm trong giỏ hàng</p>
             </div>
             <router-link to="/food">
@@ -112,7 +128,6 @@
           </div>
         </div>
       </div>
-
 
       <!-- Thông tin thanh toán -->
       <div class="col-12 col-lg-4">
@@ -131,7 +146,9 @@
             <span><strong>Tổng tiền thanh toán</strong></span>
             <strong>{{ formatNumber(totalPrice) }} VNĐ</strong>
           </div>
-          <button @click="goToCheckout" class="btn btn-checkout w-100 mt-4" :disabled="loading">Thanh toán ngay</button>
+          <button @click="goToCheckout" class="btn btn-checkout w-100 mt-4" :disabled="loading">
+            Thanh toán ngay
+          </button>
           <div class="mt-4 d-flex align-items-center flex-wrap">
             <i class="bi bi-telephone-fill me-2 fs-4"></i>
             <div>
@@ -144,21 +161,27 @@
     </div>
   </div>
 
-
   <!-- modal chọn lại topping  -->
   <div class="modal fade" id="productModal">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
-          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
-            aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close position-absolute top-0 end-0 m-2"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
           <div class="row">
             <!-- Cột hình ảnh -->
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <div class="text-center mb-3">
-                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name"
-                  class="modal-image img-fluid" />
+                <img
+                  :src="getImageUrl(foodDetail.image)"
+                  :alt="foodDetail.name"
+                  class="modal-image img-fluid"
+                />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -168,10 +191,15 @@
 
             <!-- Cột chọn topping -->
             <div class="col-md-6 d-flex flex-column">
-              <form @submit.prevent="editCartIndex !== null ? updateToppingInCart() : addToCart()"
-                class="d-flex flex-column h-100">
+              <form
+                @submit.prevent="editCartIndex !== null ? updateToppingInCart() : addToCart()"
+                class="d-flex flex-column h-100"
+              >
                 <div class="flex-grow-1">
-                  <div class="topping-container mb-3" v-if="toppingList.length || spicyLevel.length">
+                  <div
+                    class="topping-container mb-3"
+                    v-if="toppingList.length || spicyLevel.length"
+                  >
                     <!-- Mức cay -->
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
@@ -183,9 +211,14 @@
                     </div>
 
                     <!-- Topping -->
-                    <label v-if="toppingList.length" class="form-label fw-bold">🧀 Chọn Topping:</label>
-                    <div v-for="topping in toppingList" :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2">
+                    <label v-if="toppingList.length" class="form-label fw-bold"
+                      >🧀 Chọn Topping:</label
+                    >
+                    <div
+                      v-for="topping in toppingList"
+                      :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2"
+                    >
                       <label class="d-flex align-items-center">
                         <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                         {{ topping.name }}
@@ -203,11 +236,23 @@
                 <div class="mt-auto">
                   <div class="text-center mb-2">
                     <div class="qty-control px-2 py-1">
-                      <button type="button" @click="decreaseQuantity" class="btn-lg"
-                        style="background-color: #fff;">-</button>
+                      <button
+                        type="button"
+                        @click="decreaseQuantity"
+                        class="btn-lg"
+                        style="background-color: #fff"
+                      >
+                        -
+                      </button>
                       <span>{{ quantity }}</span>
-                      <button type="button" @click="increaseQuantity" class="btn-lg"
-                        style="background-color: #fff;">+</button>
+                      <button
+                        type="button"
+                        @click="increaseQuantity"
+                        class="btn-lg"
+                        style="background-color: #fff"
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
 
@@ -218,22 +263,19 @@
                 </div>
               </form>
             </div>
-
           </div>
         </div>
       </div>
     </div>
   </div>
-
-
 </template>
 <script>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
 import numeral from 'numeral'
 import { computed } from 'vue'
-import { Modal } from 'bootstrap';
-import Swal from 'sweetalert2';
+import { Modal } from 'bootstrap'
+import Swal from 'sweetalert2'
 
 import { onBeforeRouteLeave } from 'vue-router'
 import { nextTick } from 'vue'
@@ -250,10 +292,10 @@ export default {
   },
 
   setup() {
-    const toast = useToast();
+    const toast = useToast()
     const cartItems = ref([])
-    const router = useRouter();
-    const loading = ref(true);
+    const router = useRouter()
+    const loading = ref(true)
 
     const getCartKey = () => {
       const user = JSON.parse(localStorage.getItem('user'))
@@ -264,34 +306,57 @@ export default {
     const loadCart = () => {
       const cartKey = getCartKey()
       const storedCart = localStorage.getItem(cartKey)
-      if (storedCart) {
-        cartItems.value = JSON.parse(storedCart)
-      } else {
-        cartItems.value = []
+      let cart = storedCart ? JSON.parse(storedCart) : []
+      const now = new Date()
+      let cartUpdated = false
+
+      const updatedCart = cart.map((item) => {
+        if (item.is_flash_sale && now > new Date(item.flash_sale_end)) {
+          cartUpdated = true
+          return {
+            ...item,
+            price: item.original_price,
+            is_flash_sale: false,
+            flash_sale_end: null,
+          }
+        }
+        return item
+      })
+      if (cartUpdated) {
+        localStorage.setItem(cartKey, JSON.stringify(updatedCart))
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Một vài sản phẩm Flash Sale trong giỏ đã hết hạn và được cập nhật về giá gốc.',
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+        })
       }
+
+      cartItems.value = updatedCart
       setTimeout(() => {
         loading.value = false
       }, 300)
     }
-
     const totalPrice = computed(() => {
       return cartItems.value.reduce((sum, item) => {
         const basePrice = Number(item.price) * item.quantity
         const toppingPrice = item.toppings.reduce((tsum, topping) => {
-          return tsum + (Number(topping.price) * item.quantity)
+          return tsum + Number(topping.price) * item.quantity
         }, 0)
         return sum + basePrice + toppingPrice
       }, 0)
     })
 
-
     const totalPriceItem = (item) => {
-      const itemPrice = Number(item.price) * item.quantity;
+      const itemPrice = Number(item.price) * item.quantity
       const toppingPrice = item.toppings.reduce((sum, topping) => {
-        return sum + (Number(topping.price) * item.quantity);
-      }, 0);
-      return itemPrice + toppingPrice;
-    };
+        return sum + Number(topping.price) * item.quantity
+      }, 0)
+      return itemPrice + toppingPrice
+    }
 
     const updateCartStorage = () => {
       const cartKey = getCartKey()
@@ -305,10 +370,41 @@ export default {
       }
     }
 
-    const increaseQuantity = (index) => {
-      cartItems.value[index].quantity++
-      updateCartStorage()
-    }
+    const increaseQuantity = async (index) => {
+  const item = cartItems.value[index]
+  const currentQuantity = item.quantity
+  
+  const isFlashSale = item.flash_sale_end && new Date(item.flash_sale_end) > new Date()
+  const flashQuantity = item.flash_sale_quantity || 0
+
+  if (isFlashSale && currentQuantity >= flashQuantity) {
+    const result = await Swal.fire({
+      title: '⚠️ Flash Sale giới hạn!',
+      html: `Sản phẩm này chỉ áp dụng giá khuyến mãi cho 1 sản phẩm đầu tiên.<br>
+      Nếu bạn mua thêm, phần vượt sẽ tính theo <b>giá gốc</b>.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy',
+    })
+
+    if (!result.isConfirmed) return
+    const newItem = { ...item }
+    newItem.price = item.original_price
+    newItem.quantity = 1
+    newItem.is_flash_sale = false,
+    delete newItem.flash_sale_quantity
+    delete newItem.flash_sale_end
+    cartItems.value.push(newItem)
+
+  } else {
+    cartItems.value[index].quantity++
+  }
+
+  updateCartStorage()
+}
+
+
 
     const removeItem = async (index) => {
       const result = await Swal.fire({
@@ -332,11 +428,10 @@ export default {
           title: 'Đã xóa món khỏi giỏ hàng!',
           showConfirmButton: false,
           timer: 1500,
-          timerProgressBar: true
+          timerProgressBar: true,
         })
       }
     }
-
 
     const goToCheckout = () => {
       if (cartItems.value.length === 0) {
@@ -347,15 +442,13 @@ export default {
           title: 'Giỏ hàng của bạn đang trống',
           showConfirmButton: false,
           timer: 2000,
-          timerProgressBar: true
-        });
-        return;
-      }else {
-        router.push('/payment_if');
+          timerProgressBar: true,
+        })
+        return
+      } else {
+        router.push('/payment_if')
       }
     }
-
-
 
     // chọn lại topping
 
@@ -375,10 +468,10 @@ export default {
         if (item.type === 'food') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
           foodDetail.value = { ...res.data, type: 'Food' }
-          console.log(foodeDetail.value);
+          console.log(foodeDetail.value)
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
-          console.log(toppings.value);
+          console.log(toppings.value)
           spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
           toppingList.value = toppings.value.filter((item) => item.category_id == 16)
           toppingList.value.forEach((item) => {
@@ -401,72 +494,68 @@ export default {
 
     const editCartIndex = ref(null)
     const openModalToEditTopping = async (item, index) => {
-      editCartIndex.value = index;
-      quantity.value = item.quantity;
+      editCartIndex.value = index
+      quantity.value = item.quantity
 
       try {
         // Gọi API để lấy lại thông tin món (food hoặc combo)
-        let res;
+        let res
         if (item.type === 'Food') {
-          res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`);
-          foodDetail.value = { ...res.data, type: 'Food' };
+          res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+          foodDetail.value = { ...res.data, type: 'Food' }
 
-          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`);
-          toppings.value = res1.data;
+          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          toppings.value = res1.data
 
-          spicyLevel.value = toppings.value.filter((i) => i.category_id == 15);
-          toppingList.value = toppings.value.filter((i) => i.category_id == 16);
+          spicyLevel.value = toppings.value.filter((i) => i.category_id == 15)
+          toppingList.value = toppings.value.filter((i) => i.category_id == 16)
           toppingList.value.forEach((i) => {
-            i.price = i.price || 0;
-          });
+            i.price = i.price || 0
+          })
         } else if (item.type === 'Combo') {
-          res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`);
-          foodDetail.value = { ...res.data, type: 'Combo' };
+          res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+          foodDetail.value = { ...res.data, type: 'Combo' }
         }
 
         // ⚠️ Phải mở modal tại đây — đảm bảo sau khi foodDetail đã có
-        const modalElement = document.getElementById('productModal');
+        const modalElement = document.getElementById('productModal')
         if (modalElement) {
-          const modal = new Modal(modalElement);
-          modal.show();
+          const modal = new Modal(modalElement)
+          modal.show()
         }
 
         await nextTick(() => {
           // Set mức cay đã chọn
-          const spicy = item.toppings.find(t => t.is_spicy_level);
+          const spicy = item.toppings.find((t) => t.is_spicy_level)
           if (spicy) {
-            const select = document.getElementById('spicyLevel');
+            const select = document.getElementById('spicyLevel')
             if (select) {
-              select.value = spicy.id;
+              select.value = spicy.id
             }
           }
 
           // Set topping đã chọn
-          const selectedToppingIds = item.toppings
-            .filter(t => !t.is_spicy_level)
-            .map(t => t.id);
-          const checkboxes = document.querySelectorAll('input[name="topping[]"]');
+          const selectedToppingIds = item.toppings.filter((t) => !t.is_spicy_level).map((t) => t.id)
+          const checkboxes = document.querySelectorAll('input[name="topping[]"]')
           checkboxes.forEach((checkbox) => {
-            checkbox.checked = selectedToppingIds.includes(parseInt(checkbox.value));
-          });
-        });
-
+            checkbox.checked = selectedToppingIds.includes(parseInt(checkbox.value))
+          })
+        })
       } catch (error) {
-        console.error(' Lỗi khi mở modal chọn lại topping:', error);
+        console.error(' Lỗi khi mở modal chọn lại topping:', error)
       }
-    };
-
+    }
 
     const updateToppingInCart = () => {
-      const user = JSON.parse(localStorage.getItem('user'));
-      const userId = user?.id || 'guest';
-      const cartKey = `cart_${userId}`;
-      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      const user = JSON.parse(localStorage.getItem('user'))
+      const userId = user?.id || 'guest'
+      const cartKey = `cart_${userId}`
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || []
 
-      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value);
-      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId);
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
 
-      let allSelectedToppings = [];
+      let allSelectedToppings = []
 
       if (selectedSpicy) {
         allSelectedToppings.push({
@@ -474,13 +563,13 @@ export default {
           name: selectedSpicy.name,
           price: selectedSpicy.price,
           food_toppings_id: selectedSpicy.pivot?.id || null,
-          is_spicy_level: true
-        });
+          is_spicy_level: true,
+        })
       }
 
       const selectedToppingIds = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')
-      ).map((el) => parseInt(el.value));
+        document.querySelectorAll('input[name="topping[]"]:checked'),
+      ).map((el) => parseInt(el.value))
 
       const normalToppings = toppingList.value
         .filter((topping) => selectedToppingIds.includes(topping.id))
@@ -489,49 +578,49 @@ export default {
           name: topping.name,
           price: topping.price,
           food_toppings_id: topping.pivot?.id || null,
-          is_spicy_level: false
-        }));
+          is_spicy_level: false,
+        }))
 
-      allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+      allSelectedToppings = [...allSelectedToppings, ...normalToppings]
 
       const updatedItem = {
         ...cart[editCartIndex.value],
         toppings: allSelectedToppings,
-        quantity: quantity.value
-      };
+        quantity: quantity.value,
+      }
 
       // Kiểm tra xem món mới này đã tồn tại trong giỏ chưa (trừ chính nó)
       const duplicateIndex = cart.findIndex(
         (item, i) =>
           i !== editCartIndex.value &&
           item.id === updatedItem.id &&
-          JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(updatedItem.toppings.map(t => t.id).sort())
-      );
+          JSON.stringify(item.toppings.map((t) => t.id).sort()) ===
+            JSON.stringify(updatedItem.toppings.map((t) => t.id).sort()),
+      )
 
       if (duplicateIndex !== -1) {
         // Nếu trùng món khác → cộng dồn số lượng, xóa item hiện tại
-        cart[duplicateIndex].quantity += updatedItem.quantity;
-        cart.splice(editCartIndex.value, 1);
+        cart[duplicateIndex].quantity += updatedItem.quantity
+        cart.splice(editCartIndex.value, 1)
       } else {
         // Nếu không trùng → cập nhật món hiện tại
-        cart[editCartIndex.value] = updatedItem;
+        cart[editCartIndex.value] = updatedItem
       }
 
       // Lưu lại
-      localStorage.setItem(cartKey, JSON.stringify(cart));
-      cartItems.value = cart;
+      localStorage.setItem(cartKey, JSON.stringify(cart))
+      cartItems.value = cart
 
       // Reset
-      editCartIndex.value = null;
-      document.querySelector('#productModal .btn-close')?.click();
+      editCartIndex.value = null
+      document.querySelector('#productModal .btn-close')?.click()
 
-      toast.success(' Đã cập nhật topping thành công!');
-    };
-
+      toast.success(' Đã cập nhật topping thành công!')
+    }
 
     onMounted(() => {
-      loadCart();
-    });
+      loadCart()
+    })
 
     onBeforeRouteLeave((to, from, next) => {
       if (to.path === '/payment_if') {
@@ -541,7 +630,7 @@ export default {
       const originalLength = cartItems.value.length
 
       // Lọc lại: chỉ giữ item không phải deal
-      const filteredCart = cartItems.value.filter(item => !item.is_deal)
+      const filteredCart = cartItems.value.filter((item) => !item.is_deal)
 
       // Nếu có item deal bị xóa
       if (filteredCart.length !== originalLength) {
@@ -556,7 +645,6 @@ export default {
 
       next()
     })
-
 
     return {
       Modal,
@@ -575,10 +663,9 @@ export default {
       quantity,
       editCartIndex,
       openModalToEditTopping,
-      updateToppingInCart
-
+      updateToppingInCart,
     }
-  }
+  },
 }
 </script>
 <style scoped>

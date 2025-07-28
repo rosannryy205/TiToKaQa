@@ -12,7 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('orders:auto-cancel')->everyMinute(); // hoặc everyFiveMinutes
+        $schedule->command('orders:auto-cancel')->everyMinute(); 
+        $schedule->command('setup:flashsale')->hourly();
+        $schedule->command('cleanup:flashsale')->everyMinute();
+        
     }
 
 
@@ -27,5 +30,8 @@ class Kernel extends ConsoleKernel
     }
     protected $commands = [
         Commands\AutoCancelOrders::class,
+       Commands\SetupFlashSale::class,
+       Commands\CleanUpFlashSale::class,
+    
     ];
 }
