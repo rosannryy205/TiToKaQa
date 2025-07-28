@@ -92,7 +92,7 @@
                 Thời gian tiếp nhận:
                 <strong>{{
                   formatTime(order.check_in_time ? order.check_in_time : order.order_time)
-                  }}h</strong>
+                }}h</strong>
               </div>
             </div>
 
@@ -168,7 +168,7 @@
                 Thời gian tiếp nhận:
                 <strong>{{
                   formatTime(order.order_time ? order.order_time : order.check_in_time)
-                  }}h</strong>
+                }}h</strong>
               </div>
             </div>
 

@@ -51,4 +51,10 @@ class Food extends Model
         return $this->belongsToMany(Combo::class, 'combo_details', 'food_id', 'combo_id')
             ->withPivot('quantity');
     }
+
+    // Trong app/Models/Food.php
+    public function posts()
+    {
+        return $this->hasMany(FoodPost::class);
+    }
 }

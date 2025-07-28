@@ -29,10 +29,11 @@ class LuckyWheelPrizeSeeder extends Seeder
             ['name' => 'Mã FREE SHIP VIP',        'type' => 'discount', 'data' => ['code' => 'LUCKYSHIPFREE'], 'probability' => 10],
             ['name' => 'Mã 90K ĐƠN LỚN',          'type' => 'discount', 'data' => ['code' => 'LUCKY90K'],      'probability' => 10],
         ];
-        
-        
+
+
 
         foreach ($prizes as $prize) {
+            $prize['data'] = $prize['data'] ? json_encode($prize['data']) : null;
             LuckyWheelPrize::create($prize);
         }
     }

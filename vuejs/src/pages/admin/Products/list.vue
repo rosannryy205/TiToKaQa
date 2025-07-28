@@ -119,7 +119,8 @@
                 Sửa
               </button>
             </router-link>
-            <!-- <button class="btn btn-clean btn-delete btn-sm" @click="deleteFood(food.id)" v-if="hasPermission('delete_food')">Xoá</button> -->
+            <button class="btn btn-clean btn-delete btn-sm" @click="deleteFood(food.id)"
+              v-if="hasPermission('delete_food')">Xoá</button>
 
               <button @click="toggleStatus(food)" class="btn btn-toggle-status"
                 :class="food.status === 'active' ? 'btn-outline-secondary' : 'btn-outline-success'"
