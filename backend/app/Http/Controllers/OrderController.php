@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendReservationMail;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Mail\ReservationMail;
 use App\Models\Combo;
@@ -26,6 +27,7 @@ date_default_timezone_set('Asia/Ho_Chi_Minh');
 
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
@@ -69,7 +71,6 @@ class OrderController extends Controller
                     $tempGroup[] = $current;
                     $tempCapacity += $current->capacity;
 
-                    // Nếu bàn tiếp theo liền kề thì tiếp tục cộng dồn
                     if (
                         $i + 1 < $grouped->count() &&
                         $grouped[$i + 1]->table_number == $current->table_number + 1
@@ -77,18 +78,15 @@ class OrderController extends Controller
                         continue;
                     }
 
-                    // Nếu đã đủ chỗ thì lưu nhóm và dừng lại
                     if ($tempCapacity >= $numberOfGuests) {
                         $combinedGroup = $tempGroup;
                         break;
                     }
 
-                    // Reset nếu không đủ hoặc không liên tiếp
                     $tempGroup = [];
                     $tempCapacity = 0;
                 }
 
-                // Nếu có bàn ghép được
                 if (!empty($combinedGroup)) {
                     return response()->json([
                         'status' => true,
@@ -97,7 +95,6 @@ class OrderController extends Controller
                     ]);
                 }
 
-                // Nếu không có bàn nào phù hợp
                 return response()->json([
                     'status' => false,
                     'combinedGroup' => false,
@@ -310,12 +307,12 @@ class OrderController extends Controller
 
                 foreach ($request->order_detail as $item) {
                     $name = null;
-                    if ($item['type'] === 'Food' && !empty($item['food_id'])) {
+                    if ($item['type'] === 'food' && !empty($item['food_id'])) {
                         $food = Food::find($item['food_id']);
                         $name = $food?->name ?? 'Món ăn không tồn tại';
                         $image = $food?->image;
                     }
-                    if ($item['type'] === 'Combo' && !empty($item['combo_id'])) {
+                    if ($item['type'] === 'combo' && !empty($item['combo_id'])) {
                         $combo = Combo::find($item['combo_id']);
                         $name = $combo?->name ?? 'Món ăn không tồn tại';
                         $image = $combo?->image;
@@ -408,6 +405,8 @@ class OrderController extends Controller
             ], 422);
         }
     }
+
+
 
 
     //load món đã đặt
@@ -648,6 +647,7 @@ class OrderController extends Controller
             'info' => [
                 'id' => $reservation->id,
                 'user_id' => $reservation->user_id,
+                'shipper_id' => $reservation->shipper_id,
                 'discount_id' => $reservation->discount_id,
                 'order_time' => $reservation->order_time,
                 'order_status' => $reservation->order_status,

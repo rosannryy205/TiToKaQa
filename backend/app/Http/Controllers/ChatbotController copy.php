@@ -17,7 +17,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Jobs\SendReservationMail;
-use App\Jobs\SendReservationMailJob;
 use App\Models\Combo;
 use App\Models\Food;
 use App\Models\Food_topping;
@@ -50,22 +49,152 @@ class ChatbotController extends Controller
         }
 
         try {
-            // if($message === '✅ Xác nhận'){
-            //     ProcessDialogflowMessage::dispatch($sessionId, $message);
-            // }else{
-            //     $dialogflowService = app(DialogflowService::class); // lấy instance từ service container của Laravel
-            //     $job = new ProcessDialogflowMessage($sessionId, $message);
-            //     $job->handle($dialogflowService);
-            // }
-
-            $dialogflowService = app(DialogflowService::class); // lấy instance từ service container của Laravel
-            $job = new ProcessDialogflowMessage($sessionId, $message);
-            $job->handle($dialogflowService);
+            ProcessDialogflowMessage::dispatch($sessionId, $message);
 
             return response()->json(['status' => 'Tin nhắn đang được xử lý.'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Không thể xử lý yêu cầu.'], 500);
         }
+    }
+
+    private function getReservationParams(Request $request)
+    {
+        $outputContexts = $request->input('queryResult.outputContexts');
+
+        $reservationContext = collect($outputContexts)->first(function ($ctx) {
+            return str_ends_with($ctx['name'], '/contexts/reservation-info');
+        });
+
+        if (!$reservationContext) return null;
+
+        return $reservationContext['parameters'] ?? [];
+    }
+
+    public function checkGuestName(Request $request)
+    {
+        $params = $this->getReservationParams($request);
+
+        if (!$params) {
+            return response()->json([
+                'fulfillmentText' => 'Không lấy được thông tin đặt bàn. Vui lòng thử lại.'
+            ]);
+        }
+
+        $guestName = is_array($params['guest_name'] ?? null) && !empty($params['guest_name'])
+            ? $params['guest_name'][0]
+            : ($params['guest_name'] ?? null);
+
+        if (!preg_match('/^[a-zA-ZÀ-ỹ\s]{2,50}$/u', $guestName) || strlen(trim($guestName)) < 2) {
+            return response()->json([
+                'fulfillmentText' => '❌ Tên không hợp lệ. Vui lòng nhập lại tên (chỉ gồm chữ cái).'
+            ]);
+        }
+
+
+        return response()->json([
+            'fulfillmentText' => ''
+        ]);
+    }
+
+    public function checkGuestPhone(Request $request)
+    {
+        $params = $this->getReservationParams($request);
+
+        if (!$params) {
+            return response()->json([
+                'fulfillmentText' => 'Không lấy được thông tin đặt bàn. Vui lòng thử lại.'
+            ]);
+        }
+
+        $guestPhone = is_array($params['guest_phone'] ?? null) && !empty($params['guest_phone']) ? $params['guest_phone'][0] : ($params['guest_phone'] ?? null);
+        if (!preg_match('/^(0|\+84)(3[2-9]|5[689]|7[06789]|8[1-6]|9[0-9])[0-9]{7}$/', $guestPhone)) {
+            return response()->json([
+                'fulfillmentText' => 'Số điện thoại không hợp lệ. Bạn vui lòng nhập số gồm 10 chữ số, bắt đầu bằng 0 hoặc +84 nhé!'
+            ]);
+        }
+
+        return response()->json([
+            'fulfillmentText' => ''
+        ]);
+    }
+
+    public function checkGuestEmail(Request $request)
+    {
+        $params = $this->getReservationParams($request);
+
+        if (!$params) {
+            return response()->json([
+                'fulfillmentText' => 'Không lấy được thông tin đặt bàn. Vui lòng thử lại.'
+            ]);
+        }
+
+        $guestEmail = is_array($params['guest_email'] ?? null) && !empty($params['guest_email']) ? $params['guest_email'][0] : ($params['guest_email'] ?? null);
+        if (!filter_var($guestEmail, FILTER_VALIDATE_EMAIL)) {
+            return response()->json([
+                'fulfillmentText' => 'Email không hợp lệ. Bạn vui lòng nhập đúng định dạng email (vd: abc@gmail.com) nhé!'
+            ]);
+        }
+
+        return response()->json([
+            'fulfillmentText' => ''
+        ]);
+    }
+
+    public function checkGuestCount(Request $request)
+    {
+        $params = $this->getReservationParams($request);
+
+        if (!$params) {
+            return response()->json([
+                'fulfillmentText' => 'Không lấy được thông tin đặt bàn. Vui lòng thử lại.'
+            ]);
+        }
+
+        $numberOfGuests = is_array($params['guest_count'] ?? null) && !empty($params['guest_count']) ? $params['guest_count'][0] : ($params['guest_count'] ?? null);
+        if (!is_numeric($numberOfGuests) || $numberOfGuests < 1 || $numberOfGuests > 20) {
+            return response()->json([
+                'fulfillmentText' => 'Số lượng người không hợp lệ. Bạn vui lòng nhập số từ 1 đến 20 nhé!'
+            ]);
+        }
+
+        return response()->json([
+            'fulfillmentText' => ''
+        ]);
+    }
+
+    public function checkReservationTime(Request $request)
+    {
+        $params = $this->getReservationParams($request);
+
+        if (!$params) {
+            return response()->json([
+                'fulfillmentText' => 'Không lấy được thông tin đặt bàn. Vui lòng thử lại.'
+            ]);
+        }
+
+        $time = null;
+        if (isset($params['reservation_time'])) {
+            if (is_array($params['reservation_time']) && !empty($params['reservation_time'])) {
+                $time = $params['reservation_time'][0];
+            } else if (is_string($params['reservation_time'])) {
+                $time = $params['reservation_time'];
+            }
+        }
+
+        if ($time) {
+            $timeObj = new DateTime($time);
+            $hour = (int)$timeObj->format('H');
+            $minute = (int)$timeObj->format('i');
+
+            $isValidTime = ($hour >= 8 && ($hour < 21 || ($hour === 21 && $minute <= 30)));
+
+            if (!$isValidTime) {
+                return response()->json([
+                    'fulfillmentText' => '⏰ Thời gian phục vụ chỉ từ 08:00 đến 21:30. Vui lòng chọn lại thời gian đặt bàn phù hợp.'
+                ]);
+            }
+        }
+        return $this->InfoReservationByChatBot($request);
     }
 
     public function InfoReservationByChatBot(Request $request)
@@ -177,6 +306,158 @@ class ChatbotController extends Controller
         ]);
     }
 
+    public function checkReservationDate(Request $request)
+    {
+        $params = $this->getReservationParams($request);
+
+        if (!$params) {
+            return response()->json([
+                'fulfillmentText' => 'Không lấy được thông tin đặt bàn. Vui lòng thử lại.'
+            ]);
+        }
+
+        $date = null;
+        if (isset($params['reservation_date'])) {
+            if (is_array($params['reservation_date']) && !empty($params['reservation_date'])) {
+                $date = $params['reservation_date'][0];
+            } else if (is_string($params['reservation_date'])) {
+                $date = $params['reservation_date'];
+            }
+        }
+
+        if ($date) {
+            $dateObj = new DateTime($date);
+            $today = new DateTime('today');
+
+            if ($dateObj < $today) {
+                return response()->json([
+                    'fulfillmentText' => '⛔ Bạn không thể đặt bàn ở thời điểm đã qua. Vui lòng chọn thời gian trong tương lai.'
+                ]);
+            }
+        }
+
+        return $this->InfoReservationByChatBot($request);
+    }
+
+
+    // public function checkInfoReservationByChatBot(Request $request, $params)
+    // {
+    //     $outputContexts = $request->input('queryResult.outputContexts');
+
+    //     $reservationContext = collect($outputContexts)->first(function ($ctx) {
+    //         return str_ends_with($ctx['name'], '/contexts/reservation-info');
+    //     });
+
+    //     if (!$reservationContext) {
+    //         return response()->json([
+    //             'fulfillmentText' => 'Xin lỗi, có vẻ như đã xảy ra lỗi trong việc duy trì thông tin đặt bàn. Vui lòng thử lại.'
+    //         ]);
+    //     }
+
+    //     $params = $reservationContext['parameters'] ?? [];
+    //     $guestName = is_array($params['guest_name'] ?? null) && !empty($params['guest_name']) ? $params['guest_name'][0] : ($params['guest_name'] ?? null);
+    //     $guestPhone = is_array($params['guest_phone'] ?? null) && !empty($params['guest_phone']) ? $params['guest_phone'][0] : ($params['guest_phone'] ?? null);
+    //     $guestEmail = is_array($params['guest_email'] ?? null) && !empty($params['guest_email']) ? $params['guest_email'][0] : ($params['guest_email'] ?? null);
+    //     $numberOfGuests = is_array($params['guest_count'] ?? null) && !empty($params['guest_count']) ? $params['guest_count'][0] : ($params['guest_count'] ?? null);
+
+    //     if (preg_match('/^\d+$/', $guestName) || strlen(trim($guestName)) < 2) {
+    //         return response()->json([
+    //             'fulfillmentText' => 'Tên không hợp lệ. Vui lòng nhập lại tên (chỉ gồm chữ cái).'
+    //         ]);
+    //     }
+
+    //     if (!preg_match('/^(0|\+84)(3[2-9]|5[689]|7[06789]|8[1-5]|9[0-9])[0-9]{7}$/', $guestPhone)) {
+    //         return response()->json([
+    //             'fulfillmentText' => 'Số điện thoại không hợp lệ. Bạn vui lòng nhập số gồm 10 chữ số, bắt đầu bằng 0 hoặc +84 nhé!'
+    //         ]);
+    //     }
+
+    //     if (!filter_var($guestEmail, FILTER_VALIDATE_EMAIL)) {
+    //         return response()->json([
+    //             'fulfillmentText' => 'Email không hợp lệ. Bạn vui lòng nhập đúng định dạng email (vd: abc@gmail.com) nhé!'
+    //         ]);
+    //     }
+
+    //     if (!is_numeric($numberOfGuests) || $numberOfGuests < 1 || $numberOfGuests > 20) {
+    //         return response()->json([
+    //             'fulfillmentText' => 'Số lượng người không hợp lệ. Bạn vui lòng nhập số từ 1 đến 20 nhé!'
+    //         ]);
+    //     }
+
+
+    //     $time = null;
+    //     if (isset($params['reservation_time'])) {
+    //         if (is_array($params['reservation_time']) && !empty($params['reservation_time'])) {
+    //             $time = $params['reservation_time'][0];
+    //         } else if (is_string($params['reservation_time'])) {
+    //             $time = $params['reservation_time'];
+    //         }
+    //     }
+
+    //     if ($time) {
+    //         $timeObj = new DateTime($time);
+    //         $hour = (int)$timeObj->format('H');
+    //         $minute = (int)$timeObj->format('i');
+
+    //         $isValidTime = ($hour >= 8 && ($hour < 21 || ($hour === 21 && $minute <= 30)));
+
+    //         if (!$isValidTime) {
+    //             return response()->json([
+    //                 'fulfillmentText' => '⏰ Thời gian phục vụ chỉ từ 08:00 đến 21:30. Vui lòng chọn lại thời gian đặt bàn phù hợp.'
+    //             ]);
+    //         }
+    //     }
+
+    //     $date = null;
+    //     if (isset($params['reservation_date'])) {
+    //         if (is_array($params['reservation_date']) && !empty($params['reservation_date'])) {
+    //             $date = $params['reservation_date'][0];
+    //         } else if (is_string($params['reservation_date'])) {
+    //             $date = $params['reservation_date'];
+    //         }
+    //     }
+
+    //     if ($date) {
+    //         $dateObj = new DateTime($date);
+    //         $today = new DateTime('today');
+
+    //         if ($dateObj < $today) {
+    //             return response()->json([
+    //                 'fulfillmentText' => '⛔ Bạn không thể đặt bàn ở thời điểm đã qua. Vui lòng chọn thời gian trong tương lai.'
+    //             ]);
+    //         }
+    //     }
+    // }
+
+    public function ngayDatQuickResponse(Request $request)
+    {
+        $params = $this->getReservationParams($request);
+        if (!$params) {
+            return response()->json([
+                'fulfillmentText' => 'Không lấy được thông tin ngày đặt. Vui lòng thử lại.'
+            ]);
+        }
+
+        $dateTime = $params['reservation_date'] ?? null;
+        if (is_array($dateTime) && isset($dateTime['date_time'])) {
+            $dateTime = $dateTime['date_time'];
+        }
+
+        if ($dateTime) {
+            $dt = new DateTime($dateTime);
+            $formatted = $dt->format('d/m/Y H:i');
+
+            return response()->json([
+                'fulfillmentText' => "Mình đã nhận được ngày đặt: $formatted. Đang xử lý thông tin còn lại..."
+            ]);
+        }
+
+        return response()->json([
+            'fulfillmentText' => 'Bạn vui lòng nhập lại ngày đặt nhé.'
+        ]);
+    }
+
+
     private function generateReservationCode()
     {
         do {
@@ -189,7 +470,10 @@ class ChatbotController extends Controller
     public function ReservationByChatBot(Request $request)
     {
         $outputContexts = $request->input('queryResult.outputContexts');
-        $reservationContext = collect($outputContexts)->first(fn($ctx) => str_ends_with($ctx['name'], '/contexts/reservation-info'));
+        $reservationContext = collect($outputContexts)->first(function ($ctx) {
+            return str_ends_with($ctx['name'], '/contexts/reservation-info');
+        });
+
         $params = $reservationContext['parameters'] ?? [];
 
         $guestName = $params['guest_name'] ?? '';
@@ -199,15 +483,7 @@ class ChatbotController extends Controller
         $date = $params['reservation_date'] ?? '';
         $time = $params['reservation_time'] ?? '';
 
-        if (!$time || !$numberOfGuests) {
-            return response()->json([
-                'fulfillmentMessages' => [[
-                    'text' => ['text' => ['Thông tin thời gian hoặc số lượng khách không hợp lệ. Vui lòng thử lại.']]
-                ]]
-            ]);
-        }
-
-        $from = Carbon::parse($time);
+        $from = $time;
         $to = (new DateTime($from))->modify('+2 hours')->format('Y-m-d H:i:s');
 
         $conflictingTableIds = DB::table('reservation_tables')
@@ -295,7 +571,7 @@ class ChatbotController extends Controller
                 [
                     'text' => [
                         'text' => [
-                            "✅ Đặt bàn thành công! Mã đặt bàn của bạn là: {$order->id}. Hẹn gặp bạn lúc " . $from->format('H:i d/m/Y') . ". Bạn có muốn chọn trước món không?"
+                            "✅ Đặt bàn thành công! Mã đặt bàn của bạn là: " . $order->id . ". Hẹn gặp bạn lúc " . (new DateTime($from))->format('H:i d/m/Y') . ". Bạn có muốn chọn trước món không?"
                         ]
                     ]
                 ],
@@ -306,8 +582,8 @@ class ChatbotController extends Controller
                                 [
                                     'type' => 'chips',
                                     'options' => [
-                                        ['text' => '✅ Có', 'postback' => 'Có chọn món'],
-                                        ['text' => '❌ Không', 'postback' => 'Không chọn món'],
+                                        ['text' => '✅ Có', 'postback' => 'Có chọn món'], // Thêm postback để Dialogflow dễ nhận diện intent
+                                        ['text' => '❌ Không', 'postback' => 'Không chọn món'], // Thêm postback
                                     ],
                                 ]
                             ]
@@ -323,51 +599,51 @@ class ChatbotController extends Controller
                 ],
             ]
         ]);
+        $response->send();
+        Log::info('paramsss: ' . json_encode($reservationContext['parameters']));
+        // fastcgi_finish_request();
 
-        // Đẩy gửi mail vào job queue
-        dispatch(new SendReservationMail(
-            $order->id,
-            $orderDetails = null
-        ));
+        $tableInfos = $order->tables->map(function ($table) {
+            return [
+                'table_number'  => $table->table_number ?? 'Không rõ',
+                'reserved_from' => $table->pivot->reserved_from,
+                'reserved_to'   => $table->pivot->reserved_to,
+            ];
+        })->toArray();
 
+        $qrImage = QrCode::format('png')->size(250)->generate('http://localhost:5173/history-order-detail/' . $order->id);
+
+        $filename = 'qr_' . $order->id . '.png';
+        $tempPath = storage_path('app/public/' . $filename);
+        file_put_contents($tempPath, $qrImage);
+
+        $uploadedFileUrl = Cloudinary::upload($tempPath, [
+            'folder' => 'qr_codes'
+        ])->getSecurePath();
+
+        unlink($tempPath);
+
+        $mailData = [
+            'order_id' => $order->id,
+            'reservation_code' => $order->reservation_code,
+            'guest_name' => $guestName,
+            'guest_email' => $guestEmail,
+            'guest_phone' => $guestPhone,
+            'guest_count' => $numberOfGuests,
+            'total_price' => $request->total_price ?? null,
+            'note' => $request->note ?? null,
+            'order_details' => null,
+            'tables' => $tableInfos,
+            'subtotal' => null,
+            'order_status' =>  'Đã xác nhận',
+            'qr_url' => $uploadedFileUrl
+        ];
+
+
+        // Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
+        dispatch(new SendReservationMail($mailData));
         Log::info('Đã đẩy job gửi mail vào hàng đợi');
-
-        return $response;
     }
-
-    // private function findTablesGroup($availableTables, $requiredCapacity)
-    // {
-    //     // Tìm bàn đơn đủ chứa
-    //     $singleTable = $availableTables->firstWhere('capacity', '>=', $requiredCapacity);
-    //     if ($singleTable) {
-    //         return collect([$singleTable]);
-    //     }
-
-    //     $selected = collect();
-    //     $tempGroup = collect();
-    //     $totalCap = 0;
-    //     $prevTableNum = null;
-
-    //     foreach ($availableTables as $table) {
-    //         if ($prevTableNum === null || $table->table_number == $prevTableNum + 1) {
-    //             $tempGroup->push($table);
-    //             $totalCap += $table->capacity;
-    //             $prevTableNum = $table->table_number;
-
-    //             if ($totalCap >= $requiredCapacity) {
-    //                 $selected = $tempGroup;
-    //                 break;
-    //             }
-    //         } else {
-    //             $tempGroup = collect([$table]);
-    //             $totalCap = $table->capacity;
-    //             $prevTableNum = $table->table_number;
-    //         }
-    //     }
-
-    //     return $selected;
-    // }
-
 
 
     public function updateOrderDetails(Request $request)
@@ -559,6 +835,14 @@ class ChatbotController extends Controller
             return $this->getProductsForCarousel($request);
         } elseif ($intent === 'ChonMon - yes') {
             return $this->updateOrderDetails($request);
+
+            // } elseif ($intent === 'SoDienThoai') {
+            //     return $this->checkGuestPhone($request);
+            // } elseif ($intent === 'Email') {
+            //     return $this->checkGuestEmail($request);
+            // } elseif ($intent === 'SoLuongNguoi') {
+            //     return $this->checkGuestCount($request);
+
         } elseif ($intent === 'HuyDon') {
             return $this->cancelReservationByChatBot($request);
         } else {

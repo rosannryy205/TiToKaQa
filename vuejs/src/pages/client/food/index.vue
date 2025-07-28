@@ -3,9 +3,7 @@
     <div class="main-page-foods container">
       <div class="row d-flex align-items-center justify-content-between">
         <div class="col-md-6 d-none d-lg-flex justify-content-center align-items-center">
-          <span class="fw-bold text-center align-items-center justify-content-center"
-            >Thực đơn</span
-          >
+          <span class="fw-bold text-center align-items-center justify-content-center">Thực đơn</span>
         </div>
         <div class="col-6 d-none d-lg-flex flex-wrap justify-content-center">
           <ul class="menu-grid">
@@ -15,11 +13,7 @@
               </a>
               <ul v-if="parent.children && parent.children.length" class="submenu">
                 <li v-for="child in parent.children" :key="child.id">
-                  <a
-                    @click.prevent="getFoodByCategory(child.id)"
-                    href="#"
-                    class="submenu-link fw-bold text-center"
-                  >
+                  <a @click.prevent="getFoodByCategory(child.id)" href="#" class="submenu-link fw-bold text-center">
                     {{ child.name }}
                   </a>
                 </li>
@@ -30,10 +24,7 @@
       </div>
       <!--small-->
       <div class="col-12 d-lg-none position-relative">
-        <div
-          class="menu-header d-flex justify-content-between align-items-center mt-3"
-          @click="toggleDropdown"
-        >
+        <div class="menu-header d-flex justify-content-between align-items-center mt-3" @click="toggleDropdown">
           <h2 class="menu-title">Thực đơn</h2>
           <div class="menu-icon d-flex align-items-center">
             <i class="fas fa-list-alt"></i>
@@ -43,29 +34,15 @@
 
         <div :class="{ collapse: !isDropdownOpen, show: isDropdownOpen }" class="menu-dropdown">
           <ul class="list-group">
-            <li
-              v-for="parent in categories"
-              :key="parent.id"
-              class="list-group-item parent-category d-flex"
-            >
-              <a
-                @click.prevent="getFoodByCategory(parent.id)"
-                href="#"
-                class="text-decoration-none text-start text-dark fw-bold"
-              >
+            <li v-for="parent in categories" :key="parent.id" class="list-group-item parent-category d-flex">
+              <a @click.prevent="getFoodByCategory(parent.id)" href="#"
+                class="text-decoration-none text-start text-dark fw-bold">
                 {{ parent.name }}
               </a>
               <ul v-if="parent.children && parent.children.length" class="list-group ms-3">
-                <li
-                  v-for="child in parent.children"
-                  :key="child.id"
-                  class="list-group-item child-category d-flex"
-                >
-                  <a
-                    @click.prevent="getFoodByCategory(child.id)"
-                    href="#"
-                    class="text-decoration-none text-start text-dark fw-bold"
-                  >
+                <li v-for="child in parent.children" :key="child.id" class="list-group-item child-category d-flex">
+                  <a @click.prevent="getFoodByCategory(child.id)" href="#"
+                    class="text-decoration-none text-start text-dark fw-bold">
                     🔻{{ child.name }}
                   </a>
                 </li>
@@ -83,11 +60,7 @@
           <div class="col-12 images-dish d-flex justify-content-between flex-wrap">
             <!---->
             <div class="col-md-6 d-none d-md-block img-dish">
-              <img
-                :src="getImageMenuUrl(selectedCategoryImage || 'mycay.png')"
-                alt="dish-images"
-                class="img-fluid"
-              />
+              <img :src="getImageMenuUrl(selectedCategoryImage || 'mycay.png')" alt="dish-images" class="img-fluid" />
             </div>
 
             <!---->
@@ -158,12 +131,8 @@
 
   <section class="section-banner m-3 mt-5">
     <div class="banner-deals container-fluid">
-      <img
-        :src="images[currentIndex]"
-        alt="banner"
-        class="img-fluid"
-        style="border-radius: 25px; transition: opacity 0.5s ease"
-      />
+      <img :src="images[currentIndex]" alt="banner" class="img-fluid"
+        style="border-radius: 25px; transition: opacity 0.5s ease" />
       <button @click="changeSlide(-1)" class="trans-left d-none d-lg-block">
         <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
       </button>
@@ -196,12 +165,8 @@
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
         <div class="modal-body position-relative">
-          <button
-            type="button"
-            class="btn-close position-absolute top-0 end-0 m-2"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
+          <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal"
+            aria-label="Close"></button>
           <div class="row">
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
@@ -270,26 +235,16 @@
                 <div class="mt-auto">
                   <div class="text-center mb-2">
                     <div class="qty-control px-2 py-1">
-                      <button
-                        type="button"
-                        @click="decreaseQuantity"
-                        class="btn-lg"
-                        style="background-color: #fff"
-                      >
+                      <button type="button" @click="decreaseQuantity" class="btn-lg" style="background-color: #fff">
                         -
                       </button>
                       <span>{{ quantity }}</span>
-                      <button
-                        type="button"
-                        @click="increaseQuantity"
-                        class="btn-lg"
-                        style="background-color: #fff"
-                      >
+                      <button type="button" @click="increaseQuantity" class="btn-lg" style="background-color: #fff">
                         +
                       </button>
                     </div>
                   </div>
-                  <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                  <button class="btn btn-danger w-100 fw-bold" >🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
             </div>
@@ -299,16 +254,12 @@
     </div>
   </div>
 
-  <div
-    class="fixed-element d-flex align-items-center justify-content-between px-4"
-    v-if="isReservation && orderId"
-  >
+  <div class="fixed-element d-flex align-items-center justify-content-between px-4" v-if="isReservation && orderId">
     <div class="scrolling-container">
       <div class="scrolling-text">✨ Chọn món cho đơn đặt bàn của bạn! ✨</div>
     </div>
-    <router-link :to="`/reservation-form/${orderId}`" class="btn-confirm text-decoration-none"
-      >Xác nhận chọn xong</router-link
-    >
+    <router-link :to="`/reservation-form/${orderId}`" class="btn-confirm text-decoration-none">Xác nhận chọn
+      xong</router-link>
   </div>
 </template>
 <script>
@@ -477,7 +428,7 @@ export default {
       try {
         if (item.type === 'food') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
-          foodDetail.value = { ...res.data, type: 'Food' }
+          foodDetail.value = { ...res.data, type: 'food' }
 
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
@@ -489,7 +440,7 @@ export default {
           })
         } else if (item.type === 'combo') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
-          foodDetail.value = { ...res.data, type: 'Combo' }
+          foodDetail.value = { ...res.data, type: 'combo' }
         }
 
         const modalElement = document.getElementById('productModal')
@@ -803,13 +754,16 @@ export default {
 .submenu-link:hover {
   background-color: #d5d5d565;
 }
+
 @keyframes pulse {
   0% {
     background-color: #f7f7f7;
   }
+
   50% {
     background-color: #ffffff;
   }
+
   100% {
     background-color: #f7f7f7;
   }

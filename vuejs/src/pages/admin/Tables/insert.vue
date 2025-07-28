@@ -36,13 +36,9 @@
                     Số điện thoại <span class="text-danger">*</span>
                   </label>
                   <input type="text" class="form-control rounded-2" required v-model="guest_phone" />
-                  <label for="category" class="form-label">
-                    Email
-                  </label>
+                  <label for="category" class="form-label"> Email </label>
                   <input type="text" class="form-control rounded-2" required v-model="guest_email" />
-                  <label for="category" class="form-label">
-                    Ghi chú
-                  </label>
+                  <label for="category" class="form-label"> Ghi chú </label>
                   <textarea class="form-control rounded-2" id="description" rows="1" v-model="note"></textarea>
                 </div>
               </div>
@@ -284,7 +280,9 @@
                               +
                             </button>
                           </div>
-                          <div class="fw-bold fs-6">{{ formatNumber(totalPriceItem(item)) }} VNĐ</div>
+                          <div class="fw-bold fs-6">
+                            {{ formatNumber(totalPriceItem(item)) }} VNĐ
+                          </div>
                         </div>
                       </div>
                       <div v-if="cartItems.length === 0" class="text-center text-muted py-3">
@@ -294,11 +292,6 @@
 
                     <div class="pt-0">
                       <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                          Tạm tính
-                          <span>{{ formatNumber(totalPrice) }} VNĐ</span>
-                        </li>
-
                         <li
                           class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
                           Tổng thanh toán
@@ -310,17 +303,20 @@
                       <hr />
                       <h6 class="mb-3">Phương thức thanh toán</h6>
                       <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
-                        <button class="btn btn-payment active">
+                        <button class="btn btn-payment" :class="{ active: paymentMethod === 'COD' }" type="button"
+                          @click="paymentMethod = 'COD'">
                           <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
                           <br />
                           Tiền mặt
                         </button>
-                        <button class="btn btn-payment">
+                        <button class="btn btn-payment" type="button" @click="paymentMethod = 'MOMO'"
+                          :class="{ active: paymentMethod === 'MOMO' }">
                           <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
                           <br />
                           MoMo
                         </button>
-                        <button class="btn btn-payment">
+                        <button class="btn btn-payment" type="button" @click="paymentMethod = 'VNPAY'"
+                          :class="{ active: paymentMethod === 'VNPAY' }">
                           <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
                           <br />
                           QR code
@@ -335,7 +331,7 @@
                         <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
                           Đặt bàn
                         </button>
-                        <button class="btn btn-outline-danger flex-fill p-2" type="button">
+                        <button class="btn btn-outline-danger flex-fill me-sm-2 mb-2 mb-sm-0 p-2" type="submit">
                           Thanh toán
                         </button>
                       </div>
@@ -361,6 +357,9 @@ import { FoodList } from '@/stores/food'
 import { watch } from 'vue'
 import { Permission } from '@/stores/permission'
 import { useRoute } from 'vue-router'
+import Swal from 'sweetalert2'
+import { useRouter } from 'vue-router'
+import { toast } from 'vue3-toastify'
 
 export default {
   components: {
@@ -404,6 +403,7 @@ export default {
       }
     }
     const { hasPermission, permissions } = Permission(userId)
+    const router = useRouter()
 
     const isLoading = ref(false)
     const today = new Date().toISOString().split('T')[0]
@@ -539,7 +539,6 @@ export default {
           const reserved_from = formatDateTime(reservedFrom)
           const reserved_to = formatDateTime(reservedTo)
 
-
           const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
             reserved_from: reserved_from,
             reserved_to: reserved_to,
@@ -620,6 +619,8 @@ export default {
       allSelectedToppings = [...allSelectedToppings, ...normalToppings]
 
       addToCart(foodDetail.value, quantity.value, allSelectedToppings)
+      toast.success('Thêm vào giỏ hàng thành công')
+
     }
 
     // hàm thêm/bỏ chọn bàn
@@ -651,19 +652,31 @@ export default {
           showConfirmButton: false,
           timer: 1500,
           timerProgressBar: true,
-        });
+        })
         return
       }
 
       selectedTableIds.value = tempSelected
     }
 
+    const paymentMethod = ref('')
+    const current_order_id = ref(null)
     // hàm đặt bàn
     const reservation = async () => {
       isLoading.value = true
-
+      if (selectedTableIds.value == null) {
+        await Swal.fire({
+          toast: false,
+          position: 'top-end',
+          title: 'Vui lòng chọn bàn!',
+          icon: 'error',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        })
+      }
       try {
-        await axios.post('http://127.0.0.1:8000/api/reservation', {
+        const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/reservation', {
           user_id: selectguest.value.id === 'guest' ? null : selectguest.value.id,
           guest_name: guest_name.value,
           guest_phone: guest_phone.value,
@@ -671,8 +684,7 @@ export default {
           guest_count: guest_count.value,
           note: note.value,
           reserved_from: `${date.value} ${time.value}`,
-          deposit_amount: 100000,
-          total_price: totalPrice.value + 100000,
+          total_price: totalPrice.value,
           table_ids: selectedTableIds.value,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
@@ -686,8 +698,6 @@ export default {
             })),
           })),
         })
-
-        const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/reservation', reservationData)
         if (orderCreationResponse.data && orderCreationResponse.data.order_id) {
           current_order_id.value = orderCreationResponse.data.order_id
           await Swal.fire({
@@ -698,16 +708,15 @@ export default {
             showConfirmButton: false,
             timer: 1500,
             timerProgressBar: true,
-          });
+          })
           if (paymentMethod.value === 'VNPAY') {
+            isLoading.value = false
             const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
               order_id: current_order_id.value,
-              amount: 100000,
+              amount: totalPrice.value,
               return_url: 'http://localhost:5173/admin/tables/booking-schedule',
             })
             if (paymentRes.data.payment_url) {
-              localStorage.setItem('payment_method', paymentMethod.value)
-              // localStorage.removeItem(cartKey.value)
               await Swal.fire({
                 title: 'Đang chuyển hướng sang VNPAY...',
                 allowOutsideClick: false,
@@ -715,10 +724,13 @@ export default {
                 showConfirmButton: false,
                 didOpen: () => {
                   Swal.showLoading()
-                }
+                  setTimeout(() => {
+                    window.location.href = paymentRes.data.payment_url
+                  }, 1000)
+                },
               })
-              window.location.href = paymentRes.data.payment_url
-            } else {
+            }
+            else {
               throw new Error('Không tạo được link thanh toán VNPAY!')
             }
             return
@@ -732,18 +744,17 @@ export default {
               showConfirmButton: false,
               timer: 1500,
               timerProgressBar: true,
-            });
-            return;
+            })
+            return
           }
           if (paymentMethod.value === 'COD') {
             await new Promise((resolve) => setTimeout(resolve, 300))
             await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
               order_id: current_order_id.value,
-              amount_paid: 100000,
+              amount_paid: totalPrice.value,
               payment_type: 'Thanh toán toàn bộ',
             })
 
-            localStorage.setItem('payment_method', paymentMethod.value)
             await Swal.fire({
               toast: true,
               position: 'top-end',
@@ -752,15 +763,15 @@ export default {
               showConfirmButton: false,
               timer: 1500,
               timerProgressBar: true,
-            });
+            })
             // router.push('/admin/tables/current-order');
           }
-          clearCart();
+          clearCart()
           // guest_name.value = '';
           // guest_phone.value = '';
           // guest_email.value = '';
           // note.value = '';
-          router.push('/admin/tables/booking-schedule');
+          router.push('/admin/tables/booking-schedule')
         } else {
           await Swal.fire({
             toast: false,
@@ -770,7 +781,7 @@ export default {
             showConfirmButton: false,
             timer: 1500,
             timerProgressBar: true,
-          });
+          })
           isLoading.value = false
           return
         }
@@ -778,7 +789,7 @@ export default {
         // clearCart()
       } catch (error) {
         console.error('Lỗi khi đặt bàn:', error)
-        let errorMessage = 'Đặt bàn hoặc thanh toán thất bại, vui lòng thử lại!';
+        let errorMessage = 'Đặt bàn hoặc thanh toán thất bại, vui lòng thử lại!'
         let swalOptions = {
           toast: true,
           position: 'top-end',
@@ -786,14 +797,13 @@ export default {
           showConfirmButton: false,
           timer: 3000,
           timerProgressBar: true,
-        };
+        }
         if (error.response && error.response.status === 422 && error.response.data.errors) {
-
-          let validationMessages = [];
+          let validationMessages = []
           for (const field in error.response.data.errors) {
-            validationMessages.push(...error.response.data.errors[field]);
+            validationMessages.push(...error.response.data.errors[field])
           }
-          errorMessage = validationMessages.join('\n');
+          errorMessage = validationMessages.join('\n')
 
           swalOptions = {
             toast: false,
@@ -804,114 +814,116 @@ export default {
             showConfirmButton: true, // Cần nút xác nhận để người dùng tự đóng
             timer: undefined, // Không tự đóng
             timerProgressBar: false,
-          };
+          }
         } else if (error.response && error.response.data && error.response.data.message) {
-          errorMessage = error.response.data.message;
+          errorMessage = error.response.data.message
         }
         await Swal.fire({
           ...swalOptions,
           title: swalOptions.title || errorMessage,
-          text: swalOptions.html ? undefined : errorMessage
-        });
+          text: swalOptions.html ? undefined : errorMessage,
+        })
       } finally {
         isLoading.value = false
       }
     }
-    const handlePayment = async () => {
-      isLoading.value = true;
-      try {
-        if (!guest_name.value) {
-          await Swal.fire({
-            toast: true,
-            position: 'top-end',
-            title: 'Vui lòng nhập đầy đủ thông tin khách hàng!',
-            icon: 'info',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-          });
-          return
-        }
-        if (cartItems.value.length === 0) {
-          await Swal.fire({
-            toast: true,
-            position: 'top-end',
-            title: 'Giỏ hàng trống! Vui lòng thêm món ăn!',
-            icon: 'info',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-          });
-          return
-        }
-        if (!paymentMethod.value) {
-          await Swal.fire({
-            toast: true,
-            position: 'top-end',
-            title: 'Vui lòng chọn phương thức thanh toán!',
-            icon: 'info',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-          });
-          return;
-        }
-        if (!current_order_id.value) {
-          await Swal.fire({
-            toast: true,
-            position: 'top-end',
-            title: 'Không có đơn hàng nào để thanh toán. Vui lòng tạo đơn hàng trước!',
-            icon: 'info',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-          });
-          isLoading.value = false;
-          return;
-        }
-        if (paymentMethod.value === 'VNPAY') {
-          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
-            order_id: current_order_id.value,
-            amount: totalPrice.value,
-            return_url: 'http://localhost:5173/admin/tables/current-order',
-          })
-          if (paymentRes.data.payment_url) {
-            localStorage.setItem('payment_method', paymentMethod.value)
-            // localStorage.removeItem(cartKey.value)
-            window.location.href = paymentRes.data.payment_url
-          } else {
-            toast.error('Không tạo được link thanh toán VNPAY.')
-          }
-          clearCart();
-          guest_name.value = '';
-          note.value = '';
-          router.push('/admin/tables/booking-schedule');
-          return
-        }
-        if (paymentMethod.value === 'MOMO') {
-          toast.info('Chức năng thanh toán MoMo đang được phát triển!');
-          // localStorage.setItem('payment_method', paymentMethod.value);
-          return;
-        }
-        if (paymentMethod.value === 'COD') {
-          await new Promise((resolve) => setTimeout(resolve, 300))
-          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
-            order_id: current_order_id.value,
-            amount_paid: totalPrice.value,
-            payment_type: 'Thanh toán toàn bộ',
-          })
 
-          localStorage.setItem('payment_method', paymentMethod.value)
-          // localStorage.removeItem(cartKey.value)
-          toast.success('Thanh toán bàn bằng tiền mặt thành công!')
-          clearCart();
-          router.push('/admin/tables/booking-schedule');
-        }
+    // const handlePayment = async () => {
+    //   isLoading.value = true;
+    //   try {
+    //     if (!guest_name.value) {
+    //       await Swal.fire({
+    //         toast: true,
+    //         position: 'top-end',
+    //         title: 'Vui lòng nhập đầy đủ thông tin khách hàng!',
+    //         icon: 'info',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //         timerProgressBar: true,
+    //       });
+    //       return
+    //     }
+    //     if (cartItems.value.length === 0) {
+    //       await Swal.fire({
+    //         toast: true,
+    //         position: 'top-end',
+    //         title: 'Giỏ hàng trống! Vui lòng thêm món ăn!',
+    //         icon: 'info',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //         timerProgressBar: true,
+    //       });
+    //       return
+    //     }
+    //     if (!paymentMethod.value) {
+    //       await Swal.fire({
+    //         toast: true,
+    //         position: 'top-end',
+    //         title: 'Vui lòng chọn phương thức thanh toán!',
+    //         icon: 'info',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //         timerProgressBar: true,
+    //       });
+    //       return;
+    //     }
+    //     if (!current_order_id.value) {
+    //       await Swal.fire({
+    //         toast: true,
+    //         position: 'top-end',
+    //         title: 'Không có đơn hàng nào để thanh toán. Vui lòng tạo đơn hàng trước!',
+    //         icon: 'info',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //         timerProgressBar: true,
+    //       });
+    //       isLoading.value = false;
+    //       return;
+    //     }
+    //     if (paymentMethod.value === 'VNPAY') {
+    //       const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+    //         order_id: current_order_id.value,
+    //         amount: totalPrice.value,
+    //         return_url: 'http://localhost:5173/admin/tables/current-order',
+    //       })
+    //       if (paymentRes.data.payment_url) {
+    //         localStorage.setItem('payment_method', paymentMethod.value)
+    //         // localStorage.removeItem(cartKey.value)
+    //         window.location.href = paymentRes.data.payment_url
+    //       } else {
+    //         toast.error('Không tạo được link thanh toán VNPAY.')
+    //       }
+    //       clearCart();
+    //       guest_name.value = '';
+    //       note.value = '';
+    //       router.push('/admin/tables/booking-schedule');
+    //       return
+    //     }
+    //     if (paymentMethod.value === 'MOMO') {
+    //       toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+    //       // localStorage.setItem('payment_method', paymentMethod.value);
+    //       return;
+    //     }
+    //     if (paymentMethod.value === 'COD') {
+    //       await new Promise((resolve) => setTimeout(resolve, 300))
+    //       await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+    //         order_id: current_order_id.value,
+    //         amount_paid: totalPrice.value,
+    //         payment_type: 'Thanh toán toàn bộ',
+    //       })
 
-      } catch {
+    //       localStorage.setItem('payment_method', paymentMethod.value)
+    //       // localStorage.removeItem(cartKey.value)
+    //       toast.success('Thanh toán bàn bằng tiền mặt thành công!')
+    //       clearCart();
+    //       router.push('/admin/tables/booking-schedule');
+    //     }
 
-      }
-    }
+    //   } catch {
+    //     console.log(error);
+
+    //   }
+    // }
     watch(selectguest, handleGuestSelection)
     watch(selectfood, (newValue) => {
       if (newValue === null) {
@@ -929,7 +941,7 @@ export default {
 
       selectguest.value = 'guest'
       loadCart()
-      for (let hour = 1; hour <= 21; hour++) {
+      for (let hour = 8; hour <= 21; hour++) {
         let hourStr = hour < 10 ? '0' + hour : '' + hour
         timeOptions.value.push(hourStr + ':00')
         if (hour !== 20) {
@@ -955,8 +967,8 @@ export default {
       getChairCount,
       formatDate,
       formatTime,
-      createReservationOnly,
-      handlePayment,
+      // createReservationOnly,
+      // handlePayment,
       guest_email,
       user_id,
       selectguest,
@@ -1003,7 +1015,8 @@ export default {
       handleAddToCartClick,
       clearCart,
       hasPermission,
-      userId
+      userId,
+      reservation,
     }
   },
 }
