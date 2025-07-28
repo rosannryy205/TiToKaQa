@@ -13,12 +13,29 @@
               <img src="/img/logonew.png" alt="Logo" class="logo" width="80px">
             </a>
           </div>
-
+         
+        <div class="collapse navbar-collapse">
+          <ul class="navbar-nav main-nav-links">
+            <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
+            <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
+          </ul>
+        </div>
+        <div class="me-2">
+              <button class="button"
+              @click.prevent="toggleBookingForm" 
+              :class="{ 'active': isBookingFormVisible }">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" height="24" fill="none" class="svg-icon"><g stroke-width="2" stroke-linecap="round" stroke="#fff"><rect y="5" x="4" width="16" rx="2" height="16"></rect><path d="m8 3v4"></path><path d="m16 3v4"></path><path d="m4 11h16"></path></g></svg>
+  <span class="lable">Đặt bàn ngay !</span>
+</button>
+            </div>
           <div class="d-none d-lg-flex align-items-center ms-auto ">
             <form @submit.prevent="searchProduct">
               <div class="input-wrapper position-relative me-3" ref="wrapperRef">
                 <button class="icon-search-submit" type="submit">
-                  <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="22px" height="22px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
                       stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -50,7 +67,9 @@
                 </ul>
               </div>
             </form>
-
+            
+        
+            
             <div class="me-2">
               <router-link to="/login" v-if="!isLoggedIn" class="text-decoration-none text-primary-black">
                 <button class="icon-btn me-2">
@@ -78,18 +97,8 @@
 
         </div>
       </nav>
-
-      <nav class="navbar navbar-expand-lg navbar-bottom d-none d-lg-block pt-0">
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav main-nav-links">
-            <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
-          </ul>
-        </div>
-      </nav>
+  
+  
     </div>
 
     <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
@@ -149,7 +158,7 @@
       </div>
     </div>
   </div>
-
+  
   <div class="modal fade" id="searchModal">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content custom-modal modal-ct">
@@ -218,6 +227,36 @@
       </div>
     </div>
   </div>
+  <div class="container">
+  <transition name="slide-fade">
+    <div v-if="isBookingFormVisible" class="booking-form-container position-relative">
+      <button @click="closeForm"
+              class="btn-close position-absolute"
+              style="top: 5px; right: 5px;"
+              aria-label="Close"></button>
+
+      <form class="row g-3 align-items-end mt-3">
+        <div class="col-12 col-md-4 col-lg">
+          <label for="bookingGuests" class="form-label">Số khách</label>
+          <input type="number" class="form-control" id="bookingGuests" min="1" value="1">
+        </div>
+        <div class="col-12 col-md-4 col-lg">
+          <label for="bookingDate" class="form-label">Ngày đặt</label>
+          <input type="date" class="form-control" id="bookingDate">
+        </div>
+        <div class="col-12 col-md-4 col-lg">
+          <label for="bookingTime" class="form-label">Giờ đặt</label>
+          <input type="time" class="form-control" id="bookingTime">
+        </div>
+        <div class="col-12 col-lg-auto">
+          <button class="button">
+            <span class="lable">Đặt ngay !</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </transition>
+</div>
   <router-view></router-view>
 
 </template>
@@ -519,6 +558,15 @@ const addToCart = () => {
   localStorage.setItem(cartKey, JSON.stringify(cart))
   alert('Đã thêm vào giỏ hàng!')
 }
+/**form datban */
+const isBookingFormVisible = ref(false);
+const closeForm = () => {
+  isBookingFormVisible.value = false
+}
+const toggleBookingForm = () => {
+  isBookingFormVisible.value = !isBookingFormVisible.value;
+};
+
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
@@ -550,7 +598,6 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   max-height: 300px;
-  /* 👈 Cố định chiều cao để buộc scroll */
   max-height: 270px;
   overflow-y: auto;
   background: #fff;
@@ -722,4 +769,78 @@ onBeforeUnmount(() => {
     transform: translateX(-90px);
   }
 }
+.nav-link.active {
+  color: #dc3545 !important; 
+  font-weight: 500;
+}
+
+.booking-form-container {
+  background-color: #ffffff;
+  border-radius: 0 0 .5rem .5rem; 
+  border-top: none;
+}
+
+.booking-form-container .form-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+  color: #495057;
+}
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-15px);
+  opacity: 0;
+}
+
+
+/*andrew-demchenk0*/ 
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 9px 12px;
+  gap: 8px;
+  height: 40px;
+  width: 201px;
+  border: none;
+  background: #FF342B;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.lable {
+  line-height: 22px;
+  font-size: 17px;
+  color: #fff;
+  font-family: sans-serif;
+  letter-spacing: 1px;
+}
+
+.button:hover {
+  background: #e52e26;
+}
+
+.button:hover .svg-icon {
+  animation: slope 1s linear infinite;
+}
+
+@keyframes slope {
+  0% {
+  }
+
+  50% {
+    transform: rotate(10deg);
+  }
+
+  100% {
+  }
+}
+
 </style>
