@@ -21,6 +21,7 @@ return new class extends Migration
             $table->decimal('price', 8,2);
             $table->enum('type', ['food', 'combo', 'topping'])->nullable();
             $table->boolean('is_deal')->default(false);
+            $table->boolean('is_flash_sale')->default(false);
         });
     }
 
