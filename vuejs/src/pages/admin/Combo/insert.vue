@@ -21,7 +21,7 @@
                 <label for="category" class="form-label">Trạng thái <span class="text-danger">*</span></label>
                 <div class="input-group">
                   <select class="form-select rounded-0" id="category" v-model="status" required>
-                    <option disabled value="">Chọn trạng thái cho món ăn</option>
+                    <option disabled value="">Chọn trạng thái cho combo</option>
                     <option value="inactive">Ẩn</option>
                     <option value="active">Hiện</option>
                   </select>
