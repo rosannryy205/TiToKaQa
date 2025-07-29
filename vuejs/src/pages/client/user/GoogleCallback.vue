@@ -23,15 +23,11 @@ onMounted(async () => {
     const response = await axios.get(`http://localhost:8000/api/auth/${provider}/callback`, {
       params: { code },
     })
-
-
     const token = response.data.token
     const user = {
       ...response.data.user,
       isGuest: response.data.user.isGuest ?? false
     }
-
-
 
     localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(user))
