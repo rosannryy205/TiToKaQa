@@ -368,17 +368,6 @@ export default {
 
     const initialTablesLoaded = ref(false)
 
-    watch(
-      [permissions, isLoadingPermissions],
-      async ([newPermissions, newIsLoadingPermissions]) => {
-        if (newPermissions.length > 0 && !newIsLoadingPermissions && !initialTablesLoaded.value) {
-          await getOrderOfTable()
-          initialTablesLoaded.value = true
-        }
-      },
-      { immediate: true },
-    )
-
     const orderOfTable = ref([])
     const getOrderOfTable = async () => {
       try {
@@ -396,6 +385,19 @@ export default {
         console.log(error)
       }
     }
+
+
+    watch(
+      [permissions, isLoadingPermissions],
+      async ([newPermissions, newIsLoadingPermissions]) => {
+        if (newPermissions.length > 0 && !newIsLoadingPermissions && !initialTablesLoaded.value) {
+          await getOrderOfTable()
+          initialTablesLoaded.value = true
+        }
+      },
+      { immediate: true },
+    )
+
 
     const updateStatus = async (id, status) => {
       try {

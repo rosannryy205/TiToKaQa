@@ -420,6 +420,7 @@ export default {
               price: t.price,
             })),
           })),
+          type_order: 'takeaway',
         }
         const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/ordertakecaway', orderData)
         if (orderCreationResponse.data && orderCreationResponse.data.order_id) {

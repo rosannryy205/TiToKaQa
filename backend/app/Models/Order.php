@@ -20,6 +20,7 @@ class Order extends Model
         'expiration_time',
         'total_price',
         'money_reduce',
+        'type_order',
         'tpoint_used',
         'ship_cost',
         'user_id',
