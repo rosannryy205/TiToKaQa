@@ -270,4 +270,5 @@ Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
 Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
-Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);
+Route::put('/admin/combos/{id}/toggle-status', [ComboController::class, 'toggleStatusComboForAdmin']);
+
