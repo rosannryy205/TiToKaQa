@@ -11,10 +11,15 @@ use Illuminate\Support\Facades\Storage;
 
 class ComboController extends Controller
 {
-    public function getAllCombos()
+    public function getAllCombos(Request $request)
     {
         try {
-            $combos = Combo::with('foods')->get();
+            $perPage = $request->input('per_page', 1); 
+            $query = Combo::query()->with('foods')->where('status', 'active');
+            if ($request->has('search') && !empty($request->search)) {
+                $query->where('name', 'like', '%' . $request->search . '%');
+            }
+            $combos = $query->orderBy('created_at', 'desc')->paginate($perPage);
             return response()->json($combos);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Lỗi khi lấy danh combo món ăn', 'error' => $e->getMessage()], 500);
@@ -126,32 +131,25 @@ class ComboController extends Controller
         }
     }
 
-    public function deleteCombosForAdmin($id)
+    public function toggleStatusComboForAdmin($id)
     {
         try {
             $combo = Combo::findOrFail($id);
-
             $comboUsed = DB::table('order_details')->where('combo_id', $id)->exists();
-            if ($comboUsed) {
-                return response()->json(['message' => 'Combo đang được dùng trong đơn hàng'], 400);
+            if ($comboUsed && $combo->status === 'active') {
+                return response()->json(['message' => 'Combo đang được dùng trong đơn hàng, không thể ẩn'], 400);
             }
-
-            if ($combo->image) {
-                $imagePath = 'public/img/food/' . $combo->image;
-                if (Storage::exists($imagePath)) {
-                    Storage::delete($imagePath);
-                } else {
-                    Log::warning("Ảnh không tồn tại: $imagePath");
-                }
-            }
-
-            $combo->foods()->detach();
-            $combo->delete();
-
-            return response()->json(['message' => 'Xóa combo thành công']);
-
+            $combo->status = $combo->status === 'active' ? 'inactive' : 'active';
+            $combo->save();
+    
+            return response()->json([
+                'message' => $combo->status === 'inactive' ? 'Đã ẩn combo' : 'Combo đã được hiển thị',
+                'status' => $combo->status
+            ]);
+    
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Xóa combo thất bại', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Cập nhật trạng thái combo thất bại', 'error' => $e->getMessage()], 500);
         }
     }
+    
 }

@@ -11,12 +11,6 @@
             </router-link>
 
             <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
-
-            <select class="custom-select" style="max-width: 80px">
-              <option selected>5</option>
-              <option>10</option>
-              <option>15</option>
-            </select>
           </div>
 
           <div class="table-responsive">
@@ -30,7 +24,8 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in filteredCombos" :key="index">
+                <tr v-for="(item, index) in filteredCombos" :key="index"
+                  :class="{ 'table-secondary opacity-50': item.status === 'inactive' }">
                   <td class="d-none d-sm-table-cell"><input type="checkbox" /></td>
                   <td>
                     <img :src="`/img/food/${item.image}`" :alt="item.name" class="me-2 img_thumbnail" />
@@ -38,7 +33,10 @@
                     <div class="d-md-none mt-2 d-flex justify-content-center gap-2 flex-wrap">
                       <button type="button" class="btn btn-outline btn-sm"
                         v-if="hasPermission('edit_combo')">Sửa</button>
-                      <button class="btn btn-clean btn-delete btn-sm" v-if="hasPermission('delete_combo')">Xoá</button>
+                      <button class="btn btn-outline btn-sm" @click="toggleComboStatus(item.id)"
+                        v-if="hasPermission('delete_combo')">
+                        {{ item.status === 'inactive' ? 'Hiện' : 'Ẩn' }}
+                      </button>
                       <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
                         @click="showComboDetail(item)">
                         Chi tiết
@@ -50,8 +48,11 @@
                     <div class="d-flex justify-content-center gap-2 flex-wrap">
                       <router-link :to="`/admin/update-combo/${item.id}`" class="btn btn-update"
                         v-if="hasPermission('edit_combo')">Sửa</router-link>
-                      <button class="btn btn-clean btn-delete btn-sm" @click="deleteCombo(item.id)"
-                        v-if="hasPermission('delete_combo')">Xoá</button>
+                      <button class="btn btn-outline btn-sm"
+                        :class="item.status === 'inactive' ? 'btn-secondary' : 'btn-warning'"
+                        @click="toggleComboStatus(item.id)" v-if="hasPermission('delete_combo')">
+                        {{ item.status === 'inactive' ? 'Hiện' : 'Ẩn' }}
+                      </button>
                       <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
                         @click="showComboDetail(item)">
                         Chi tiết
@@ -61,18 +62,32 @@
                 </tr>
               </tbody>
             </table>
-          </div>
+            <div class="d-flex justify-content-center align-items-center gap-2 mt-3">
+              <button class="btn btn-outline-secondary btn-sm" :disabled="currentPage === 1"
+                @click="changePage(currentPage - 1)">
+                Trước
+              </button>
 
-          <button class="btn btn-clean btn-delete" v-if="hasPermission('delete_combo')">Xoá</button>
+              <button v-for="page in totalPages" :key="page" class="btn btn-sm"
+                :class="page === currentPage ? 'btn-primary' : 'btn-outline-secondary'" @click="changePage(page)">
+                {{ page }}
+              </button>
+
+              <button class="btn btn-outline-secondary btn-sm" :disabled="currentPage === totalPages"
+                @click="changePage(currentPage + 1)">
+                Sau
+              </button>
+            </div>
+
+
+          </div>
 
           <!--modal-->
           <div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable modal-xl">
               <div class="modal-content shadow-sm rounded-3">
                 <div class="modal-header bg-light">
-                  <h5 class="modal-title fw-semibold text-danger" id="menuModalLabel">
-                    Chi tiết combo
-                  </h5>
+                  <h5 class="modal-title fw-semibold text-danger" id="menuModalLabel">Chi tiết combo</h5>
                   <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal"
                     aria-label="Close">
                     &times;
@@ -89,43 +104,7 @@
                         <p class="mb-0 text-muted">Giá combo: {{ formatNumber(selectedCombo.price) }} VNĐ</p>
                       </div>
                     </div>
-
-                    <div class="table-responsive">
-                      <table class="table table-bordered align-middle">
-                        <thead class="table-light">
-                          <tr>
-                            <th>STT</th>
-                            <th>Bao gồm</th>
-                            <th>Số lượng</th>
-                            <th>Giá món</th>
-                            <th>Thành tiền</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="(food, index) in selectedCombo.foods" :key="food.id">
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ food.name }}</td>
-                            <td>{{ food.pivot.quantity }}</td>
-                            <td>{{ formatNumber(food.price) }} đ</td>
-                            <td>{{ formatNumber(food.pivot.quantity * food.price) }} đ</td>
-                          </tr>
-                        </tbody>
-                        <tfoot>
-                          <tr>
-                            <td colspan="4" class="text-end fw-semibold">Tổng giá combo:</td>
-                            <td class="fw-bold text-danger">{{ formatNumber(comboTotal) }} đ</td>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
                   </div>
-                  <div v-else>
-                    <p class="text-muted">Không có dữ liệu combo để hiển thị.</p>
-                  </div>
-                </div>
-
-                <div class="modal-footer bg-light">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 </div>
               </div>
             </div>
@@ -137,23 +116,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue' // SỬA: Thêm 'watch'
 import axios from 'axios'
 import numeral from 'numeral'
 import { toast } from 'vue3-toastify'
 import { Permission } from '@/stores/permission'
 
-// useMenu().onSelectedKeys(['admin-roles'])
-
 const combo = ref([])
-const toppings = ref([])
+const currentPage = ref(1)
+const totalPages = ref(1)
 const searchQuery = ref('')
 const selectedCombo = ref(null)
 
 function formatNumber(value) {
   return numeral(value).format('0,0')
 }
-
 
 const userId = ref(null)
 const userString = localStorage.getItem('user')
@@ -163,7 +140,7 @@ if (userString) {
     userId.value = user.id
   }
 }
-const { hasPermission, permissions } = Permission(userId)
+const { hasPermission } = Permission(userId)
 
 function showComboDetail(item) {
   selectedCombo.value = {
@@ -179,43 +156,51 @@ const comboTotal = computed(() => {
     0
   )
 })
-
 const filteredCombos = computed(() => {
-  const keyword = searchQuery.value.trim().toLowerCase()
-  if (!keyword) return combo.value
-  return combo.value.filter((p) =>
-    p.name?.toLowerCase().includes(keyword)
-  )
+  return combo.value
 })
-
-async function fetchCombos() {
+async function fetchCombos(page = 1) {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/combos')
-    combo.value = res.data
+    const params = {
+      page: page,
+      search: searchQuery.value.trim()
+    }
+
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/combos', { params })
+
+    combo.value = res.data.data
+    currentPage.value = res.data.current_page
+    totalPages.value = res.data.last_page
   } catch (error) {
     console.error(error)
+    toast.error("Lỗi khi tải dữ liệu combo.")
+  }
+}
+watch(searchQuery, () => {
+  fetchCombos(1)
+})
+
+
+function changePage(page) {
+  if (page >= 1 && page <= totalPages.value) {
+    fetchCombos(page)
   }
 }
 
-async function deleteCombo(comboId) {
+async function toggleComboStatus(comboId) {
   try {
-    if (!confirm("Bạn có chắc muốn xóa combo này?")) return;
-    if (!comboId) {
-      console.log("Không tìm thấy Id Combo !");
-      return;
+    if (!confirm("Bạn có chắc muốn ẩn/hiện combo này?")) return;
+
+    const res = await axios.put(`http://127.0.0.1:8000/api/admin/combos/${comboId}/toggle-status`)
+    toast.success(res.data.message)
+
+    const index = combo.value.findIndex(c => c.id === comboId)
+    if (index !== -1) {
+      combo.value[index].status = res.data.status
     }
-
-
-    await axios.delete(`http://127.0.0.1:8000/api/admin/combos/delete/${comboId}`);
-    toast.success("Đã xóa combo thành công!");
-    combo.value = combo.value.filter(combo => combo.id !== comboId);
   } catch (error) {
-    console.log(error);
-    if (error.response && error.response.status === 400) {
-      toast.warning(error.response.data.message || "Combo có đơn hàng không thể xóa.!");
-    } else {
-      toast.warning("Lỗi khi xóa combo: " + error.message);
-    }
+    console.error(error)
+    toast.error("Lỗi khi cập nhật trạng thái combo.")
   }
 }
 
@@ -223,6 +208,8 @@ onMounted(() => {
   fetchCombos()
 })
 </script>
+
+
 
 <style scoped>
 .title {
