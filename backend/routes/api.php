@@ -52,6 +52,7 @@ Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']
 
 //reservation-client
 Route::post('/reservation', [OrderController::class, 'reservation']);
+Route::post('/make-reservation-quickly', [OrderController::class, 'makeReservationQuickly']);
 Route::post('/reservation-by-chatbot', [ChatbotController::class, 'combine']);
 Route::get('/order-reservation-info', [OrderController::class, 'getInfoReservation']);
 Route::post('/choose-table', [OrderController::class, 'chooseTable']);

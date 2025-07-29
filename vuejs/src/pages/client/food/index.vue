@@ -90,8 +90,8 @@
     class="col-md-3 mb-4"
   >
     <div class="product-card position-relative">
-      <div 
-        v-if="isAvailableInFlashSale(item)" 
+      <div
+        v-if="isAvailableInFlashSale(item)"
         class="flash-sale-ribbon"
       >
         <span>🔥 Flash Sale</span>
@@ -109,8 +109,8 @@
       </span>
 
       <!-- Hiển thị giá -->
-      <p 
-  class="text-center mt-1 fw-bold" 
+      <p
+  class="text-center mt-1 fw-bold"
   v-if="isAvailableInFlashSale(item)"
 >
   <span class="text-danger">
@@ -617,7 +617,7 @@ export default {
 <style scoped>
 .fixed-element {
   position: fixed;
-  top: 157px;
+  top: 100px;
   left: 50%;
   transform: translateX(-50%);
   width: 84%;
@@ -839,7 +839,7 @@ del {
 .flash-sale-ribbon::after {
   content: "";
   position: absolute;
-  border-top: 4px solid #a51d1d; 
+  border-top: 4px solid #a51d1d;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
 }
