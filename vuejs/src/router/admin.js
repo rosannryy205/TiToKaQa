@@ -329,19 +329,37 @@ const admin = [
         path: '/admin/delivery',
         name: 'admin/delivery',
         component: () => import('../pages/admin/Shipper/index.vue'),
-        meta: { requiresAdmin: true },
+        meta: {
+          requiresAdmin: true,
+          headerSize: 'sm'
+         },
       },
       {
         path: '/admin/delivery_map/:id',
         name: 'admin/delivery_map',
         component: () => import('../pages/admin/Shipper/delivery_map.vue'),
-        meta: { requiresAdmin: true },
+        meta: {
+          requiresAdmin: true,
+          headerSize: 'sm'
+         },
       },
       {
         path: '/admin/select_order',
         name: 'admin/select_order',
         component: () => import('../pages/admin/Shipper/select_order.vue'),
-        meta: { requiresAdmin: true },
+        meta: {
+          requiresAdmin: true,
+          headerSize: 'sm'
+         },
+      },
+      {
+        path: '/admin/foods_post',
+        name: 'admin/foods_post',
+        component: () => import('../pages/admin/Foods_Post/index.vue'),
+        meta: {
+          requiresAdmin: true,
+          headerSize: 'sm'
+         },
       },
     ],
   }
