@@ -168,6 +168,7 @@
       </section>
     </div>
   </section>
+ 
   <section class="populars-infors-pots">
     <!---->
     <section class="popular-searches container py-4">

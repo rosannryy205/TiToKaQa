@@ -33,7 +33,7 @@ Route::post('/chatbot', [ChatbotController::class, 'chat']);
 // home food
 Route::get('/home/foods', [FoodController::class, 'getAllFoods']);
 Route::get('/home', [HomeController::class, 'index']);
-
+Route::get('/flash-sale/foods', [FoodController::class, 'getFlashSaleFoods']);
 //search
 // Route::get('/foods/search', [FoodController::class, 'search'])   ;
 
@@ -52,6 +52,7 @@ Route::get('/home/category/{id}', [CategoryController::class, 'getCategoryById']
 
 //reservation-client
 Route::post('/reservation', [OrderController::class, 'reservation']);
+Route::post('/make-reservation-quickly', [OrderController::class, 'makeReservationQuickly']);
 Route::post('/reservation-by-chatbot', [ChatbotController::class, 'combine']);
 Route::get('/order-reservation-info', [OrderController::class, 'getInfoReservation']);
 Route::post('/choose-table', [OrderController::class, 'chooseTable']);
@@ -109,7 +110,7 @@ Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/order-history-info', [OrderController::class, 'getInfoOrderByUser']);
 });
-Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
+Route::put('/order-history-info/cancle/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
 
 // Route::resource('user', UserController::class);
@@ -269,4 +270,5 @@ Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
 Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
-Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);
+Route::put('/admin/combos/{id}/toggle-status', [ComboController::class, 'toggleStatusComboForAdmin']);
+
