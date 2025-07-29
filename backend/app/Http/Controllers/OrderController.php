@@ -407,6 +407,85 @@ class OrderController extends Controller
     }
 
 
+    // đặt bàn nhanh
+    public function makeReservationQuickly(Request $request)
+    {
+
+        $from = $request->input('reserved_from');
+        $to = (new DateTime($from))->modify('+2 hours')->format('Y-m-d H:i:s');
+        $numberOfGuests = $request->input('number_of_guests');
+        $conflictingTableIds = DB::table('reservation_tables')
+            ->join('orders', 'reservation_tables.order_id', '=', 'orders.id')
+            ->whereNotIn('orders.order_status', ['Đã hủy', 'Hoàn Thành'])
+            ->where('reserved_from', '<', $to)
+            ->where('reserved_to', '>', $from)
+            ->pluck('reservation_tables.table_id')
+            ->toArray();
+
+        $availableTables = Table::whereNotIn('id', $conflictingTableIds)
+            ->orderBy('table_number', 'asc')
+            ->get();
+
+        $singleTable = $availableTables->firstWhere('capacity', '>=', $numberOfGuests);
+        $selectedTables = collect();
+        if ($singleTable) {
+            $selectedTables->push($singleTable);
+        } else {
+            $tempGroup = collect();
+            $totalCap = 0;
+            $prevTableNum = null;
+
+            foreach ($availableTables as $table) {
+                if ($prevTableNum === null || $table->table_number == $prevTableNum + 1) {
+                    $tempGroup->push($table);
+                    $totalCap += $table->capacity;
+                    $prevTableNum = $table->table_number;
+
+                    if ($totalCap >= $numberOfGuests) {
+                        $selectedTables = $tempGroup;
+                        break;
+                    }
+                } else {
+                    $tempGroup = collect([$table]);
+                    $totalCap = $table->capacity;
+                    $prevTableNum = $table->table_number;
+                }
+            }
+        }
+
+        if ($selectedTables->isEmpty()) {
+            return response()->json([
+                'mess' => 'Xin lỗi, hiện tại không còn bàn trống phù hợp. Bạn thử lại thời gian khác hoặc liên hệ để được hỗ trợ nhé!.'
+            ], 404);
+        }
+        $orderTime = Carbon::now();
+        $reserved_to = date('Y-m-d H:i:s', strtotime($from . ' +2 hours'));
+
+        $order = Order::create([
+            'guest_count' => $numberOfGuests,
+            'order_time' => $orderTime,
+            'expiration_time' => $orderTime->copy()->addMinutes(5),
+            'reservation_time' => $from,
+            'reservation_code' => $this->generateReservationCode(),
+        ]);
+
+
+        foreach ($selectedTables as $table) {
+            Reservation_table::create([
+                'order_id' => $order->id,
+                'table_id' => $table->id,
+                'reserved_from' => $from,
+                'reserved_to' => $reserved_to,
+            ]);
+
+            $table->update(['status' => 'Đã đặt trước']);
+        }
+
+        return response()->json([
+            'message' => 'Tìm bàn thành công',
+            'orderId' => $order->id
+        ]);
+    }
 
 
     //load món đã đặt
@@ -647,6 +726,7 @@ class OrderController extends Controller
             'info' => [
                 'id' => $reservation->id,
                 'user_id' => $reservation->user_id,
+                'shipper_id' => $reservation->shipper_id,
                 'discount_id' => $reservation->discount_id,
                 'order_time' => $reservation->order_time,
                 'order_status' => $reservation->order_status,
@@ -719,16 +799,20 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         try {
-            // Khôi phục tồn kho
             foreach ($order->details as $detail) {
                 $food = Food::find($detail->food_id);
                 if ($food) {
-                    $food->stock += $detail->quantity;
-                    $food->quantity_sold -= $detail->quantity;
+                    if ($detail->is_flash_sale) {
+                        $food->flash_sale_quantity += $detail->quantity;
+                        $food->flash_sale_sold -= $detail->quantity;
+                    } else {
+                        $food->stock += $detail->quantity;
+                        $food->quantity_sold -= $detail->quantity;
+                    }
                     $food->save();
                 }
             }
-            /** restore tpoint */
+            /** restone tpoint */
             if ($order->user_id && $order->tpoint_used > 0) {
                 $user = User::find($order->user_id);
                 if ($user) {

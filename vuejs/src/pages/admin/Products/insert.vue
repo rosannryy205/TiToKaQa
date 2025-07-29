@@ -3,13 +3,14 @@
     <div class="col-md-12">
       <div class="card card-stats card-raised">
         <div class="card-body">
-          <h3 class="text-danger fw-bold">Thêm món ăn</h3>
-          <div>
-            <RouterLink to="/admin/products" class="btn btn-outline-secondary rounded-0">
-              <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-            </RouterLink>
+          <div class="d-flex justify-content-between">
+            <h3 class="text-danger fw-bold">Thêm món ăn</h3>
+            <div>
+              <RouterLink to="/admin/products" class="btn btn-outline-secondary rounded-0">
+                <i class="bi bi-arrow-counterclockwise"></i> Quay lại
+              </RouterLink>
+            </div>
           </div>
-
           <form class="row mt-2" @submit.prevent="addFood">
             <div class="col-md-8">
               <div class="card rounded-0 border-0 shadow mb-4">

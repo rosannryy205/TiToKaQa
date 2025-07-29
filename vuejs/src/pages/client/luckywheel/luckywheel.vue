@@ -1,41 +1,39 @@
 <template>
-  <div class="lucky-wrapper d-flex flex-column flex-md-row gap-3">
-    <!-- Thể lệ -->
-    <div class="gift-panel align-self-start gift-rules">
-      <div class="card shadow-sm p-3">
-        <h4 class="mb-3 fw-bold">🎁 Thể Lệ Vòng Quay</h4>
-        <p class="mb-2 d-flex align-items-start">
-          <WarningOutlined style="color: #faad14; font-size: 18px; margin-right: 8px" />
-          <span>Mỗi ngày<strong> 1 lần</strong> quay.</span>
+  <div class="lucky-wrapper d-flex flex-column flex-lg-row align-items-center align-items-lg-start">
+    <div class="info-panel rules-panel">
+      <h4 class="panel-title">🎁 Thể Lệ Vòng Quay</h4>
+      <div class="panel-content">
+        <p class="rule-item">
+          <WarningOutlined class="rule-icon-warning" />
+          <span>Mỗi ngày bạn có <strong>1 lượt</strong> quay miễn phí.</span>
         </p>
-        <p class="mb-2 d-flex align-items-start">
-          <ClockCircleOutlined style="color: #1890ff; font-size: 18px; margin-right: 8px" />
-          <span>Phần thưởng có hạn <strong>7 ngày</strong> từ lúc nhận.</span>
+        <p class="rule-item">
+          <ClockCircleOutlined class="rule-icon-info" />
+          <span>Phần thưởng có hạn sử dụng <strong>7 ngày</strong> từ lúc nhận.</span>
         </p>
-        <p class="mb-2 d-flex align-items-start">
-          <ClockCircleOutlined style="color: #1890ff; font-size: 18px; margin-right: 8px" />
-          <span>Phần thưởng trùng sẽ <strong>tăng thời gian</strong> sử dụng</span>
+        <p class="rule-item">
+          <ClockCircleOutlined class="rule-icon-info" />
+          <span>Phần thưởng trùng sẽ được <strong>cộng dồn thời gian</strong> sử dụng.</span>
         </p>
-        <p class="mb-2 d-flex align-items-start">
-          <GiftOutlined style="color: #eb2f96; font-size: 18px; margin-right: 8px" />
-          <span>Chọn <strong>“Lưu về kho”</strong> để lưu về kho</span>
+        <p class="rule-item">
+          <GiftOutlined class="rule-icon-reward" />
+          <span>Chọn <strong>“Lưu về kho”</strong> để nhận và sử dụng phần thưởng.</span>
         </p>
-        <p class="mb-2 d-flex align-items-start">
-          <StarOutlined style="color: #fadb14; font-size: 18px; margin-right: 8px" />
-          <span>Phần thưởng sẽ được nhận <strong>ngẫu nhiên</strong>.</span>
+        <p class="rule-item">
+          <StarOutlined class="rule-icon-random" />
+          <span>Phần thưởng bạn nhận được là <strong>hoàn toàn ngẫu nhiên</strong>.</span>
         </p>
-        <p class="mb-2 d-flex align-items-start">
-          <InfoCircleOutlined style="color: #13c2c2; font-size: 18px; margin-right: 8px" />
-          <span>Vui lòng <strong>đăng nhập</strong> để quay.</span>
+        <p class="rule-item">
+          <InfoCircleOutlined class="rule-icon-login" />
+          <span>Vui lòng <strong>đăng nhập</strong> để tham gia vòng quay.</span>
         </p>
-        <div class="mt-3 text-center">
-          <SmileOutlined style="color: #52c41a; font-size: 22px" />
-          <span class="fw-bold ms-2">Chúc bạn may mắn!</span>
+        <div class="lucky-wish">
+          <SmileOutlined class="wish-icon" />
+          <span>Chúc bạn may mắn!</span>
         </div>
       </div>
     </div>
 
-    <!-- Vòng quay -->
     <div class="wheel-container flex-fill">
       <FortuneWheel
         ref="fortuneRef"
@@ -44,48 +42,44 @@
         :prizes="prizes"
         @rotateEnd="onRotateEnd"
       />
-      <div class="text-center mt-3">
-        <button :disabled="isLoading" @click="isAuthenticated ? onCanvasRotateStart() : redirectToLogin()">
-          <span class="shadow"></span>
-          <span class="edge"></span>
-          <span class="front text">
-            <template v-if="isAuthenticated">
-              Quay ngay {{ spinStatus.remaining_spin }}/{{ spinStatus.max_spin }}
-            </template>
-            <template v-else>
-              Đăng nhập để quay
-            </template>
-          </span>
+      <div class="text-center mt-4">
+        <button
+          class="spin-button"
+          :disabled="isLoading"
+          @click="isAuthenticated ? onCanvasRotateStart() : redirectToLogin()"
+        >
+          <template v-if="isAuthenticated">
+            Quay ngay ({{ spinStatus.remaining_spin }}/{{ spinStatus.max_spin }})
+          </template>
+          <template v-else> Đăng nhập để quay </template>
         </button>
       </div>
     </div>
 
-    <!-- Lịch sử -->
-    <div class="gift-panel align-self-start gift-history">
-      <div class="card shadow-sm p-3">
-        <h4 class="mb-3 fw-bold">🎁 Lịch Sử Vòng Quay</h4>
+    <div class="info-panel history-panel">
+      <h4 class="panel-title">📜 Lịch Sử Phần Thưởng</h4>
+      <div class="panel-content history-list">
         <div v-if="filteredRewards.length > 0">
-          <div v-for="reward in filteredRewards" :key="reward.id" class="border-bottom pb-2 mb-2">
-            <p class="mb-1 text-white"><strong>🎉</strong> {{ reward.prize_name }}</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <p class="mb-1 text-white" style="font-size: 0.85rem">
-                Ngày quay {{ formatDate(reward.spun_at) }}
-              </p>
-              <button class="m-2" :disabled="reward.is_claimed" @click="claimReward(reward.id)">
-                <span class="shadow"></span>
-                <span class="edge"></span>
-                <span class="front text">
-                  {{ reward.is_claimed ? 'Đã lưu kho' : 'Lưu về kho' }}
-                </span>
-              </button>
+          <div v-for="reward in filteredRewards" :key="reward.id" class="history-item">
+            <div class="item-info">
+              <p class="item-name"><strong>🎉</strong> {{ reward.prize_name }}</p>
+              <p class="item-date">Ngày quay: {{ formatDate(reward.spun_at) }}</p>
             </div>
+            <button
+              class="claim-button"
+              :disabled="reward.is_claimed"
+              @click="claimReward(reward.id)"
+            >
+              {{ reward.is_claimed ? 'Đã Lưu' : 'Lưu Kho' }}
+            </button>
           </div>
         </div>
-        <div v-else class="text-white">Bạn chưa có phần thưởng nào</div>
+        <div v-else class="no-rewards">Bạn chưa có phần thưởng nào.</div>
       </div>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
@@ -103,7 +97,7 @@ import {
   GiftOutlined,
   StarOutlined,
   InfoCircleOutlined,
-  SmileOutlined,
+  SmileOutlined
 } from '@ant-design/icons-vue'
 
 // Store và state
@@ -115,7 +109,7 @@ const fortuneRef = ref()
 const prizes = ref<PrizeConfig[]>([])
 const isLoading = ref(true)
 const spinStatus = ref({ has_spun_today: false, remaining_spin: 1, max_spin: 1 })
-const latestPrize = ref<null | { name: string; expired_at: string; claimed: boolean; }>(null)
+const latestPrize = ref<null | { name: string; expired_at: string; claimed: boolean }>(null)
 
 // Cấu hình vòng quay
 const canvasOptions = {
@@ -125,7 +119,7 @@ const canvasOptions = {
   lineHeight: 30,
   fontSize: 18,
   textLength: 10,
-  btnImage: '/src/assets/btn-removebg-preview.png',
+  btnImage: '/src/assets/btn-removebg-preview.png'
 }
 async function fetchPrizes() {
   try {
@@ -141,8 +135,8 @@ async function fetchPrizes() {
         color: index % 2 === 0 ? '#ffffff' : '#000000',
         probability: item.probability || 0,
         type: item.type,
-        data: item.data || null,
-      })),
+        data: item.data || null
+      }))
     )
   } catch (error) {
     console.error('❌ Lỗi khi lấy phần thưởng:', error)
@@ -155,12 +149,12 @@ function normalizeProbabilities(prizesRaw) {
   if (total === 0) return prizesRaw
   return prizesRaw.map((prize) => ({
     ...prize,
-    probability: parseFloat(((prize.probability / total) * 100).toFixed(2)),
+    probability: parseFloat(((prize.probability / total) * 100).toFixed(2))
   }))
 }
 
 function getImageByType(type: string) {
-  return type === 'none' ? '/public/img/khongtrung.png' : '/public/img/gif.png'
+  return '/img/gif.png'
 }
 
 async function onCanvasRotateStart() {
@@ -168,7 +162,7 @@ async function onCanvasRotateStart() {
     const res = await axios.post(
       'http://localhost:8000/api/spin',
       {},
-      { headers: { Authorization: `Bearer ${userStore.token}` } },
+      { headers: { Authorization: `Bearer ${userStore.token}` } }
     )
 
     const prizeRaw = res.data.prize
@@ -192,7 +186,7 @@ async function onCanvasRotateStart() {
       color: '#ffffff',
       probability: prizeRaw.probability ?? 0,
       type: prizeRaw.type,
-      data: prizeRaw.data ?? null,
+      data: prizeRaw.data ?? null
     }
 
     fortuneRef.value?.startRotate(prize)
@@ -212,28 +206,27 @@ async function onRotateEnd(prize: PrizeConfig) {
   latestPrize.value = {
     name: prize.name,
     expired_at: expiredAt.toISOString(),
-    claimed: false,
+    claimed: false
   }
 
-  const isNone = prize.type === 'none'
-  const htmlContent = isNone
-    ? `<img src="${getImageByType(prize.type)}" style="width:100px;height:100px;margin-bottom:10px;" />
-       <div style="font-size:20px;font-weight:bold;color:#999">Chúc Bạn May Mắn Lần Sau !</div>`
-    : `<img src="${getImageByType(prize.type)}" style="width:100px;height:100px;margin-bottom:10px;" />
-       <div style="font-size:24px;font-weight:bold;color:#28a745">🎉 Chúc mừng bạn!</div>
-       <div style="font-size:20px;margin-top:8px;">${prize.name}</div>`
+  const htmlContent = `
+  <img src="${getImageByType(
+    prize.type
+  )}" style="width:100px;height:100px;margin-bottom:10px;" />
+  <div style="font-size:24px;font-weight:bold;color:#28a745">🎉 Chúc mừng bạn!</div>
+  <div style="font-size:20px;margin-top:8px;">${prize.name}</div>`
 
   await Swal.fire({
     html: htmlContent,
     showConfirmButton: true,
-    confirmButtonText: isNone ? 'Quay Lại vào Ngày Mai' : 'Lưu Ngay',
-    showCancelButton: !isNone,
+    confirmButtonText: 'Lưu Ngay',
+    showCancelButton: true,
     cancelButtonText: 'Để sau',
     width: 350,
     timer: 4000,
-    timerProgressBar: true,
+    timerProgressBar: true
   }).then(async (result) => {
-    if (result.isConfirmed && !isNone && spinId.value) {
+    if (result.isConfirmed && spinId.value) {
       await claimReward(spinId.value)
     }
   })
@@ -248,7 +241,7 @@ async function claimReward(rewardId) {
     icon: 'question',
     showCancelButton: true,
     confirmButtonText: 'Lưu ngay',
-    cancelButtonText: 'Hủy',
+    cancelButtonText: 'Hủy'
   })
 
   if (!confirm.isConfirmed) return
@@ -257,17 +250,17 @@ async function claimReward(rewardId) {
     await axios.post(
       'http://localhost:8000/api/claim-reward',
       { spin_id: rewardId },
-      { headers: { Authorization: `Bearer ${userStore.token}` } },
+      { headers: { Authorization: `Bearer ${userStore.token}` } }
     )
     await Swal.fire({
-  toast: true,
-  position: 'top-end',
-  icon: 'success',
-  title: 'Đã lưu vào kho!',
-  timer: 2000,
-  timerProgressBar: true,
-  showConfirmButton: false,
-})
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Đã lưu vào kho!',
+      timer: 2000,
+      timerProgressBar: true,
+      showConfirmButton: false
+    })
 
     await getUserRewards()
   } catch (error) {
@@ -276,13 +269,17 @@ async function claimReward(rewardId) {
   }
 }
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  return new Date(dateStr).toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
 }
 
 async function fetchSpinStatus() {
   try {
     const res = await axios.get('http://localhost:8000/api/spin-status', {
-      headers: { Authorization: `Bearer ${userStore.token}` },
+      headers: { Authorization: `Bearer ${userStore.token}` }
     })
     spinStatus.value = res.data
   } catch (e) {
@@ -294,7 +291,7 @@ function redirectToLogin() {
     icon: 'info',
     title: 'Vui lòng đăng nhập',
     text: 'Bạn cần đăng nhập để quay vòng may mắn 🎯',
-    confirmButtonText: 'Đăng nhập ngay',
+    confirmButtonText: 'Đăng nhập ngay'
   }).then((result) => {
     if (result.isConfirmed) {
       router.push('/login')
@@ -310,151 +307,227 @@ onMounted(() => {
     fetchSpinStatus()
   }
 })
-
-const filteredRewards = computed(() => userRewards.value.filter((r) => r.prize_type !== 'none'))
+const filteredRewards = computed(() => userRewards.value)
 </script>
 
-
 <style scoped>
-.lucky-wrapper {
-  background: url('@/assets/background-lcw.png') center/cover no-repeat !important;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  background: linear-gradient(to bottom, #fffdf4, #f5f5f5);
+/* ---- BACKGROUND ANIMATION ---- */
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
+/* ---- MAIN WRAPPER LAYOUT ---- */
+.lucky-wrapper {
+  width: 100%;
+  min-height: 80vh;
+  padding: 2rem;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient-animation 15s ease infinite;
+  
+  /* Flexbox settings for centering and wrapping */
+  display: flex;
+  flex-wrap: wrap; 
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+/* ---- INFO PANELS (RULES & HISTORY) ---- */
+.info-panel {
+  width: 100%;
+  max-width: 380px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+.panel-title {
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 1);
+}
+
+.panel-content {
+  font-size: 0.95rem;
+}
+/* ---- RULES PANEL SPECIFIC STYLES ---- */
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.rule-item .ant-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.rule-icon-warning { color: #faad14; }
+.rule-icon-info { color: #1890ff; }
+.rule-icon-reward { color: #eb2f96; }
+.rule-icon-random { color: #fadb14; }
+.rule-icon-login { color: #13c2c2; }
+
+.lucky-wish {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #fff;
+}
+.wish-icon {
+  color: #52c41a;
+  font-size: 22px;
+  margin-right: 8px;
+}
+
+/* ---- WHEEL CONTAINER & SPIN BUTTON ---- */
 .wheel-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   max-width: 470px;
-  margin: 0 auto;
 }
 
-/* RESPONSIVE xử lý lại thứ tự khi màn hình nhỏ */
-@media (max-width: 767.98px) {
-  .lucky-wrapper {
-    flex-direction: column !important;
-  }
-
-  .wheel-container {
-    order: 1;
-    width: 100%;
-  }
-
-  .gift-rules {
-    order: 2;
-    width: 100%;
-  }
-
-  .gift-history {
-    order: 3;
-    width: 100%;
-  }
-}
-button {
-  position: relative;
+.spin-button {
+  padding: 12px 32px;
   border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
-  outline-offset: 4px;
-  transition: filter 250ms;
-  user-select: none;
-  touch-action: manipulation;
-}
-
-.shadow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  background: hsl(0deg 0% 0% / 0.25);
-  transform: translateY(2px);
-  transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
-}
-
-.edge {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  background: linear-gradient(
-    to left,
-    hsl(340deg 100% 16%) 0%,
-    hsl(340deg 100% 32%) 8%,
-    hsl(340deg 100% 32%) 92%,
-    hsl(340deg 100% 16%) 100%
-  );
-}
-
-.front {
-  display: block;
-  position: relative;
-  padding: 6px 16px;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: bold;
   color: white;
-  background: hsl(345deg 100% 47%);
-  transform: translateY(-4px);
-  transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+  background: linear-gradient(45deg, #ff416c, #ff4b2b);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  user-select: none;
 }
 
-button:hover {
-  filter: brightness(110%);
+.spin-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
-button:hover .front {
-  transform: translateY(-6px);
+
+.spin-button:active:not(:disabled) {
+  transform: translateY(-1px);
 }
-button:active .front {
-  transform: translateY(-2px);
-}
-button:hover .shadow {
-  transform: translateY(4px);
-}
-button:active .shadow {
-  transform: translateY(1px);
-}
-button:disabled {
+
+.spin-button:disabled {
+  background: #6c757d;
   cursor: not-allowed;
-  filter: none !important;
-  pointer-events: none;
-}
-button:disabled .front {
-  background: #28a745 !important;
-  color: #fff !important;
-}
-button:disabled .edge {
-  background: #1e7e34 !important;
-}
-button:disabled .shadow {
-  background: rgba(0, 0, 0, 0.2) !important;
+  opacity: 0.7;
 }
 
-.card {
-  color: #f5f5f5;
-  background-color: #ea322f;
-  border: none;
-}
-.gift-history .card {
-  max-height: 72.5vh;
+/* ---- HISTORY PANEL SPECIFIC STYLES ---- */
+.history-list {
+  max-height: 450px;
   overflow-y: auto;
+  padding-right: 10px;
+  margin-right: -10px;
 }
-.gift-history .card::-webkit-scrollbar {
+
+/* Custom scrollbar */
+.history-list::-webkit-scrollbar {
   width: 6px;
 }
-
-.gift-history .card::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3);
+.history-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
 }
-span {
+.history-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+.history-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem;
+  margin-bottom: 0.8rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.history-item:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.item-info .item-name {
+  font-weight: bold;
+  margin: 0;
+  color: #fff;
+}
+.item-info .item-date {
+  font-size: 0.8rem;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.claim-button {
+  padding: 6px 12px;
+  border: 1px solid white;
+  border-radius: 6px;
+  background: transparent;
   color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  flex-shrink: 0; /* Prevents button from shrinking */
+}
+
+.claim-button:hover:not(:disabled) {
+  background: white;
+  color: #e73c7e;
+}
+
+.claim-button:disabled {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: not-allowed;
+}
+
+.no-rewards {
+  text-align: center;
+  padding: 2rem 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ---- RESPONSIVE ORDERING ---- */
+@media (max-width: 1200px) {
+  .wheel-container {
+    order: 1;
+    margin-bottom: 2rem;
+  }
+  .rules-panel {
+    order: 2;
+    margin-bottom: 2rem;
+  }
+  .history-panel {
+    order: 3;
+  }
 }
 </style>

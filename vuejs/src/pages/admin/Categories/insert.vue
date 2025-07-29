@@ -5,8 +5,8 @@
         <div class="card-body">
           <div class="col-xl-12 order-xl-1">
             <div class="d-flex justify-content-between">
-              <h3 class="text-danger fw-bold frame">Thêm danh mục</h3>
-              <div class="frame">
+              <h3 class="text-danger fw-bold">Thêm danh mục</h3>
+              <div>
                 <router-link to="categories" class="btn btn-outline-secondary rounded-0">
                   <i class="bi bi-arrow-counterclockwise"></i> Quay lại
                 </router-link>

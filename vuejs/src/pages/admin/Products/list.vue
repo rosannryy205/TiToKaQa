@@ -116,7 +116,7 @@
                   <td>{{ food.category?.name || 'Không có danh mục' }}</td>
                   <td>{{ food.price.toLocaleString('vi-VN') }} VNĐ</td>
                   <td>{{ food.stock }}</td>
-                  <td class="d-flex gap-2">
+                  <td class="d-flex justify-content-center gap-2 flex-wrap">
                     <router-link :to="{ name: 'update-food', params: { id: food.id } }"
                       v-if="hasPermission('edit_food')">
                       <button type="button" class="btn btn-update ">

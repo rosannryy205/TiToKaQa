@@ -14,11 +14,34 @@
             </a>
           </div>
 
+          <div class="collapse navbar-collapse">
+            <ul class="navbar-nav main-nav-links">
+              <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
+            </ul>
+          </div>
+          <div class="me-2">
+            <button class="button" @click.prevent="toggleBookingForm" :class="{ 'active': isBookingFormVisible }">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" height="24" fill="none"
+                class="svg-icon">
+                <g stroke-width="2" stroke-linecap="round" stroke="#fff">
+                  <rect y="5" x="4" width="16" rx="2" height="16"></rect>
+                  <path d="m8 3v4"></path>
+                  <path d="m16 3v4"></path>
+                  <path d="m4 11h16"></path>
+                </g>
+              </svg>
+              <span class="lable">Đặt bàn ngay !</span>
+            </button>
+          </div>
           <div class="d-none d-lg-flex align-items-center ms-auto ">
             <form @submit.prevent="searchProduct">
               <div class="input-wrapper position-relative me-3" ref="wrapperRef">
                 <button class="icon-search-submit" type="submit">
-                  <svg width="23px" height="23px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="22px" height="22px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
                       stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -51,6 +74,8 @@
               </div>
             </form>
 
+
+
             <div class="me-2">
               <router-link to="/login" v-if="!isLoggedIn" class="text-decoration-none text-primary-black">
                 <button class="icon-btn me-2">
@@ -79,17 +104,7 @@
         </div>
       </nav>
 
-      <nav class="navbar navbar-expand-lg navbar-bottom d-none d-lg-block pt-0">
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav main-nav-links">
-            <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
-            <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
-          </ul>
-        </div>
-      </nav>
+
     </div>
 
     <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
@@ -161,7 +176,8 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name"
+                  class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -172,7 +188,7 @@
               <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
                 <div class="flex-grow-1">
                   <div class="topping-container mb-3" v-if="toppingList.length
-                  || spicyLevel.length ">
+                    || spicyLevel.length">
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" id="spicyLevel">
@@ -217,6 +233,43 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- reservation -->
+  <div class="container">
+    <transition name="slide-fade">
+      <div v-if="isBookingFormVisible" class="booking-form-container position-relative">
+        <button @click="closeForm" class="btn-close position-absolute" style="top: 5px; right: 5px;"
+          aria-label="Close"></button>
+
+        <form class="row g-3 align-items-end mt-3" @submit.prevent="makeReservationQuickly">
+          <div class="col-12 col-md-4 col-lg">
+            <label for="bookingGuests" class="form-label">Số khách</label>
+            <input type="number" class="form-control" id="bookingGuests" min="1" value="1" v-model="guest_count">
+          </div>
+          <div class="col-12 col-md-4 col-lg">
+            <label for="bookingDate" class="form-label">Ngày đặt</label>
+            <input type="date" class="form-control" v-model="date" :min="today" />
+          </div>
+          <div class="col-12 col-md-4 col-lg">
+            <!-- <label for="bookingTime" class="form-label">Giờ đặt</label>
+            <input type="time" class="form-control" id="bookingTime"> -->
+            <select class="form-control" v-model="time">
+              <option value="">Chọn giờ</option>
+              <option v-for="time in filteredTimeOptions" :key="time" :value="time">
+                {{ time }}
+              </option>
+            </select>
+          </div>
+          <div class="col-12 col-lg-auto">
+            <button class="button" type="submit">
+              <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+              <span class="lable">Đặt ngay !</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </transition>
   </div>
   <router-view></router-view>
 
@@ -378,8 +431,6 @@ const handleInput = debounce(() => {
 
 
 
-
-
 // Hàm xử lý cuộn để tải thêm dữ liệu
 const handleScroll = (e) => {
   console.log("Đang scroll suggestion dropdown...");
@@ -393,10 +444,6 @@ const handleScroll = (e) => {
     fetchSuggestions();
   }
 };
-
-
-
-
 
 const selectItem = (item) => {
   searchQuery.value = item.name;
@@ -519,14 +566,124 @@ const addToCart = () => {
   localStorage.setItem(cartKey, JSON.stringify(cart))
   alert('Đã thêm vào giỏ hàng!')
 }
+/**form datban */
+const isBookingFormVisible = ref(false);
+const closeForm = () => {
+  isBookingFormVisible.value = false
+}
+const toggleBookingForm = () => {
+  isBookingFormVisible.value = !isBookingFormVisible.value;
+};
 
+const today = new Date().toISOString().split('T')[0]
+const date = ref()
+const timeOptions = ref([])
+const time = ref('')
+const guest_count = ref(1)
+const isLoading = ref(false)
+const filteredTimeOptions = computed(() => {
+  if (!date.value) {
+    return timeOptions.value
+  }
+
+  const selectedDate = new Date(date.value)
+  const now = new Date()
+
+  if (selectedDate.toDateString() === now.toDateString()) {
+    return timeOptions.value.filter((timeStr) => {
+      const [hours, minutes] = timeStr.split(':').map(Number)
+      const timeDate = new Date(selectedDate)
+      timeDate.setHours(hours, minutes, 0)
+
+      return timeDate > now
+    })
+  }
+
+  return timeOptions.value
+})
+
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return '';
+
+  const d = new Date(dateStr);
+
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0'); // tháng bắt đầu từ 0
+  const day = String(d.getDate()).padStart(2, '0');
+  const hours = String(d.getHours()).padStart(2, '0'); // 24h format
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
+};
+
+const makeReservationQuickly = async () => {
+  if (!date.value || !time.value || !guest_count.value) {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'info',
+      title: 'Vui lòng điền đầy đủ thông tin để tìm bàn!',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
+    return
+  }
+  const selectedDateTime = new Date(`${date.value}T${time.value}:00`)
+  try {
+    isLoading.value = true
+
+    const reservedFrom = selectedDateTime
+    const reservedTo = new Date(reservedFrom.getTime() + 2 * 60 * 60 * 1000)
+
+    const reserved_from = formatDateTime(reservedFrom)
+    const reserved_to = formatDateTime(reservedTo)
+
+    const res = await axios.post('http://127.0.0.1:8000/api/make-reservation-quickly', {
+      reserved_from,
+      reserved_to,
+      number_of_guests: guest_count.value,
+    })
+
+    isLoading.value = false
+    toggleBookingForm()
+    router.push({
+      name: 'reservation-form',
+      params: { orderId: res.data.orderId },
+    })
+  } catch (error) {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Lỗi khi lấy danh sách bàn có thể đặt',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
+    console.error('Lỗi:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+/**end form datban */
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
+  for (let hour = 8; hour <= 21; hour++) {
+    let hourStr = hour < 10 ? '0' + hour : '' + hour
+    timeOptions.value.push(hourStr + ':00')
+    if (hour !== 20) {
+      timeOptions.value.push(hourStr + ':30')
+    }
+  }
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside);
 });
+
+
 
 </script>
 
@@ -550,7 +707,6 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   max-height: 300px;
-  /* 👈 Cố định chiều cao để buộc scroll */
   max-height: 270px;
   overflow-y: auto;
   background: #fff;
@@ -721,5 +877,78 @@ onBeforeUnmount(() => {
   100% {
     transform: translateX(-90px);
   }
+}
+
+.nav-link.active {
+  color: #dc3545 !important;
+  font-weight: 500;
+}
+
+.booking-form-container {
+  background-color: #ffffff;
+  border-radius: 0 0 .5rem .5rem;
+  border-top: none;
+}
+
+.booking-form-container .form-label {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+  color: #495057;
+}
+
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-15px);
+  opacity: 0;
+}
+
+
+/*andrew-demchenk0*/
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 9px 12px;
+  gap: 8px;
+  height: 40px;
+  width: 201px;
+  border: none;
+  background: #FF342B;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.lable {
+  line-height: 22px;
+  font-size: 17px;
+  color: #fff;
+  font-family: sans-serif;
+  letter-spacing: 1px;
+}
+
+.button:hover {
+  background: #e52e26;
+}
+
+.button:hover .svg-icon {
+  animation: slope 1s linear infinite;
+}
+
+@keyframes slope {
+  0% {}
+
+  50% {
+    transform: rotate(10deg);
+  }
+
+  100% {}
 }
 </style>

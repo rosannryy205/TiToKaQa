@@ -168,6 +168,7 @@
       </section>
     </div>
   </section>
+ 
   <section class="populars-infors-pots">
     <!---->
     <section class="popular-searches container py-4">
@@ -514,7 +515,15 @@ export default {
       }
 
       localStorage.setItem(cartKey, JSON.stringify(cart))
-      toast.success('🛍️ Đã thêm vào giỏ hàng!')
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Đã thêm món vào giỏ hàng!',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      });
     }
     const increaseQuantity = () => {
       quantity.value += 1
@@ -527,8 +536,8 @@ export default {
     }
     onMounted(async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/home/api/foods')
-        const res1 = await axios.get('http://127.0.0.1:8000/api/home/api/combos')
+        const res = await axios.get('http://127.0.0.1:8000/api/home/foods')
+        const res1 = await axios.get('http://127.0.0.1:8000/api/home/combos')
         foods.value = res.data
         combos.value = res1.data
         await new Promise((resolve) => setTimeout(resolve, 5000))

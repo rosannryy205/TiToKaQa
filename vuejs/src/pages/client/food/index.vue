@@ -83,19 +83,45 @@
 
               <!-- Real Product -->
               <template v-else>
-                <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3 mb-4">
-                  <div class="product-card">
-                    <img :src="getImageUrl(item.image)" alt="" class="product-img mx-auto d-block" width="180px" />
-                    <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
-                    <span class="product-dish-desc text-start">
-                      {{ item.description }}
-                    </span>
-                    <p class="product-dish-price fw-bold text-center">
-                      {{ formatNumber(item.price) }} VNĐ
-                    </p>
-                  </div>
-                </div>
-              </template>
+  <div
+    v-for="item in foods"
+    :key="item"
+    @click="openModal(item)"
+    class="col-md-3 mb-4"
+  >
+    <div class="product-card position-relative">
+      <div
+        v-if="isAvailableInFlashSale(item)"
+        class="flash-sale-ribbon"
+      >
+        <span>🔥 Flash Sale</span>
+      </div>
+
+      <img
+        :src="getImageUrl(item.image)"
+        alt=""
+        class="product-img mx-auto d-block"
+        width="180px"
+      />
+      <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
+      <span class="product-dish-desc text-start">
+        {{ item.description }}
+      </span>
+
+      <!-- Hiển thị giá -->
+      <p
+  class="text-center mt-1 fw-bold"
+  v-if="isAvailableInFlashSale(item)"
+>
+  <span class="text-danger">
+   Đã bán: {{ item.flash_sale_sold }}/{{ item.flash_sale_quantity }} sản phẩm
+  </span>
+</p>
+
+    </div>
+  </div>
+</template>
+
             </div>
           </div>
         </div>
@@ -146,18 +172,37 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img
+                  :src="getImageUrl(foodDetail.image)"
+                  :alt="foodDetail.name"
+                  class="modal-image img-fluid"
+                />
               </div>
-              <p class="text-danger fw-bold fs-5 text-center">
+              <p
+                v-if="foodDetail.flash_sale_price && isInFlashSaleTime(foodDetail)"
+                class="text-center"
+              >
+                <span class="text-danger fw-bold fs-5"
+                  >{{ formatNumber(foodDetail.flash_sale_price) }} VNĐ</span
+                >
+                <del class="text-muted ms-2">{{ formatNumber(foodDetail.price) }} VNĐ</del>
+                <span class="badge bg-danger ms-2">
+                  -{{ calculateDiscount(foodDetail.price, foodDetail.flash_sale_price) }}%
+                </span>
+              </p>
+              <p v-else class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
               </p>
+
               <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
             </div>
             <div class="col-md-6 d-flex flex-column">
               <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
                 <div class="flex-grow-1">
-                  <div class="topping-container mb-3" v-if="toppingList.length
-                    || spicyLevel.length">
+                  <div
+                    class="topping-container mb-3"
+                    v-if="toppingList.length || spicyLevel.length"
+                  >
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" id="spicyLevel">
@@ -166,9 +211,14 @@
                         </option>
                       </select>
                     </div>
-                    <label v-if="toppingList.length" class="form-label fw-bold">🧀 Chọn Topping:</label>
-                    <div v-for="topping in toppingList" :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2">
+                    <label v-if="toppingList.length" class="form-label fw-bold"
+                      >🧀 Chọn Topping:</label
+                    >
+                    <div
+                      v-for="topping in toppingList"
+                      :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2"
+                    >
                       <label class="d-flex align-items-center">
                         <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                         {{ topping.name }}
@@ -194,7 +244,7 @@
                       </button>
                     </div>
                   </div>
-                  <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                  <button class="btn btn-danger w-100 fw-bold" >🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
             </div>
@@ -218,12 +268,27 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { useRoute } from 'vue-router'
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2'
 import { computed } from 'vue'
 
 export default {
   name: 'HomePage',
+
   methods: {
+    isAvailableInFlashSale(item) {
+      return (
+        this.isInFlashSaleTime(item) &&
+        item.flash_sale_price &&
+        item.flash_sale_quantity > item.flash_sale_sold
+      );
+    },
+    isInFlashSaleTime(item) {
+      if (!item.flash_sale_start || !item.flash_sale_end) return false
+      const now = new Date()
+      const start = new Date(item.flash_sale_start)
+      const end = new Date(item.flash_sale_end)
+      return now >= start && now <= end
+    },
     formatNumber(value) {
       return numeral(value).format('0,0')
     },
@@ -399,80 +464,102 @@ export default {
     }
 
     const addToCart = () => {
-      const user = JSON.parse(localStorage.getItem('user'))
-      const userId = user?.id || 'guest'
-      const cartKey = orderId
-        ? `cart_${userId}_reservation_${orderId}`
-        : `cart_${userId}`
+  const user = JSON.parse(localStorage.getItem('user'))
+  const userId = user?.id || 'guest'
+  const cartKey = orderId ? `cart_${userId}_reservation_${orderId}` : `cart_${userId}`
 
-      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
-      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+  const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+  const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
 
-      let allSelectedToppings = [];
+  let allSelectedToppings = []
 
-      if (selectedSpicy) {
-        allSelectedToppings.push({
-          id: selectedSpicy.id,
-          name: selectedSpicy.name,
-          price: selectedSpicy.price,
-          food_toppings_id: selectedSpicy.pivot?.id || null,
-          is_spicy_level: true
-        });
-      }
+  if (selectedSpicy) {
+    allSelectedToppings.push({
+      id: selectedSpicy.id,
+      name: selectedSpicy.name,
+      price: selectedSpicy.price,
+      food_toppings_id: selectedSpicy.pivot?.id || null,
+      is_spicy_level: true,
+    })
+  }
 
-      const selectedToppingIds = Array.from(
-        document.querySelectorAll('input[name="topping[]"]:checked')
-      ).map((el) => parseInt(el.value));
+  const selectedToppingIds = Array.from(
+    document.querySelectorAll('input[name="topping[]"]:checked'),
+  ).map((el) => parseInt(el.value))
 
-      const normalToppings = toppingList.value
-        .filter((topping) => selectedToppingIds.includes(topping.id))
-        .map((topping) => ({
-          id: topping.id,
-          name: topping.name,
-          price: topping.price,
-          food_toppings_id: topping.pivot?.id || null,
-          is_spicy_level: false
-        }));
+  const normalToppings = toppingList.value
+    .filter((topping) => selectedToppingIds.includes(topping.id))
+    .map((topping) => ({
+      id: topping.id,
+      name: topping.name,
+      price: topping.price,
+      food_toppings_id: topping.pivot?.id || null,
+      is_spicy_level: false,
+    }))
 
-      allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+  allSelectedToppings = [...allSelectedToppings, ...normalToppings]
 
-      const cartItem = {
-        id: foodDetail.value.id,
-        name: foodDetail.value.name,
-        image: foodDetail.value.image,
-        price: foodDetail.value.price,
-        toppings: allSelectedToppings,
-        quantity: quantity.value,
-        type: foodDetail.value.type,
-        category_id: foodDetail.value.category_id,
-      };
-      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
-      const existingItemIndex = cart.findIndex(
-        (item) =>
-          item.id === cartItem.id &&
-          JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
-      );
+  let cart = JSON.parse(localStorage.getItem(cartKey)) || []
 
-      if (existingItemIndex !== -1) {
-        cart[existingItemIndex].quantity += 1;
-      } else {
-        cart.push(cartItem);
-      }
+  const toppingsKey = allSelectedToppings.map((t) => t.id).sort().join(',')
 
-      localStorage.setItem(cartKey, JSON.stringify(cart));
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Đã thêm món vào giỏ hàng!',
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true
-      });
+  const existingItemIndex = cart.findIndex(
+    (item) =>
+      item.id === foodDetail.value.id &&
+      item.toppings.map((t) => t.id).sort().join(',') === toppingsKey,
+  )
+  let applyPrice = foodDetail.value.price
+  const isFlashSale = foodDetail.value.flash_sale_price !== undefined && foodDetail.value.flash_sale_price !== null
 
-    };
+  if (isFlashSale) {
+    const countSameFlashSaleItems = cart.filter(
+      (item) =>
+        item.id === foodDetail.value.id &&
+        item.toppings.map((t) => t.id).sort().join(',') === toppingsKey &&
+        item.price === foodDetail.value.flash_sale_price
+    ).length
+    if (countSameFlashSaleItems === 0) {
+      applyPrice = foodDetail.value.flash_sale_price
+    }
+  }
 
+  const cartItem = {
+    id: foodDetail.value.id,
+    name: foodDetail.value.name,
+    image: foodDetail.value.image,
+    price: applyPrice,
+    original_price: foodDetail.value.price,
+    toppings: allSelectedToppings,
+    quantity: quantity.value,
+    type: foodDetail.value.type,
+    category_id: foodDetail.value.category_id,
+    is_flash_sale: isFlashSale && applyPrice === foodDetail.value.flash_sale_price
+  }
 
+  if (existingItemIndex !== -1 && cart[existingItemIndex].price === cartItem.price) {
+    cart[existingItemIndex].quantity += cartItem.quantity
+  } else {
+    cart.push(cartItem)
+  }
+
+  localStorage.setItem(cartKey, JSON.stringify(cart))
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon: 'success',
+    title: 'Đã thêm món vào giỏ hàng!',
+    showConfirmButton: false,
+    timer: 2000,
+    timerProgressBar: true,
+  })
+}
+
+    /**tinh % giam tu flashsale */
+    function calculateDiscount(originalPrice, salePrice) {
+      if (!originalPrice || !salePrice) return 0
+      const discount = ((originalPrice - salePrice) / originalPrice) * 100
+      return Math.round(discount)
+    }
 
     onMounted(async () => {
       await getCategory()
@@ -485,7 +572,7 @@ export default {
       isLoading.value = true
 
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/home/api/foods')
+        const res = await axios.get('http://127.0.0.1:8000/api/home/foods')
         foods.value = res.data
         await new Promise((resolve) => setTimeout(resolve, 5000))
       } catch (e) {
@@ -521,6 +608,7 @@ export default {
       quantity,
       orderId,
       isReservation,
+      calculateDiscount,
       addToCart
     }
   },
@@ -529,7 +617,7 @@ export default {
 <style scoped>
 .fixed-element {
   position: fixed;
-  top: 157px;
+  top: 100px;
   left: 50%;
   transform: translateX(-50%);
   width: 84%;
@@ -704,5 +792,69 @@ export default {
   background: #e5e5e5;
   border-radius: 4px;
   margin-top: 0.5rem;
+}
+/**gach giua */
+del {
+  text-decoration: line-through !important;
+}
+.flash-sale-tag {
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px 5px rgba(220, 53, 69, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
+}
+.product-card-wrapper {
+  perspective: 1000px;
+}
+
+.flash-sale-ribbon {
+  width: 150px;
+  height: 32px;
+  position: absolute;
+  top: 15px;
+  left: -40px;
+  z-index: 1;
+  transform: rotate(-45deg);
+  background: linear-gradient(45deg, #d82c2c, #f85032);
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  line-height: 32px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.flash-sale-ribbon::before,
+.flash-sale-ribbon::after {
+  content: "";
+  position: absolute;
+  border-top: 4px solid #a51d1d;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+
+.flash-sale-ribbon::before {
+  left: 0;
+  bottom: -4px;
+}
+
+.flash-sale-ribbon::after {
+  right: 0;
+  bottom: -4px;
+}
+.product-card-wrapper:hover .flash-sale-ribbon {
+  transform: rotate(-45deg) scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 </style>

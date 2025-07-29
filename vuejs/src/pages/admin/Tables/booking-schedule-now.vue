@@ -1,173 +1,186 @@
 <template>
-  <h3 class="p-4 ps-0 pb-0">Danh sách đặt bàn ngày {{ formatDate(selectedDateInput) }}</h3>
-  <button class="btn btn-add me-3" @click="openQrScanner" v-if="hasPermission('edit_booking')">
-    + Quét mã
-  </button>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <h3 class="p-4 ps-0 pb-0">Danh sách đặt bàn ngày {{ formatDate(selectedDateInput) }}</h3>
+          <button class="btn btn-add me-3" @click="openQrScanner" v-if="hasPermission('edit_booking')">
+            + Quét mã
+          </button>
 
-  <div v-if="showQrScanner" class="qr-scanner-modal-overlay">
-    <div class="qr-scanner-modal">
-      <div class="modal-header">
-        <h5 class="modal-title">Quét mã đặt bàn</h5>
-        <button type="button" class="btn-close" @click="closeQrScanner"></button>
-      </div>
-      <div class="modal-body">
-        <div id="qr-reader" style="width: 100%"></div>
-        <div v-if="qrScanError" class="alert alert-danger mt-3">Lỗi quét mã: {{ qrScanError }}</div>
-      </div>
-    </div>
-  </div>
-  <div v-if="hasPermission('view_booking')" class="table-responsive mt-3 d-none d-lg-block">
-    <table class="table table table-bordered">
-      <thead class="table-light">
-        <tr>
-          <th>Mã đặt bàn</th>
-          <th>Khách hàng</th>
-          <th>Thời gian</th>
-          <th>Bàn số</th>
-          <th>Số khách</th>
-          <th>Trạng thái</th>
-          <th>Hành động</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <template v-if="orderOfTable && orderOfTable.length > 0">
-          <tr v-for="order in orderOfTable" :key="order.id">
-            <td>{{ order.reservation_code }}</td>
-            <td>
-              {{ order.guest_name }}
-              <br />
-              <span class="text-muted">{{ order.guest_phone }}</span>
-            </td>
-
-            <td>{{ formatTime(order.reserved_from) }}</td>
-            <td>
-              <span v-for="(t, index) in order.tables" :key="t.id">
-                {{ t.table_number }}<span v-if="index < order.tables.length - 1">, </span>
-              </span>
-            </td>
-            <td>{{ order.guest_count }}</td>
-            <td>
-              <select v-model="order.order_status" class="form-select rounded-0"
-                @change="updateStatus(order.id, order.order_status)" :disabled="!hasPermission('edit_booking')">
-                <option value="Chờ xác nhận" :disabled="!canSelectStatus(order.order_status, 'Chờ xác nhận')">
-                  Chờ xác nhận
-                </option>
-                <option value="Đã xác nhận" :disabled="!canSelectStatus(order.order_status, 'Đã xác nhận')">
-                  Đã xác nhận
-                </option>
-                <option value="Đang xử lý" :disabled="!canSelectStatus(order.order_status, 'Đang xử lý')">
-                  Đang xử lý
-                </option>
-                <option value="Khách đã đến" :disabled="!canSelectStatus(order.order_status, 'Khách đã đến')">
-                  Khách đã đến
-                </option>
-                <option value="Hoàn thành" :disabled="!canSelectStatus(order.order_status, 'Hoàn thành')">
-                  Hoàn thành
-                </option>
-                <option value="Đã hủy" :disabled="!canSelectStatus(order.order_status, 'Đã hủy')">
-                  Đã hủy
-                </option>
-              </select>
-            </td>
-            <td>
-              <div v-if="
-                hasPermission('edit_booking') &&
-                order.order_status !== 'Đã hủy' &&
-                order.order_status !== 'Hoàn thành'
-              ">
-                <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button me-2">Chọn
-                  món</router-link>
-                <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button me-2">Chuyển bàn</router-link>
-                <router-link :to="`/admin/tables-setup/${info.id}`" class="btn edit-button me-2">Xếp bàn</router-link>
+          <div v-if="showQrScanner" class="qr-scanner-modal-overlay">
+            <div class="qr-scanner-modal">
+              <div class="modal-header">
+                <h5 class="modal-title">Quét mã đặt bàn</h5>
+                <button type="button" class="btn-close" @click="closeQrScanner"></button>
               </div>
-            </td>
-          </tr>
-        </template>
-        <tr v-else-if="isLoading">
-          <td colspan="9" class="text-center">
+              <div class="modal-body">
+                <div id="qr-reader" style="width: 100%"></div>
+                <div v-if="qrScanError" class="alert alert-danger mt-3">Lỗi quét mã: {{ qrScanError }}</div>
+              </div>
+            </div>
+          </div>
+          <div v-if="hasPermission('view_booking')" class="table-responsive mt-3 d-none d-lg-block">
+            <table class="table table table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>Mã đặt bàn</th>
+                  <th>Khách hàng</th>
+                  <th>Thời gian</th>
+                  <th>Bàn số</th>
+                  <th>Số khách</th>
+                  <th>Trạng thái</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <template v-if="orderOfTable && orderOfTable.length > 0">
+                  <tr v-for="order in orderOfTable" :key="order.id">
+                    <td>{{ order.reservation_code }}</td>
+                    <td>
+                      {{ order.guest_name }}
+                      <br />
+                      <span class="text-muted">{{ order.guest_phone }}</span>
+                    </td>
+
+                    <td>{{ formatTime(order.reserved_from) }}</td>
+                    <td>
+                      <span v-for="(t, index) in order.tables" :key="t.id">
+                        {{ t.table_number }}<span v-if="index < order.tables.length - 1">, </span>
+                      </span>
+                    </td>
+                    <td>{{ order.guest_count }}</td>
+                    <td>
+                      <select v-model="order.order_status" class="form-select rounded-0"
+                        @change="updateStatus(order.id, order.order_status)" :disabled="!hasPermission('edit_booking')">
+                        <option value="Chờ xác nhận" :disabled="!canSelectStatus(order.order_status, 'Chờ xác nhận')">
+                          Chờ xác nhận
+                        </option>
+                        <option value="Đã xác nhận" :disabled="!canSelectStatus(order.order_status, 'Đã xác nhận')">
+                          Đã xác nhận
+                        </option>
+                        <option value="Đang xử lý" :disabled="!canSelectStatus(order.order_status, 'Đang xử lý')">
+                          Đang xử lý
+                        </option>
+                        <option value="Khách đã đến" :disabled="!canSelectStatus(order.order_status, 'Khách đã đến')">
+                          Khách đã đến
+                        </option>
+                        <option value="Hoàn thành" :disabled="!canSelectStatus(order.order_status, 'Hoàn thành')">
+                          Hoàn thành
+                        </option>
+                        <option value="Đã hủy" :disabled="!canSelectStatus(order.order_status, 'Đã hủy')">
+                          Đã hủy
+                        </option>
+                      </select>
+                    </td>
+                    <td>
+                      <div v-if="
+                        hasPermission('edit_booking') &&
+                        order.order_status !== 'Đã hủy' &&
+                        order.order_status !== 'Hoàn thành'
+                      ">
+                        <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button me-2">Chọn
+                          món</router-link>
+                        <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button me-2">Chuyển
+                          bàn</router-link>
+                        <router-link :to="`/admin/tables-setup/${info.id}`" class="btn edit-button me-2">Xếp
+                          bàn</router-link>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+                <tr v-else-if="isLoading">
+                  <td colspan="9" class="text-center">
+                    <div class="loader-wrapper">
+                      <div class="loader"></div>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-else>
+                  <td colspan="9" class="text-center">Không có đơn đặt bàn nào cho ngày này.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div v-if="hasPermission('view_booking')" class="d-block d-sm-none mt-3">
+            <template v-if="orderOfTable && orderOfTable.length > 0">
+              <div class="card mb-3" v-for="order in orderOfTable" :key="order.id">
+                <div class="row g-0 align-items-center">
+                  <div class="col-12">
+                    <div class="card-body p-2">
+                      <h6 class="card-title"><span class="fw-bold">Mã đặt bàn:</span> {{ order.id }}</h6>
+                      <div class="text-muted">{{ order.guest_name }} - {{ order.guest_phone }}</div>
+                      <div class="text-muted">
+                        <span class="label fw-bold">Thời gian:</span> {{ formatTime(order.reserved_from) }}
+                      </div>
+                      <div class="text-muted">
+                        <span class="label fw-bold">Bàn số:</span>
+                        <span v-for="(t, index) in order.tables" :key="t.id">
+                          {{ t.table_number }}<span v-if="index < order.tables.length - 1">, </span>
+                        </span>
+                      </div>
+                      <div class="text-muted">
+                        <span class="label fw-bold">Số khách:</span> {{ order.guest_count }}
+                      </div>
+                      <div class="text-muted">
+                        <span class="label fw-bold">Trạng thái:</span><br />
+                        <select v-model="order.order_status"
+                          class="form-select rounded-0 form-select-sm d-inline-block w-auto mt-1"
+                          @change="updateStatus(order.id, order.order.order_status)"
+                          :disabled="!hasPermission('edit_booking')">
+                          <option value="Chờ xác nhận" :disabled="!canSelectStatus(order.order_status, 'Chờ xác nhận')">
+                            Chờ xác nhận
+                          </option>
+                          <option value="Đã xác nhận" :disabled="!canSelectStatus(order.order_status, 'Đã xác nhận')">
+                            Đã xác nhận
+                          </option>
+                          <option value="Đang xử lý" :disabled="!canSelectStatus(order.order_status, 'Đang xử lý')">
+                            Đang xử lý
+                          </option>
+                          <option value="Khách đã đến" :disabled="!canSelectStatus(order.order_status, 'Khách đã đến')">
+                            Khách đã đến
+                          </option>
+                          <option value="Hoàn thành" :disabled="!canSelectStatus(order.order_status, 'Hoàn thành')">
+                            Hoàn thành
+                          </option>
+                          <option value="Đã hủy" :disabled="!canSelectStatus(order.order_status, 'Đã hủy')">
+                            Đã hủy
+                          </option>
+                        </select>
+                      </div>
+                      <div v-if="
+                        hasPermission('edit_booking') &&
+                        order.order_status !== 'Đã hủy' &&
+                        order.order_status !== 'Hoàn thành'
+                      " class="mt-1">
+                        <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button me-1">Chọn
+                          món</router-link>
+                        <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button me-1">Chuyển
+                          bàn</router-link>
+                        <router-link :to="`/admin/tables-setup/${info.id}`" class="btn edit-button">Xếp
+                          bàn</router-link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <div v-else-if="isLoading" class="text-center p-5">
+              <div class="loader-wrapper">
+                <div class="loader"></div>
+              </div>
+            </div>
+            <div v-else class="text-center p-3">Không có đơn đặt bàn nào cho ngày này.</div>
+          </div>
+          <div v-if="isLoading && (!orderOfTable || orderOfTable.length === 0)" class="text-center p-5">
             <div class="loader-wrapper">
               <div class="loader"></div>
-            </div>
-          </td>
-        </tr>
-        <tr v-else>
-          <td colspan="9" class="text-center">Không có đơn đặt bàn nào cho ngày này.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div v-if="hasPermission('view_booking')" class="d-block d-sm-none mt-3">
-    <template v-if="orderOfTable && orderOfTable.length > 0">
-      <div class="card mb-3" v-for="order in orderOfTable" :key="order.id">
-        <div class="row g-0 align-items-center">
-          <div class="col-12">
-            <div class="card-body p-2">
-              <h6 class="card-title"><span class="fw-bold">Mã đặt bàn:</span> {{ order.id }}</h6>
-              <div class="text-muted">{{ order.guest_name }} - {{ order.guest_phone }}</div>
-              <div class="text-muted">
-                <span class="label fw-bold">Thời gian:</span> {{ formatTime(order.reserved_from) }}
-              </div>
-              <div class="text-muted">
-                <span class="label fw-bold">Bàn số:</span>
-                <span v-for="(t, index) in order.tables" :key="t.id">
-                  {{ t.table_number }}<span v-if="index < order.tables.length - 1">, </span>
-                </span>
-              </div>
-              <div class="text-muted">
-                <span class="label fw-bold">Số khách:</span> {{ order.guest_count }}
-              </div>
-              <div class="text-muted">
-                <span class="label fw-bold">Trạng thái:</span><br />
-                <select v-model="order.order_status"
-                  class="form-select rounded-0 form-select-sm d-inline-block w-auto mt-1"
-                  @change="updateStatus(order.id, order.order.order_status)" :disabled="!hasPermission('edit_booking')">
-                  <option value="Chờ xác nhận" :disabled="!canSelectStatus(order.order_status, 'Chờ xác nhận')">
-                    Chờ xác nhận
-                  </option>
-                  <option value="Đã xác nhận" :disabled="!canSelectStatus(order.order_status, 'Đã xác nhận')">
-                    Đã xác nhận
-                  </option>
-                  <option value="Đang xử lý" :disabled="!canSelectStatus(order.order_status, 'Đang xử lý')">
-                    Đang xử lý
-                  </option>
-                  <option value="Khách đã đến" :disabled="!canSelectStatus(order.order_status, 'Khách đã đến')">
-                    Khách đã đến
-                  </option>
-                  <option value="Hoàn thành" :disabled="!canSelectStatus(order.order_status, 'Hoàn thành')">
-                    Hoàn thành
-                  </option>
-                  <option value="Đã hủy" :disabled="!canSelectStatus(order.order_status, 'Đã hủy')">
-                    Đã hủy
-                  </option>
-                </select>
-              </div>
-              <div v-if="
-                hasPermission('edit_booking') &&
-                order.order_status !== 'Đã hủy' &&
-                order.order_status !== 'Hoàn thành'
-              " class="mt-1">
-                <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button me-1">Chọn
-                  món</router-link>
-                <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button me-1">Chuyển bàn</router-link>
-                <router-link :to="`/admin/tables-setup/${info.id}`" class="btn edit-button">Xếp bàn</router-link>
-              </div>
             </div>
           </div>
         </div>
       </div>
-    </template>
-    <div v-else-if="isLoading" class="text-center p-5">
-      <div class="loader-wrapper">
-        <div class="loader"></div>
-      </div>
-    </div>
-    <div v-else class="text-center p-3">Không có đơn đặt bàn nào cho ngày này.</div>
-  </div>
-  <div v-if="isLoading && (!orderOfTable || orderOfTable.length === 0)" class="text-center p-5">
-    <div class="loader-wrapper">
-      <div class="loader"></div>
     </div>
   </div>
 </template>
