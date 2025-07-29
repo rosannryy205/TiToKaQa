@@ -1,24 +1,27 @@
 
+@use 'now-ui-dashboard/index' as *;
 
-@import 'now-ui-dashboard/variables';
-@import 'now-ui-dashboard/mixins';
-
-// Plugins CSS
-@import 'now-ui-dashboard/plugins/plugin-perfect-scrollbar';
+@use 'now-ui-dashboard/variables';
+@use 'now-ui-dashboard/mixins';
 
 // Core CSS
-@import 'now-ui-dashboard/buttons';
-@import 'now-ui-dashboard/pagination';
-@import 'now-ui-dashboard/misc';
-
+@use 'now-ui-dashboard/buttons';
+@use 'now-ui-dashboard/pagination';
+@use 'now-ui-dashboard/misc';
 
 // components
-@import 'now-ui-dashboard/navbar';
-@import 'now-ui-dashboard/images';
-@import 'now-ui-dashboard/nucleo-outline';
-@import 'now-ui-dashboard/sidebar-and-main-panel';
-@import 'now-ui-dashboard/cards';
+@use 'now-ui-dashboard/navbar';
+@use 'now-ui-dashboard/images';
+@use 'now-ui-dashboard/nucleo-outline';
+@use 'now-ui-dashboard/sidebar-and-main-panel';
+@use 'now-ui-dashboard/cards';
+
+@use 'now-ui-dashboard/responsive';
+
+// Plugins CSS
+@use 'now-ui-dashboard/plugins/plugin-perfect-scrollbar';
 
 
 
-@import 'now-ui-dashboard/responsive';
+
+

@@ -1,3 +1,7 @@
+@use './variables' as vars;
+@use './misc';
+@use './mixins/vendor-prefixes' as vendor;
+
 .wrapper {
   position: relative;
   top: 0;
@@ -18,7 +22,7 @@
   width: 260px;
   left: 0;
   z-index: 9999;
-  box-shadow: $sidebar-box-shadow;
+  box-shadow: vars.$sidebar-box-shadow;
 
   .sidebar-wrapper {
     position: relative;
@@ -76,7 +80,7 @@
           float: left;
           z-index: 1;
           display: inherit;
-          color: $red-color;
+          color: vars.$red-color;
         }
 
         span {
@@ -94,7 +98,7 @@
     top: 2px;
     opacity: 1;
 
-    // @extend .animation-transition-general;
+    @extend .animation-transition-general;
   }
 
   .logo-tim {
@@ -129,16 +133,16 @@
 
       >a {
         margin: 10px 15px 0;
-        border-radius: $btn-round-radius;
-        color: $red-color;
+        border-radius: vars.$btn-round-radius;
+        color: vars.$red-color;
         display: block;
         text-decoration: none;
         position: relative;
         text-transform: uppercase;
         cursor: pointer;
-        font-size: $font-size-mini;
+        font-size: vars.$font-size-mini;
         padding: 10px 8px;
-        line-height: $line-height-nav-link;
+        line-height: vars.$line-height-nav-link;
       }
 
       &:first-child>a {
@@ -147,26 +151,26 @@
 
       &:hover:not(.active)>a,
       &:focus:not(.active)>a {
-        background-color: $opacity-1;
+        background-color: vars.$opacity-1;
       }
 
       &:hover:not(.active)>a i,
       &:focus:not(.active)>a i {
-        color: $red-color;
+        color: vars.$red-color;
       }
 
       &.active>a:not([data-toggle="collapse"]) {
-        background-color: $red-color;
-        box-shadow: $box-shadow;
+        background-color: vars.$red-color;
+        box-shadow: vars.$box-shadow;
       }
 
       &.active>a[data-toggle="collapse"] {
-        background-color: $opacity-1;
+        background-color: vars.$opacity-1;
         box-shadow: none;
-        color: $red-color;
+        color: vars.$red-color;
 
         span {
-          color: $red-color;
+          color: vars.$red-color;
         }
 
         &+div .nav .active a {
@@ -176,10 +180,10 @@
           &:after {
             content: "";
             position: absolute;
-            background-color: $red-color;
+            background-color: vars.$red-color;
             border-radius: 30px;
-            box-shadow: $box-shadow;
-            color: $primary-color;
+            box-shadow: vars.$box-shadow;
+            color: vars.$primary-color;
             height: 44px;
             width: calc(100% - 5px);
             top: 0;
@@ -215,7 +219,7 @@
       line-height: 25px;
       width: 34px;
       text-align: center;
-      // color: $opacity-5;
+      // color: vars.$opacity-5;
       position: relative;
     }
   }
@@ -245,7 +249,7 @@
 
   .logo {
     position: relative;
-    padding: $padding-base-vertical $padding-base-horizontal;
+    padding: vars.$padding-base-vertical vars.$padding-base-horizontal;
     z-index: 4;
 
     a.logo-mini,
@@ -270,7 +274,7 @@
     a.logo-normal {
       display: block;
       opacity: 1;
-      @include transform-translate-x(0px);
+      @include vendor.transform-translate-x(0px);
     }
 
     &:after {
@@ -280,7 +284,7 @@
       right: 15px;
       height: 1px;
       width: calc(100% - 30px);
-      background-color: $red-color;
+      background-color: vars.$red-color;
 
     }
 
@@ -288,20 +292,20 @@
       float: left;
       font-size: 20px;
       margin: 10px 10px;
-      color: $white-color;
+      color: vars.$white-color;
       line-height: 20px;
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
     .simple-text {
       text-transform: uppercase;
-      padding: $padding-base-vertical 0;
+      padding: vars.$padding-base-vertical 0;
       display: block;
       white-space: nowrap;
-      font-size: $font-size-large;
-      color: $red-color;
+      font-size: vars.$font-size-large;
+      color: vars.$red-color;
       text-decoration: none;
-      font-weight: $font-weight-normal;
+      font-weight: vars.$font-weight-normal;
       line-height: 30px;
       overflow: hidden;
     }
@@ -335,36 +339,36 @@
   }
 
   &:after {
-    @include icon-gradient($default-color);
+    @include vendor.icon-gradient(vars.$default-color);
     z-index: 3;
   }
 
   &[data-color="blue"] {
-    @include sidebar-color($info-color);
+    @include vendor.sidebar-color(vars.$info-color);
   }
 
   &[data-color="green"] {
-    @include sidebar-color($success-color);
+    @include vendor.sidebar-color(vars.$success-color);
   }
 
   &[data-color="orange"] {
-    @include sidebar-color($orange-color);
+    @include vendor.sidebar-color(vars.$orange-color);
   }
 
   &[data-color="red"] {
-    @include sidebar-color($danger-color);
+    @include vendor.sidebar-color(vars.$danger-color);
   }
 
   &[data-color="yellow"] {
-    @include sidebar-color($warning-color);
+    @include vendor.sidebar-color(vars.$warning-color);
   }
 
   &[data-color="black"] {
-    @include sidebar-color($black-sidebar-color);
+    @include vendor.sidebar-color(vars.$black-sidebar-color);
   }
 
   &[data-color="grey"] {
-    @include sidebar-color($grey-color);
+    @include vendor.sidebar-color(vars.$grey-color);
   }
 
   .user {
@@ -379,7 +383,7 @@
       right: 15px;
       height: 1px;
       width: calc(100% - 30px);
-      background-color: $opacity-5;
+      background-color: vars.$opacity-5;
     }
 
     .photo {
@@ -391,7 +395,7 @@
       margin-right: 10px;
       border-radius: 50%;
       margin-left: 23px;
-      box-shadow: $box-shadow-raised;
+      box-shadow: vars.$box-shadow-raised;
       @extend .animation-transition-general;
 
       img {
@@ -400,9 +404,9 @@
     }
 
     a {
-      color: $white-color;
+      color: vars.$white-color;
       text-decoration: none;
-      padding: $padding-base-vertical 15px;
+      padding: vars.$padding-base-vertical 15px;
       white-space: nowrap;
       @extend .animation-transition-general;
     }
@@ -442,7 +446,7 @@
 
     >li>a,
     >li>a:hover {
-      color: $white-color;
+      color: vars.$white-color;
     }
 
     >li>a:focus {
@@ -454,12 +458,12 @@
 .main-panel {
   position: relative;
   float: right;
-  width: $sidebar-width;
+  width: vars.$sidebar-width;
   // width: 100%;
-  // background-color: $light-gray;
+  // background-color: vars.$light-gray;
   // background-color: #ebecf1;
 
-  @include transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
+  @include vendor.transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
 
   >.content {
     padding: 0 30px 30px;
@@ -518,18 +522,18 @@
     }
 
     .main-panel {
-      width: $sidebar-mini-width;
+      width: vars.$sidebar-mini-width;
     }
 
     .sidebar {
       display: block;
       z-index: 1030;
-      box-shadow: $sidebar-box-shadow;
+      box-shadow: vars.$sidebar-box-shadow;
 
       .logo {
         a.logo-normal {
           opacity: 0;
-          @include transform-translate-x(-25px);
+          @include vendor.transform-translate-x(-25px);
         }
       }
 
@@ -550,7 +554,7 @@
         .user .info [data-toggle="collapse"]~div>ul>li>a .sidebar-normal,
         .user .info>a>span,
         >.nav li>a p {
-          @include transform-translate-x(-25px);
+          @include vendor.transform-translate-x(-25px);
           opacity: 0;
         }
       }
@@ -562,7 +566,7 @@
       .logo {
         a.logo-normal {
           opacity: 1;
-          @include transform-translate-x(0);
+          @include vendor.transform-translate-x(0);
         }
       }
 
@@ -577,7 +581,7 @@
         >.nav [data-toggle="collapse"]~div>ul>li>a .sidebar-normal,
         .user .info [data-toggle="collapse"]~div>ul>li>a .sidebar-normal,
         .user .info>a>span {
-          @include transform-translate-x(0px);
+          @include vendor.transform-translate-x(0px);
           opacity: 1;
         }
       }
@@ -600,19 +604,19 @@
 
   .header {
     .title {
-      color: $white-color;
+      color: vars.$white-color;
       font-weight: bold;
 
     }
 
     .category {
       max-width: 600px;
-      color: $opacity-5;
+      color: vars.$opacity-5;
       margin: 0 auto;
       font-size: 13px;
 
       a {
-        color: $white-color;
+        color: vars.$white-color;
       }
     }
   }
