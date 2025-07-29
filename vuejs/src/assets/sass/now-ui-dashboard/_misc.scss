@@ -1,41 +1,45 @@
+@use './variables' as vars;
+@use './mixins/vendor-prefixes' as vendor;
+
+
 body{
-    color: $black-color;
-    font-size: $font-size-base;
-    font-family: $sans-serif-family;
+    color: vars.$black-color;
+    font-size: vars.$font-size-base;
+    font-family: vars.$sans-serif-family;
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
 }
 
 .main{
     position: relative;
-    background: $white-color;
+    background: vars.$white-color;
 }
+
 /* Animations */
 .nav-link-admin,
 .navbar-admin,
-.nav-link-admin,
 .sidebar .nav a,
 .sidebar .nav a i,
 .navbar-collapse .navbar-nav .nav-link-admin,
-.animation-transition-general,
 .tag,
 .tag [data-role="remove"],
-.animation-transition-general{
-    @include transition($general-transition-time, $transition-ease);
+.animation-transition-general {
+  @include vendor.transition(vars.$general-transition-time, vars.$transition-ease);
 }
+
 
 //transition for dropdown caret
 .dropdown-toggle:after,
 .bootstrap-switch-label:before,
 .caret{
-    @include transition($fast-transition-time, $transition-ease);
+    @include vendor.transition(vars.$fast-transition-time, vars.$transition-ease);
 }
 
 .dropdown-toggle[aria-expanded="true"]:after,
 a[data-toggle="collapse"][aria-expanded="true"] .caret,
 .card-collapse .card a[data-toggle="collapse"][aria-expanded="true"] i,
 .card-collapse .card a[data-toggle="collapse"].expanded i{
-    @include rotate-180();
+    @include vendor.rotate-180();
 }
 
 .button-bar{
@@ -44,7 +48,7 @@ a[data-toggle="collapse"][aria-expanded="true"] .caret,
     width: 22px;
     height: 1px;
     border-radius: 1px;
-    background: $white-bg;
+    background: vars.$white-bg;
 
     & + .button-bar{
         margin-top: 7px;
