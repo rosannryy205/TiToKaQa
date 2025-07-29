@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('total_price', 10, 2)->nullable();
             $table->decimal('shippingFee', 10, 2)->nullable();
             $table->decimal('money_reduce', 10, 2)->nullable();
+            $table->string('type_order')->nullable();
             $table->unsignedInteger('tpoint_used')->nullable();
             $table->unsignedInteger('ship_cost')->nullable();
             $table->boolean('points_awarded')->default(false);
