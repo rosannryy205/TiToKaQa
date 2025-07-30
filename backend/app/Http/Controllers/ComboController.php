@@ -11,15 +11,34 @@ use Illuminate\Support\Facades\Storage;
 
 class ComboController extends Controller
 {
-    public function getAllCombos(Request $request)
+    public function getAllCombosForAdmin(Request $request)
     {
         try {
-            $perPage = $request->input('per_page', 1);
-            $query = Combo::query()->with('foods')->where('status', 'active');
+            $perPage = $request->input('per_page', 1); 
+            $query = Combo::query()->with('foods');
+    
             if ($request->has('search') && !empty($request->search)) {
                 $query->where('name', 'like', '%' . $request->search . '%');
             }
+    
             $combos = $query->orderBy('created_at', 'desc')->paginate($perPage);
+    
+            return response()->json($combos);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi khi lấy danh combo món ăn', 
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    public function getAllCombos(Request $request)
+    {
+        try {
+          $combos = Combo::with('foods')
+          ->where('status', 'active')
+          ->orderBy('created_at', 'desc')
+          ->get();
             return response()->json($combos);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Lỗi khi lấy danh combo món ăn', 'error' => $e->getMessage()], 500);

@@ -35,7 +35,7 @@
 
 
           <!-- Desktop Table -->
-          <div class="table-responsive d-none d-lg-block">
+          <div class="table-responsive d-none d-lg-block" v-if="categories.length > 0">
             <table class="table table-bordered rounded">
               <thead class="table-light">
                 <tr>
@@ -49,9 +49,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-if="categories.length === 0">
-                  <td colspan="7" class="text-center align-middle text-muted">Không có danh mục nào.</td>
-                </tr>
+
 
 
                 <tr v-for="(item, index) in categories" :key="item.id">
@@ -78,6 +76,13 @@
               </tbody>
             </table>
           </div>
+          <div class="no-food-found text-center py-5"  v-else>
+            <p class="h4 text-muted">
+              <i class="fas fa-exclamation-circle me-2"></i> Không tìm thấy danh mục nào.
+            </p>
+            <p class="text-muted">Xin lỗi, hiện tại không có danh mục nào để hiển thị.</p>
+          </div>
+
 
           <div class="d-block d-lg-none">
             <div class="card mb-3" v-for="(item, index) in categories" :key="item.id">
