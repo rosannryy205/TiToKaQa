@@ -1,174 +1,188 @@
+@use './variables' as variables;
+@use './mixins/buttons' as btn;
+@use './mixins/transparency' as trans;
+@use './mixins/vendor-prefixes' as vendor;
+
 .btn-base,
 .btn,
-.navbar .navbar-nav > a.btn{
-    border-width: $border-thick;
-    font-weight: $font-weight-normal;
-    font-size: $font-size-small;
-    line-height: $line-height;
-    border: none;
-    margin:10px 1px;
-    border-radius: $border-radius-small;
-    padding: $padding-btn-vertical $padding-btn-horizontal;
-    cursor: pointer;
+.navbar .navbar-nav>a.btn {
+  border-width: variables.$border-thick;
+  font-weight: variables.$font-weight-normal;
+  font-size: variables.$font-size-small;
+  line-height: variables.$line-height;
+  border: none;
+  margin: 10px 1px;
+  border-radius: variables.$border-radius-small;
+  padding: variables.$padding-btn-vertical variables.$padding-btn-horizontal;
+  cursor: pointer;
 
-    @include btn-styles($default-color, $default-states-color);
+  @include btn.btn-styles(variables.$default-color, variables.$default-states-color);
 
-    &:hover,
-    &:focus{
-        @include opacity(1);
-        outline: 0 !important;
-    }
-    &:active,
-    &.active,
-    .open > &.dropdown-toggle {
-         @include box-shadow(none);
-         outline: 0 !important;
-    }
+  &:hover,
+  &:focus {
+    @include trans.opacity(1);
+    outline: 0 !important;
+  }
 
-    .badge{
-      margin: 0;
-    }
+  &:active,
+  &.active,
+  .open>&.dropdown-toggle {
+    @include vendor.box-shadow(none);
+    outline: 0 !important;
+  }
 
-    &.btn-icon {
-        // see above for color variations
-        height: $btn-icon-size-regular;
-        min-width: $btn-icon-size-regular;
-        width: $btn-icon-size-regular;
-        padding: 0;
-        font-size: $btn-icon-font-size-regular;
-        overflow: hidden;
-        position: relative;
-        line-height: normal;
+  .badge {
+    margin: 0;
+  }
 
-        &.btn-simple{
-            padding: 0;
-        }
+  &.btn-icon {
+    // see above for color variations
+    height: variables.$btn-icon-size-regular;
+    min-width: variables.$btn-icon-size-regular;
+    width: variables.$btn-icon-size-regular;
+    padding: 0;
+    font-size: variables.$btn-icon-font-size-regular;
+    overflow: hidden;
+    position: relative;
+    line-height: normal;
 
-        &.btn-sm{
-            height: $btn-icon-size-small;
-            min-width: $btn-icon-size-small;
-            width: $btn-icon-size-small;
-
-            .fa,
-            .far,
-            .fas,
-            .now-ui-icons{
-                font-size: $btn-icon-font-size-small;
-            }
-        }
-
-        &.btn-lg{
-            height: $btn-icon-size-lg;
-            min-width: $btn-icon-size-lg;
-            width: $btn-icon-size-lg;
-
-            .fa,
-            .far,
-            .fas,
-            .now-ui-icons{
-                font-size: $btn-icon-font-size-lg;
-            }
-        }
-
-        &:not(.btn-footer) .now-ui-icons,
-        &:not(.btn-footer) .fa,
-        &:not(.btn-footer) .far,
-        &:not(.btn-footer) .fas{
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-12px, -12px);
-            line-height: 1.5626rem;
-            width: 24px;
-        }
-
+    &.btn-simple {
+      padding: 0;
     }
 
-    &:not(.btn-icon) .now-ui-icons{
-        position: relative;
-        top: 1px;
+    &.btn-sm {
+      height: variables.$btn-icon-size-small;
+      min-width: variables.$btn-icon-size-small;
+      width: variables.$btn-icon-size-small;
+
+      .fa,
+      .far,
+      .fas,
+      .now-ui-icons {
+        font-size: variables.$btn-icon-font-size-small;
+      }
     }
+
+    &.btn-lg {
+      height: variables.$btn-icon-size-lg;
+      min-width: variables.$btn-icon-size-lg;
+      width: variables.$btn-icon-size-lg;
+
+      .fa,
+      .far,
+      .fas,
+      .now-ui-icons {
+        font-size: variables.$btn-icon-font-size-lg;
+      }
+    }
+
+    &:not(.btn-footer) .now-ui-icons,
+    &:not(.btn-footer) .fa,
+    &:not(.btn-footer) .far,
+    &:not(.btn-footer) .fas {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-12px, -12px);
+      line-height: 1.5626rem;
+      width: 24px;
+    }
+
+  }
+
+  &:not(.btn-icon) .now-ui-icons {
+    position: relative;
+    top: 1px;
+  }
 }
 
 // Apply the mixin to the buttons
-// .btn-default { @include btn-styles($default-color, $default-states-color); }
-.btn-primary { @include btn-styles($primary-color, $primary-states-color); }
-.btn-success { @include btn-styles($success-color, $success-states-color); }
-.btn-info    { @include btn-styles($info-color, $info-states-color); }
-.btn-warning { @include btn-styles($warning-color, $warning-states-color); }
-.btn-danger  { @include btn-styles($danger-color, $danger-states-color); }
-.btn-neutral { @include btn-styles($red-color, $red-color); }
+// .btn-default { @include btn-styles(variables.$default-color, variables.$default-states-color); }
+// .btn-primary { @include btn-styles(variables.$primary-color, variables.$primary-states-color); }
+// .btn-success { @include btn-styles(variables.$success-color, variables.$success-states-color); }
+// .btn-info    { @include btn-styles(variables.$info-color, variables.$info-states-color); }
+// .btn-warning { @include btn-styles(variables.$warning-color, variables.$warning-states-color); }
+// .btn-danger  { @include btn-styles(variables.$danger-color, variables.$danger-states-color); }
+// .btn-neutral { @include btn-styles(variables.$red-color, variables.$red-color); }
 
-.btn{
-     &:disabled,
-     &[disabled],
-     &.disabled{
-        @include opacity(.5);
-        pointer-events: none;
-    }
+.btn {
+
+  &:disabled,
+  &[disabled],
+  &.disabled {
+    @include trans.opacity(.5);
+    pointer-events: none;
+  }
 }
-.btn-simple{
-    border: $border;
-    border-color: $default-color;
-    padding: $padding-btn-vertical - 1 $padding-round-horizontal - 1;
-    background-color: $transparent-bg;
+
+.btn-simple {
+  border: variables.$border;
+  border-color: variables.$default-color;
+  padding: variables.$padding-btn-vertical - 1 variables.$padding-round-horizontal - 1;
+  background-color: variables.$transparent-bg;
 }
 
 .btn-simple,
-.btn-link{
-    &.disabled,
-    &:disabled,
-    &[disabled],
-    fieldset[disabled] & {
-        &,
-        &:hover,
-        &:focus,
-        &.focus,
-        &:active,
-        &.active {
-            background-color: $transparent-bg;
-        }
+.btn-link {
+
+  &.disabled,
+  &:disabled,
+  &[disabled],
+  fieldset[disabled] & {
+
+    &,
+    &:hover,
+    &:focus,
+    &.focus,
+    &:active,
+    &.active {
+      background-color: variables.$transparent-bg;
     }
+  }
 }
 
-.btn-link{
-    border: $none;
-    padding: $padding-base-vertical $padding-base-horizontal;
-    background-color: $transparent-bg;
+.btn-link {
+  border: variables.$none;
+  padding: variables.$padding-base-vertical variables.$padding-base-horizontal;
+  background-color: variables.$transparent-bg;
 }
 
-.btn-lg{
-   @include btn-size($padding-large-vertical, $padding-large-horizontal, $font-size-large, $border-radius-large);
+.btn-lg {
+  @include btn.btn-size(variables.$padding-large-vertical, variables.$padding-large-horizontal, variables.$font-size-large, variables.$border-radius-large);
 }
-.btn-sm{
-    @include btn-size($padding-small-vertical, $padding-small-horizontal, $font-size-base, $border-radius-small);
+
+.btn-sm {
+  @include btn.btn-size(variables.$padding-small-vertical, variables.$padding-small-horizontal, variables.$font-size-base, variables.$border-radius-small);
 }
 
 .btn-wd {
-    min-width: 140px;
-}
-.btn-group.select{
-    width: 100%;
-}
-.btn-group.select .btn{
-    text-align: left;
-}
-.btn-group.select .caret{
-    position: absolute;
-    top: 50%;
-    margin-top: -1px;
-    right: 8px;
+  min-width: 140px;
 }
 
-.btn-round{
-    border-width: $border-thin !important;
-    border-radius: $btn-round-radius !important;
-    padding-right: $padding-round-horizontal;
-    padding-left: $padding-round-horizontal;
+.btn-group.select {
+  width: 100%;
+}
 
-    &.btn-simple{
-        padding: $padding-btn-vertical - 1  $padding-round-horizontal - 1;
-    }
+.btn-group.select .btn {
+  text-align: left;
+}
+
+.btn-group.select .caret {
+  position: absolute;
+  top: 50%;
+  margin-top: -1px;
+  right: 8px;
+}
+
+.btn-round {
+  border-width: variables.$border-thin !important;
+  border-radius: variables.$btn-round-radius !important;
+  padding-right: variables.$padding-round-horizontal;
+  padding-left: variables.$padding-round-horizontal;
+
+  &.btn-simple {
+    padding: variables.$padding-btn-vertical - 1 variables.$padding-round-horizontal - 1;
+  }
 }
 
 .no-caret {

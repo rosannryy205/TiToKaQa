@@ -90,6 +90,7 @@ class CartController extends Controller
                             'price' => $item['price'],
                             'type' => $item['type'],
                             'is_deal' => $item['is_deal'] ?? false,
+                            'is_flash_sale' => $item['is_flash_sale'] ?? false,
                             'reward_id' => $item['reward_id'] ?? null,
 
                             'is_deal' => !empty($item['is_deal']) ? 1 : 0,
@@ -97,16 +98,25 @@ class CartController extends Controller
 
                         ]);
 
-                        // Trừ stock và cộng quantity_sold nếu là món ăn đơn lẻ
+                        /**check flashsale */
                         if (!empty($item['food_id'])) {
                             $food = Food::find($item['food_id']);
                             if ($food) {
-                                $food->stock -= $item['quantity'];
-                                $food->quantity_sold += $item['quantity'];
-                                $food->save();
+                                if (!empty($item['is_flash_sale'])) {
+                                    if ($food->flash_sale_quantity >= 1) {
+                                        $food->flash_sale_quantity -= 1;
+                                        $food->flash_sale_sold += 1;
+                                        $food->save();
+                                    } else {
+                                        Log::warning("⚠️ Không đủ flash_sale_quantity cho sản phẩm ID {$food->id}");
+                                    }
+                                } else {
+                                    $food->stock -= $item['quantity'];
+                                    $food->quantity_sold += $item['quantity'];
+                                    $food->save();
+                                }
                             }
                         }
-
                         //Topping
                         if (!empty($item['toppings'])) {
                             foreach ($item['toppings'] as $topping) {
