@@ -177,7 +177,7 @@ class AdminCategoryController extends Controller
             $category = Category::findOrFail($id);
 
             $validated = $request->validate([
-                'name' => 'required|string|max:255|unique:categories,name',
+                'name' => 'required|string|max:255|unique:categories,name,' .$category->id,
                 'parent_id' => 'nullable|exists:categories,id|not_in:' . $id,
                 'default' => 'required|boolean',
                 'images' => 'nullable|image|max:2048',

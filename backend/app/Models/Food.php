@@ -20,6 +20,14 @@ class Food extends Model
         'image',
         'status',
         'category_id',
+        'flash_sale_price',
+        'flash_sale_quantity',
+        'flash_sale_sold',
+        'flash_sale_start',
+        'flash_sale_end',
+    ];
+    protected $casts = [
+        'flash_sale_end' => 'datetime',
     ];
     public function category()
     {

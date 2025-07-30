@@ -1,129 +1,137 @@
 <template v-if="hasPermission('view_order')">
-  <div>
-    <h2>Lịch sử đơn hàng</h2>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <h2>Lịch sử đơn hàng</h2>
 
-    <a-tabs v-model:activeKey="activeStatusTab" @change="handleStatusTabChange" style="margin-bottom: 16px;">
-      <a-tab-pane key="Tất cả" tab="Tất cả"></a-tab-pane>
-      <a-tab-pane key="Chờ xác nhận" tab="Chờ xác nhận"></a-tab-pane>
-      <a-tab-pane key="Đã xác nhận" tab="Đã xác nhận"></a-tab-pane>
-      <a-tab-pane key="Đang xử lý" tab="Đang xử lý"></a-tab-pane>
-      <a-tab-pane key="Đang giao hàng" tab="Đang giao hàng"></a-tab-pane>
-      <a-tab-pane key="Giao thành công" tab="Giao thành công"></a-tab-pane>
-      <a-tab-pane key="Giao thất bại" tab="Giao thất bại"></a-tab-pane>
-      <a-tab-pane key="Đã hủy" tab="Đã hủy"></a-tab-pane>
-    </a-tabs>
+          <a-tabs v-model:activeKey="activeStatusTab" @change="handleStatusTabChange" style="margin-bottom: 16px;">
+            <a-tab-pane key="Tất cả" tab="Tất cả"></a-tab-pane>
+            <a-tab-pane key="Chờ xác nhận" tab="Chờ xác nhận"></a-tab-pane>
+            <a-tab-pane key="Đã xác nhận" tab="Đã xác nhận"></a-tab-pane>
+            <a-tab-pane key="Đang xử lý" tab="Đang xử lý"></a-tab-pane>
+            <a-tab-pane key="Đang giao hàng" tab="Đang giao hàng"></a-tab-pane>
+            <a-tab-pane key="Giao thành công" tab="Giao thành công"></a-tab-pane>
+            <a-tab-pane key="Giao thất bại" tab="Giao thất bại"></a-tab-pane>
+            <a-tab-pane key="Đã hủy" tab="Đã hủy"></a-tab-pane>
+          </a-tabs>
 
-    <a-row :gutter="[16, 16]" style="margin-bottom: 24px" align="middle">
-      <a-col :xs="24" :sm="12" :md="8" :lg="6" style="display: flex; align-items: center;">
-        <span style="margin-right: 8px; white-space: nowrap;">Hiển thị:</span>
-        <a-select v-model:value="pagination.pageSize" style="width: 80px" @change="handlePageSizeChange">
-          <a-select-option :value="5">5</a-select-option>
-          <a-select-option :value="10">10</a-select-option>
-          <a-select-option :value="20">20</a-select-option>
-          <a-select-option :value="50">50</a-select-option>
-          <a-select-option :value="100">100</a-select-option>
-        </a-select>
-      </a-col>
-      <a-col :xs="24" :sm="12" :md="8" :lg="6">
-        <a-select v-model:value="selectedOrderType" placeholder="Lọc theo loại đơn" style="width: 100%" allow-clear
-          @change="handleOrderTypeChange">
-          <a-select-option value="Tất cả">Tất cả loại đơn</a-select-option>
-          <a-select-option value="Mang về">Mang về</a-select-option>
-          <a-select-option value="Đặt bàn">Đặt bàn</a-select-option>
-        </a-select>
-      </a-col>
-      <a-col :xs="24" :sm="24" :md="8" :lg="12">
-        <a-input-search v-model:value="searchText" placeholder="Tìm kiếm theo tên KH, SĐT" allowClear
-          enter-button="Tìm" />
+          <a-row :gutter="[16, 16]" style="margin-bottom: 24px" align="middle">
+            <a-col :xs="24" :sm="12" :md="8" :lg="6" style="display: flex; align-items: center;">
+              <span style="margin-right: 8px; white-space: nowrap;">Hiển thị:</span>
+              <a-select v-model:value="pagination.pageSize" style="width: 80px" @change="handlePageSizeChange">
+                <a-select-option :value="5">5</a-select-option>
+                <a-select-option :value="10">10</a-select-option>
+                <a-select-option :value="20">20</a-select-option>
+                <a-select-option :value="50">50</a-select-option>
+                <a-select-option :value="100">100</a-select-option>
+              </a-select>
+            </a-col>
+            <a-col :xs="24" :sm="12" :md="8" :lg="6">
+              <a-select v-model:value="selectedOrderType" placeholder="Lọc theo loại đơn" style="width: 100%"
+                allow-clear @change="handleOrderTypeChange">
+                <a-select-option value="Tất cả">Tất cả loại đơn</a-select-option>
+                <a-select-option value="Mang về">Mang về</a-select-option>
+                <a-select-option value="Đặt bàn">Đặt bàn</a-select-option>
+              </a-select>
+            </a-col>
+            <a-col :xs="24" :sm="24" :md="8" :lg="12">
+              <a-input-search v-model:value="searchText" placeholder="Tìm kiếm theo tên KH, SĐT" allowClear
+                enter-button="Tìm" />
 
-      </a-col>
-    </a-row>
+            </a-col>
+          </a-row>
 
-    <a-table :columns="columns" :data-source="paginatedData" :row-key="record => record.id" :pagination="pagination"
-      @change="handleTableChange" bordered :scroll="{ x: 1200 }">
-      <template #bodyCell="{ column, record, index }">
-        <template v-if="column.key === 'stt'">
-          <span>{{ (pagination.current - 1) * pagination.pageSize + index + 1 }}</span>
-        </template>
-        <template v-if="column.key === 'customerInfo'">
-          <div>{{ record.customerInfo.name }}</div>
-          <div>{{ record.customerInfo.phone }}</div>
-        </template>
-        <template v-if="column.key === 'totalAmount'">
-          <span>{{ formatCurrency(record.totalAmount) }}</span>
-        </template>
-        <template v-if="column.key === 'status'">
-          <a-tag :color="getStatusColor(record.status)">{{ record.status }}</a-tag>
-        </template>
-        <template v-if="column.key === 'action'">
-          <a-space size="middle">
-            <a-button type="link" @click="viewOrderDetails(record)">Xem chi tiết</a-button>
-            <a-button type="link" @click="printInvoice(record.id)">In hóa đơn</a-button>
-          </a-space>
-        </template>
-      </template>
-    </a-table>
+          <a-table :columns="columns" :data-source="paginatedData" :row-key="record => record.id"
+            :pagination="pagination" @change="handleTableChange" bordered :scroll="{ x: 1200 }">
+            <template #bodyCell="{ column, record, index }">
+              <template v-if="column.key === 'stt'">
+                <span>{{ (pagination.current - 1) * pagination.pageSize + index + 1 }}</span>
+              </template>
+              <template v-if="column.key === 'customerInfo'">
+                <div>{{ record.customerInfo.name }}</div>
+                <div>{{ record.customerInfo.phone }}</div>
+              </template>
+              <template v-if="column.key === 'totalAmount'">
+                <span>{{ formatCurrency(record.totalAmount) }}</span>
+              </template>
+              <template v-if="column.key === 'status'">
+                <a-tag :color="getStatusColor(record.status)">{{ record.status }}</a-tag>
+              </template>
+              <template v-if="column.key === 'action'">
+                <a-space size="middle">
+                  <a-button type="link" @click="viewOrderDetails(record)">Xem chi tiết</a-button>
+                  <a-button type="link" @click="printInvoice(record.id)">In hóa đơn</a-button>
+                </a-space>
+              </template>
+            </template>
+          </a-table>
 
-    <a-modal v-model:open="isDetailModalVisible" title="Chi tiết đơn hàng" @ok="isDetailModalVisible = false"
-      :footer="null" width="700px">
-      <div v-if="selectedOrder">
-        <p><strong>Mã đơn hàng:</strong> {{ selectedOrder.id }}</p>
-        <p><strong>Ngày đặt:</strong> {{ selectedOrder.orderDate }}</p>
-        <p><strong>Khách hàng:</strong> {{ selectedOrder.customerInfo.name }} - {{ selectedOrder.customerInfo.phone }}
-        </p>
-        <p><strong>Bàn:</strong> {{ selectedOrder.areaTable }}</p>
-        <p><strong>Loại đơn:</strong> {{ selectedOrder.orderType }}</p>
+          <a-modal v-model:open="isDetailModalVisible" title="Chi tiết đơn hàng" @ok="isDetailModalVisible = false"
+            :footer="null" width="700px">
+            <div v-if="selectedOrder">
+              <p><strong>Mã đơn hàng:</strong> {{ selectedOrder.id }}</p>
+              <p><strong>Ngày đặt:</strong> {{ selectedOrder.orderDate }}</p>
+              <p><strong>Khách hàng:</strong> {{ selectedOrder.customerInfo.name }} - {{
+                selectedOrder.customerInfo.phone }}
+              </p>
+              <p><strong>Bàn:</strong> {{ selectedOrder.areaTable }}</p>
+              <p><strong>Loại đơn:</strong> {{ selectedOrder.orderType }}</p>
 
-        <!--Trạng thái thanh toán -->
-        <p><strong>Trạng thái thanh toán:</strong> {{ selectedOrder.paymentStatus }}</p>
+              <!--Trạng thái thanh toán -->
+              <p><strong>Trạng thái thanh toán:</strong> {{ selectedOrder.paymentStatus }}</p>
 
-        <!--Phương thức thanh toán -->
-        <p><strong>Phương thức thanh toán:</strong> {{ selectedOrder.paymentMethod }}</p>
+              <!--Phương thức thanh toán -->
+              <p><strong>Phương thức thanh toán:</strong> {{ selectedOrder.paymentMethod }}</p>
 
-        <p><strong>Trạng thái:</strong>
-          <a-select :value="selectedOrder.status" style="width: 160px"
-            @change="handleStatusChange(selectedOrder.id, $event)">
-            <a-select-option v-for="status in allowedStatuses" :key="status" :value="status"
-              :disabled="isStatusDisabled(status)">
-              {{ status }}
-            </a-select-option>
-          </a-select>
-        </p>
+              <p><strong>Trạng thái:</strong>
+                <a-select :value="selectedOrder.status" style="width: 160px"
+                  @change="handleStatusChange(selectedOrder.id, $event)">
+                  <a-select-option v-for="status in allowedStatuses" :key="status" :value="status"
+                    :disabled="isStatusDisabled(status)">
+                    {{ status }}
+                  </a-select-option>
+                </a-select>
+              </p>
 
-        <p><strong>Tổng tiền:</strong> {{ formatCurrency(selectedOrder.totalAmount) }}</p>
-        <h4>Các món đã đặt:</h4>
-        <a-list bordered :data-source="selectedOrder.items">
-          <template #renderItem="{ item }">
-            <a-list-item>
-              <a-list-item-meta :description="`Số lượng: ${item.quantity} - Đơn giá: ${formatCurrency(item.price)}`">
-                <template #title>
-                  <div>{{ item.name }}</div>
+              <p><strong>Tổng tiền:</strong> {{ formatCurrency(selectedOrder.totalAmount) }}</p>
+              <h4>Các món đã đặt:</h4>
+              <a-list bordered :data-source="selectedOrder.items">
+                <template #renderItem="{ item }">
+                  <a-list-item>
+                    <a-list-item-meta
+                      :description="`Số lượng: ${item.quantity} - Đơn giá: ${formatCurrency(item.price)}`">
+                      <template #title>
+                        <div>{{ item.name }}</div>
 
-                  <ul v-if="item.toppings.length" style="margin: 0; padding-left: 16px;">
-                    <li v-for="(topping, index) in item.toppings" :key="index">
-                      {{ topping.name }}<span v-if="topping.price"> - {{ formatCurrency(topping.price) }}</span>
-                    </li>
-                  </ul>
+                        <ul v-if="item.toppings.length" style="margin: 0; padding-left: 16px;">
+                          <li v-for="(topping, index) in item.toppings" :key="index">
+                            {{ topping.name }}<span v-if="topping.price"> - {{ formatCurrency(topping.price) }}</span>
+                          </li>
+                        </ul>
+                      </template>
+                    </a-list-item-meta>
+                  </a-list-item>
                 </template>
-              </a-list-item-meta>
-            </a-list-item>
-          </template>
-        </a-list>
+              </a-list>
 
-        <!-- Chỉ hiển thị tổng thành tiền một lần bên dưới -->
-        <div style="text-align: right; font-weight: bold; margin-top: 16px;">
-          <div v-show="selectedOrder.reduce_money">
-            Voucher: {{ formatCurrency(selectedOrder.reduce_money) }}
-          </div>
-          <div>
-            Thành tiền: {{ formatCurrency(selectedOrder.totalAmount) }}
-          </div>
+              <!-- Chỉ hiển thị tổng thành tiền một lần bên dưới -->
+              <div style="text-align: right; font-weight: bold; margin-top: 16px;">
+                <div v-show="selectedOrder.reduce_money">
+                  Voucher: {{ formatCurrency(selectedOrder.reduce_money) }}
+                </div>
+                <div>
+                  Thành tiền: {{ formatCurrency(selectedOrder.totalAmount) }}
+                </div>
+              </div>
+
+
+            </div>
+          </a-modal>
+
         </div>
-
-
       </div>
-    </a-modal>
-
+    </div>
   </div>
 </template>
 
@@ -474,14 +482,14 @@ const printInvoice = (record) => {
   axios.get(`http://127.0.0.1:8000/api/invoice/${record}`, {
     responseType: 'blob'
   })
-  .then(response => {
-    const file = new Blob([response.data], { type: 'application/pdf' });
-    const fileURL = URL.createObjectURL(file);
-    window.open(fileURL); //mở tab mới
-  })
-  .catch(error => {
-    console.error('Lỗi in hóa đơn:', error);
-  });
+    .then(response => {
+      const file = new Blob([response.data], { type: 'application/pdf' });
+      const fileURL = URL.createObjectURL(file);
+      window.open(fileURL); //mở tab mới
+    })
+    .catch(error => {
+      console.error('Lỗi in hóa đơn:', error);
+    });
 };
 
 
