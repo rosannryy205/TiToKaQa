@@ -94,7 +94,6 @@ class ComboController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Tạo combo thành công', 'combo_id' => $combo->id], 201);
-
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(['error' => 'Lỗi khi tạo combo', 'message' => $th->getMessage()], 500);
@@ -144,7 +143,6 @@ class ComboController extends Controller
             }
 
             return response()->json(['message' => 'Cập nhật combo thành công']);
-
         } catch (\Exception $e) {
             return response()->json(['message' => 'Cập nhật combo thất bại', 'error' => $e->getMessage()], 500);
         }
@@ -160,15 +158,15 @@ class ComboController extends Controller
             }
             $combo->status = $combo->status === 'active' ? 'inactive' : 'active';
             $combo->save();
-    
+
             return response()->json([
                 'message' => $combo->status === 'inactive' ? 'Đã ẩn combo' : 'Combo đã được hiển thị',
                 'status' => $combo->status
             ]);
-    
+
         } catch (\Exception $e) {
             return response()->json(['message' => 'Cập nhật trạng thái combo thất bại', 'error' => $e->getMessage()], 500);
         }
     }
-    
+
 }

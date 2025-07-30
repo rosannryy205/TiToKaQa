@@ -597,11 +597,52 @@ export default {
 
     // };
 
-    onMounted(() => {
-      getInfo("order", orderId);
-      updateCountdown();
-      countdownInterval = setInterval(updateCountdown, 1000);
+    onMounted(async () => {
+      try {
+        await getInfo("order", orderId);
+
+        const orderInfo = info.value;
+        console.log('ss' + JSON.stringify(orderInfo.tables));
+
+        if (!orderInfo || !orderInfo.id || orderInfo.tables.length === 0) {
+          await Swal.fire({
+            icon: 'error',
+            text: 'Đơn hàng không tồn tại hoặc không phải đơn đặt bàn!',
+            confirmButtonText: 'Quay lại',
+            confirmButtonColor: '#d32f2f',
+          });
+          return router.push('/reservation');
+        }
+
+
+        const forbiddenStatuses = ['Đã xác nhận', 'Đang xử lý', 'Hoàn Thành', 'Đã Hủy', 'Giao thành công'];
+        if (
+          forbiddenStatuses.includes(orderInfo.order_status) ||
+          forbiddenStatuses.includes(orderInfo.reservation_status)
+        ) {
+          await Swal.fire({
+            icon: 'warning',
+            text: 'Đơn hàng đã được xác nhận hoặc hoàn tất. Không thể tiếp tục!',
+            confirmButtonText: 'Quay lại',
+            confirmButtonColor: '#d32f2f',
+          });
+          return router.push('/reservation');
+        }
+
+        updateCountdown();
+        countdownInterval = setInterval(updateCountdown, 1000);
+      } catch (error) {
+        console.error('Lỗi khi load thông tin đơn hàng:', error);
+        await Swal.fire({
+          icon: 'error',
+          text: 'Đã xảy ra lỗi khi kiểm tra đơn hàng!',
+          confirmButtonText: 'Quay lại',
+          confirmButtonColor: '#d32f2f',
+        });
+        router.push('/reservation');
+      }
     });
+
 
     onUnmounted(() => {
       clearInterval(countdownInterval);
