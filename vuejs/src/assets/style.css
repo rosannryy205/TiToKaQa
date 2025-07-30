@@ -125,7 +125,7 @@ body {
 .input-wrapper .icon-search-submit:focus-within ~ .input-search,
 .input-wrapper .input-search:focus {
   box-shadow: none;
-  width: 250px;
+  width: 130px;
   border-radius: 0px;
   background-color: transparent;
   border-bottom: 3px solid #c92c3c;
@@ -1790,5 +1790,7 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
 /*end Discount details */
 
 
-
+.frame {
+  z-index: 9 !important;
+}
 

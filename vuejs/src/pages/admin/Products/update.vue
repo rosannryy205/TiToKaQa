@@ -1,105 +1,112 @@
 <template v-if="hasPermission('edit_food')">
-  <div>
-    <div class="d-flex justify-content-between">
-      <h3 class="text-danger fw-bold">Cập nhật món ăn</h3>
-      <div>
-        <router-link to="/admin/products" class="btn btn-outline-secondary rounded-0">
-          <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-        </router-link>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <h3 class="text-danger fw-bold">Cập nhật món ăn</h3>
+            <div>
+              <router-link to="/admin/products" class="btn btn-outline-secondary rounded-0">
+                <i class="bi bi-arrow-counterclockwise"></i> Quay lại
+              </router-link>
+            </div>
+          </div>
+
+          <form @submit.prevent="updateFood" class="row mt-2" enctype="multipart/form-data">
+            <div class="col-md-8">
+              <div class="card rounded-0 border-0 shadow mb-4">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col mb-3">
+                      <label for="name" class="form-label">Tên món <span class="text-danger">*</span></label>
+                      <input type="text" id="name" class="form-control rounded-0" v-model="food.name" required>
+                    </div>
+
+                    <div class="col mb-3">
+                      <label for="status" class="form-label">Trạng thái <span class="text-danger">*</span></label>
+                      <select id="status" class="form-select rounded-0" v-model="food.status" required>
+                        <option disabled value="">Chọn trạng thái</option>
+                        <option value="inactive">Ẩn</option>
+                        <option value="active">Hiện</option>
+                      </select>
+
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col mb-3">
+                      <label for="instock" class="form-label">Tồn kho <span class="text-danger">*</span></label>
+                      <input type="number" id="instock" class="form-control rounded-0" min="0"
+                        v-model.number="food.instock" required>
+                    </div>
+
+                    <div class="col mb-3">
+                      <label for="category" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                      <select id="category" class="form-select rounded-0" v-model="food.category_id" required>
+                        <option disabled value="">Chọn danh mục</option>
+                        <template v-for="category in categories" :key="category.id">
+                          <option :value="category.id">{{ category.name }}</option>
+                          <option v-for="child in category.children" :key="'child-' + child.id" :value="child.id">
+                            &nbsp;&nbsp;↳ {{ child.name }}
+                          </option>
+                        </template>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả</label>
+                    <textarea id="description" class="form-control rounded-0" rows="6"
+                      v-model="food.description"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+              <div class="card rounded-0 border-0 shadow mb-2">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col mb-3">
+                      <label for="price" class="form-label">Giá <span class="text-danger">*</span></label>
+                      <input type="number" id="price" class="form-control rounded-0" min="0" v-model.number="food.price"
+                        required>
+                    </div>
+
+                    <div class="col mb-3">
+                      <label for="sale_price" class="form-label">Giá giảm</label>
+                      <input type="number" id="sale_price" class="form-control rounded-0" min="0"
+                        v-model.number="food.sale_price">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card rounded-0 border-0 shadow">
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label for="image" class="form-label">Ảnh món ăn <span class="text-danger">*</span></label>
+                    <input type="file" id="image" class="form-control rounded-0" @change="onFileChange">
+                  </div>
+                  <div class="mb-3 p-2 text-center" v-if="previewImage">
+                    <img :src="previewImage" class="w-50" alt="Preview image">
+                  </div>
+                  <div class="mb-3 p-2 text-center" v-else-if="food.image">
+                    <img :src="'http://127.0.0.1:8000/storage/img/food/' + food.image" class="w-50" alt="Current image">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 mb-4">
+              <button type="submit" class="btn btn-danger-save mt-2" style="width: 200px;">
+                Cập nhật món ăn
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-
-    <form @submit.prevent="updateFood" class="row mt-2" enctype="multipart/form-data">
-      <div class="col-md-8">
-        <div class="card rounded-0 border-0 shadow mb-4">
-          <div class="card-body">
-            <div class="row">
-              <div class="col mb-3">
-                <label for="name" class="form-label">Tên món <span class="text-danger">*</span></label>
-                <input type="text" id="name" class="form-control rounded-0" v-model="food.name" required>
-              </div>
-
-              <div class="col mb-3">
-                <label for="status" class="form-label">Trạng thái <span class="text-danger">*</span></label>
-                <select id="status" class="form-select rounded-0" v-model="food.status" required>
-                  <option disabled value="">Chọn trạng thái</option>
-                  <option value="inactive">Ẩn</option>
-                  <option value="active">Hiện</option>
-                </select>
-
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col mb-3">
-                <label for="instock" class="form-label">Tồn kho <span class="text-danger">*</span></label>
-                <input type="number" id="instock" class="form-control rounded-0" min="0" v-model.number="food.instock"
-                  required>
-              </div>
-
-              <div class="col mb-3">
-                <label for="category" class="form-label">Danh mục <span class="text-danger">*</span></label>
-                <select id="category" class="form-select rounded-0" v-model="food.category_id" required>
-                  <option disabled value="">Chọn danh mục</option>
-                  <template v-for="category in categories" :key="category.id">
-                    <option :value="category.id">{{ category.name }}</option>
-                    <option v-for="child in category.children" :key="'child-' + child.id" :value="child.id">
-                      &nbsp;&nbsp;↳ {{ child.name }}
-                    </option>
-                  </template>
-                </select>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label for="description" class="form-label">Mô tả</label>
-              <textarea id="description" class="form-control rounded-0" rows="6" v-model="food.description"></textarea>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-4">
-        <div class="card rounded-0 border-0 shadow mb-2">
-          <div class="card-body">
-            <div class="row">
-              <div class="col mb-3">
-                <label for="price" class="form-label">Giá <span class="text-danger">*</span></label>
-                <input type="number" id="price" class="form-control rounded-0" min="0" v-model.number="food.price"
-                  required>
-              </div>
-
-              <div class="col mb-3">
-                <label for="sale_price" class="form-label">Giá giảm</label>
-                <input type="number" id="sale_price" class="form-control rounded-0" min="0"
-                  v-model.number="food.sale_price">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card rounded-0 border-0 shadow">
-          <div class="card-body">
-            <div class="mb-3">
-              <label for="image" class="form-label">Ảnh món ăn <span class="text-danger">*</span></label>
-              <input type="file" id="image" class="form-control rounded-0" @change="onFileChange">
-            </div>
-            <div class="mb-3 p-2 text-center" v-if="previewImage">
-              <img :src="previewImage" class="w-50" alt="Preview image">
-            </div>
-            <div class="mb-3 p-2 text-center" v-else-if="food.image">
-              <img :src="'http://127.0.0.1:8000/storage/img/food/' + food.image" class="w-50" alt="Current image">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 mb-4">
-        <button type="submit" class="btn btn-danger-save mt-2" style="width: 200px;">
-          Cập nhật món ăn
-        </button>
-      </div>
-    </form>
   </div>
 </template>
 
