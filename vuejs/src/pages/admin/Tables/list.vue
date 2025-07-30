@@ -1117,7 +1117,7 @@ export default {
           initialTablesLoaded.value = true;
         }
       },
-      { immediate: true } // Kích hoạt watch ngay lập tức khi component setup
+      { immediate: true }
     );
 
     return {
@@ -1696,7 +1696,7 @@ h2 {
   box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
   padding: 20px;
   overflow-y: auto;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 .close-sidebar-btn {
