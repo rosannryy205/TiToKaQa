@@ -71,31 +71,68 @@ class HomeController extends Controller
         $offset = $request->input('offset', 0);
         $limit = $request->input('limit', 5);
 
-        // Lấy foods có liên kết category
-        $foods = Food::with('category')
-            ->where('name', 'like', "%$keyword%")
-            ->get()
-            ->map(function ($item) {
-                $item->setAttribute('type', 'food');
-                return $item;
-            });
+        // --- Tìm kiếm và lọc Foods ---
+        $foodsQuery = Food::with('category')
+            ->where('status', 'active'); // Lọc chỉ các món ăn active
 
-        // Lấy combos KHÔNG có category
-        $combos = Combo::where('name', 'like', "%$keyword%")
-            ->get()
-            ->map(function ($item) {
-                $item->setAttribute('type', 'combo');
-                return $item;
-            });
+        if ($keyword) {
+            // Thêm điều kiện tìm kiếm theo tên nếu có keyword
+            // Bạn có thể cân nhắc dùng name_ascii và hàm removeVietnameseTones nếu cần tìm kiếm không dấu
+            $foodsQuery->where('name', 'like', "%{$keyword}%");
+        }
 
-        // Gộp lại và phân trang
-        $all = $foods->concat($combos);
-        $sorted = $all->sortBy('name')->values();
-        $paged = $sorted->slice($offset, $limit)->values();
+        $foods = $foodsQuery->get()->map(function ($item) {
+            $item->setAttribute('type', 'food');
+            return $item;
+        });
+
+
+        // --- Tìm kiếm và lọc Combos ---
+        $combosQuery = Combo::where('status', 'active'); // Lọc chỉ các combo active
+
+        if ($keyword) {
+            // Thêm điều kiện tìm kiếm theo tên nếu có keyword
+            $combosQuery->where('name', 'like', "%{$keyword}%");
+        }
+
+        $combos = $combosQuery->get()->map(function ($item) {
+            $item->setAttribute('type', 'combo');
+            return $item;
+        });
+
+
+        // --- Gộp lại, sắp xếp và phân trang ---
+        $allResults = $foods->concat($combos);
+        $sortedResults = $allResults->sortBy('name')->values(); // Sắp xếp theo tên
+
+        $pagedResults = $sortedResults->slice($offset, $limit)->values(); // Áp dụng offset và limit
 
         return response()->json([
-            'results' => $paged,
-            'total' => $sorted->count()
+            'results' => $pagedResults,
+            'total' => $sortedResults->count() // Tổng số kết quả sau khi lọc và sắp xếp
         ]);
     }
+
+    // protected function removeVietnameseTones($str)
+    // {
+    //     $str = preg_replace("/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/", "a", $str);
+    //     $str = preg_replace("/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/", "e", $str);
+    //     $str = preg_replace("/(ì|í|ị|ỉ|ĩ)/", "i", $str);
+    //     $str = preg_replace("/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/", "o", $str);
+    //     $str = preg_replace("/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/", "u", $str);
+    //     $str = preg_replace("/(ỳ|ý|ỵ|ỷ|ỹ)/", "y", $str);
+    //     $str = preg_replace("/(đ)/", "d", $str);
+    //     $str = preg_replace("/(À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ)/", "A", $str);
+    //     $str = preg_replace("/(È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ)/", "E", $str);
+    //     $str = preg_replace("/(Ì|Í|Ị|Ỉ|Ĩ)/", "I", $str);
+    //     $str = preg_replace("/(Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ)/", "O", $str);
+    //     $str = preg_replace("/(Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ)/", "U", $str);
+    //     $str = preg_replace("/(Ỳ|Ý|Ỵ|Ỷ|Ỹ)/", "Y", $str);
+    //     $str = preg_replace("/(Đ)/", "D", $str);
+
+    //     // Loại bỏ các ký tự đặc biệt, giữ lại chữ cái và số
+    //     $str = preg_replace('/[^A-Za-z0-9\s]/', '', $str);
+
+    //     return $str;
+    // }
 }
