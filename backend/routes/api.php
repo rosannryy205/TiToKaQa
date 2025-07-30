@@ -16,6 +16,7 @@ use App\Http\Controllers\DealFoodsController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Socialite\ProviderCallbackController;
@@ -266,9 +267,15 @@ Route::get('/user-vouchers', [DiscountController::class, 'getUserDiscounts'])->m
 /** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 // Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
-Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
+Route::get('/admin/combos', [ComboController::class, 'getAllCombosForAdmin']);
 Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
 Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
+Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);
+
+
+
+// nguyên liệu
+Route::apiResource('ingredients', IngredientController::class);
 Route::put('/admin/combos/{id}/toggle-status', [ComboController::class, 'toggleStatusComboForAdmin']);
 
