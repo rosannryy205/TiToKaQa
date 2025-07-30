@@ -11,7 +11,7 @@
     </div>
   </div>
   <div class="col-12 col-md-8 col-lg-9">
-    <h4 class="fw-bold mb-4">Đơn hàng của tôi</h4>
+    <h4 class="fw-bold mb-4">Đơn hàng đã mua</h4>
     <!-- Tabs -->
     <div class="order-tabs d-flex flex-nowrap overflow-auto gap-3 mb-4">
       <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]" @click="setActive(tab)">
@@ -20,10 +20,11 @@
     </div>
 
     <!-- Order Table -->
-    <div v-if="orders?.length > 0" class="card shadow border-0 p-4">
-      <div class="table-responsive d-none d-md-block">
-        <table class="table table-hover text-center w-100">
-          <thead class="table-light">
+    <div v-if="orders?.length > 0" class="card shadow border-0 p-0">
+      <!-- Desktop Table -->
+      <div class="d-none d-md-block">
+        <table class="table table-hover w-100 custom-borderless-table">
+          <thead class="table-secondary">
             <tr>
               <th>Mã đơn</th>
               <th>Ngày đặt</th>
@@ -33,48 +34,67 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="order in filteredOrders" :key="order.id">
+            <tr v-for="order in paginatedOrders" :key="order.id">
               <td>#{{ order.id }}</td>
               <td>{{ formatDate(order.order_time || order.reservations_time) }}</td>
               <td>{{ formatNumber(order.total_price) }} VND</td>
-              <td>{{ order.order_status || order.order_reservation_time }}</td>
+              <td class="text-primary">{{ order.order_status || order.order_reservation_time }}</td>
               <td>
                 <router-link :to="{ name: 'history-order-detail', params: { id: order.id } }"
                   class="btn btn-outline-primary btn-sm">Xem</router-link>
-                <button v-if="order.order_status === 'Hoàn thành'" class="btn btn-outline-primary btn-sm ms-1"
-                  @click="reOrder(order.id)">
-                  Đặt lại
-                </button>
               </td>
-
             </tr>
           </tbody>
         </table>
       </div>
 
+
       <!-- Mobile Cards -->
       <div class="d-md-none">
-        <div class="col-12 mb-3" v-for="order in filteredOrders" :key="order.id">
-          <div class="card shadow-sm">
+        <div class="col-12 mb-3" v-for="order in paginatedOrders" :key="order.id">
+          <div class="card border-0 shadow-sm">
             <div class="card-body">
-              <h6><strong>Mã đơn:</strong> #{{ order.id }}</h6>
-              <p>
-                <strong>Ngày đặt:</strong>
-                {{ formatDate(order.order_time || order.reservations_time) }}
-              </p>
-              <p>
+              <h6 class="mb-2"><strong>Mã đơn:</strong> #{{ order.id }}</h6>
+              <div class="mb-1 small text-muted">
+                <strong>Ngày đặt:</strong> {{ formatDate(order.order_time || order.reservations_time) }}
+              </div>
+              <div class="mb-1 small text-muted">
                 <strong>Tổng tiền:</strong> {{ formatNumber(order.total_price) }} VND
-              </p>
-              <p>
+              </div>
+              <div class="mb-2 d-flex align-items-center gap-2 flex-wrap">
                 <strong>Trạng thái:</strong>
-                {{ order.order_status || order.order_reservation_time }}
-              </p>
+                <span>
+                  {{ order.order_status || order.order_reservation_time }}
+                </span>
+              </div>
               <router-link :to="{ name: 'history-order-detail', params: { id: order.id } }"
-                class="btn btn-outline-primary btn-sm">Xem</router-link>
+                class="btn btn-outline-primary btn-sm w-100">
+                <i class="bi bi-eye"></i> Xem chi tiết
+              </router-link>
             </div>
           </div>
         </div>
       </div>
+      <div class="d-flex justify-content-center mt-3 w-100" v-if="totalPages > 1">
+        <nav>
+          <ul class="pagination">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <button type="button" class="page-link" @click="goToPage(currentPage - 1)">«</button>
+            </li>
+
+            <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+              <button type="button" class="page-link" @click="goToPage(page)">
+                {{ page }}
+              </button>
+            </li>
+
+            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+              <button type="button" class="page-link" @click="goToPage(currentPage + 1)">»</button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
     </div>
 
     <!-- No Orders -->
@@ -88,7 +108,6 @@
   </div>
 </template>
 <script>
-import { User } from "@/stores/user";
 import { Info } from "@/stores/info-order-reservation";
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import axios from "axios";
@@ -111,48 +130,23 @@ export default {
     };
 
     const tabs = [
-      "Tất cả đơn",
       "Chờ xác nhận",
+      "Đã xác nhận",
       "Đang xử lý",
-      "Đang giao hàng",
-      "Đã giao",
+      "Bắt đầu giao",
+      "Giao thành công",
       "Đã hủy",
     ];
 
-    const activeTab = ref("Tất cả đơn");
+    const activeTab = ref("Chờ xác nhận");
 
     const setActive = (tab) => {
       activeTab.value = tab;
     };
 
     const filteredOrders = computed(() => {
-      if (activeTab.value === "Tất cả đơn") return orders.value;
-
       return orders.value.filter((order) => order.order_status === activeTab.value);
     });
-
-    const getStatusBadge = (status) => {
-      switch (status) {
-        case "Chờ xác nhận":
-          return "bg-warning text-dark";
-        case "Đã giao":
-          return "bg-success";
-        case "Đã hủy":
-          return "bg-secondary";
-        default:
-          return "bg-light text-dark";
-      }
-    };
-
-    const {
-      form,
-      getInitial,
-      handleLogout,
-      handleImageUpload,
-      primaryColor,
-      avatarUrl,
-    } = User.setup();
-
 
 
     const { formatNumber, formatDate } = Info.setup();
@@ -175,6 +169,24 @@ export default {
         loading.value = false; // Ẩn spinner sau khi hoàn tất API
       }
     };
+    const itemsPerPage = 6;
+    const currentPage = ref(1);
+
+    const paginatedOrders = computed(() => {
+      const start = (currentPage.value - 1) * itemsPerPage;
+      return filteredOrders.value.slice(start, start + itemsPerPage);
+    });
+
+    const totalPages = computed(() => {
+      return Math.ceil(filteredOrders.value.length / itemsPerPage);
+    });
+
+    const goToPage = (page) => {
+      if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+      }
+    };
+
 
 
     const reOrder = async (orderId) => {
@@ -256,12 +268,6 @@ export default {
     });
 
     return {
-      getInitial,
-      getOrderByUser,
-      handleLogout,
-      handleImageUpload,
-      primaryColor,
-      form,
       orders,
       formatDate,
       isDesktop,
@@ -271,10 +277,12 @@ export default {
       activeTab,
       setActive,
       filteredOrders,
+
+      paginatedOrders,
+      currentPage,
+      totalPages,
+      goToPage,
       loading,
-      isLoading,
-      getStatusBadge,
-      avatarUrl,
     };
   },
 };
@@ -306,8 +314,8 @@ export default {
 }
 
 .tab-item.active {
-  border-bottom-color: #ca111f;
-  color: #ca111f;
+  border-bottom-color: #c92c3c;
+  color: #c92c3c;
   background-color: #fff;
   font-weight: 600;
 }
@@ -322,20 +330,25 @@ li.list-group-item {
   border: none !important;
 }
 
-.avatar-circle {
-  width: clamp(80px, 25vw, 100px);
-  height: clamp(80px, 25vw, 100px);
-  border-radius: 50%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  background-color: #f8f9fa;
+.btn-outline-primary {
+  color: #c92c3c;
+  border-color: #c92c3c;
 }
 
-.border-custom {
-  border: 2px solid #ca111f;
+.btn-outline-primary:hover {
+  background-color: #c92c3c;
+  color: #fff;
+  /* border: none; */
+}
+
+.table-secondary th {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f0f0f0;
+  /* hoặc màu xám nhẹ tùy chọn */
 }
 
 .fade-in {

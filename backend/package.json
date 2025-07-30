@@ -8,13 +8,16 @@
     "devDependencies": {
         "axios": "^1.6.4",
         "laravel-vite-plugin": "^1.0.0",
-        "vite": "^5.0.0"
+        "vite": "^6.3.5"
     },
     "dependencies": {
         "@ant-design/icons-vue": "^7.0.1",
         "antd": "^5.25.4",
         "haversine-distance": "^1.2.3",
+        "html5-qrcode": "^2.3.8",
+        "laravel-echo": "^2.1.6",
         "leaflet": "^1.9.4",
+        "pusher-js": "^8.4.0",
         "vue-leaflet": "^0.1.0"
     }
 }

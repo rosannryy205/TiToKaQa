@@ -16,6 +16,7 @@ use App\Http\Controllers\DealFoodsController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Socialite\ProviderCallbackController;
@@ -98,11 +99,8 @@ Route::delete('/permission/{id}', [PermissionController::class, 'deletePermissio
 
 
 // message
-Route::get('/messages', [ChatRealTimeController::class, 'getMessages']);
-Route::post('/messages/send', [ChatRealTimeController::class, 'sendMessage']);
-Route::get('/conversations', [ChatRealTimeController::class, 'getConversationToAdmin']);
-Route::put('/assign-conversation-admin/{id}', [ChatRealTimeController::class, 'assignAdmin']);
-Route::put('/mark-read/{id}', [ChatRealTimeController::class, 'markRead']);
+Route::post('/messages/send', [ChatBotController::class, 'handleMessage']);
+
 
 
 
@@ -213,7 +211,6 @@ Route::post('/admin/food/topping/{food}', [AdminFoodController::class, 'storeTop
 
 
 // topping
-Route::resource('/admin/category_topping', AdminCategoryToppingController::class);
 Route::resource('/admin/toppings', AdminToppingController::class);
 Route::get('/admin/toppingById/{id}', [AdminToppingController::class, 'getToppingById']);
 
@@ -250,6 +247,8 @@ Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
 Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
+Route::get('/get-order-reservation-info', [OrderController::class, 'getOrderReservationInfo']);
+
 
 /**client vong quay*/
 Route::get('/lucky-wheel/prizes', [LuckyWheelController::class, 'getPrizes']);
@@ -272,3 +271,8 @@ Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
 Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
 Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombosForAdmin']);
+
+
+
+// nguyên liệu
+Route::apiResource('ingredients', IngredientController::class);
