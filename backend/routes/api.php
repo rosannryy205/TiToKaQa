@@ -267,7 +267,7 @@ Route::get('/user-vouchers', [DiscountController::class, 'getUserDiscounts'])->m
 /** crud combo mqua*/
 Route::get('/admin/foods', [FoodController::class, 'getAllFoods']);
 // Route::get('/admin/categories', [CategoryController::class, 'getAllCategories']);
-Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
+Route::get('/admin/combos', [ComboController::class, 'getAllCombosForAdmin']);
 Route::get('/admin/combos/{id}', [ComboController::class, 'getComboById']);
 Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmin']);
 Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
