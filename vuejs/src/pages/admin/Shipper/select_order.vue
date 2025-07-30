@@ -1,98 +1,102 @@
 <template>
-  <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 class="fw-bold mb-0 text-primary">
-        <i class="bi bi-truck me-2"></i>Chọn đơn hàng
-      </h3>
-      <span class="badge bg-secondary">
-        Đã chọn: {{ selectedIds.length }}/3
-      </span>
-    </div>
+  <div>
+    <div class="container py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0 text-primary">
+          <i class="bi bi-truck me-2"></i>Chọn đơn hàng
+        </h3>
+        <span class="badge bg-secondary">
+          Đã chọn: {{ selectedIds.length }}/3
+        </span>
+      </div>
 
-    <div v-if="isLoading" class="text-center my-5">
-      <div class="spinner-border text-primary" role="status"></div>
-    </div>
+      <div v-if="isLoading" class="text-center my-5">
+        <div class="spinner-border text-primary" role="status"></div>
+      </div>
 
-    <div v-else-if="orders.length === 0" class="d-flex justify-content-center align-items-center"
-      style="height: 400px;">
-      <p class="text-muted">Không có đơn hàng nào để giao</p>
-    </div>
+      <div v-else-if="orders.length === 0" class="d-flex justify-content-center align-items-center"
+        style="height: 400px;">
+        <p class="text-muted">Không có đơn hàng nào để giao</p>
+      </div>
 
 
-    <div class="order-list-scroll" v-else>
-      <div class="row g-4">
-        <div class="col-md-4" v-for="order in orders" :key="order.id">
-          <div class="card order-card h-100 shadow-sm" :class="{ selected: selectedIds.includes(order.id) }">
-            <div class="card-body d-flex flex-column">
-              <div class="d-flex justify-content-between align-items-start mb-2 w-100">
-                <h5 class="fw-bold text-dark mb-0">#{{ order.id }}</h5>
-                <i class="bi"
-                  :class="selectedIds.includes(order.id) ? 'bi-check-circle-fill text-success' : 'bi-circle text-muted'"
-                  style="font-size: 1.5rem"></i>
-              </div>
-
-              <!-- Thông tin khách -->
-              <p class="mb-1 text-dark"><i class="bi bi-person me-1 text-secondary"></i> {{ order.guest_name }}</p>
-              <p class="mb-1 text-dark"><i class="bi bi-telephone me-1 text-secondary"></i> {{ order.guest_phone }}</p>
-              <p class="mb-2 small text-muted">
-                <i class="bi bi-geo-alt me-1"></i> {{ order.guest_address }}
-              </p>
-              <p class="card-text text-secondary">
-                <i class="bi bi-chat-left-text-fill me-2"></i>
-                <strong>Ghi chú:</strong> {{ order.note }}
-              </p>
-              <strong class="text-dark"><i class="bi bi-list-ul me-1"></i>Chi tiết món:</strong>
-
-              <!-- Chi tiết đơn hàng -->
-              <div class="order-detail-box mt-2 mb-2">
-                <ul class="list-group list-group-flush small mt-1">
-                  <li class="list-group-item px-0 py-1" v-for="food in order.details" :key="food.id">
-                    <div class="d-flex justify-content-between">
-                      <span>🍽️ {{ food.food_name }} (x{{ food.quantity }})</span>
-                      <span class="text-primary fw-semibold">{{ formatCurrency(food.price) }}</span>
-                    </div>
-                    <ul v-if="food.toppings && food.toppings.length" class="ps-3 mt-1 mb-0 text-muted small">
-                      <li v-for="(topping, index) in food.toppings" :key="index">
-                        <i class="bi bi-plus-circle me-1 text-success"></i>{{ topping.topping_name }} -
-                        <span class="text-success">{{ formatCurrency(topping.price || 0) }}</span>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-
-              <!-- Tổng tiền & nút -->
-              <div class="mt-auto total-action-box">
-                <div class="total-label text-primary fw-bold mb-2">
-                  Tổng: {{ formatCurrency(order.total_price) }}
+      <div class="order-list-scroll" v-else>
+        <div class="row g-4">
+          <div class="col-md-4" v-for="order in orders" :key="order.id">
+            <div class="card order-card h-100 shadow-sm" :class="{ selected: selectedIds.includes(order.id) }">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2 w-100">
+                  <h5 class="fw-bold text-dark mb-0">#{{ order.id }}</h5>
+                  <i class="bi"
+                    :class="selectedIds.includes(order.id) ? 'bi-check-circle-fill text-success' : 'bi-circle text-muted'"
+                    style="font-size: 1.5rem"></i>
                 </div>
-                <div class="total-button text-end">
-                  <button class="btn btn-sm px-3 py-1 rounded-pill"
-                    :class="selectedIds.includes(order.id) ? 'btn-outline-danger' : 'btn-outline-primary'"
-                    @click="toggleSelect(order.id)">
-                    <i :class="selectedIds.includes(order.id) ? 'bi bi-x-lg' : 'bi bi-plus-lg'"></i>
-                    {{ selectedIds.includes(order.id) ? 'Bỏ' : 'Chọn' }}
-                  </button>
+
+                <!-- Thông tin khách -->
+                <p class="mb-1 text-dark"><i class="bi bi-person me-1 text-secondary"></i> {{ order.guest_name }}</p>
+                <p class="mb-1 text-dark"><i class="bi bi-telephone me-1 text-secondary"></i> {{ order.guest_phone }}
+                </p>
+                <p class="mb-2 small text-muted">
+                  <i class="bi bi-geo-alt me-1"></i> {{ order.guest_address }}
+                </p>
+                <p class="card-text text-secondary">
+                  <i class="bi bi-chat-left-text-fill me-2"></i>
+                  <strong>Ghi chú:</strong> {{ order.note }}
+                </p>
+                <strong class="text-dark"><i class="bi bi-list-ul me-1"></i>Chi tiết món:</strong>
+
+                <!-- Chi tiết đơn hàng -->
+                <div class="order-detail-box mt-2 mb-2">
+                  <ul class="list-group list-group-flush small mt-1">
+                    <li class="list-group-item px-0 py-1" v-for="food in order.details" :key="food.id">
+                      <div class="d-flex justify-content-between">
+                        <span>🍽️ {{ food.food_name }} (x{{ food.quantity }})</span>
+                        <span class="text-primary fw-semibold">{{ formatCurrency(food.price) }}</span>
+                      </div>
+                      <ul v-if="food.toppings && food.toppings.length" class="ps-3 mt-1 mb-0 text-muted small">
+                        <li v-for="(topping, index) in food.toppings" :key="index">
+                          <i class="bi bi-plus-circle me-1 text-success"></i>{{ topping.topping_name }} -
+                          <span class="text-success">{{ formatCurrency(topping.price || 0) }}</span>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Tổng tiền & nút -->
+                <div class="mt-auto total-action-box">
+                  <div class="total-label text-primary fw-bold mb-2">
+                    Tổng: {{ formatCurrency(order.total_price) }}
+                  </div>
+                  <div class="total-button text-end">
+                    <button class="btn btn-sm px-3 py-1 rounded-pill"
+                      :class="selectedIds.includes(order.id) ? 'btn-outline-danger' : 'btn-outline-primary'"
+                      @click="toggleSelect(order.id)">
+                      <i :class="selectedIds.includes(order.id) ? 'bi bi-x-lg' : 'bi bi-plus-lg'"></i>
+                      {{ selectedIds.includes(order.id) ? 'Bỏ' : 'Chọn' }}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+
+      <!-- Nút quay lại + xác nhận -->
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <button class="btn btn-outline-secondary" @click="goBack">
+          <i class="bi bi-arrow-left me-1"></i> Quay lại
+        </button>
+
+        <button class="btn btn-success px-4 py-2 fw-semibold" :disabled="selectedIds.length === 0"
+          @click="assignOrders">
+          <i class="bi bi-check-circle me-1"></i> Xác nhận {{ selectedIds.length }} đơn
+        </button>
+      </div>
+
     </div>
-
-
-    <!-- Nút quay lại + xác nhận -->
-    <div class="d-flex justify-content-between align-items-center mt-4">
-      <button class="btn btn-outline-secondary" @click="goBack">
-        <i class="bi bi-arrow-left me-1"></i> Quay lại
-      </button>
-
-      <button class="btn btn-success px-4 py-2 fw-semibold" :disabled="selectedIds.length === 0" @click="assignOrders">
-        <i class="bi bi-check-circle me-1"></i> Xác nhận {{ selectedIds.length }} đơn
-      </button>
-    </div>
-
   </div>
 </template>
 
@@ -251,6 +255,4 @@ onMounted(() => {
     padding: 6px 12px;
   }
 }
-
-
 </style>

@@ -1,4 +1,3 @@
-// src/stores/discount.js
 import axios from 'axios'
 import { ref, onMounted, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
@@ -13,7 +12,7 @@ export function Cart() {
     return route.name && String(route.name).includes('admin')
   })
   const quantity = ref(1)
-
+  const isChatbotActive = ref(false)
   // const loadCart = async () => {
   //   const cartKey = isAdmin.value
   //     ? orderId.value
@@ -27,13 +26,22 @@ export function Cart() {
   // }
 
   const cartKey = computed(() => {
-    return isAdmin.value
-      ? orderId.value
-        ? `cart_admin_reservation_${orderId.value}`
-        : `cart_admin_reservation`
-      : orderId.value
-        ? `cart_${userId}_reservation_${orderId.value}`
-        : `cart_${userId}`
+    let key = ''
+    if (isAdmin.value) {
+            key = orderId.value
+                ? `cart_admin_reservation_${orderId.value}`
+                : `cart_admin_reservation`
+        } else {
+            key = orderId.value
+                ? `cart_${userId}_reservation_${orderId.value}`
+                : `cart_${userId}`
+        }
+
+        if (isChatbotActive.value) {
+            return `${key}_chatbot`
+        }
+        return key
+
   })
 
   const loadCart = async () => {
@@ -49,7 +57,7 @@ export function Cart() {
     return cartItems.value.reduce((sum, item) => {
       const basePrice = Number(item.price) * item.quantity
       const toppingPrice =
-        item.type === 'Food'
+        item.type === 'food'
           ? item.toppings.reduce((tsum, topping) => {
               return tsum + Number(topping.price) * item.quantity
             }, 0)
@@ -88,7 +96,7 @@ export function Cart() {
     }
 
     saveCart()
-    toast.success('Đã thêm vào giỏ hàng!')
+    // toast.success('Đã thêm vào giỏ hàng!')
   }
 
   const increaseQuantity = () => {
@@ -124,7 +132,7 @@ export function Cart() {
   const totalPriceItem = (item) => {
     const itemPrice = Number(item.price) * item.quantity
     const toppingPrice =
-      item.type === 'Food'
+      item.type === 'food'
         ? item.toppings.reduce((sum, topping) => {
             return sum + Number(topping.price) * item.quantity
           }, 0)
@@ -166,5 +174,6 @@ export function Cart() {
     decreaseQuantity1,
     clearCart,
     cartKey,
+    isChatbotActive
   }
 }

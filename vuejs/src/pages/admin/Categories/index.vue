@@ -1,117 +1,118 @@
 <template v-if="hasPermission('view_category')">
-  <h3 class="title">Quản lý danh mục</h3>
+  <div>
+    <h3 class="title">Quản lý danh mục</h3>
 
-  <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-    <router-link :to="{ name: 'insert-food-category' }" class="btn btn-add">+ Thêm danh mục</router-link>
+    <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
+      <router-link :to="{ name: 'insert-food-category' }" class="btn btn-add">+ Thêm danh mục</router-link>
 
-    <span class="vd">Tìm kiếm</span>
-    <input type="text" v-model="searchKeyword" class="custom-input" placeholder="Tìm danh mục..." />
+      <span class="vd">Tìm kiếm</span>
+      <input type="text" v-model="searchKeyword" class="custom-input" placeholder="Tìm danh mục..." />
 
-    <span class="vd">Lọc</span>
-    <select v-model="selectedParent" class="custom-select">
-      <option value="">Tất cả danh mục cha</option>
-      <option v-for="cate in allCategories" :key="cate.id" :value="cate.id">{{ cate.name }}</option>
-    </select>
+      <span class="vd">Lọc</span>
+      <select v-model="selectedParent" class="custom-select">
+        <option value="">Tất cả danh mục cha</option>
+        <option v-for="cate in allCategories" :key="cate.id" :value="cate.id">{{ cate.name }}</option>
+      </select>
 
-    <span class="vd">Hiển thị</span>
-    <select v-model="perPage" @change="changePerPage" class="custom-select">
-      <option value="5">5</option>
-      <option value="10">10</option>
-      <option value="15">15</option>
-    </select>
+      <span class="vd">Hiển thị</span>
+      <select v-model="perPage" @change="changePerPage" class="custom-select">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+      </select>
 
-    <span class="vd">Loại danh mục</span>
-    <select v-model="selectedType" class="custom-select">
-      <option value="">Tất cả</option>
-      <option value="food">Món ăn</option>
-      <option value="topping">Topping</option>
-    </select>
+      <span class="vd">Loại danh mục</span>
+      <select v-model="selectedType" class="custom-select">
+        <option value="">Tất cả</option>
+        <option value="food">Món ăn</option>
+        <option value="topping">Topping</option>
+      </select>
 
-  </div>
-
-
-  <!-- Desktop Table -->
-  <div class="table-responsive d-none d-lg-block">
-    <table class="table table-bordered rounded">
-      <thead class="table-light">
-        <tr>
-          <!-- <th><input type="checkbox" @change="toggleSelectAll" :checked="isAllSelected" /></th> -->
-          <th>STT</th>
-          <th>Tên</th>
-          <th>Hình ảnh</th>
-          <th>Danh mục cha</th>
-          <th>Loại</th>
-          <th>Tuỳ chọn</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-if="categories.length === 0">
-          <td colspan="7" class="text-center align-middle text-muted">Không có danh mục nào.</td>
-        </tr>
+    </div>
 
 
-        <tr v-for="(item, index) in categories" :key="item.id">
-          <!-- <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td> -->
-          <td>{{ index + 1 }}</td>
-          <td>{{ item.name }}</td>
-          <td>
-            <img class="me-2 img_thumbnail"
-              :src="item.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + item.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
-              :alt="item.name">
-          </td>
-          <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
-          <td>{{ item.type === 'food' ? 'Món ăn' : 'Topping' }}</td>
+    <!-- Desktop Table -->
+    <div class="table-responsive d-none d-lg-block">
+      <table class="table table-bordered rounded">
+        <thead class="table-light">
+          <tr>
+            <!-- <th><input type="checkbox" @change="toggleSelectAll" :checked="isAllSelected" /></th> -->
+            <th>STT</th>
+            <th>Tên</th>
+            <th>Hình ảnh</th>
+            <th>Danh mục cha</th>
+            <th>Loại</th>
+            <th>Tuỳ chọn</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="categories.length === 0">
+            <td colspan="7" class="text-center align-middle text-muted">Không có danh mục nào.</td>
+          </tr>
 
-          <td class="d-flex justify-content-center gap-2 "
-            style="min-height:100px; min-width: 80px; display: flex; align-items: center; justify-content: center;">
-            <router-link v-if="item.id !== 1 || hasPermission('edit_category')"
-              :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-update btn-sm">
-              Sửa
-            </router-link>
 
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+          <tr v-for="(item, index) in categories" :key="item.id">
+            <!-- <td><input type="checkbox" :value="item.id" v-model="selectedIds" /></td> -->
+            <td>{{ index + 1 }}</td>
+            <td>{{ item.name }}</td>
+            <td>
+              <img class="me-2 img_thumbnail"
+                :src="item.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + item.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
+                :alt="item.name">
+            </td>
+            <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
+            <td>{{ item.type === 'food' ? 'Món ăn' : 'Topping' }}</td>
 
-  <div class="d-block d-lg-none">
-    <div class="card mb-3" v-for="(item, index) in categories" :key="item.id">
-      <div class="row g-0 align-items-center">
-        <div class="col-3 fs-4 fw-bold ps-4">
-          <input type="checkbox" />
-          {{ index + 1 }}
-        </div>
-        <div class="col-9">
-          <div class="card-body">
-            <h5 class="card-title">{{ item.name }}</h5>
-            <p class="card-text"><span class="label">Danh mục cha:</span> Không có</p>
-            <router-link v-if="item.id !== 1 || hasPermission('edit_category')"
-              :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-update btn-sm">
-              Sửa
-            </router-link>
+            <td class="d-flex justify-content-center gap-2 "
+              style="min-height:100px; min-width: 80px; display: flex; align-items: center; justify-content: center;">
+              <router-link v-if="item.id !== 1 || hasPermission('edit_category')"
+                :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-update btn-sm">
+                Sửa
+              </router-link>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-block d-lg-none">
+      <div class="card mb-3" v-for="(item, index) in categories" :key="item.id">
+        <div class="row g-0 align-items-center">
+          <div class="col-3 fs-4 fw-bold ps-4">
+            <input type="checkbox" />
+            {{ index + 1 }}
+          </div>
+          <div class="col-9">
+            <div class="card-body">
+              <h5 class="card-title">{{ item.name }}</h5>
+              <p class="card-text"><span class="label">Danh mục cha:</span> Không có</p>
+              <router-link v-if="item.id !== 1 || hasPermission('edit_category')"
+                :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-update btn-sm">
+                Sửa
+              </router-link>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  
-  <!-- Pagination -->
-  <nav class="mt-3">
-    <ul class="pagination">
-      <li class="page-item" :class="{ disabled: currentPage === 1 }">
-        <a class="page-link" href="#" @click.prevent="goToPage(currentPage - 1)">«</a>
-      </li>
-      <li class="page-item" v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }">
-        <a class="page-link" href="#" @click.prevent="goToPage(page)">{{ page }}</a>
-      </li>
-      <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-        <a class="page-link" href="#" @click.prevent="goToPage(currentPage + 1)">»</a>
-      </li>
-    </ul>
-  </nav>
 
-  <!-- <div class="mt-2 d-flex justify-content-start">
+    <!-- Pagination -->
+    <nav class="mt-3">
+      <ul class="pagination">
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <a class="page-link" href="#" @click.prevent="goToPage(currentPage - 1)">«</a>
+        </li>
+        <li class="page-item" v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }">
+          <a class="page-link" href="#" @click.prevent="goToPage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <a class="page-link" href="#" @click.prevent="goToPage(currentPage + 1)">»</a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- <div class="mt-2 d-flex justify-content-start">
     <button class="btn btn-danger-delete delete_desktop" @click="handleDeleteSelected"
       :disabled="selectedIds.length === 0">
       Xoá đã chọn ({{ selectedIds.length }})
@@ -120,8 +121,8 @@
 
 
 
-  <!-- Mobile View -->
-
+    <!-- Mobile View -->
+  </div>
 </template>
 
 <script>

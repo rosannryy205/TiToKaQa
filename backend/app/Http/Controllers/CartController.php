@@ -123,12 +123,12 @@ class CartController extends Controller
                 foreach ($request->order_detail as $item) {
                     $name = null;
                     $image = null;
-                    if ($item['type'] === 'Food' && !empty($item['food_id'])) {
+                    if ($item['type'] === 'food' && !empty($item['food_id'])) {
                         $food = Food::find($item['food_id']);
                         $name = $food?->name ?? 'Món ăn không tồn tại';
                         $image = $food?->image;
                     }
-                    if ($item['type'] === 'Combo' && !empty($item['combo_id'])) {
+                    if ($item['type'] === 'combo' && !empty($item['combo_id'])) {
                         $combo = Combo::find($item['combo_id']);
                         $name = $combo?->name ?? 'Món ăn không tồn tại';
                         $image = $combo?->image;
