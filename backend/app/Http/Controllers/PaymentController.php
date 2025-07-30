@@ -330,7 +330,7 @@ class PaymentController extends Controller
 
             if (!$order) {
                 return response()->json([
-                    'message' => 'Không tìm thấy đơn hàng với ID: ' . $id
+                    'message' => 'Không tìm thấy đơn hàng với ID: ' . $validated['order_id']
                 ], 404);
             }
 
