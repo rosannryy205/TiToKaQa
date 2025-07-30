@@ -566,17 +566,33 @@ export default {
         }
       } catch (err) {
         console.error(err)
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'error',
-          title: err?.response?.data?.message || 'Đặt hàng thất bại.',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true
-        });
-      } finally {
-        isLoading.value = false
+        if (err.response?.status === 422 && err.response?.data?.errors) {
+          const errors = err.response.data.errors
+
+          // Hiển thị lỗi chi tiết bằng Swal
+          const formattedErrors = Object.values(errors).flat().join('<br>')
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi nhập liệu',
+            html: formattedErrors,
+            confirmButtonText: 'Đã hiểu'
+          })
+
+          // Nếu muốn hiển thị lỗi dưới input:
+          formErrors.value = errors
+
+        } else {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: err?.response?.data?.message || 'Đặt hàng thất bại.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
+        }
       }
     }
 
