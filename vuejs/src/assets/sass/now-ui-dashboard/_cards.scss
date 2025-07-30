@@ -1,11 +1,19 @@
+@use "cards/card-background";
+@use "cards/card-chart";
+@use "cards/card-collapse";
+@use "cards/card-contributions";
+@use "cards/card-stats";
+
+@use 'variables' as vars;
+
 .card {
   border: 0;
-  border-radius: $border-radius-small;
+  border-radius: vars.$border-radius-small;
   display: inline-block;
   position: relative;
   width: 100%;
   margin-bottom: 20px;
-  box-shadow: $box-shadow;
+  box-shadow: vars.$box-shadow;
 
   .card-body {
     padding: 15px 15px 10px 15px;
@@ -29,7 +37,7 @@
   }
 
   .map {
-    border-radius: $border-radius-small;
+    border-radius: vars.$border-radius-small;
 
     &.map-big {
       height: 400px;
@@ -37,33 +45,33 @@
   }
 
   &[data-background-color="orange"] {
-    background-color: $primary-color;
+    background-color: vars.$primary-color;
 
     .card-header {
-      background-color: $primary-color;
+      background-color: vars.$primary-color;
     }
 
     .card-footer {
       .stats {
-        color: $white-color;
+        color: vars.$white-color;
       }
     }
   }
 
   &[data-background-color="red"] {
-    background-color: $danger-color;
+    background-color: vars.$danger-color;
   }
 
   &[data-background-color="yellow"] {
-    background-color: $warning-color;
+    background-color: vars.$warning-color;
   }
 
   &[data-background-color="blue"] {
-    background-color: $info-color;
+    background-color: vars.$info-color;
   }
 
   &[data-background-color="green"] {
-    background-color: $success-color;
+    background-color: vars.$success-color;
   }
 
   .image {
@@ -83,9 +91,9 @@
   }
 
   label {
-    font-size: $font-size-small;
+    font-size: vars.$font-size-small;
     margin-bottom: 5px;
-    color: $dark-gray;
+    color: vars.$dark-gray;
   }
 
   .card-footer {
@@ -124,7 +132,7 @@
   .avatar {
     width: 124px;
     height: 124px;
-    border: 1px solid $white-color;
+    border: 1px solid vars.$white-color;
     position: relative;
   }
 
@@ -159,8 +167,4 @@
   }
 }
 
-@import "cards/card-background";
-@import "cards/card-chart";
-@import "cards/card-collapse";
-@import "cards/card-contributions";
-@import "cards/card-stats";
+

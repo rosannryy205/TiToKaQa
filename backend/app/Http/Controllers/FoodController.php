@@ -36,7 +36,7 @@ class FoodController extends Controller
     public function getAllFoods()
     {
         try {
-            $foods = Food::all();
+            $foods = Food::where('status', 'active')->with('category')->get();
             return response()->json($foods);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Lỗi khi lấy danh sách món ăn', 'error' => $e->getMessage()], 500);
@@ -118,4 +118,19 @@ class FoodController extends Controller
         }
         return $str;
     }
+
+    public function getFlashSaleFoods()
+{
+    $now = now();
+
+    $foods = Food::whereNotNull('flash_sale_price')
+        ->where('flash_sale_start', '<=', $now)
+        ->where('flash_sale_end', '>=', $now)
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => $foods,
+    ]);
+}
 }

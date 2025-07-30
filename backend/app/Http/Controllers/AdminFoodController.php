@@ -54,8 +54,8 @@ class AdminFoodController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',    
-            'price' => 'required|numeric',
+            'name' => 'required|string|unique:foods,name',
+            'price' => 'required|numeric|gt:0',
             'image' => 'required|image|max:2048',
             'sale_price' => [
                 'nullable',
@@ -63,14 +63,16 @@ class AdminFoodController extends Controller
                 'gt:0',
                 'lt:price',
             ],
-            'stock' => 'required|integer',
+            'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',
             'description' => 'required|string|max:1000',
             'status' => 'required|in:active,inactive',
         ], [
             'name.required' => 'Tên món ăn là bắt buộc.',
+            'name.unique' => 'Tên món ăn đã tồn tại.',
             'price.required' => 'Giá món ăn là bắt buộc.',
             'price.numeric' => 'Giá món ăn phải là một số.',
+            'price.gt' => 'Giá món ăn phải lớn hơn 0.',
             'image.required' => 'Hình ảnh là bắt buộc.',
             'image.image' => 'Vui lòng chọn một tệp hình ảnh hợp lệ.',
             'image.max' => 'Hình ảnh không được lớn hơn 2MB.',
@@ -78,6 +80,7 @@ class AdminFoodController extends Controller
             'sale_price.lt' => 'Giá giảm phải nhỏ hơn giá gốc.',
             'stock.required' => 'Số lượng món ăn là bắt buộc.',
             'stock.integer' => 'Số lượng món ăn phải là một số nguyên.',
+            'stock.min' => 'Số lượng món ăn phải lớn hơn hoặc bằng 0.',
             'category_id.required' => 'Danh mục món ăn là bắt buộc.',
             'category_id.exists' => 'Danh mục món ăn không tồn tại.',
             'description.max' => 'Mô tả không được dài hơn 1000 ký tự.',
@@ -146,22 +149,34 @@ class AdminFoodController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'required|string',
-            'price' => 'required|numeric',
+            'name' => 'required|string|unique:foods,name,' . $food->id,
+            'price' => 'required|numeric|gt:0',
             'image' => 'nullable|image|max:2048',
-            'sale_price' => 'nullable|numeric',
-            'stock' => 'required|integer',
+            'sale_price' => [
+                'nullable',
+                'numeric',
+                'gt:0',
+                'lt:price',
+
+            ],
+            'stock' => 'required|integer|min:0',
             'category_id' => 'required|exists:categories,id',
             'description' => 'required|string|max:1000',
             'status' => 'required|in:active,inactive',
         ], [
             'name.required' => 'Tên món ăn là bắt buộc.',
+            'name.unique' => 'Tên món ăn đã tồn tại.',
             'price.required' => 'Giá món ăn là bắt buộc.',
             'price.numeric' => 'Giá món ăn phải là một số.',
+            'price.gt' => 'Giá món ăn phải lớn hơn 0.',
+            'sale_price.gt' => 'Giá giảm phải lớn hơn 0.',
+            'sale_price.lt' => 'Giá giảm phải nhỏ hơn giá gốc.',
+            'sale_price.numeric' => 'Giá giảm phải là một số.',
             'image.image' => 'Vui lòng chọn một tệp hình ảnh hợp lệ.',
             'image.max' => 'Hình ảnh không được lớn hơn 2MB.',
             'stock.required' => 'Số lượng món ăn là bắt buộc.',
             'stock.integer' => 'Số lượng món ăn phải là một số nguyên.',
+            'stock.min' => 'Số lượng món ăn phải lớn hơn hoặc bằng 0.',
             'category_id.required' => 'Danh mục món ăn là bắt buộc.',
             'category_id.exists' => 'Danh mục món ăn không tồn tại.',
             'description.max' => 'Mô tả không được dài hơn 1000 ký tự.',

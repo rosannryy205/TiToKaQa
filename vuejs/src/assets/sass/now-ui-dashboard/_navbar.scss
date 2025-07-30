@@ -1,6 +1,8 @@
+@use './variables' as vars;
+
 .navbar-admin{
-    padding-top: $navbar-padding-base;
-    padding-bottom: $navbar-padding-base;
+    padding-top: vars.$navbar-padding-base;
+    padding-bottom: vars.$navbar-padding-base;
     min-height: 53px;
     margin-bottom: 20px;
     box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.15);
@@ -9,11 +11,11 @@
         vertical-align: middle;
 
         &:not(.btn):not(.dropdown-item){
-            color: $white-color;
+            color: vars.$white-color;
         }
 
         &.dropdown-item{
-            color: $default-color;
+            color: vars.$default-color;
         }
     }
 
@@ -79,20 +81,20 @@
         }
 
         .nav-link-admin.btn{
-            padding: $padding-btn-vertical $padding-btn-horizontal;
+            padding: vars.$padding-btn-vertical vars.$padding-btn-horizontal;
             &.btn-lg{
-                padding: $padding-large-vertical $padding-large-horizontal;
+                padding: vars.$padding-large-vertical vars.$padding-large-horizontal;
             }
             &.btn-sm{
-                padding: $padding-small-vertical $padding-small-horizontal;
+                padding: vars.$padding-small-vertical vars.$padding-small-horizontal;
             }
         }
 
         .nav-link-admin{
             text-transform: uppercase;
-            font-size: $font-size-mini;
-            padding: $padding-base-vertical $padding-base-horizontal;
-            line-height: $line-height-nav-link;
+            font-size: vars.$font-size-mini;
+            padding: vars.$padding-base-vertical vars.$padding-base-horizontal;
+            line-height: vars.$line-height-nav-link;
             margin-right: 3px;
 
             i.fa + p,
@@ -123,7 +125,7 @@
 
             &.disabled{
                 opacity: .5;
-                color: $white-color;
+                color: vars.$white-color;
             }
         }
 
@@ -131,9 +133,9 @@
         .nav-item .nav-link-admin:not(.btn):focus,
         .nav-item .nav-link-admin:not(.btn):hover,
         .nav-item .nav-link-admin:not(.btn):active{
-            background-color: $opacity-2;
-            border-radius: $border-radius-small;
-            color: $white-color;
+            background-color: vars.$opacity-2;
+            border-radius: vars.$border-radius-small;
+            color: vars.$white-color;
         }
     }
 
@@ -148,10 +150,10 @@
 
     .navbar-brand{
         text-transform: uppercase;
-        font-size: $font-size-small;
-        padding-top: $padding-base-vertical;
-        padding-bottom: $padding-base-vertical;
-        line-height: $line-height-nav-link;
+        font-size: vars.$font-size-small;
+        padding-top: vars.$padding-base-vertical;
+        padding-bottom: vars.$padding-base-vertical;
+        line-height: vars.$line-height-nav-link;
     }
 
     .navbar-toggler{
@@ -177,63 +179,63 @@
     }
 
     &.navbar-transparent{
-        background-color: $transparent-bg !important;
+        background-color: vars.$transparent-bg !important;
         box-shadow: none;
-        color: $white-color;
+        color: vars.$white-color;
     }
 
     &.bg-white:not(.navbar-transparent){
         a:not(.dropdown-item):not(.btn){
-            color: $default-color;
+            color: vars.$default-color;
 
             &.disabled{
                 opacity: .5;
-                color: $default-color;
+                color: vars.$default-color;
             }
         }
 
         .button-bar{
-            background: $default-color;
+            background: vars.$default-color;
         }
 
         .nav-item.active .nav-link-admin:not(.btn),
         .nav-item .nav-link-admin:not(.btn):focus,
         .nav-item .nav-link-admin:not(.btn):hover,
         .nav-item .nav-link-admin:not(.btn):active{
-            background-color: $opacity-gray-8;
-            color: $default-color;
+            background-color: vars.$opacity-gray-8;
+            color: vars.$default-color;
         }
 
         .logo-container{
-            border: 1px solid $default-color;
+            border: 1px solid vars.$default-color;
         }
     }
 }
 
 .bg-default{
-    background-color: $default-color !important;
+    background-color: vars.$default-color !important;
 }
 
 .bg-primary{
-    background-color: $primary-color !important;
+    background-color: vars.$primary-color !important;
 }
 
 .bg-info{
-    background-color: $info-color !important;
+    background-color: vars.$info-color !important;
 }
 
 .bg-success{
-    background-color: $success-color !important;
+    background-color: vars.$success-color !important;
 }
 
 .bg-danger{
-    background-color: $danger-color !important;
+    background-color: vars.$danger-color !important;
 }
 
 .bg-warning{
-    background-color: $warning-color !important;
+    background-color: vars.$warning-color !important;
 }
 
 .bg-white{
-    background-color: $white-color !important;
+    background-color: vars.$white-color !important;
 }

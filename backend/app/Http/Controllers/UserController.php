@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App;
+use App\Models\Discount;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -130,6 +131,23 @@ class UserController extends Controller
         $user->assignRole('khachhang');
         Auth::login($user);
         $token = $user->createToken('auth')->plainTextToken;
+
+        /**xuly tang dc cho nguoi moi */
+        $newUserDiscounts = Discount::where('user_level', 'new')->get();
+        $data = [];
+        $now = now();
+        foreach ($newUserDiscounts as $discount) {
+            $data[$discount->id] = [
+                'point_used' => 0,
+                'exchanged_at' => $now,
+                'expiry_at' => $now->addDays(7),
+                'used_at' => null,
+                'source' => 'rank_reward',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+        $user->discounts()->attach($data);
 
         // Gửi mail chào mừng
         // Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
