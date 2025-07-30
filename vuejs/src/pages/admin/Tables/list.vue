@@ -1,424 +1,149 @@
 <template>
-  <div>
-    <div class="main-layout">
-      <div class="main-content">
-        <div class="d-flex justify-content-between ">
-          <h2>Danh sách bàn</h2>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <div class="main-layout">
+            <div class="main-content">
+              <div class="d-flex justify-content-between ">
+                <h2>Danh sách bàn</h2>
 
-          <button v-if="isSetup" type="button" class="btn btn-danger1 rounded-0" @click="setUpTablesForOrder"
-            :disabled="selectedTablesForOrder.length === 0">
-            Xếp Bàn
-          </button>
-        </div>
-        <template v-if="hasPermission('view_table')">
-          <div class="table-filter-box">
-            <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">
-              + Thêm Bàn Mới
-            </button>
-            <input type="date" class="form-control rounded w-25" v-model="date" :min="today" @change="getTable" />
-            <div class="filter-status-select">
-              <select class="form-control rounded" v-model="filterStatus" @change="getTable">
-                <option value="">Tất cả bàn</option>
-                <option value="Bàn trống">Bàn trống</option>
-                <option value="Đã đặt trước">Đã đặt trước</option>
-                <option value="Đang phục vụ">Đang phục vụ</option>
-              </select>
-            </div>
-
-            <div class="filter-status-select">
-              <select class="form-control rounded" v-model="itemsPerPageUserSelected" @change="currentPage.tables = 1"
-                style="max-width: 109px">
-                <option value="20">Hiển thị</option>
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-              </select>
-            </div>
-            <div class="table-status-box">
-              <strong>Trạng thái:</strong>
-              <div class="status-item"><span class="status-dot billed"></span>Đã đặt trước</div>
-              <div class="status-item">
-                <span class="status-dot reservation"></span>Đang phục vụ
+                <button v-if="isSetup" type="button" class="btn btn-danger1 rounded-0" @click="setUpTablesForOrder"
+                  :disabled="selectedTablesForOrder.length === 0">
+                  Xếp Bàn
+                </button>
               </div>
-              <div class="status-item"><span class="status-dot vacant"></span>Bàn trống</div>
-            </div>
-          </div>
-
-          <hr />
-          <div v-if="isLoading" class="loader-wrapper">
-            <div class="loader"></div>
-          </div>
-          <div class="col-md-12 form-section mt-2" style="background-color: #ffff; min-height: 500px">
-            <draggable :list="displayTables" item-key="id" tag="div" class="table-container" :animation="150"
-              @add="onTableAddedFromSidebar" group="tables">
-              <template #item="{ element: ban }">
-                <div class="table-block"
-                  :class="{ 'rotated-layout': ban.isRotated, 'selected-for-setup': isSetup && isTableSelectedForOrder(ban.id) }">
-                  <div class="table-content-wrapper" :class="{ 'rotated-visual': ban.isRotated }">
-                    <div class="chairs top-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                      <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n" :class="[
-                        {
-                          chair_billed: ban.current_day_status === 'Đã đặt trước',
-                          'billed-text': ban.current_day_status === 'Đã đặt trước',
-                          chair_reservation: ban.current_day_status === 'Đang phục vụ',
-                          'reservation-text': ban.current_day_status === 'Đang phục vụ',
-                          chair1: selectedTableId == ban.id,
-                        },
-                      ]"></div>
-                    </div>
-                    <div @click="hasPermission('edit_table') ? loadTable(ban.id) : null" :class="[
-                      selectedTableId == ban.id ? 'table-rect1' : 'table-rect',
-                      {
-                        medium: getChairCount(ban.capacity) === 2,
-                        large: getChairCount(ban.capacity) === 3,
-                        billed: ban.current_day_status === 'Đã đặt trước',
-                        'billed-text': ban.current_day_status === 'Đã đặt trước',
-                        reservation: ban.current_day_status === 'Đang phục vụ',
-                        'reservation-text': ban.current_day_status === 'Đang phục vụ',
-                      },
-                    ]">
-                      B{{ ban.table_number }}
-                    </div>
-                    <div class="chairs bottom-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                      <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n" :class="[
-                        {
-                          chair_billed: ban.current_day_status === 'Đã đặt trước',
-                          'billed-text': ban.current_day_status === 'Đã đặt trước',
-                          chair_reservation: ban.current_day_status === 'Đang phục vụ',
-                          'reservation-text': ban.current_day_status === 'Đang phục vụ',
-                          chair1: selectedTableId == ban.id,
-                        },
-                      ]"></div>
-                    </div>
-                  </div>
-                  <button v-if="ban.has_booking_history == false && hasPermission('delete_table')" class="rotate-btn"
-                    @click="deleteTable(ban.id)">
-                    <i class="bi bi-trash3-fill"></i>
+              <template v-if="hasPermission('view_table')">
+                <div class="table-filter-box">
+                  <button v-if="hasPermission('create_table')" class="btn btn-outline-danger" @click="toggleSidebar">
+                    + Thêm Bàn Mới
                   </button>
-                </div>
-              </template>
-            </draggable>
-            <div class="d-flex justify-content-center mt-3 w-100">
-              <nav>
-                <ul class="pagination">
-                  <li class="page-item" :class="{ disabled: currentPage.tables === 1 }">
-                    <button type="button" class="page-link" @click="goToPage(currentPage.tables - 1)">
-                      «
-                    </button>
-                  </li>
+                  <input type="date" class="form-control rounded w-25" v-model="date" :min="today" @change="getTable" />
+                  <div class="filter-status-select">
+                    <select class="form-control rounded" v-model="filterStatus" @change="getTable">
+                      <option value="">Tất cả bàn</option>
+                      <option value="Bàn trống">Bàn trống</option>
+                      <option value="Đã đặt trước">Đã đặt trước</option>
+                      <option value="Đang phục vụ">Đang phục vụ</option>
+                    </select>
+                  </div>
 
-                  <li v-for="page in totalPagesTables" :key="page" class="page-item"
-                    :class="{ active: currentPage.tables === page }">
-                    <button type="button" class="page-link" @click="goToPage(page)">
-                      {{ page }}
-                    </button>
-                  </li>
-
-                  <li class="page-item" :class="{ disabled: currentPage.tables === totalPagesTables }">
-                    <button type="button" class="page-link" @click="goToPage(currentPage.tables + 1)">
-                      »
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          </div>
-        </template>
-      </div>
-
-      <transition name="slide-fade">
-        <div v-if="isSidebarOpen && (hasPermission('create_table') || hasPermission('edit_table'))"
-          class="add-table-sidebar">
-          <h5 v-if="!hasBookingHistory">{{ selectedTableId ? 'Sửa Bàn' : 'Thêm Bàn Mới' }}</h5>
-          <h5 v-else>Chi tiết</h5>
-
-          <button class="close-sidebar-btn" @click="((selectedTableId = null), toggleSidebar())">
-            X
-          </button>
-          <form @submit.prevent="addNewTable(selectedTableId)">
-            <div class="mb-3">
-              <label for="newTableNumber" class="form-label">Số bàn:</label>
-
-              <input type="number" class="form-control rounded" id="newTableNumber" v-model.number="table_number"
-                required @input="updateNewTablePreview" :disabled="hasBookingHistory" />
-            </div>
-            <div class="mb-3">
-              <label for="newTableCapacity" class="form-label">Số ghế:</label>
-              <select class="form-select rounded" id="newTableCapacity" v-model="capacity"
-                @change="updateNewTablePreview" :disabled="hasBookingHistory">
-                <option selected value="2">2</option>
-                <option value="4">4</option>
-                <option value="6">6</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-outline-danger w-100 mb-3"
-              v-if="selectedTableId && hasPermission('edit_table') && !hasBookingHistory">
-              Sửa Bàn
-            </button>
-            <button type="submit" class="btn btn-outline-danger w-100 mb-3"
-              v-else-if="!selectedTableId && hasPermission('create_table')">
-              Thêm Bàn
-            </button>
-          </form>
-
-          <hr />
-          <div class="new-table-preview-area">
-            <draggable v-model="newTablesQueue" item-key="id" tag="div" class="new-table-draggable-container"
-              :animation="150" group="tables" @end="onNewTableDragEnd">
-              <template #item="{ element: newBan }">
-                <div class="table-block draggable-new-table" :class="{ 'rotated-layout': newBan.isRotated }">
-                  <div class="table-content-wrapper" :class="{ 'rotated-visual': newBan.isRotated }">
-                    <div class="chairs top-chairs" :class="'ghe-' + getChairCount(newBan.capacity)">
-                      <div class="chair" v-for="n in getChairCount(newBan.capacity)" :key="n"></div>
+                  <div class="filter-status-select">
+                    <select class="form-control rounded" v-model="itemsPerPageUserSelected"
+                      @change="currentPage.tables = 1" style="max-width: 109px">
+                      <option value="20">Hiển thị</option>
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="15">15</option>
+                    </select>
+                  </div>
+                  <div class="table-status-box">
+                    <strong>Trạng thái:</strong>
+                    <div class="status-item"><span class="status-dot billed"></span>Đã đặt trước</div>
+                    <div class="status-item">
+                      <span class="status-dot reservation"></span>Đang phục vụ
                     </div>
-                    <div class="table-rect table-new" :class="{
-                      medium: getChairCount(newBan.capacity) === 2,
-                      large: getChairCount(newBan.capacity) === 3,
-                    }">
-                      Bàn {{ newBan.table_number }}
-                    </div>
-                    <div class="chairs bottom-chairs" :class="'ghe-' + getChairCount(newBan.capacity)">
-                      <div class="chair" v-for="n in getChairCount(newBan.capacity)" :key="'b' + n"></div>
-                    </div>
+                    <div class="status-item"><span class="status-dot vacant"></span>Bàn trống</div>
                   </div>
                 </div>
-              </template>
-            </draggable>
-          </div>
-          <hr />
-          <div style="min-height: 80px; overflow-y: auto">
-            <div class="border shadow-sm p-2 mb-2 rounded" style="cursor: pointer" v-for="item in tableOrder"
-              :key="item.order_id">
-              <div class="" @click="getInfoDetail(item.order_id)">
-                <div class="fw-bold text-danger">#{{ item.order_id }}</div>
-                <div class="d-flex justify-content-between">
-                  <div class="text-mute">
-                    <i class="bi bi-calendar2-week"></i> {{ formatTime(item.reserved_from) }}
-                  </div>
-                  <div class="text-mute">
-                    <i class="bi bi-card-checklist"></i> {{ item.order_status }}
-                  </div>
+
+                <hr />
+                <div v-if="isLoading" class="loader-wrapper">
+                  <div class="loader"></div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </transition>
-    </div>
-
-    <div name="popup-fade">
-      <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
-        <div class="event-detail-popup" @click.stop>
-          <div class="popup-header">
-            <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
-            <button class="close-button" @click="closeDetailPopup">&times;</button>
-          </div>
-          <div class="popup-content" v-if="info">
-            <div class="info-item">
-              <div class="info-block">
-                <i class="bi bi-table"></i>Ngày đặt:
-                <span v-for="(t, index) in info.tables" :key="index">
-                  {{ formatDate(t.reserved_from)
-                  }}<span v-if="index < info.tables.length - 1">, </span>
-                </span>
-              </div>
-              <div class="info-block">
-                <i class="bi bi-clock"></i>Giờ đặt:
-                <span v-for="(t, index) in info.tables" :key="index">
-                  {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
-                  }}<span v-if="index < info.tables.length - 1">, </span>
-                </span>
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="info-block">
-                <i class="fa-solid fa-calendar"></i>
-                <span>Bàn số:
-                  <span v-for="(t, index) in info.tables" :key="index">
-                    {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
-                  </span>
-                </span>
-              </div>
-              <div class="info-block">
-                <i class="bi bi-people"></i>
-                <span>Lượng khách:
-                  {{ info.guest_count }}
-                </span>
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="info-block">
-                <i class="fa-solid fa-user"></i>
-                <span>Khách hàng: {{ info.guest_name }}</span>
-              </div>
-              <div class="info-block">
-                <i class="bi bi-telephone"></i>
-                <span>SĐT: {{ info.guest_phone }}</span>
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="info-block">
-                <i class="bi bi-envelope"></i>
-                <span>Email: {{ info.guest_email }}</span>
-              </div>
-              <div class="info-block">
-                <i class="bi bi-card-heading"></i>
-                <span>Ghi chú: {{ info.note || 'Không có' }}</span>
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="info-block">
-                <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
-              </div>
-              <div class="info-block">
-                <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
-              </div>
-            </div>
-            <div class="info-item">
-              <div class="info-block">
-                <span>
-                  <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
-                </span>
-              </div>
-              <div class="info-block">
-                <i class="bi bi-card-list"></i>
-                <span>Trạng thái đơn:
-                  <select v-model="info.order_status" class="p-1 border rounded-0"
-                    @change="updateStatus(info.id, info.order_status)" :disabled="!hasPermission('edit_booking')">
-                    <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
-                      Chờ xác nhận
-                    </option>
-                    <option value="Đã xác nhận" :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
-                      Đã xác nhận
-                    </option>
-                    <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
-                      Đang xử lý
-                    </option>
-                    <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
-                      Khách đã đến
-                    </option>
-                    <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
-                      Hoàn thành
-                    </option>
-                    <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
-                      Đã hủy
-                    </option>
-                  </select>
-                </span>
-
-                <div class="filter-status-select">
-                  <select class="form-control rounded" v-model="itemsPerPageUserSelected"
-                    @change="currentPage.tables = 1" style="max-width: 109px;">
-                    <option value="14">Hiển thị</option>
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="15">15</option>
-                  </select>
-
-                </div>
-                <div class="table-status-box">
-                  <strong>Trạng thái:</strong>
-                  <div class="status-item"><span class="status-dot billed"></span>Đã đặt trước</div>
-                  <div class="status-item"><span class="status-dot reservation"></span>Đang phục vụ</div>
-                  <div class="status-item"><span class="status-dot vacant"></span>Bàn trống</div>
-                </div>
-
-              </div>
-
-              <hr />
-              <div class="col-md-12 form-section mt-2" style="background-color: #ffff; min-height: 500px">
-                <draggable :list="displayTables" item-key="id" tag="div" class="table-container" :animation="150"
-                  @add="onTableAddedFromSidebar" group="tables">
-                  <template #item="{ element: ban }">
-                    <div class="table-block" :class="{ 'rotated-layout': ban.isRotated }">
-                      <div class="table-content-wrapper" :class="{ 'rotated-visual': ban.isRotated }">
-                        <div class="chairs top-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                          <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n" :class="[
+                <div class="col-md-12 form-section mt-2" style="background-color: #ffff; min-height: 500px">
+                  <draggable :list="displayTables" item-key="id" tag="div" class="table-container" :animation="150"
+                    @add="onTableAddedFromSidebar" group="tables">
+                    <template #item="{ element: ban }">
+                      <div class="table-block"
+                        :class="{ 'rotated-layout': ban.isRotated, 'selected-for-setup': isSetup && isTableSelectedForOrder(ban.id) }">
+                        <div class="table-content-wrapper" :class="{ 'rotated-visual': ban.isRotated }">
+                          <div class="chairs top-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+                            <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n" :class="[
+                              {
+                                chair_billed: ban.current_day_status === 'Đã đặt trước',
+                                'billed-text': ban.current_day_status === 'Đã đặt trước',
+                                chair_reservation: ban.current_day_status === 'Đang phục vụ',
+                                'reservation-text': ban.current_day_status === 'Đang phục vụ',
+                                chair1: selectedTableId == ban.id,
+                              },
+                            ]"></div>
+                          </div>
+                          <div @click="hasPermission('edit_table') ? loadTable(ban.id) : null" :class="[
+                            selectedTableId == ban.id ? 'table-rect1' : 'table-rect',
                             {
-                              chair_billed: ban.current_day_status === 'Đã đặt trước',
+                              medium: getChairCount(ban.capacity) === 2,
+                              large: getChairCount(ban.capacity) === 3,
+                              billed: ban.current_day_status === 'Đã đặt trước',
                               'billed-text': ban.current_day_status === 'Đã đặt trước',
-                              chair_reservation: ban.current_day_status === 'Đang phục vụ',
+                              reservation: ban.current_day_status === 'Đang phục vụ',
                               'reservation-text': ban.current_day_status === 'Đang phục vụ',
-                              chair1: selectedTableId == ban.id
-
                             },
-                          ]"></div>
+                          ]">
+                            B{{ ban.table_number }}
+                          </div>
+                          <div class="chairs bottom-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+                            <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n" :class="[
+                              {
+                                chair_billed: ban.current_day_status === 'Đã đặt trước',
+                                'billed-text': ban.current_day_status === 'Đã đặt trước',
+                                chair_reservation: ban.current_day_status === 'Đang phục vụ',
+                                'reservation-text': ban.current_day_status === 'Đang phục vụ',
+                                chair1: selectedTableId == ban.id,
+                              },
+                            ]"></div>
+                          </div>
                         </div>
-                        <div @click="hasPermission('edit_table') ? loadTable(ban.id) : null" :class="[
-                          selectedTableId == ban.id ? 'table-rect1' : 'table-rect',
-                          {
-                            medium: getChairCount(ban.capacity) === 2,
-                            large: getChairCount(ban.capacity) === 3,
-                            billed: ban.current_day_status === 'Đã đặt trước',
-                            'billed-text': ban.current_day_status === 'Đã đặt trước',
-                            reservation: ban.current_day_status === 'Đang phục vụ',
-                            'reservation-text': ban.current_day_status === 'Đang phục vụ',
-
-                          },
-                        ]">
-                          B{{ ban.table_number }}
-                        </div>
-                        <div class="chairs bottom-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
-                          <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n" :class="[
-                            {
-                              chair_billed: ban.current_day_status === 'Đã đặt trước',
-                              'billed-text': ban.current_day_status === 'Đã đặt trước',
-                              chair_reservation: ban.current_day_status === 'Đang phục vụ',
-                              'reservation-text': ban.current_day_status === 'Đang phục vụ',
-                              chair1: selectedTableId == ban.id
-                            },
-                          ]"></div>
-                        </div>
+                        <button v-if="ban.has_booking_history == false && hasPermission('delete_table')"
+                          class="rotate-btn" @click="deleteTable(ban.id)">
+                          <i class="bi bi-trash3-fill"></i>
+                        </button>
                       </div>
-                      <button v-if="ban.has_booking_history == false && hasPermission('delete_table')"
-                        class="rotate-btn" @click="deleteTable(ban.id)">
-                        <i class="bi bi-trash3-fill"></i>
-                      </button>
-                    </div>
-                  </template>
-                </draggable>
-                <div class="d-flex justify-content-center mt-3 w-100">
-                  <nav>
-                    <ul class="pagination">
-                      <li class="page-item" :class="{ disabled: currentPage.tables === 1 }">
-                        <button type="button" class="page-link" @click="goToPage(currentPage.tables - 1)">
-                          «
-                        </button>
-                      </li>
+                    </template>
+                  </draggable>
+                  <div class="d-flex justify-content-center mt-3 w-100">
+                    <nav>
+                      <ul class="pagination">
+                        <li class="page-item" :class="{ disabled: currentPage.tables === 1 }">
+                          <button type="button" class="page-link" @click="goToPage(currentPage.tables - 1)">
+                            «
+                          </button>
+                        </li>
 
-                      <li v-for="page in totalPagesTables" :key="page" class="page-item"
-                        :class="{ active: currentPage.tables === page }">
-                        <button type="button" class="page-link" @click="goToPage(page)">
-                          {{ page }}
-                        </button>
-                      </li>
+                        <li v-for="page in totalPagesTables" :key="page" class="page-item"
+                          :class="{ active: currentPage.tables === page }">
+                          <button type="button" class="page-link" @click="goToPage(page)">
+                            {{ page }}
+                          </button>
+                        </li>
 
-                      <li class="page-item" :class="{ disabled: currentPage.tables === totalPagesTables }">
-                        <button type="button" class="page-link" @click="goToPage(currentPage.tables + 1)">
-                          »
-                        </button>
-                      </li>
-                    </ul>
-                  </nav>
+                        <li class="page-item" :class="{ disabled: currentPage.tables === totalPagesTables }">
+                          <button type="button" class="page-link" @click="goToPage(currentPage.tables + 1)">
+                            »
+                          </button>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
                 </div>
-              </div>
+              </template>
             </div>
 
             <transition name="slide-fade">
-              <!-- Chỉ hiển thị sidebar nếu người dùng có quyền tạo hoặc sửa bàn -->
               <div v-if="isSidebarOpen && (hasPermission('create_table') || hasPermission('edit_table'))"
                 class="add-table-sidebar">
                 <h5 v-if="!hasBookingHistory">{{ selectedTableId ? 'Sửa Bàn' : 'Thêm Bàn Mới' }}</h5>
                 <h5 v-else>Chi tiết</h5>
 
-                <button class="close-sidebar-btn" @click="selectedTableId = null; toggleSidebar()">X</button>
+                <button class="close-sidebar-btn" @click="((selectedTableId = null), toggleSidebar())">
+                  X
+                </button>
                 <form @submit.prevent="addNewTable(selectedTableId)">
                   <div class="mb-3">
                     <label for="newTableNumber" class="form-label">Số bàn:</label>
 
                     <input type="number" class="form-control rounded" id="newTableNumber" v-model.number="table_number"
                       required @input="updateNewTablePreview" :disabled="hasBookingHistory" />
-
                   </div>
                   <div class="mb-3">
                     <label for="newTableCapacity" class="form-label">Số ghế:</label>
@@ -434,7 +159,9 @@
                     Sửa Bàn
                   </button>
                   <button type="submit" class="btn btn-outline-danger w-100 mb-3"
-                    v-else-if="!selectedTableId && hasPermission('create_table')">Thêm Bàn</button>
+                    v-else-if="!selectedTableId && hasPermission('create_table')">
+                    Thêm Bàn
+                  </button>
                 </form>
 
                 <hr />
@@ -461,159 +188,447 @@
                     </template>
                   </draggable>
                 </div>
-                <hr>
-                <div style="min-height: 80px; overflow-y: auto;">
-                  <div class="border shadow-sm p-2 mb-2 rounded" style="cursor: pointer;" v-for="item in tableOrder"
+                <hr />
+                <div style="min-height: 80px; overflow-y: auto">
+                  <div class="border shadow-sm p-2 mb-2 rounded" style="cursor: pointer" v-for="item in tableOrder"
                     :key="item.order_id">
                     <div class="" @click="getInfoDetail(item.order_id)">
                       <div class="fw-bold text-danger">#{{ item.order_id }}</div>
                       <div class="d-flex justify-content-between">
-                        <div class="text-mute"><i class="bi bi-calendar2-week"></i> {{ formatTime(item.reserved_from) }}
+                        <div class="text-mute">
+                          <i class="bi bi-calendar2-week"></i> {{ formatTime(item.reserved_from) }}
                         </div>
-                        <div class="text-mute"><i class="bi bi-card-checklist"></i> {{ item.order_status }}</div>
+                        <div class="text-mute">
+                          <i class="bi bi-card-checklist"></i> {{ item.order_status }}
+                        </div>
                       </div>
                     </div>
-
                   </div>
                 </div>
               </div>
             </transition>
           </div>
-        </div>
 
-
-        <div name="popup-fade">
-          <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
-            <div class="event-detail-popup" @click.stop>
-              <div class="popup-header">
-                <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
-                <button class="close-button" @click="closeDetailPopup">&times;</button>
-              </div>
-              <div class="popup-content" v-if="info">
-                <div class="info-item">
-                  <div class="info-block">
-                    <i class="bi bi-table"></i>Ngày đặt:
-                    <span v-for="(t, index) in info.tables" :key="index">
-                      {{ formatDate(t.reserved_from)
-                      }}<span v-if="index < info.tables.length - 1">, </span>
-                    </span>
-                  </div>
-                  <div class="info-block">
-                    <i class="bi bi-clock"></i>Giờ đặt:
-                    <span v-for="(t, index) in info.tables" :key="index">
-                      {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
-                      }}<span v-if="index < info.tables.length - 1">, </span>
-                    </span>
-                  </div>
+          <div name="popup-fade">
+            <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
+              <div class="event-detail-popup" @click.stop>
+                <div class="popup-header">
+                  <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
+                  <button class="close-button" @click="closeDetailPopup">&times;</button>
                 </div>
-                <div class="info-item">
-                  <div class="info-block">
-                    <i class="fa-solid fa-calendar"></i>
-                    <span>Bàn số:
+                <div class="popup-content" v-if="info">
+                  <div class="info-item">
+                    <div class="info-block">
+                      <i class="bi bi-table"></i>Ngày đặt:
                       <span v-for="(t, index) in info.tables" :key="index">
-                        {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
+                        {{ formatDate(t.reserved_from)
+                        }}<span v-if="index < info.tables.length - 1">, </span>
                       </span>
-                    </span>
+                    </div>
+                    <div class="info-block">
+                      <i class="bi bi-clock"></i>Giờ đặt:
+                      <span v-for="(t, index) in info.tables" :key="index">
+                        {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
+                        }}<span v-if="index < info.tables.length - 1">, </span>
+                      </span>
+                    </div>
                   </div>
-                  <div class="info-block">
-                    <i class="bi bi-people"></i>
-                    <span>Lượng khách:
-                      {{ info.guest_count }}
-                    </span>
+                  <div class="info-item">
+                    <div class="info-block">
+                      <i class="fa-solid fa-calendar"></i>
+                      <span>Bàn số:
+                        <span v-for="(t, index) in info.tables" :key="index">
+                          {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
+                        </span>
+                      </span>
+                    </div>
+                    <div class="info-block">
+                      <i class="bi bi-people"></i>
+                      <span>Lượng khách:
+                        {{ info.guest_count }}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-block">
-                    <i class="fa-solid fa-user"></i>
-                    <span>Khách hàng: {{ info.guest_name }}</span>
+                  <div class="info-item">
+                    <div class="info-block">
+                      <i class="fa-solid fa-user"></i>
+                      <span>Khách hàng: {{ info.guest_name }}</span>
+                    </div>
+                    <div class="info-block">
+                      <i class="bi bi-telephone"></i>
+                      <span>SĐT: {{ info.guest_phone }}</span>
+                    </div>
                   </div>
-                  <div class="info-block">
-                    <i class="bi bi-telephone"></i>
-                    <span>SĐT: {{ info.guest_phone }}</span>
+                  <div class="info-item">
+                    <div class="info-block">
+                      <i class="bi bi-envelope"></i>
+                      <span>Email: {{ info.guest_email }}</span>
+                    </div>
+                    <div class="info-block">
+                      <i class="bi bi-card-heading"></i>
+                      <span>Ghi chú: {{ info.note || 'Không có' }}</span>
+                    </div>
                   </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-block">
-                    <i class="bi bi-envelope"></i>
-                    <span>Email: {{ info.guest_email }}</span>
+                  <div class="info-item">
+                    <div class="info-block">
+                      <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
+                    </div>
+                    <div class="info-block">
+                      <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
+                    </div>
                   </div>
-                  <div class="info-block">
-                    <i class="bi bi-card-heading"></i>
-                    <span>Ghi chú: {{ info.note || 'Không có' }}</span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-block">
-                    <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
-                  </div>
-                  <div class="info-block">
-                    <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
-                  </div>
-                </div>
-                <div class="info-item">
-                  <div class="info-block">
-                    <span>
-                      <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
-                    </span>
-                  </div>
-                  <div class="info-block">
-                    <i class="bi bi-card-list"></i>
-                    <span>Trạng thái đơn:
-                      <select v-model="info.order_status" class="p-1 border rounded-0"
-                        @change="updateStatus(info.id, info.order_status)" :disabled="!hasPermission('edit_booking')">
-                        <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
-                          Chờ xác nhận
-                        </option>
-                        <option value="Đã xác nhận" :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
-                          Đã xác nhận
-                        </option>
-                        <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
-                          Đang xử lý
-                        </option>
-                        <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
-                          Khách đã đến
-                        </option>
-                        <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
-                          Hoàn thành
-                        </option>
-                        <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
-                          Đã hủy
-                        </option>
-                      </select>
-                    </span>
-                  </div>
-                </div>
-                <div class="info-item1">
-                  <i class="bi bi-journals" style="padding-right: 15px"></i>
-                  <span>Các món đã đặt</span>
-                  <div class="card-custom" style="max-height: 200px; overflow-y: auto">
-                    <div class="row align-items-center border-bottom" v-for="item in info.details" :key="item.id">
-                      <div class="col-6 p-2">
-                        <div class="item-name">
-                          {{ item.food_name }}
-                        </div>
-                        <div class="item-details">
-                          <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3">
-                            <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
-                              + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }}
-                              đ)
+                  <div class="info-item">
+                    <div class="info-block">
+                      <span>
+                        <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
+                      </span>
+                    </div>
+                    <div class="info-block">
+                      <i class="bi bi-card-list"></i>
+                      <span>Trạng thái đơn:
+                        <select v-model="info.order_status" class="p-1 border rounded-0"
+                          @change="updateStatus(info.id, info.order_status)" :disabled="!hasPermission('edit_booking')">
+                          <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
+                            Chờ xác nhận
+                          </option>
+                          <option value="Đã xác nhận" :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
+                            Đã xác nhận
+                          </option>
+                          <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
+                            Đang xử lý
+                          </option>
+                          <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
+                            Khách đã đến
+                          </option>
+                          <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
+                            Hoàn thành
+                          </option>
+                          <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
+                            Đã hủy
+                          </option>
+                        </select>
+                      </span>
+
+                      <div class="filter-status-select">
+                        <select class="form-control rounded" v-model="itemsPerPageUserSelected"
+                          @change="currentPage.tables = 1" style="max-width: 109px;">
+                          <option value="14">Hiển thị</option>
+                          <option value="5">5</option>
+                          <option value="10">10</option>
+                          <option value="15">15</option>
+                        </select>
+
+                      </div>
+                      <div class="table-status-box">
+                        <strong>Trạng thái:</strong>
+                        <div class="status-item"><span class="status-dot billed"></span>Đã đặt trước</div>
+                        <div class="status-item"><span class="status-dot reservation"></span>Đang phục vụ</div>
+                        <div class="status-item"><span class="status-dot vacant"></span>Bàn trống</div>
+                      </div>
+
+                    </div>
+
+                    <hr />
+                    <div class="col-md-12 form-section mt-2" style="background-color: #ffff; min-height: 500px">
+                      <draggable :list="displayTables" item-key="id" tag="div" class="table-container" :animation="150"
+                        @add="onTableAddedFromSidebar" group="tables">
+                        <template #item="{ element: ban }">
+                          <div class="table-block" :class="{ 'rotated-layout': ban.isRotated }">
+                            <div class="table-content-wrapper" :class="{ 'rotated-visual': ban.isRotated }">
+                              <div class="chairs top-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+                                <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="n" :class="[
+                                  {
+                                    chair_billed: ban.current_day_status === 'Đã đặt trước',
+                                    'billed-text': ban.current_day_status === 'Đã đặt trước',
+                                    chair_reservation: ban.current_day_status === 'Đang phục vụ',
+                                    'reservation-text': ban.current_day_status === 'Đang phục vụ',
+                                    chair1: selectedTableId == ban.id
+
+                                  },
+                                ]"></div>
+                              </div>
+                              <div @click="hasPermission('edit_table') ? loadTable(ban.id) : null" :class="[
+                                selectedTableId == ban.id ? 'table-rect1' : 'table-rect',
+                                {
+                                  medium: getChairCount(ban.capacity) === 2,
+                                  large: getChairCount(ban.capacity) === 3,
+                                  billed: ban.current_day_status === 'Đã đặt trước',
+                                  'billed-text': ban.current_day_status === 'Đã đặt trước',
+                                  reservation: ban.current_day_status === 'Đang phục vụ',
+                                  'reservation-text': ban.current_day_status === 'Đang phục vụ',
+
+                                },
+                              ]">
+                                B{{ ban.table_number }}
+                              </div>
+                              <div class="chairs bottom-chairs" :class="'ghe-' + getChairCount(ban.capacity)">
+                                <div class="chair" v-for="n in getChairCount(ban.capacity)" :key="'b' + n" :class="[
+                                  {
+                                    chair_billed: ban.current_day_status === 'Đã đặt trước',
+                                    'billed-text': ban.current_day_status === 'Đã đặt trước',
+                                    chair_reservation: ban.current_day_status === 'Đang phục vụ',
+                                    'reservation-text': ban.current_day_status === 'Đang phục vụ',
+                                    chair1: selectedTableId == ban.id
+                                  },
+                                ]"></div>
+                              </div>
+                            </div>
+                            <button v-if="ban.has_booking_history == false && hasPermission('delete_table')"
+                              class="rotate-btn" @click="deleteTable(ban.id)">
+                              <i class="bi bi-trash3-fill"></i>
+                            </button>
+                          </div>
+                        </template>
+                      </draggable>
+                      <div class="d-flex justify-content-center mt-3 w-100">
+                        <nav>
+                          <ul class="pagination">
+                            <li class="page-item" :class="{ disabled: currentPage.tables === 1 }">
+                              <button type="button" class="page-link" @click="goToPage(currentPage.tables - 1)">
+                                «
+                              </button>
+                            </li>
+
+                            <li v-for="page in totalPagesTables" :key="page" class="page-item"
+                              :class="{ active: currentPage.tables === page }">
+                              <button type="button" class="page-link" @click="goToPage(page)">
+                                {{ page }}
+                              </button>
+                            </li>
+
+                            <li class="page-item" :class="{ disabled: currentPage.tables === totalPagesTables }">
+                              <button type="button" class="page-link" @click="goToPage(currentPage.tables + 1)">
+                                »
+                              </button>
                             </li>
                           </ul>
-                        </div>
-                      </div>
-                      <div class="col-2">{{ item.quantity }}</div>
-                      <div class="col-3">
-                        <div class="total-price">
-                          {{ formatNumber(calculateTotalItemPrice(item)) }} VNĐ
-                        </div>
+                        </nav>
                       </div>
                     </div>
                   </div>
+
+                  <transition name="slide-fade">
+                    <!-- Chỉ hiển thị sidebar nếu người dùng có quyền tạo hoặc sửa bàn -->
+                    <div v-if="isSidebarOpen && (hasPermission('create_table') || hasPermission('edit_table'))"
+                      class="add-table-sidebar">
+                      <h5 v-if="!hasBookingHistory">{{ selectedTableId ? 'Sửa Bàn' : 'Thêm Bàn Mới' }}</h5>
+                      <h5 v-else>Chi tiết</h5>
+
+                      <button class="close-sidebar-btn" @click="selectedTableId = null; toggleSidebar()">X</button>
+                      <form @submit.prevent="addNewTable(selectedTableId)">
+                        <div class="mb-3">
+                          <label for="newTableNumber" class="form-label">Số bàn:</label>
+
+                          <input type="number" class="form-control rounded" id="newTableNumber"
+                            v-model.number="table_number" required @input="updateNewTablePreview"
+                            :disabled="hasBookingHistory" />
+
+                        </div>
+                        <div class="mb-3">
+                          <label for="newTableCapacity" class="form-label">Số ghế:</label>
+                          <select class="form-select rounded" id="newTableCapacity" v-model="capacity"
+                            @change="updateNewTablePreview" :disabled="hasBookingHistory">
+                            <option selected value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="6">6</option>
+                          </select>
+                        </div>
+                        <button type="submit" class="btn btn-outline-danger w-100 mb-3"
+                          v-if="selectedTableId && hasPermission('edit_table') && !hasBookingHistory">
+                          Sửa Bàn
+                        </button>
+                        <button type="submit" class="btn btn-outline-danger w-100 mb-3"
+                          v-else-if="!selectedTableId && hasPermission('create_table')">Thêm Bàn</button>
+                      </form>
+
+                      <hr />
+                      <div class="new-table-preview-area">
+                        <draggable v-model="newTablesQueue" item-key="id" tag="div"
+                          class="new-table-draggable-container" :animation="150" group="tables"
+                          @end="onNewTableDragEnd">
+                          <template #item="{ element: newBan }">
+                            <div class="table-block draggable-new-table"
+                              :class="{ 'rotated-layout': newBan.isRotated }">
+                              <div class="table-content-wrapper" :class="{ 'rotated-visual': newBan.isRotated }">
+                                <div class="chairs top-chairs" :class="'ghe-' + getChairCount(newBan.capacity)">
+                                  <div class="chair" v-for="n in getChairCount(newBan.capacity)" :key="n"></div>
+                                </div>
+                                <div class="table-rect table-new" :class="{
+                                  medium: getChairCount(newBan.capacity) === 2,
+                                  large: getChairCount(newBan.capacity) === 3,
+                                }">
+                                  Bàn {{ newBan.table_number }}
+                                </div>
+                                <div class="chairs bottom-chairs" :class="'ghe-' + getChairCount(newBan.capacity)">
+                                  <div class="chair" v-for="n in getChairCount(newBan.capacity)" :key="'b' + n"></div>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                        </draggable>
+                      </div>
+                      <hr>
+                      <div style="min-height: 80px; overflow-y: auto;">
+                        <div class="border shadow-sm p-2 mb-2 rounded" style="cursor: pointer;"
+                          v-for="item in tableOrder" :key="item.order_id">
+                          <div class="" @click="getInfoDetail(item.order_id)">
+                            <div class="fw-bold text-danger">#{{ item.order_id }}</div>
+                            <div class="d-flex justify-content-between">
+                              <div class="text-mute"><i class="bi bi-calendar2-week"></i> {{
+                                formatTime(item.reserved_from) }}
+                              </div>
+                              <div class="text-mute"><i class="bi bi-card-checklist"></i> {{ item.order_status }}</div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+                  </transition>
                 </div>
               </div>
-              <div class="popup-actions" v-if="hasPermission('edit_booking')">
-                <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
-                <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
+
+
+              <div name="popup-fade">
+                <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
+                  <div class="event-detail-popup" @click.stop>
+                    <div class="popup-header">
+                      <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
+                      <button class="close-button" @click="closeDetailPopup">&times;</button>
+                    </div>
+                    <div class="popup-content" v-if="info">
+                      <div class="info-item">
+                        <div class="info-block">
+                          <i class="bi bi-table"></i>Ngày đặt:
+                          <span v-for="(t, index) in info.tables" :key="index">
+                            {{ formatDate(t.reserved_from)
+                            }}<span v-if="index < info.tables.length - 1">, </span>
+                          </span>
+                        </div>
+                        <div class="info-block">
+                          <i class="bi bi-clock"></i>Giờ đặt:
+                          <span v-for="(t, index) in info.tables" :key="index">
+                            {{ formatTime(t.reserved_form) }} - {{ formatTime(t.reserved_to)
+                            }}<span v-if="index < info.tables.length - 1">, </span>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                        <div class="info-block">
+                          <i class="fa-solid fa-calendar"></i>
+                          <span>Bàn số:
+                            <span v-for="(t, index) in info.tables" :key="index">
+                              {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
+                            </span>
+                          </span>
+                        </div>
+                        <div class="info-block">
+                          <i class="bi bi-people"></i>
+                          <span>Lượng khách:
+                            {{ info.guest_count }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                        <div class="info-block">
+                          <i class="fa-solid fa-user"></i>
+                          <span>Khách hàng: {{ info.guest_name }}</span>
+                        </div>
+                        <div class="info-block">
+                          <i class="bi bi-telephone"></i>
+                          <span>SĐT: {{ info.guest_phone }}</span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                        <div class="info-block">
+                          <i class="bi bi-envelope"></i>
+                          <span>Email: {{ info.guest_email }}</span>
+                        </div>
+                        <div class="info-block">
+                          <i class="bi bi-card-heading"></i>
+                          <span>Ghi chú: {{ info.note || 'Không có' }}</span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                        <div class="info-block">
+                          <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
+                        </div>
+                        <div class="info-block">
+                          <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                        <div class="info-block">
+                          <span>
+                            <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
+                          </span>
+                        </div>
+                        <div class="info-block">
+                          <i class="bi bi-card-list"></i>
+                          <span>Trạng thái đơn:
+                            <select v-model="info.order_status" class="p-1 border rounded-0"
+                              @change="updateStatus(info.id, info.order_status)"
+                              :disabled="!hasPermission('edit_booking')">
+                              <option value="Chờ xác nhận"
+                                :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
+                                Chờ xác nhận
+                              </option>
+                              <option value="Đã xác nhận"
+                                :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
+                                Đã xác nhận
+                              </option>
+                              <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
+                                Đang xử lý
+                              </option>
+                              <option value="Khách đã đến"
+                                :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
+                                Khách đã đến
+                              </option>
+                              <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
+                                Hoàn thành
+                              </option>
+                              <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
+                                Đã hủy
+                              </option>
+                            </select>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="info-item1">
+                        <i class="bi bi-journals" style="padding-right: 15px"></i>
+                        <span>Các món đã đặt</span>
+                        <div class="card-custom" style="max-height: 200px; overflow-y: auto">
+                          <div class="row align-items-center border-bottom" v-for="item in info.details" :key="item.id">
+                            <div class="col-6 p-2">
+                              <div class="item-name">
+                                {{ item.food_name }}
+                              </div>
+                              <div class="item-details">
+                                <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3">
+                                  <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
+                                    + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }}
+                                    đ)
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                            <div class="col-2">{{ item.quantity }}</div>
+                            <div class="col-3">
+                              <div class="total-price">
+                                {{ formatNumber(calculateTotalItemPrice(item)) }} VNĐ
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="popup-actions" v-if="hasPermission('edit_booking')">
+                      <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn
+                        món</router-link>
+                      <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

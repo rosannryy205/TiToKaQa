@@ -1,3 +1,5 @@
+@use './variables' as vars;
+
 .pagination{
     .page-item .page-link{
         border: 0;
@@ -9,17 +11,17 @@
         text-align: center;
         height: 30px;
         line-height: 30px;
-        color: $black-color;
+        color: vars.$black-color;
         cursor: pointer;
-        font-size: $font-size-base;
+        font-size: vars.$font-size-base;
         text-transform: uppercase;
         background: transparent;
         outline: none;
 
         &:hover,
         &:focus{
-            color: $black-color;
-            background-color: $opacity-gray-3;
+            color: vars.$black-color;
+            background-color: vars.$opacity-gray-3;
             border: none;
         }
     }
@@ -38,15 +40,15 @@
     }
 
     .page-item.active > .page-link{
-        color: $white-color;
-        box-shadow: $box-shadow;
+        color: vars.$white-color;
+        box-shadow: vars.$box-shadow;
 
         &,
         &:focus,
         &:hover{
-            background-color: $red-color;
-            border-color: $red-color;
-            color: $white-color;
+            background-color: vars.$red-color;
+            border-color: vars.$red-color;
+            color: vars.$white-color;
         }
     }
 
@@ -60,8 +62,8 @@
             &,
             &:focus,
             &:hover{
-                background-color: $brand-info;
-                border-color: $brand-info;
+                background-color: vars.$brand-info;
+                border-color: vars.$brand-info;
             }
         }
     }
@@ -71,8 +73,8 @@
             &,
             &:focus,
             &:hover{
-                background-color: $brand-success;
-                border-color: $brand-success;
+                background-color: vars.$brand-success;
+                border-color: vars.$brand-success;
             }
         }
     }
@@ -82,8 +84,8 @@
             &,
             &:focus,
             &:hover{
-                background-color: $brand-primary;
-                border-color: $brand-primary;
+                background-color: vars.$brand-primary;
+                border-color: vars.$brand-primary;
             }
         }
     }
@@ -93,8 +95,8 @@
             &,
             &:focus,
             &:hover{
-                background-color: $brand-warning;
-                border-color: $brand-warning;
+                background-color: vars.$brand-warning;
+                border-color: vars.$brand-warning;
             }
         }
     }
@@ -104,20 +106,20 @@
             &,
             &:focus,
             &:hover{
-                background-color: $brand-danger;
-                border-color: $brand-danger;
+                background-color: vars.$brand-danger;
+                border-color: vars.$brand-danger;
             }
         }
     }
 
     &.pagination-neutral{
         .page-item > .page-link{
-            color: $white-color;
+            color: vars.$white-color;
 
             &:focus,
             &:hover{
-                background-color: $opacity-2;
-                color: $white-color;
+                background-color: vars.$opacity-2;
+                color: vars.$white-color;
             }
         }
 
@@ -125,9 +127,9 @@
             &,
             &:focus,
             &:hover{
-                background-color: $white-bg;
-                border-color: $white-bg;
-                color: $brand-primary;
+                background-color: vars.$white-bg;
+                border-color: vars.$white-bg;
+                color: vars.$brand-primary;
             }
         }
     }

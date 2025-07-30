@@ -1,3 +1,6 @@
+@use '../variables' as vars;
+
+
 @mixin box-shadow($shadow...) {
   -webkit-box-shadow: $shadow; // iOS <4.3 & Android <4.1
           box-shadow: $shadow;
@@ -65,7 +68,7 @@
     background: $color;
   }
 
-  @if $color != $black-sidebar-color {
+  @if $color != vars.$black-sidebar-color {
     .nav li.active > a:not([data-toggle="collapse"]){
       color: $color;
 
@@ -76,11 +79,11 @@
     }
   } @else {
     .nav li.active > a:not([data-toggle="collapse"]){
-      color: $success-color;
+      color: vars.$success-color;
 
       i,
       .sidebar-mini-icon{
-        color: $success-color;
+        color: vars.$success-color;
       }
     }
   }

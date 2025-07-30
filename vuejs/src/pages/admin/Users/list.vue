@@ -1,223 +1,227 @@
 <template>
-  <div>
-    <div>
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>
-          {{ isEmployee ? 'Danh sách nhân viên' : 'Danh sách khách hàng' }}
-        </h2>
-        <router-link to="/admin/insert_staff">
-          <button v-if="isEmployee" class="btn btn-insert">
-            <i class="bi bi-person-plus-fill"></i> Thêm nhân viên
-          </button>
-        </router-link>
-      </div>
-
-
-      <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-        <div class="d-flex align-items-center gap-2">
-          <input v-model="searchTerm" type="text" class="form-control rounded" style="max-width: 300px"
-            placeholder="Tìm kiếm" />
-          <button class="search-btn" @click="handleSearch">
-            <i class="bi bi-search"></i>
-          </button>
-
-
-
-        </div>
-
-
-        <span class="vd">Hiển thị</span>
-        <select v-model.number="pagination.pageSize" class="form-select w-auto rounded">
-          <option :value="5">5</option>
-          <option :value="10">10</option>
-          <option :value="15">15</option>
-          <option :value="30">30</option>
-          <option :value="60">60</option>
-        </select>
-      </div>
-
-      <div class="table-responsive d-none d-lg-block">
-        <table class="table table-bordered">
-          <thead class="table-light">
-            <tr>
-              <th>Mã KH</th>
-              <th>Username</th>
-              <th>Họ và tên</th>
-              <th>Số điện thoại</th>
-              <th>Email</th>
-              <th>Địa chỉ</th>
-              <th>Vai trò</th>
-              <th>Trạng thái</th>
-              <th>Tuỳ chọn</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="user in paginatedUsers" :key="user.id">
-              <td>{{ user.id }}</td>
-              <td>{{ user.username }}</td>
-              <td>{{ user.fullname ? user.fullname : 'Chưa cập nhật' }}</td>
-              <td>{{ user.phone ? user.phone : 'Chưa cập nhật' }}</td>
-              <td>{{ user.email }}</td>
-              <td>{{ user.address ? user.address : 'Chưa cập nhật' }}</td>
-              <td>{{ getRoleName(user.roles) }}</td>
-              <td>
-                {{ user.status === "Active" ? 'Hoạt động' : 'Hạn chế' }}
-              </td>
-              <td class="d-flex justify-content-center gap-2">
-                <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
-                  data-bs-target="#userDetailModal">
-                  Chi tiết
-                </button>
-
-                <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
-                  class="btn btn-danger-delete">Khoá</button>
-                <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở
-                  Khóa</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="d-flex justify-content-end mt-3 me-2">
-          <ul class="pagination pagination-sm">
-            <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
-              <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage - 1)">
-                <i class="bi bi-chevron-left"></i>
-              </a>
-            </li>
-
-            <li class="page-item" v-for="page in visiblePages" :key="page"
-              :class="{ active: pagination.currentPage === page }">
-              <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
-            </li>
-
-            <li class="page-item" :class="{ disabled: pagination.currentPage === totalPages }">
-              <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage + 1)">
-                <i class="bi bi-chevron-right"></i>
-              </a>
-            </li>
-          </ul>
-        </div>z
-      </div>
-
-      <!-- <button class="btn btn-danger-delete delete_desktop">Xoá</button> -->
-
-      <!-- Mobile View -->
-      <div class="d-block d-lg-none">
-        <div class="card mb-3">
-          <div class="row g-0 align-items-center">
-            <div class="col-3 fs-4 fw-bold ps-4">
-              <input type="checkbox" />
-              1
-            </div>
-            <div class="col-9">
-              <div class="card-body" v-for="user in paginatedUsers" :key="user.id">
-                <h5 class="card-title">{{ user.fullname }}</h5>
-                <p class="card-text"><strong>SĐT:</strong>{{ user.phone }}</p>
-                <p class="card-text"><strong>Email:</strong>{{ user.email }}</p>
-                <p class="card-text"><strong>Vai trò: </strong>
-                  <span>{{ getRoleName(user.roles) }}</span>
-                </p>
-                <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
-                  data-bs-target="#userDetailModal">
-                  Chi tiết
-                </button>
-
-                <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
-                  class="btn btn-danger-delete">Khoá</button>
-                <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở
-                  Khóa</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Chi tiết người dùng -->
-      <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-          <div class="modal-content border-0 shadow">
-            <div class="modal-header text-white" style="background-color: #C92C3C;">
-              <h5 class="modal-title d-flex align-items-center gap-2" id="userDetailModalLabel">
-                <i class="bi bi-person-circle fs-4"></i> Thông tin người dùng
-              </h5>
-            </div>
-
-            <div class="modal-body">
-              <div class="row mb-2">
-                <div class="col-md-6 mb-2">
-                  <i class="bi bi-person-fill text-primary"></i>
-                  <strong> Username:</strong> {{ selectedUser?.username || 'Chưa cập nhật' }}
-                </div>
-                <div class="col-md-6 mb-2">
-                  <i class="bi bi-card-text text-primary"></i>
-                  <strong> Họ và tên:</strong> {{ selectedUser?.fullname || 'Chưa cập nhật' }}
-                </div>
-              </div>
-
-              <div class="row mb-2">
-                <div class="col-md-6 mb-2">
-                  <i class="bi bi-telephone-fill text-primary"></i>
-                  <strong> Số điện thoại:</strong> {{ selectedUser?.phone || 'Chưa cập nhật' }}
-                </div>
-                <div class="col-md-6 mb-2">
-                  <i class="bi bi-envelope-fill text-primary"></i>
-                  <strong> Email:</strong> {{ selectedUser?.email || 'Chưa cập nhật' }}
-                </div>
-              </div>
-
-              <div class="row mb-2">
-                <div class="col-12 mb-2">
-                  <i class="bi bi-geo-alt-fill text-primary"></i>
-                  <strong> Địa chỉ:</strong> {{ selectedUser?.address || 'Chưa cập nhật' }}
-                </div>
-              </div>
-
-              <div class="row mb-2">
-                <div class="col-md-6 mb-2">
-                  <i class="bi bi-person-badge-fill text-primary"></i>
-                  <strong> Vai trò:</strong>
-                  {{ selectedUser?.role === 'user' ? 'Khách hàng' : selectedUser?.role }}
-                </div>
-                <div class="col-md-6 mb-2">
-                  <i class="bi bi-shield-check text-primary"></i>
-                  <strong> Trạng thái:</strong> {{ selectedUser?.status }}
-                </div>
-              </div>
-
-              <hr />
-
-              <div class="row text-center">
-                <div class="col-md-4 mb-2">
-                  <i class="bi bi-check-circle-fill text-success"></i><br />
-                  <strong>Đơn thành công:</strong><br />
-                  {{ selectedUser?.success_orders || 0 }}
-                </div>
-                <div class="col-md-4 mb-2">
-                  <i class="bi bi-x-circle-fill text-danger"></i><br />
-                  <strong>Đơn thất bại:</strong><br />
-                  {{ selectedUser?.failed_orders || 0 }}
-                </div>
-                <div class="col-md-4 mb-2">
-                  <i class="bi bi-slash-circle-fill text-warning"></i><br />
-                  <strong>Đơn đã huỷ:</strong><br />
-                  {{ selectedUser?.canceled_orders || 0 }}
-                </div>
-              </div>
-            </div>
-
-            <div class="modal-footer bg-light">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                <i class="bi bi-x-circle"></i> Đóng
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>
+              {{ isEmployee ? 'Danh sách nhân viên' : 'Danh sách khách hàng' }}
+            </h2>
+            <router-link to="/admin/insert_staff">
+              <button v-if="isEmployee" class="btn btn-insert">
+                <i class="bi bi-person-plus-fill"></i> Thêm nhân viên
               </button>
+            </router-link>
+          </div>
+
+
+          <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
+            <div class="d-flex align-items-center gap-2">
+              <input v-model="searchTerm" type="text" class="form-control rounded" style="max-width: 300px"
+                placeholder="Tìm kiếm" />
+              <button class="search-btn" @click="handleSearch">
+                <i class="bi bi-search"></i>
+              </button>
+
+
+
+            </div>
+
+
+            <span class="vd">Hiển thị</span>
+            <select v-model.number="pagination.pageSize" class="form-select w-auto rounded">
+              <option :value="5">5</option>
+              <option :value="10">10</option>
+              <option :value="15">15</option>
+              <option :value="30">30</option>
+              <option :value="60">60</option>
+            </select>
+          </div>
+
+          <div class="table-responsive d-none d-lg-block">
+            <table class="table table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>Mã KH</th>
+                  <th>Username</th>
+                  <th>Họ và tên</th>
+                  <th>Số điện thoại</th>
+                  <th>Email</th>
+                  <th>Địa chỉ</th>
+                  <th>Vai trò</th>
+                  <th>Trạng thái</th>
+                  <th>Tuỳ chọn</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="user in paginatedUsers" :key="user.id">
+                  <td>{{ user.id }}</td>
+                  <td>{{ user.username }}</td>
+                  <td>{{ user.fullname ? user.fullname : 'Chưa cập nhật' }}</td>
+                  <td>{{ user.phone ? user.phone : 'Chưa cập nhật' }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.address ? user.address : 'Chưa cập nhật' }}</td>
+                  <td>{{ getRoleName(user.roles) }}</td>
+                  <td>
+                    {{ user.status === "Active" ? 'Hoạt động' : 'Hạn chế' }}
+                  </td>
+                  <td class="d-flex justify-content-center gap-2">
+                    <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
+                      data-bs-target="#userDetailModal">
+                      Chi tiết
+                    </button>
+
+                    <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
+                      class="btn btn-danger-delete">Khoá</button>
+                    <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở
+                      Khóa</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="d-flex justify-content-end mt-3 me-2">
+              <ul class="pagination pagination-sm">
+                <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
+                  <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage - 1)">
+                    <i class="bi bi-chevron-left"></i>
+                  </a>
+                </li>
+
+                <li class="page-item" v-for="page in visiblePages" :key="page"
+                  :class="{ active: pagination.currentPage === page }">
+                  <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+                </li>
+
+                <li class="page-item" :class="{ disabled: pagination.currentPage === totalPages }">
+                  <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage + 1)">
+                    <i class="bi bi-chevron-right"></i>
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
+
+          <!-- <button class="btn btn-danger-delete delete_desktop">Xoá</button> -->
+
+          <!-- Mobile View -->
+          <div class="d-block d-lg-none">
+            <div class="card mb-3">
+              <div class="row g-0 align-items-center">
+                <div class="col-3 fs-4 fw-bold ps-4">
+                  <input type="checkbox" />
+                  1
+                </div>
+                <div class="col-9">
+                  <div class="card-body" v-for="user in paginatedUsers" :key="user.id">
+                    <h5 class="card-title">{{ user.fullname }}</h5>
+                    <p class="card-text"><strong>SĐT:</strong>{{ user.phone }}</p>
+                    <p class="card-text"><strong>Email:</strong>{{ user.email }}</p>
+                    <p class="card-text"><strong>Vai trò: </strong>
+                      <span>{{ getRoleName(user.roles) }}</span>
+                    </p>
+                    <button v-if="!isEmployee" class="btn btn-info" @click="openUserModal(user)" data-bs-toggle="modal"
+                      data-bs-target="#userDetailModal">
+                      Chi tiết
+                    </button>
+
+                    <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
+                      class="btn btn-danger-delete">Khoá</button>
+                    <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở
+                      Khóa</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Chi tiết người dùng -->
+          <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+              <div class="modal-content border-0 shadow">
+                <div class="modal-header text-white" style="background-color: #C92C3C;">
+                  <h5 class="modal-title d-flex align-items-center gap-2" id="userDetailModalLabel">
+                    <i class="bi bi-person-circle fs-4"></i> Thông tin người dùng
+                  </h5>
+                </div>
+
+                <div class="modal-body">
+                  <div class="row mb-2">
+                    <div class="col-md-6 mb-2">
+                      <i class="bi bi-person-fill text-primary"></i>
+                      <strong> Username:</strong> {{ selectedUser?.username || 'Chưa cập nhật' }}
+                    </div>
+                    <div class="col-md-6 mb-2">
+                      <i class="bi bi-card-text text-primary"></i>
+                      <strong> Họ và tên:</strong> {{ selectedUser?.fullname || 'Chưa cập nhật' }}
+                    </div>
+                  </div>
+
+                  <div class="row mb-2">
+                    <div class="col-md-6 mb-2">
+                      <i class="bi bi-telephone-fill text-primary"></i>
+                      <strong> Số điện thoại:</strong> {{ selectedUser?.phone || 'Chưa cập nhật' }}
+                    </div>
+                    <div class="col-md-6 mb-2">
+                      <i class="bi bi-envelope-fill text-primary"></i>
+                      <strong> Email:</strong> {{ selectedUser?.email || 'Chưa cập nhật' }}
+                    </div>
+                  </div>
+
+                  <div class="row mb-2">
+                    <div class="col-12 mb-2">
+                      <i class="bi bi-geo-alt-fill text-primary"></i>
+                      <strong> Địa chỉ:</strong> {{ selectedUser?.address || 'Chưa cập nhật' }}
+                    </div>
+                  </div>
+
+                  <div class="row mb-2">
+                    <div class="col-md-6 mb-2">
+                      <i class="bi bi-person-badge-fill text-primary"></i>
+                      <strong> Vai trò:</strong>
+                      {{ selectedUser?.role === 'user' ? 'Khách hàng' : selectedUser?.role }}
+                    </div>
+                    <div class="col-md-6 mb-2">
+                      <i class="bi bi-shield-check text-primary"></i>
+                      <strong> Trạng thái:</strong> {{ selectedUser?.status }}
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  <div class="row text-center">
+                    <div class="col-md-4 mb-2">
+                      <i class="bi bi-check-circle-fill text-success"></i><br />
+                      <strong>Đơn thành công:</strong><br />
+                      {{ selectedUser?.success_orders || 0 }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                      <i class="bi bi-x-circle-fill text-danger"></i><br />
+                      <strong>Đơn thất bại:</strong><br />
+                      {{ selectedUser?.failed_orders || 0 }}
+                    </div>
+                    <div class="col-md-4 mb-2">
+                      <i class="bi bi-slash-circle-fill text-warning"></i><br />
+                      <strong>Đơn đã huỷ:</strong><br />
+                      {{ selectedUser?.canceled_orders || 0 }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal-footer bg-light">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Đóng
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <!-- <button class="btn btn-danger-delete delete_mobile">Xoá</button> -->
         </div>
       </div>
-
-
-
-      <!-- <button class="btn btn-danger-delete delete_mobile">Xoá</button> -->
     </div>
   </div>
 </template>
