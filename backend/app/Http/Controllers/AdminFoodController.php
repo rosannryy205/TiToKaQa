@@ -54,10 +54,15 @@ class AdminFoodController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string',    
             'price' => 'required|numeric',
             'image' => 'required|image|max:2048',
-            'sale_price' => 'nullable|numeric',
+            'sale_price' => [
+                'nullable',
+                'numeric',
+                'gt:0',
+                'lt:price',
+            ],
             'stock' => 'required|integer',
             'category_id' => 'required|exists:categories,id',
             'description' => 'required|string|max:1000',
@@ -69,6 +74,8 @@ class AdminFoodController extends Controller
             'image.required' => 'Hình ảnh là bắt buộc.',
             'image.image' => 'Vui lòng chọn một tệp hình ảnh hợp lệ.',
             'image.max' => 'Hình ảnh không được lớn hơn 2MB.',
+            'sale_price.gt' => 'Giá giảm phải lớn hơn 0.',
+            'sale_price.lt' => 'Giá giảm phải nhỏ hơn giá gốc.',
             'stock.required' => 'Số lượng món ăn là bắt buộc.',
             'stock.integer' => 'Số lượng món ăn phải là một số nguyên.',
             'category_id.required' => 'Danh mục món ăn là bắt buộc.',

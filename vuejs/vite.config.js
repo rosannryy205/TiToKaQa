@@ -18,11 +18,5 @@ export default defineConfig({
     host: true, // 👈 Quan trọng: Cho phép truy cập từ IP nội bộ
     port: 5173, // 👈 Không bắt buộc, nhưng nên khai báo rõ
   },
-  vue: {
-    template: {
-      compilerOptions: {
-        isCustomElement: (tag) => tag === 'df-messenger'
-      }
-    }
-  }
+
 })

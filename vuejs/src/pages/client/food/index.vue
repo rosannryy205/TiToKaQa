@@ -70,18 +70,32 @@
           </div>
           <div class="product-list-wrapper container-fluid">
             <div class="row">
-              <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3">
-                <div class="product-card">
-                  <img :src="'http://127.0.0.1:8000/storage/img/food/' + item.image" :alt="item.name" class="product-img mx-auto d-block" width="180px" />
-                  <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
-                  <span class="product-dish-desc text-start">
-                    {{ item.description }}
-                  </span>
-                  <p class="product-dish-price fw-bold text-center">
-                    {{ formatNumber(item.price) }} VNĐ
-                  </p>
+              <template v-if="isLoading">
+                <div v-for="n in 8" :key="'skeleton-' + n" class="col-md-3 mb-4">
+                  <div class="product-card skeleton-card p-3">
+                    <div class="skeleton-img mb-3"></div>
+                    <div class="skeleton-line w-100 mb-2"></div>
+                    <div class="skeleton-line w-75 mb-2"></div>
+                    <div class="skeleton-line w-50 mx-auto"></div>
+                  </div>
                 </div>
-              </div>
+              </template>
+
+              <!-- Real Product -->
+              <template v-else>
+                <div v-for="item in foods" :key="item" @click="openModal(item)" class="col-md-3 mb-4">
+                  <div class="product-card">
+                    <img :src="getImageUrl(item.image)" alt="" class="product-img mx-auto d-block" width="180px" />
+                    <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
+                    <span class="product-dish-desc text-start">
+                      {{ item.description }}
+                    </span>
+                    <p class="product-dish-price fw-bold text-center">
+                      {{ formatNumber(item.price) }} VNĐ
+                    </p>
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -132,7 +146,7 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -143,7 +157,7 @@
               <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
                 <div class="flex-grow-1">
                   <div class="topping-container mb-3" v-if="toppingList.length
-                  || spicyLevel.length ">
+                    || spicyLevel.length">
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" id="spicyLevel">
@@ -171,19 +185,19 @@
                 <div class="mt-auto">
                   <div class="text-center mb-2">
                     <div class="qty-control px-2 py-1">
-                      <button type="button" @click="decreaseQuantity" class="btn-lg"
-                        style="background-color: #fff;">-</button>
+                      <button type="button" @click="decreaseQuantity" class="btn-lg" style="background-color: #fff">
+                        -
+                      </button>
                       <span>{{ quantity }}</span>
-                      <button type="button" @click="increaseQuantity" class="btn-lg"
-                        style="background-color: #fff;">+</button>
+                      <button type="button" @click="increaseQuantity" class="btn-lg" style="background-color: #fff">
+                        +
+                      </button>
                     </div>
                   </div>
-                  <button class="btn btn-danger w-100 fw-bold">🛒 Thêm vào giỏ hàng</button>
+                  <button class="btn btn-danger w-100 fw-bold" >🛒 Thêm vào giỏ hàng</button>
                 </div>
               </form>
-
             </div>
-
           </div>
         </div>
       </div>
@@ -192,9 +206,7 @@
 
   <div class="fixed-element d-flex align-items-center justify-content-between px-4" v-if="isReservation && orderId">
     <div class="scrolling-container">
-      <div class="scrolling-text">
-        ✨ Chọn món cho đơn đặt bàn của bạn! ✨
-      </div>
+      <div class="scrolling-text">✨ Chọn món cho đơn đặt bàn của bạn! ✨</div>
     </div>
     <router-link :to="`/reservation-form/${orderId}`" class="btn-confirm text-decoration-none">Xác nhận chọn
       xong</router-link>
@@ -206,7 +218,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { useRoute } from 'vue-router'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2';
 import { computed } from 'vue'
 
 export default {
@@ -230,7 +242,7 @@ export default {
     const spicyLevel = ref([])
     const toppingList = ref({})
 
-    const quantity = ref(1);
+    const quantity = ref(1)
 
     const route = useRoute()
     const orderId = route.params.orderId
@@ -238,7 +250,7 @@ export default {
       return route.name && String(route.name).includes('reservation')
     })
 
-    const isLoading = ref(false)
+    const isLoading = ref(true)
     const isDropdownOpen = ref(false)
     const selectedCategoryName = ref('Món Ăn')
     const selectedCategoryImage = ref('')
@@ -351,7 +363,7 @@ export default {
       try {
         if (item.type === 'food') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
-          foodDetail.value = { ...res.data, type: 'Food' }
+          foodDetail.value = { ...res.data, type: 'food' }
 
           const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
@@ -363,7 +375,7 @@ export default {
           })
         } else if (item.type === 'combo') {
           const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
-          foodDetail.value = { ...res.data, type: 'Combo' }
+          foodDetail.value = { ...res.data, type: 'combo' }
         }
 
         const modalElement = document.getElementById('productModal')
@@ -376,8 +388,6 @@ export default {
       }
     }
 
-
-
     const decreaseQuantity = () => {
       if (quantity.value > 1) {
         quantity.value -= 1
@@ -388,7 +398,79 @@ export default {
       quantity.value += 1
     }
 
+    const addToCart = () => {
+      const user = JSON.parse(localStorage.getItem('user'))
+      const userId = user?.id || 'guest'
+      const cartKey = orderId
+        ? `cart_${userId}_reservation_${orderId}`
+        : `cart_${userId}`
 
+      const selectedSpicyId = parseInt(document.getElementById('spicyLevel')?.value)
+      const selectedSpicy = spicyLevel.value.find((item) => item.id === selectedSpicyId)
+
+      let allSelectedToppings = [];
+
+      if (selectedSpicy) {
+        allSelectedToppings.push({
+          id: selectedSpicy.id,
+          name: selectedSpicy.name,
+          price: selectedSpicy.price,
+          food_toppings_id: selectedSpicy.pivot?.id || null,
+          is_spicy_level: true
+        });
+      }
+
+      const selectedToppingIds = Array.from(
+        document.querySelectorAll('input[name="topping[]"]:checked')
+      ).map((el) => parseInt(el.value));
+
+      const normalToppings = toppingList.value
+        .filter((topping) => selectedToppingIds.includes(topping.id))
+        .map((topping) => ({
+          id: topping.id,
+          name: topping.name,
+          price: topping.price,
+          food_toppings_id: topping.pivot?.id || null,
+          is_spicy_level: false
+        }));
+
+      allSelectedToppings = [...allSelectedToppings, ...normalToppings];
+
+      const cartItem = {
+        id: foodDetail.value.id,
+        name: foodDetail.value.name,
+        image: foodDetail.value.image,
+        price: foodDetail.value.price,
+        toppings: allSelectedToppings,
+        quantity: quantity.value,
+        type: foodDetail.value.type,
+        category_id: foodDetail.value.category_id,
+      };
+      let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+      const existingItemIndex = cart.findIndex(
+        (item) =>
+          item.id === cartItem.id &&
+          JSON.stringify(item.toppings.map(t => t.id).sort()) === JSON.stringify(cartItem.toppings.map(t => t.id).sort())
+      );
+
+      if (existingItemIndex !== -1) {
+        cart[existingItemIndex].quantity += 1;
+      } else {
+        cart.push(cartItem);
+      }
+
+      localStorage.setItem(cartKey, JSON.stringify(cart));
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Đã thêm món vào giỏ hàng!',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      });
+
+    };
 
 
 
@@ -398,6 +480,19 @@ export default {
       intervalId = setInterval(() => {
         currentIndex.value = (currentIndex.value + 1) % images.length
       }, 3000)
+    })
+    onMounted(async () => {
+      isLoading.value = true
+
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/api/home/api/foods')
+        foods.value = res.data
+        await new Promise((resolve) => setTimeout(resolve, 5000))
+      } catch (e) {
+        console.error(e)
+      } finally {
+        isLoading.value = false
+      }
     })
 
     onBeforeUnmount(() => {
@@ -419,14 +514,14 @@ export default {
       images,
       getFoodByCategory,
       openModal,
-      addToCart,
       toggleDropdown,
       changeSlide,
       increaseQuantity,
       decreaseQuantity,
       quantity,
       orderId,
-      isReservation
+      isReservation,
+      addToCart
     }
   },
 }
@@ -491,7 +586,6 @@ export default {
   background-color: #f8d7da;
 }
 
-
 .btn-confirm {
   background-color: #fff;
   color: #cc2c40;
@@ -529,7 +623,6 @@ export default {
     color 0.3s ease,
     transform 0.3s ease;
 }
-
 
 .submenu {
   position: absolute;
@@ -572,5 +665,44 @@ export default {
 
 .submenu-link:hover {
   background-color: #d5d5d565;
+}
+
+@keyframes pulse {
+  0% {
+    background-color: #f7f7f7;
+  }
+
+  50% {
+    background-color: #ffffff;
+  }
+
+  100% {
+    background-color: #f7f7f7;
+  }
+}
+
+.skeleton-card {
+  border-radius: 10px;
+  animation: pulse 1.5s infinite ease-in-out;
+  background: #ffffff;
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.skeleton-img {
+  width: 100%;
+  height: 120px;
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+.skeleton-line {
+  height: 16px;
+  background: #e5e5e5;
+  border-radius: 4px;
+  margin-top: 0.5rem;
 }
 </style>

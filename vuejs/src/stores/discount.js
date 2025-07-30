@@ -173,17 +173,17 @@ export function Discounts() {
       0
     )
   )
-  
+
   const pointsDiscountAmount = computed(() => {
     if (!form.use_points) return 0
     const usableMoney = form.usable_points * POINT_TO_VND
-    return Math.min(usableMoney, totalBeforePoints.value) 
+    return Math.min(usableMoney, totalBeforePoints.value)
   })
 
   const finalTotal = computed(() =>
     Math.max(totalBeforePoints.value - pointsDiscountAmount.value, 0)
   )
-  
+
 
   const getImageByType = (type) =>
     type === 'freeship' ? '/img/freeship-icon.png' : '/img/discount-icon.png'
@@ -207,7 +207,7 @@ export function Discounts() {
     console.log('USABLE_POINTS:', form.usable_points)
     console.log('Tpoints giảm:', pointsDiscountAmount.value)
   })
-  
+
   onMounted(async () => {
     await getAllCategory()
   })

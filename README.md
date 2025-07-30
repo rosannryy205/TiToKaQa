@@ -80,4 +80,14 @@ CLOUDINARY_URL=cloudinary://341442476722344:n3tylOnfBQDsRrO5GnixiaSfMWk@daqhc6id
 
 QUEUE_CONNECTION=database
 
-mở 1 tab terminal chạy lệnh này riêng php artisan queue:work
+composer require google/cloud-dialogflow
+
+DIALOGFLOW_PROJECT_ID=dialogflow-466119
+
+npm install laravel-echo
+
+npm install chart.js npm install vue-chartjs@5 chart.js@^4 npm install tween.js npm install perfect-scrollbar npm install -D sass
+
+npm install flatpickr
+
+mở tab chạy php artisan queue:work -> chạy jobs (demo chatbot)
