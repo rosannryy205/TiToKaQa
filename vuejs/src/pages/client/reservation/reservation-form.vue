@@ -300,7 +300,7 @@ export default {
       isLoading.value = true
 
       try {
-        if (!paymentMethod.value) {
+        if (!paymentMethod.value && cart_reservation != null) {
           Swal.fire({
             toast: true,
             position: 'top-end',
@@ -566,37 +566,6 @@ export default {
     const decreaseQuantity = () => {
       if (quantity.value > 1) quantity.value--
     }
-    // const notify = async () => {
-    //   const status = info.value;
-    //   const now = new Date();
-    //   const expirationTime = new Date(status.expiration_time);
-
-    //   let message = '';
-
-    //   if (status.order_status === 'Đã hủy' || status.reservation_status === 'Đã Hủy') {
-    //     message = 'Đơn của bạn đã bị hủy! Vui lòng quay lại đặt đơn hàng khác.';
-    //   } else if (expirationTime < now) {
-    //     message = 'Đơn hàng của bạn đã hết thời hạn! Vui lòng quay lại đặt đơn hàng khác.';
-    //   } else if (status.order_status === 'Giao thành công' || status.reservation_status === 'Hoàn Thành') {
-    //     message = 'Đơn hàng đã được hoàn thành trước đó.';
-    //   }
-
-    //   if (message !== '') {
-    //     await Swal.fire({
-    //       icon: 'error',
-    //       text: message,
-    //       confirmButtonText: 'Quay lại',
-    //       confirmButtonColor: '#d32f2f',
-    //     }).then((result) => {
-    //       if (result.isConfirmed) {
-    //         router.push('/reservation');
-    //       }
-    //     });
-    //     return;
-    //   }
-
-    // };
-
     onMounted(async () => {
       try {
         await getInfo("order", orderId);

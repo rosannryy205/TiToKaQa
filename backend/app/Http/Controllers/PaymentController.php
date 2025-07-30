@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderMail;
+use App\Mail\ReservationMail;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Payment;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PaymentController extends Controller
 {
@@ -141,6 +146,125 @@ class PaymentController extends Controller
                     }
                     $responseCode = "00";
                     $message = "Thanh toán thành công";
+                    $order = Order::with([
+                        'details.foods',
+                        'details.combos',
+                        'details.toppings.food_toppings.toppings',
+                        'tables'
+                    ])->find($payment->order_id);
+
+                    if (!$order) {
+                        return response()->json([
+                            'message' => 'Không tìm thấy đơn hàng với ID: ' . $payment->order_id
+                        ], 404);
+                    }
+
+                    $guestName = $order->guest_name ?? 'Khách hàng';
+                    $guestEmail = $order->guest_email ?? null;
+                    $guestPhone = $order->guest_phone ?? 'N/A';
+                    $guestCount = $order->guest_count;
+                    $guestAddress = $order->guest_address;
+
+                    $orderDetailsWithNames = [];
+                    $subtotal = 0;
+
+
+                    foreach ($order->details as $orderDetail) {
+                        $name = null;
+                        $image = null;
+                        $basePrice = $orderDetail->price;
+
+                        if ($orderDetail->type === 'food' && $orderDetail->foods) {
+                            $name = $orderDetail->foods->name;
+                            $image = $orderDetail->foods->image;
+                        } elseif ($orderDetail->type === 'combo' && $orderDetail->combos) {
+                            $name = $orderDetail->combos->name;
+                            $image = $orderDetail->combos->image;
+                        }
+
+                        $toppingsWithNames = [];
+                        $itemToppingPrice = 0;
+
+                        foreach ($orderDetail->toppings as $orderTopping) {
+                            if ($orderTopping->food_toppings && $orderTopping->food_toppings->toppings) {
+                                $toppingsWithNames[] = [
+                                    'name' => $orderTopping->food_toppings->toppings->name,
+                                    'price' => $orderTopping->price
+                                ];
+                                $itemToppingPrice += $orderTopping->price;
+                            }
+                        }
+
+                        $itemSubtotal = ($basePrice + $itemToppingPrice) * $orderDetail->quantity;
+                        $subtotal += $itemSubtotal;
+
+                        $orderDetailsWithNames[] = [
+                            'name' => $name,
+                            'image' => $image,
+                            'quantity' => $orderDetail->quantity,
+                            'price' => $basePrice,
+                            'type' => $orderDetail->type,
+                            'toppings' => $toppingsWithNames,
+                            'item_total' => $itemSubtotal // Tổng giá của từng item bao gồm topping và số lượng
+                        ];
+                    }
+
+                    if ($order->tables->isNotEmpty()) {
+                        $tableInfos = $order->tables->map(function ($table) {
+                            return [
+                                'table_number'  => $table->table_number ?? 'Không rõ',
+                                'reserved_from' => $table->pivot->reserved_from,
+                                'reserved_to'   => $table->pivot->reserved_to,
+                            ];
+                        })->toArray();
+
+
+                        $qr_url = $order->qr_code_url ?? null;
+                        $qrImage = QrCode::format('png')->size(250)->generate('http://localhost:5173/history-order-detail/' . $order->id);
+
+                        $filename = 'qr_' . $order->id . '.png';
+                        $tempPath = storage_path('app/public/' . $filename);
+                        file_put_contents($tempPath, $qrImage);
+
+                        $uploadedFileUrl = Cloudinary::upload($tempPath, [
+                            'folder' => 'qr_codes'
+                        ])->getSecurePath();
+
+                        unlink($tempPath);
+
+                        $formattedOrderData = [
+                            'order_id' => $order->id,
+                            'reservation_code' => $order->reservation_code,
+                            'guest_name' => $guestName,
+                            'guest_email' => $guestEmail,
+                            'guest_phone' => $guestPhone,
+                            'guest_count' => $guestCount,
+                            'total_price' => $order->total_price,
+                            'note' => $order->note,
+                            'order_details' => $orderDetailsWithNames,
+                            'tables' => $tableInfos,
+                            'subtotal' => $subtotal,
+                            'order_status' => $order->order_status,
+                            'qr_url' => $uploadedFileUrl
+                        ];
+
+                        Mail::to($formattedOrderData['guest_email'])->send(new ReservationMail($formattedOrderData));
+                    } else {
+                        $mailData = [
+                            'order_id' => $order->id,
+                            'guest_name' => $guestName,
+                            'guest_email' => $guestEmail,
+                            'guest_phone' => $guestPhone,
+                            'guest_address' => $guestAddress,
+                            'total_price' => $order->total_price ?? null,
+                            'note' => $request->note ?? null,
+                            'order_details' => $orderDetailsWithNames,
+                            'subtotal' => $subtotal,
+                            'order_status' =>  'Chờ xác nhận',
+                            'shippingFee' =>  $order->ship_cost
+                        ];
+                        Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+                    }
                 } else {
                     $payment->update([
                         'payment_status' => 'Thất bại',
@@ -169,7 +293,8 @@ class PaymentController extends Controller
             'RspCode' => $responseCode,
             'Message' => $message,
             'success' => true,
-            'order_id' => $payment->order_id ?? null,]);
+            'order_id' => $payment->order_id ?? null,
+        ]);
     }
 
     public function handleCodPayment(Request $request)
@@ -196,6 +321,84 @@ class PaymentController extends Controller
                 $order->update(['status' => 'Đã thanh toán']);
             }
 
+            $order = Order::with([
+                'details.foods',
+                'details.combos',
+                'details.toppings.food_toppings.toppings',
+                'tables'
+            ])->find($validated['order_id']);
+
+            if (!$order) {
+                return response()->json([
+                    'message' => 'Không tìm thấy đơn hàng với ID: ' . $id
+                ], 404);
+            }
+
+            $guestName = $order->guest_name ?? 'Khách hàng';
+            $guestEmail = $order->guest_email ?? null;
+            $guestPhone = $order->guest_phone ?? 'N/A';
+            $guestAddress = $order->guestAddress;
+
+            $orderDetailsWithNames = [];
+            $subtotal = 0;
+
+
+            foreach ($order->details as $orderDetail) {
+                $name = null;
+                $image = null;
+                $basePrice = $orderDetail->price;
+
+                if ($orderDetail->type === 'food' && $orderDetail->foods) {
+                    $name = $orderDetail->foods->name;
+                    $image = $orderDetail->foods->image;
+                } elseif ($orderDetail->type === 'combo' && $orderDetail->combos) {
+                    $name = $orderDetail->combos->name;
+                    $image = $orderDetail->combos->image;
+                }
+
+                $toppingsWithNames = [];
+                $itemToppingPrice = 0;
+
+                foreach ($orderDetail->toppings as $orderTopping) {
+                    if ($orderTopping->food_toppings && $orderTopping->food_toppings->toppings) {
+                        $toppingsWithNames[] = [
+                            'name' => $orderTopping->food_toppings->toppings->name,
+                            'price' => $orderTopping->price
+                        ];
+                        $itemToppingPrice += $orderTopping->price;
+                    }
+                }
+
+                $itemSubtotal = ($basePrice + $itemToppingPrice) * $orderDetail->quantity;
+                $subtotal += $itemSubtotal;
+
+                $orderDetailsWithNames[] = [
+                    'name' => $name,
+                    'image' => $image,
+                    'quantity' => $orderDetail->quantity,
+                    'price' => $basePrice,
+                    'type' => $orderDetail->type,
+                    'toppings' => $toppingsWithNames,
+                    'item_total' => $itemSubtotal // Tổng giá của từng item bao gồm topping và số lượng
+                ];
+            }
+
+            $mailData = [
+                'order_id' => $order->id,
+                'guest_name' => $guestName,
+                'guest_email' => $guestEmail,
+                'guest_phone' => $guestPhone,
+                'guest_address' => $guestAddress,
+                'total_price' => $order->total_price ?? null,
+                'note' => $request->note ?? null,
+                'order_details' => $orderDetailsWithNames,
+                'subtotal' => $subtotal,
+                'order_status' =>  'Chờ xác nhận',
+                'shippingFee' =>  $order->ship_cost
+            ];
+
+            Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+
             DB::commit();
 
             return response()->json(['status' => true, 'message' => 'Đã lưu thông tin thanh toán COD']);
@@ -205,13 +408,8 @@ class PaymentController extends Controller
         }
     }
 
-    /**
-     * Hiển thị tài nguyên được chỉ định.
-     */
-    public function show(string $id)
-    {
-        // Triển khai theo nhu cầu.
-    }
+
+    public function show(string $id) {}
 
     /**
      * Hiển thị biểu mẫu để chỉnh sửa tài nguyên được chỉ định.
