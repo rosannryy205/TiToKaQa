@@ -300,7 +300,7 @@ export default {
       isLoading.value = true
 
       try {
-        if (!paymentMethod.value) {
+        if (!paymentMethod.value && cart_reservation != null) {
           Swal.fire({
             toast: true,
             position: 'top-end',
@@ -566,42 +566,52 @@ export default {
     const decreaseQuantity = () => {
       if (quantity.value > 1) quantity.value--
     }
-    // const notify = async () => {
-    //   const status = info.value;
-    //   const now = new Date();
-    //   const expirationTime = new Date(status.expiration_time);
+    onMounted(async () => {
+      try {
+        await getInfo("order", orderId);
 
-    //   let message = '';
+        const orderInfo = info.value;
+        console.log('ss' + JSON.stringify(orderInfo.tables));
 
-    //   if (status.order_status === 'Đã hủy' || status.reservation_status === 'Đã Hủy') {
-    //     message = 'Đơn của bạn đã bị hủy! Vui lòng quay lại đặt đơn hàng khác.';
-    //   } else if (expirationTime < now) {
-    //     message = 'Đơn hàng của bạn đã hết thời hạn! Vui lòng quay lại đặt đơn hàng khác.';
-    //   } else if (status.order_status === 'Giao thành công' || status.reservation_status === 'Hoàn Thành') {
-    //     message = 'Đơn hàng đã được hoàn thành trước đó.';
-    //   }
+        if (!orderInfo || !orderInfo.id || orderInfo.tables.length === 0) {
+          await Swal.fire({
+            icon: 'error',
+            text: 'Đơn hàng không tồn tại hoặc không phải đơn đặt bàn!',
+            confirmButtonText: 'Quay lại',
+            confirmButtonColor: '#d32f2f',
+          });
+          return router.push('/reservation');
+        }
 
-    //   if (message !== '') {
-    //     await Swal.fire({
-    //       icon: 'error',
-    //       text: message,
-    //       confirmButtonText: 'Quay lại',
-    //       confirmButtonColor: '#d32f2f',
-    //     }).then((result) => {
-    //       if (result.isConfirmed) {
-    //         router.push('/reservation');
-    //       }
-    //     });
-    //     return;
-    //   }
 
-    // };
+        const forbiddenStatuses = ['Đã xác nhận', 'Đang xử lý', 'Hoàn Thành', 'Đã Hủy', 'Giao thành công'];
+        if (
+          forbiddenStatuses.includes(orderInfo.order_status) ||
+          forbiddenStatuses.includes(orderInfo.reservation_status)
+        ) {
+          await Swal.fire({
+            icon: 'warning',
+            text: 'Đơn hàng đã được xác nhận hoặc hoàn tất. Không thể tiếp tục!',
+            confirmButtonText: 'Quay lại',
+            confirmButtonColor: '#d32f2f',
+          });
+          return router.push('/reservation');
+        }
 
-    onMounted(() => {
-      getInfo("order", orderId);
-      updateCountdown();
-      countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+        countdownInterval = setInterval(updateCountdown, 1000);
+      } catch (error) {
+        console.error('Lỗi khi load thông tin đơn hàng:', error);
+        await Swal.fire({
+          icon: 'error',
+          text: 'Đã xảy ra lỗi khi kiểm tra đơn hàng!',
+          confirmButtonText: 'Quay lại',
+          confirmButtonColor: '#d32f2f',
+        });
+        router.push('/reservation');
+      }
     });
+
 
     onUnmounted(() => {
       clearInterval(countdownInterval);

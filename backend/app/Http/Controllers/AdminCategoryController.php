@@ -89,7 +89,7 @@ class AdminCategoryController extends Controller
     {
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
+                'name' => 'required|string|max:255|unique:categories,name',
                 'parent_id' => 'nullable|exists:categories,id',
                 'images' => 'nullable|image|max:2048',
                 'default' => 'required|boolean',
@@ -97,6 +97,7 @@ class AdminCategoryController extends Controller
             ], [
                 'name.required' => 'Tên danh mục là bắt buộc.',
                 'name.max' => 'Tên danh mục không được vượt quá 255 ký tự.',
+                'name.unique' => 'Tên danh mục đã tồn tại.',
                 'parent_id.exists' => 'Danh mục cha không tồn tại.',
                 'default.required' => 'Trạng thái mặc định là bắt buộc.',
                 'default.boolean' => 'Trạng thái mặc định không hợp lệ.',
@@ -176,7 +177,7 @@ class AdminCategoryController extends Controller
             $category = Category::findOrFail($id);
 
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
+                'name' => 'required|string|max:255|unique:categories,name,' .$category->id,
                 'parent_id' => 'nullable|exists:categories,id|not_in:' . $id,
                 'default' => 'required|boolean',
                 'images' => 'nullable|image|max:2048',
@@ -184,6 +185,7 @@ class AdminCategoryController extends Controller
             ], [
                 'name.required' => 'Tên danh mục là bắt buộc.',
                 'name.max' => 'Tên danh mục không được vượt quá 255 ký tự.',
+                'name.unique' => 'Tên danh mục đã tồn tại.',
                 'parent_id.exists' => 'Danh mục cha không tồn tại.',
                 'parent_id.not_in' => 'Không thể chọn chính danh mục này làm danh mục cha.',
                 'default.required' => 'Trạng thái mặc định là bắt buộc.',
