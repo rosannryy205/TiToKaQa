@@ -98,7 +98,6 @@ class PaymentController extends Controller
 
     public function vnpayReturn(Request $request)
     {
-
         $vnp_HashSecret = config('services.vnpay.hash_secret');
         $inputData = $request->except('vnp_SecureHash', 'vnp_SecureHashType');
         ksort($inputData);
@@ -143,7 +142,7 @@ class PaymentController extends Controller
                     $message = "Thanh toán thành công";
                 } else {
                     $payment->update([
-                        'payment_status' => 'Thất bại',
+                        'payment_status' => 'Thanh toán thất bại',
                         'payment_time' => Carbon::createFromFormat('YmdHis', $request->input('vnp_PayDate'), 'Asia/Ho_Chi_Minh'),
                         'transaction_id' => $request->input('vnp_TransactionNo'),
                         'bank_code' => $request->input('vnp_BankCode'),
@@ -154,8 +153,14 @@ class PaymentController extends Controller
                     if ($order && $order->status == 'Đang chờ xử lý') {
                         $order->update(['status' => 'Thanh toán thất bại']);
                     }
+                    if ($request->input('vnp_ResponseCode') == '24') {
+                        $message = "Giao dịch bị huỷ bởi người dùng";
+                    } else {
+                        $message = "Thanh toán thất bại: Mã phản hồi VNPAY: " . $request->input('vnp_ResponseCode') .
+                            ", Trạng thái giao dịch: " . $request->input('vnp_TransactionStatus');
+                    }
+
                     $responseCode = "02";
-                    $message = "Thanh toán thất bại hoặc bị hủy: Mã phản hồi VNPAY: " . $request->input('vnp_ResponseCode') . ", Trạng thái giao dịch: " . $request->input('vnp_TransactionStatus');
                 }
             }
             DB::commit();
@@ -168,8 +173,15 @@ class PaymentController extends Controller
         return response()->json([
             'RspCode' => $responseCode,
             'Message' => $message,
-            'success' => true,
-            'order_id' => $payment->order_id ?? null,]);
+            'success' => $responseCode === "00",
+            'order_id' => $payment->order_id ?? null,
+            'status' => match ($responseCode) {
+                "00" => 'success',
+                "02" => 'cancel',
+                "24" => 'cancel',
+                default => 'failed'
+            }
+        ]);
     }
 
     public function handleCodPayment(Request $request)
@@ -210,8 +222,22 @@ class PaymentController extends Controller
      */
     public function show(string $id)
     {
-        // Triển khai theo nhu cầu.
+        $payment = Payment::find($id);
+
+        if (!$payment) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không tìm thấy thông tin thanh toán.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Tìm thấy thông tin payment của đơn hàng.',
+            'data' => $payment
+        ]);
     }
+
 
     /**
      * Hiển thị biểu mẫu để chỉnh sửa tài nguyên được chỉ định.

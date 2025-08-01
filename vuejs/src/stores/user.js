@@ -4,8 +4,8 @@ import { form } from '@/stores/userForm'
 import Swal from 'sweetalert2'
 export const User = {
   setup() {
-    const user = ref(null)    
-  const loading = ref(true);
+    const user = ref(null)
+    const loading = ref(true);
     const isLoggedIn = ref(false);
 
     const userLocal = JSON.parse(localStorage.getItem('user'))
@@ -25,7 +25,7 @@ export const User = {
         form.address = res.data.address || ''
         form.username = res.data.username || ''
         form.avatar = res.data.avatar
-          ? (res.data.avatar.startsWith('http')
+          ? (res.data.avatar.startsWith('https://')
             ? res.data.avatar
             : `http://127.0.0.1:8000/storage/${res.data.avatar}`)
           : null
@@ -87,7 +87,7 @@ export const User = {
       } catch (error) {
         console.error('Lỗi khi cập nhật ảnh đại diện:', error);
         Swal.fire({
-          toast: false,
+          toast: true,
           position: 'top-end',
           icon: 'error',
           title: 'Lỗi khi cập nhật ảnh đại diện!',
@@ -176,8 +176,24 @@ export const User = {
         personally(user.value.id)
       } catch (error) {
         console.error(error)
+        if (error.response && error.response.status === 422) {
+          const errors = error.response.data.errors
+
+          if (errors.phone) {
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: errors.phone[0], // Sẽ là "Số điện thoại đã được sử dụng."
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+            })
+            return
+          }
+        }
         Swal.fire({
-          toast: false,
+          toast: true,
           position: 'top-end',
           icon: 'error',
           title: 'Cập nhật thông tin thất bại!',

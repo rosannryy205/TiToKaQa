@@ -414,7 +414,7 @@ input .form-control-customer:focus {
 
 .input-group {
   display: flex;
-  /* gap: 10px; */
+  gap: 10px;
 }
 
 .input-group-text {
@@ -426,18 +426,14 @@ input .form-control-customer:focus {
 .input-group input[type="text"] {
   flex: 1;
   height: 40px;
-  padding: 8px 12px;
   margin-top: 10px;
   border: 1px solid #ccc;
-  border-radius: 20px 20px 0px;
 }
 .input-group input[type="email"] {
   flex: 1;
   height: 40px;
-  padding: 8px 12px;
   margin-top: 10px;
   border: 1px solid #ccc;
-  border-radius: 20px 20px 0px;
 }
 
 .input-group button {
@@ -445,7 +441,6 @@ input .form-control-customer:focus {
   background-color: #C92C3C;
   color: white;
   border: none;
-  border-radius: 0px 20px 20px;
   cursor: pointer;
   transition: 0.3s;
 }
