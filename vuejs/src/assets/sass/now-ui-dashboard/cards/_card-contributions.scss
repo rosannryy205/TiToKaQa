@@ -1,3 +1,6 @@
+@use '../variables' as vars;
+@use './card-stats';
+
 .card-contributions{
   @extend %card-stats;
 
@@ -25,7 +28,7 @@
       left: 0;
       width: 1px;
       height: 100%;
-      background-color: $hr-line;
+      background-color: vars.$hr-line;
     }
   }
 

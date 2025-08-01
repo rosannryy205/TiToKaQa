@@ -1,59 +1,66 @@
 <template v-if="hasPermission('view_role')">
-  <div>
-    <h3>Danh sách vai trò</h3>
-
-    <div
-      class="d-flex flex-column flex-md-row justify-content-between mb-3 align-items-start align-items-md-center w-50">
-      <router-link :to="'/admin/users/list-role-insert'" class="btn btn-add pt-2 pe-3 ps-3 w-25 w-md-25 text-center"
-        v-if="hasPermission('create_role')">
-        + Thêm vai trò
-      </router-link>
-      <v-select v-model="selectrole" :options="role" label="display_name" placeholder="Tìm kiếm vai trò..."
-        :clearable="true" class="form-control rounded border-0 w-25" style="height: 45px;" />
-    </div>
-
-    <div class="table-responsive d-none d-lg-block">
-      <table class="table table-bordered">
-        <thead class="table-light">
-          <tr>
-            <th style="width: 50px;">STT</th>
-            <th>Tên vai trò</th>
-            <th>Tuỳ chọn</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, index) in filteredRoles" :key="item.id">
-            <td>{{ index + 1 }}</td>
-            <td><router-link :to="`/admin/users/list-role-detail/${item.id}`">{{ item.display_name }}</router-link></td>
-            <td class="d-flex justify-content-center gap-2">
-              <router-link :to="`/admin/users/list-role-edit/${item.id}`" class="btn btn-outline"
-                v-if="hasPermission('edit_role')">Sửa</router-link>
-              <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_role')">
-                Xoá
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="d-lg-none mt-3">
-      <div class="card mb-2" v-for="(item, index) in filteredRoles" :key="item.id">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
         <div class="card-body">
-          <h5 class="card-title mb-1">
-            <router-link :to="`/admin/users/list-role-detail/${item.id}`">{{ item.display_name }}</router-link>
-          </h5>
-          <p class="card-text mb-2 text-muted">STT: {{ index + 1 }}</p>
-          <div class="d-flex gap-2">
-            <router-link :to="`/admin/users/list-role-edit/${item.id}`" class="btn btn-outline btn-sm"
-              v-if="hasPermission('edit_role')">Sửa</router-link>
-            <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_role')">
-              Xoá
-            </button>
+          <h3>Danh sách vai trò</h3>
+
+          <div
+            class="d-flex flex-column flex-md-row justify-content-between mb-3 align-items-start align-items-md-center w-50">
+            <router-link :to="'/admin/users/list-role-insert'"
+              class="btn btn-add pt-2 pe-3 ps-3 w-25 w-md-25 text-center" v-if="hasPermission('create_role')">
+              + Thêm vai trò
+            </router-link>
+            <v-select v-model="selectrole" :options="role" label="display_name" placeholder="Tìm kiếm vai trò..."
+              :clearable="true" class="form-control rounded border-0 w-25" style="height: 45px;" />
+          </div>
+
+          <div class="table-responsive d-none d-lg-block">
+            <table class="table table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;">STT</th>
+                  <th>Tên vai trò</th>
+                  <th>Tuỳ chọn</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(item, index) in filteredRoles" :key="item.id">
+                  <td>{{ index + 1 }}</td>
+                  <td><router-link :to="`/admin/users/list-role-detail/${item.id}`">{{ item.display_name
+                      }}</router-link></td>
+                  <td class="d-flex justify-content-center gap-2">
+                    <router-link :to="`/admin/users/list-role-edit/${item.id}`" class="btn btn-outline"
+                      v-if="hasPermission('edit_role')">Sửa</router-link>
+                    <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_role')">
+                      Xoá
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d-lg-none mt-3">
+            <div class="card mb-2" v-for="(item, index) in filteredRoles" :key="item.id">
+              <div class="card-body">
+                <h5 class="card-title mb-1">
+                  <router-link :to="`/admin/users/list-role-detail/${item.id}`">{{ item.display_name }}</router-link>
+                </h5>
+                <p class="card-text mb-2 text-muted">STT: {{ index + 1 }}</p>
+                <div class="d-flex gap-2">
+                  <router-link :to="`/admin/users/list-role-edit/${item.id}`" class="btn btn-outline btn-sm"
+                    v-if="hasPermission('edit_role')">Sửa</router-link>
+                  <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_role')">
+                    Xoá
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p v-if="filteredRoles.length === 0" class="text-center text-muted">Không tìm thấy vai trò nào.</p>
           </div>
         </div>
       </div>
-      <p v-if="filteredRoles.length === 0" class="text-center text-muted">Không tìm thấy vai trò nào.</p>
     </div>
   </div>
 </template>

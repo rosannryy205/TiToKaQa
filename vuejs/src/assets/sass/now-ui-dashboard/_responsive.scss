@@ -1,3 +1,6 @@
+@use './variables' as vars;
+@use './mixins/vendor-prefixes' as vendor;
+
 @media screen and (max-width: 991px) {
   .profile-photo .profile-photo-small {
     margin-left: -2px;
@@ -60,12 +63,12 @@
 
     .dropdown-menu .dropdown-item:focus,
     .dropdown-menu .dropdown-item:hover {
-      color: $white-color;
+      color: vars.$white-color;
     }
 
     &.bg-white .dropdown-menu .dropdown-item:focus,
     &.bg-white .dropdown-menu .dropdown-item:hover {
-      color: $default-color;
+      color: vars.$default-color;
     }
 
     .navbar-toggler-bar {
@@ -74,7 +77,7 @@
       width: 22px;
       height: 1px;
       border-radius: 1px;
-      background: $white-bg;
+      background: vars.$white-bg;
 
       &+.navbar-toggler-bar {
         margin-top: 7px;
@@ -97,7 +100,7 @@
 
 
     &.bg-white:not(.navbar-transparent) .navbar-toggler-bar {
-      background-color: $default-color;
+      background-color: vars.$default-color;
     }
 
     & .toggled .navbar-toggler-bar {
@@ -111,17 +114,17 @@
   }
 
   .wrapper {
-    @include transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
+    @include vendor.transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
   }
 
   .nav-open {
     .main-panel {
       right: 0;
-      @include transform-translate-x(260px);
+      @include vendor.transform-translate-x(260px);
     }
 
     .sidebar {
-      @include transform-translate-x(0px);
+      @include vendor.transform-translate-x(0px);
     }
 
     body {
@@ -131,16 +134,16 @@
 
     .menu-on-right {
       .main-panel {
-        @include transform-translate-x(-260px);
+        @include vendor.transform-translate-x(-260px);
       }
 
       .navbar-collapse,
       .sidebar {
-        @include transform-translate-x(0px);
+        @include vendor.transform-translate-x(0px);
       }
 
       .navbar-translate {
-        @include transform-translate-x(-300px);
+        @include vendor.transform-translate-x(-300px);
       }
 
       #bodyClick {
@@ -154,7 +157,7 @@
     .sidebar {
       left: auto;
       right: 0;
-      @include transform-translate-x(260px);
+      @include vendor.transform-translate-x(260px);
     }
   }
 
@@ -166,7 +169,7 @@
 
   .bar1 {
     top: 0px;
-    @include bar-animation($topbar-back);
+    @include vendor.bar-animation(vars.$topbar-back);
   }
 
   .bar2 {
@@ -175,12 +178,12 @@
 
   .bar3 {
     bottom: 0px;
-    @include bar-animation($bottombar-back);
+    @include vendor.bar-animation(vars.$bottombar-back);
   }
 
   .toggled .bar1 {
     top: 6px;
-    @include bar-animation($topbar-x);
+    @include vendor.bar-animation(vars.$topbar-x);
   }
 
   .toggled .bar2 {
@@ -189,13 +192,13 @@
 
   .toggled .bar3 {
     bottom: 6px;
-    @include bar-animation($bottombar-x);
+    @include vendor.bar-animation(vars.$bottombar-x);
   }
 
-  @include topbar-x-rotation();
-  @include topbar-back-rotation();
-  @include bottombar-x-rotation();
-  @include bottombar-back-rotation();
+  @include vendor.topbar-x-rotation();
+  @include vendor.topbar-back-rotation();
+  @include vendor.bottombar-x-rotation();
+  @include vendor.bottombar-back-rotation();
 
   @-webkit-keyframes fadeIn {
     0% {
@@ -239,7 +242,7 @@
     z-index: 9999;
     overflow-x: hidden;
     background-color: transparent;
-    @include transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
+    @include vendor.transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
   }
 
   .footer {
@@ -275,9 +278,9 @@
     visibility: visible;
     overflow-y: visible;
     padding: 0;
-    @include transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
+    @include vendor.transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
 
-    @include transform-translate-x(-260px);
+    @include vendor.transform-translate-x(-260px);
   }
 
 
@@ -297,7 +300,7 @@
   }
 
   // .navbar.fixed-top{
-  //     width: $sidebar-width;
+  //     width: vars.$sidebar-width;
   //     right: 0;
   //     left: auto;
   // }
@@ -306,7 +309,7 @@
     .nav-link {
       &.profile-photo {
         padding: 0;
-        margin: 7px $padding-base-horizontal;
+        margin: 7px vars.$padding-base-horizontal;
       }
     }
   }
