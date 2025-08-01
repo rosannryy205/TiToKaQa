@@ -244,6 +244,7 @@ Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 
 
 //paymentMethod
+Route::get('/payments/info/{id}', [PaymentController::class, 'show']);
 Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
 Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);

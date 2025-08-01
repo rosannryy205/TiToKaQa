@@ -267,6 +267,7 @@ import { Discounts } from '@/stores/discount'
 import { Cart } from '@/stores/cart'
 import { User } from '@/stores/user'
 import { useShippingStore } from '@/stores/shippingStore'
+import { useUserStore } from "@/stores/userAuth";
 import Swal from 'sweetalert2';
 import { storeToRefs } from 'pinia'
 
@@ -296,7 +297,7 @@ export default {
     const activeTab = ref('Tất cả mã')
     const showAllVoucher = ref(false)
     const today = dayjs().format('YYYY-MM-DD')
-
+    const auth = useUserStore();
     //==============
     // STORE
     //==============
@@ -485,6 +486,24 @@ export default {
           });
           isLoading.value = false
           return
+        }
+        if (!auth.isLoggedIn) {
+          const result = await Swal.fire({
+            icon: 'warning',
+            title: 'Bạn chưa có tài khoản!',
+            text: 'Bạn sẽ không thể hủy được đơn hàng vì bạn chưa có tài khoản.',
+            showConfirmButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Tôi hiểu',
+            cancelButtonText: 'Hủy',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+          });
+
+          if (!result.isConfirmed) {
+            isLoading.value = false
+            return;
+          }
         }
         const province = provinces.value.find((p) => p.ProvinceID === selectedProvince.value)
         const district = districts.value.find((d) => d.DistrictID === selectedDistrict.value)

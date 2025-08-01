@@ -637,13 +637,15 @@ class OrderController extends Controller
                 'details.foods',
                 'details.combos',
                 'details.toppings.food_toppings.toppings',
-                'tables'
+                'tables',
+                'payment',
             ])->where('user_id', $value)->orderBy('id', 'desc')->first();
         } else {
             $reservation = Order::with([
                 'details.foods',
                 'details.toppings.food_toppings.toppings',
-                'tables'
+                'tables',
+                'payment',
             ])->find($value);
         }
 
@@ -719,6 +721,7 @@ class OrderController extends Controller
                 'reservation_status' => $table->pivot->reservation_status,
             ];
         });
+        $paymentInfo  = optional($reservation->payment);
 
         return response()->json([
             'status' => true,
@@ -748,6 +751,11 @@ class OrderController extends Controller
                 'expiration_time' => $reservation->expiration_time,
                 'details' => $details,
                 'tables' => $tables,
+                'payment_info' => [
+                    'payment_id' => $paymentInfo->id,
+                    'payment_method' => $paymentInfo->payment_method,
+                    'payment_status' => $paymentInfo->payment_status,
+                ],
 
             ]
         ], 200);

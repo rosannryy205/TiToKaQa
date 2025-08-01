@@ -1,87 +1,93 @@
 <template>
-  <div>
-    <div class="p-6">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold">📄 Danh sách bài viết món ăn</h2>
-        <button class="btn btn-success" @click="addPost">
-          <i class="bi bi-plus-circle me-1"></i> Thêm bài viết
-        </button>
-      </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <div class="p-6">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-2xl font-bold">📄 Danh sách bài viết món ăn</h2>
+              <button class="btn btn-success" @click="addPost">
+                <i class="bi bi-plus-circle me-1"></i> Thêm bài viết
+              </button>
+            </div>
 
-      <!-- Tìm kiếm & Giới hạn hiển thị -->
-      <div class="d-flex flex-wrap flex-sm-nowrap justify-content-between align-items-center mb-3 gap-3">
-        <!-- Tìm kiếm -->
-        <div>
-          <input type="text" v-model="search" placeholder="🔍 Tìm theo tên món hoặc nội dung..."
-            class="form-input-customer" />
-        </div>
+            <!-- Tìm kiếm & Giới hạn hiển thị -->
+            <div class="d-flex flex-wrap flex-sm-nowrap justify-content-between align-items-center mb-3 gap-3">
+              <!-- Tìm kiếm -->
+              <div>
+                <input type="text" v-model="search" placeholder="🔍 Tìm theo tên món hoặc nội dung..."
+                  class="form-input-customer" />
+              </div>
 
-        <!-- Giới hạn hiển thị -->
-        <div class="d-flex align-items-center gap-2 text-sm">
-          Hiển thị
-          <select v-model.number="perPage" class="form-select-customer">
-            <option :value="5">5</option>
-            <option :value="10">10</option>
-            <option :value="15">15</option>
-            <option :value="20">20</option>
-          </select>
-          mục/trang
-        </div>
-      </div>
+              <!-- Giới hạn hiển thị -->
+              <div class="d-flex align-items-center gap-2 text-sm">
+                Hiển thị
+                <select v-model.number="perPage" class="form-select-customer">
+                  <option :value="5">5</option>
+                  <option :value="10">10</option>
+                  <option :value="15">15</option>
+                  <option :value="20">20</option>
+                </select>
+                mục/trang
+              </div>
+            </div>
 
 
 
-      <!-- Table -->
-      <div class="overflow-x-auto">
-        <table class="table table-bordered table-hover text-sm align-middle shadow rounded">
-          <thead class="table-light">
-            <tr>
-              <th>ID</th>
-              <th>Ảnh</th>
-              <th>Tên món</th>
-              <th>Nội dung</th>
-              <th>Ngày phát hành</th>
-              <th class="text-center">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="post in paginatedPosts" :key="post.id">
-              <td class="text-center">{{ post.id }}</td>
-              <td class="text-center">
-                <img :src="post.image" alt="Ảnh" class="rounded border"
-                  style="width: 80px; height: 56px; object-fit: cover;" />
-              </td>
-              <td>{{ post.food_name }}</td>
-              <td>{{ truncate(post.content, 100) }}</td>
-              <td class="text-center">{{ formatDate(post.published_at) }}</td>
-              <td class="text-center">
-                <button class="btn btn-sm btn-primary me-2" @click="editPost(post)">
-                  <i class="bi bi-pencil-square"></i>
-                </button>
-                <!-- <button class="btn btn-sm btn-danger" @click="deletePost(post)">
+            <!-- Table -->
+            <div class="overflow-x-auto">
+              <table class="table table-bordered table-hover text-sm align-middle shadow rounded">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>Ảnh</th>
+                    <th>Tên món</th>
+                    <th>Nội dung</th>
+                    <th>Ngày phát hành</th>
+                    <th class="text-center">Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="post in paginatedPosts" :key="post.id">
+                    <td class="text-center">{{ post.id }}</td>
+                    <td class="text-center">
+                      <img :src="post.image" alt="Ảnh" class="rounded border"
+                        style="width: 80px; height: 56px; object-fit: cover;" />
+                    </td>
+                    <td>{{ post.food_name }}</td>
+                    <td>{{ truncate(post.content, 100) }}</td>
+                    <td class="text-center">{{ formatDate(post.published_at) }}</td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-primary me-2" @click="editPost(post)">
+                        <i class="bi bi-pencil-square"></i>
+                      </button>
+                      <!-- <button class="btn btn-sm btn-danger" @click="deletePost(post)">
                 <i class="bi bi-trash"></i>
               </button> -->
-              </td>
-            </tr>
-            <tr v-if="filteredPosts.length === 0">
-              <td colspan="6" class="text-center text-muted py-4">Không tìm thấy kết quả.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+                    </td>
+                  </tr>
+                  <tr v-if="filteredPosts.length === 0">
+                    <td colspan="6" class="text-center text-muted py-4">Không tìm thấy kết quả.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-      <!-- Pagination -->
-      <div class="mt-4 d-flex justify-content-between align-items-center text-sm">
-        <span>Trang {{ currentPage }} / {{ totalPages }}</span>
-        <div class="btn-group">
-          <button class="btn btn-outline-secondary btn-sm" :disabled="currentPage === 1" @click="currentPage--">
-            ← Trước
-          </button>
-          <button class="btn btn-outline-secondary btn-sm" :disabled="currentPage === totalPages"
-            @click="currentPage++">
-            Sau →
-          </button>
+            <!-- Pagination -->
+            <div class="mt-4 d-flex justify-content-between align-items-center text-sm">
+              <span>Trang {{ currentPage }} / {{ totalPages }}</span>
+              <div class="btn-group">
+                <button class="btn btn-outline-secondary btn-sm" :disabled="currentPage === 1" @click="currentPage--">
+                  ← Trước
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" :disabled="currentPage === totalPages"
+                  @click="currentPage++">
+                  Sau →
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
