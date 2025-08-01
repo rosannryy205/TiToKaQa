@@ -93,7 +93,7 @@
   <button class="btn btn-danger-delete delete_desktop">Xoá</button> -->
 
 
-          <div class="table-responsive ">
+          <div class="table-responsive " v-if="foods.length > 0">
             <table class="table table-bordered">
               <thead class="table-light">
                 <tr>
@@ -101,6 +101,7 @@
                   <th>Món ăn</th>
                   <th>Danh mục</th>
                   <th>Giá thành</th>
+                  <th>Giá giảm</th>
                   <th>Số lượng</th>
                   <th>Tuỳ chọn</th>
                 </tr>
@@ -114,7 +115,9 @@
                     {{ food.name }}
                   </td>
                   <td>{{ food.category?.name || 'Không có danh mục' }}</td>
-                  <td>{{ food.price.toLocaleString('vi-VN') }} VNĐ</td>
+                  <td>{{ formatNumber(food.price) }} VNĐ</td>
+                  <td v-if="food.sale_price>0">{{ formatNumber(food.sale_price) }} VNĐ</td>
+                  <td v-else>Không có</td>
                   <td>{{ food.stock }}</td>
                   <td class="d-flex justify-content-center gap-2 flex-wrap">
                     <router-link :to="{ name: 'update-food', params: { id: food.id } }"
@@ -123,8 +126,7 @@
                         Sửa
                       </button>
                     </router-link>
-                    <button class="btn btn-clean btn-delete btn-sm" @click="deleteFood(food.id)"
-                      v-if="hasPermission('delete_food')">Xoá</button>
+
 
                     <button @click="toggleStatus(food)" class="btn btn-toggle-status"
                       :class="food.status === 'active' ? 'btn-outline-secondary' : 'btn-outline-success'"
@@ -140,6 +142,13 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="no-food-found text-center py-5" v-else>
+            <p class="h4 text-muted">
+              <i class="fas fa-exclamation-circle me-2"></i> Không tìm thấy món ăn nào.
+            </p>
+            <p class="text-muted">Xin lỗi, hiện tại không có món ăn nào để hiển thị.</p>
           </div>
 
 
@@ -214,7 +223,7 @@
                   <div class="card-body">
                     <h5 class="card-title">{{ food.name }}</h5>
                     <p class="card-text"><strong>Danh mục:</strong> {{ food.category_name }}</p>
-                    <p class="card-text"><strong>Giá:</strong> {{ food.price.toLocaleString() }} VNĐ</p>
+                    <p class="card-text"><strong>Giá:</strong> {{ formatNumber(food.price) }} VNĐ</p>
                     <p class="card-text"><strong>Số lượng:</strong> {{ food.quantity }}</p>
                     <router-link :to="{ name: 'update-food', params: { id: food.id } }"
                       v-if="hasPermission('edit_food')">

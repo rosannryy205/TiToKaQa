@@ -168,7 +168,7 @@
       </section>
     </div>
   </section>
- 
+
   <section class="populars-infors-pots">
     <!---->
     <section class="popular-searches container py-4">
@@ -181,7 +181,7 @@
           </div>
         </template>
 
-        <template v-else>
+        <!-- <template v-else>
           <div class="row d-flex">
             <div v-for="combo in combos" :key="combo.id" class="col-12 col-md-4 mb-4 text-center">
               <img :src="getImageUrl(combo.image)" class="img-fluid mb-2" />
@@ -190,7 +190,7 @@
               </div>
             </div>
           </div>
-        </template>
+        </template> -->
       </div>
     </section>
 
