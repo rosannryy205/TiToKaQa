@@ -29,6 +29,9 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
+
+use function Laravel\Prompts\error;
 
 class OrderController extends Controller
 {
@@ -182,6 +185,29 @@ class OrderController extends Controller
     {
         try {
 
+            $validator = Validator::make(
+                $request->all(),
+                [
+                    'guest_name'  => 'required|string',
+                    'guest_phone' => ['required', 'regex:/^0[0-9]{9}$/'],
+                    'guest_email' => 'required|email',
+                ],
+                [
+                    'guest_name.required'  => 'Tên khách hàng là bắt buộc.',
+                    'guest_phone.required' => 'Số điện thoại là bắt buộc.',
+                    'guest_phone.regex'    => 'Số điện thoại phải có 10 chữ số và bắt đầu bằng số 0.',
+                    'guest_email.required' => 'Email là bắt buộc.',
+                    'guest_email.email'    => 'Email không đúng định dạng.',
+                ]
+            );
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
             $guestName = $request->guest_name ?? null;
             $guestPhone = $request->guest_phone ?? null;
             $guestEmail = $request->guest_email ?? null;
@@ -304,94 +330,95 @@ class OrderController extends Controller
                         }
                     }
                 }
-
-                foreach ($request->order_detail as $item) {
-                    $name = null;
-                    if ($item['type'] === 'food' && !empty($item['food_id'])) {
-                        $food = Food::find($item['food_id']);
-                        $name = $food?->name ?? 'Món ăn không tồn tại';
-                        $image = $food?->image;
-                    }
-                    if ($item['type'] === 'combo' && !empty($item['combo_id'])) {
-                        $combo = Combo::find($item['combo_id']);
-                        $name = $combo?->name ?? 'Món ăn không tồn tại';
-                        $image = $combo?->image;
-                    }
-
-                    $toppingsWithNames = [];
-                    if (!empty($item['toppings'])) {
-                        foreach ($item['toppings'] as $topping) {
-                            $foodToppingModel = Food_topping::find($topping['food_toppings_id']);
-                            $toppingModel = $foodToppingModel?->toppings;
-
-                            $toppingsWithNames[] = [
-                                'name' => $toppingModel?->name ?? 'Topping không tồn tại',
-                                'price' => $topping['price']
-                            ];
-                        }
-                    }
-
-                    $orderDetailsWithNames[] = [
-                        'name' => $name,
-                        'image' => $image,
-                        'quantity' => $item['quantity'],
-                        'price' => $item['price'],
-                        'type' => $item['type'],
-                        'toppings' => $toppingsWithNames,
-                    ];
-                }
-            }
-            $subtotal = 0;
-
-            foreach ($orderDetailsWithNames as $item) {
-                $itemSubtotal = $item['price'] * $item['quantity'];
-                if (!empty($item['toppings'])) {
-                    foreach ($item['toppings'] as $topping) {
-                        $itemSubtotal += $topping['price'] * $item['quantity'];
-                    }
                 }
 
-                $subtotal += $itemSubtotal;
-            }
+            //     foreach ($request->order_detail as $item) {
+            //         $name = null;
+            //         if ($item['type'] === 'food' && !empty($item['food_id'])) {
+            //             $food = Food::find($item['food_id']);
+            //             $name = $food?->name ?? 'Món ăn không tồn tại';
+            //             $image = $food?->image;
+            //         }
+            //         if ($item['type'] === 'combo' && !empty($item['combo_id'])) {
+            //             $combo = Combo::find($item['combo_id']);
+            //             $name = $combo?->name ?? 'Món ăn không tồn tại';
+            //             $image = $combo?->image;
+            //         }
 
-            $tableInfos = $order->tables->map(function ($table) {
-                return [
-                    'table_number'  => $table->table_number ?? 'Không rõ',
-                    'reserved_from' => $table->pivot->reserved_from,
-                    'reserved_to'   => $table->pivot->reserved_to,
-                ];
-            })->toArray();
+            //         $toppingsWithNames = [];
+            //         if (!empty($item['toppings'])) {
+            //             foreach ($item['toppings'] as $topping) {
+            //                 $foodToppingModel = Food_topping::find($topping['food_toppings_id']);
+            //                 $toppingModel = $foodToppingModel?->toppings;
 
-            $qrImage = QrCode::format('png')->size(250)->generate('http://localhost:5173/history-order-detail/' . $order->id);
+            //                 $toppingsWithNames[] = [
+            //                     'name' => $toppingModel?->name ?? 'Topping không tồn tại',
+            //                     'price' => $topping['price']
+            //                 ];
+            //             }
+            //         }
 
-            $filename = 'qr_' . $order->id . '.png';
-            $tempPath = storage_path('app/public/' . $filename);
-            file_put_contents($tempPath, $qrImage);
+            //         $orderDetailsWithNames[] = [
+            //             'name' => $name,
+            //             'image' => $image,
+            //             'quantity' => $item['quantity'],
+            //             'price' => $item['price'],
+            //             'type' => $item['type'],
+            //             'toppings' => $toppingsWithNames,
+            //         ];
+            //     }
+            // }
+            // $subtotal = 0;
 
-            $uploadedFileUrl = Cloudinary::upload($tempPath, [
-                'folder' => 'qr_codes'
-            ])->getSecurePath();
+            // foreach ($orderDetailsWithNames as $item) {
+            //     $itemSubtotal = $item['price'] * $item['quantity'];
+            //     if (!empty($item['toppings'])) {
+            //         foreach ($item['toppings'] as $topping) {
+            //             $itemSubtotal += $topping['price'] * $item['quantity'];
+            //         }
+            //     }
 
-            unlink($tempPath);
+            //     $subtotal += $itemSubtotal;
+            // }
 
-            $mailData = [
-                'order_id' => $order->id,
-                'reservation_code' => $order->reservation_code,
-                'guest_name' => $guestName,
-                'guest_email' => $guestEmail,
-                'guest_phone' => $guestPhone,
-                'guest_count' => $request->guest_count || $order->guest_count,
-                'total_price' => $request->total_price ?? null,
-                'note' => $request->note ?? null,
-                'order_details' => $orderDetailsWithNames,
-                'tables' => $tableInfos,
-                'subtotal' => $subtotal,
-                'order_status' =>  $order->order_status,
-                'qr_url' => $uploadedFileUrl
-            ];
+            // $tableInfos = $order->tables->map(function ($table) {
+            //     return [
+            //         'table_number'  => $table->table_number ?? 'Không rõ',
+            //         'reserved_from' => $table->pivot->reserved_from,
+            //         'reserved_to'   => $table->pivot->reserved_to,
+            //     ];
+            // })->toArray();
+
+            // $qrImage = QrCode::format('png')->size(250)->generate('http://localhost:5173/history-order-detail/' . $order->id);
+
+            // $filename = 'qr_' . $order->id . '.png';
+            // $tempPath = storage_path('app/public/' . $filename);
+            // file_put_contents($tempPath, $qrImage);
+
+            // $uploadedFileUrl = Cloudinary::upload($tempPath, [
+            //     'folder' => 'qr_codes'
+            // ])->getSecurePath();
+
+            // unlink($tempPath);
+
+            // $mailData = [
+            //     'order_id' => $order->id,
+            //     'reservation_code' => $order->reservation_code,
+            //     'guest_name' => $guestName,
+            //     'guest_email' => $guestEmail,
+            //     'guest_phone' => $guestPhone,
+            //     'guest_count' => $request->guest_count || $order->guest_count,
+            //     'total_price' => $request->total_price ?? null,
+            //     'note' => $request->note ?? null,
+            //     'order_details' => $orderDetailsWithNames,
+            //     'tables' => $tableInfos,
+            //     'subtotal' => $subtotal,
+            //     'order_status' =>  $order->order_status,
+            //     'qr_url' => $uploadedFileUrl
+            // ];
 
 
-            Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
+            // Mail::to($mailData['guest_email'])->send(new ReservationMail($mailData));
 
             return response()->json([
                 'status' => true,

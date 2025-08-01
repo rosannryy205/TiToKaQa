@@ -58,7 +58,7 @@
                   </div>
 
                   <div class="col-12 d-flex justify-content-end gap-2">
-                    <router-link to="/admin/employees" class="btn btn-secondary">
+                    <router-link to="/admin/users/list-employee" class="btn btn-secondary">
                       <i class="bi bi-arrow-left"></i> Quay lại
                     </router-link>
                     <button type="submit" class="btn btn-success">

@@ -11,15 +11,34 @@ use Illuminate\Support\Facades\Storage;
 
 class ComboController extends Controller
 {
-    public function getAllCombos(Request $request)
+    public function getAllCombosForAdmin(Request $request)
     {
         try {
             $perPage = $request->input('per_page', 1); 
-            $query = Combo::query()->with('foods')->where('status', 'active');
+            $query = Combo::query()->with('foods');
+    
             if ($request->has('search') && !empty($request->search)) {
                 $query->where('name', 'like', '%' . $request->search . '%');
             }
+    
             $combos = $query->orderBy('created_at', 'desc')->paginate($perPage);
+    
+            return response()->json($combos);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi khi lấy danh combo món ăn', 
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    public function getAllCombos(Request $request)
+    {
+        try {
+          $combos = Combo::with('foods')
+          ->where('status', 'active')
+          ->orderBy('created_at', 'desc')
+          ->get();
             return response()->json($combos);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Lỗi khi lấy danh combo món ăn', 'error' => $e->getMessage()], 500);
@@ -75,7 +94,6 @@ class ComboController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Tạo combo thành công', 'combo_id' => $combo->id], 201);
-
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(['error' => 'Lỗi khi tạo combo', 'message' => $th->getMessage()], 500);
@@ -125,7 +143,6 @@ class ComboController extends Controller
             }
 
             return response()->json(['message' => 'Cập nhật combo thành công']);
-
         } catch (\Exception $e) {
             return response()->json(['message' => 'Cập nhật combo thất bại', 'error' => $e->getMessage()], 500);
         }
@@ -141,15 +158,15 @@ class ComboController extends Controller
             }
             $combo->status = $combo->status === 'active' ? 'inactive' : 'active';
             $combo->save();
-    
+
             return response()->json([
                 'message' => $combo->status === 'inactive' ? 'Đã ẩn combo' : 'Combo đã được hiển thị',
                 'status' => $combo->status
             ]);
-    
+
         } catch (\Exception $e) {
             return response()->json(['message' => 'Cập nhật trạng thái combo thất bại', 'error' => $e->getMessage()], 500);
         }
     }
-    
+
 }

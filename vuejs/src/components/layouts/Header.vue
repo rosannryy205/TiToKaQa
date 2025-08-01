@@ -61,7 +61,7 @@
                       :alt="item.name" class="me-2  img-search" />
                     <div class="info-search">
                       <div class="name-search">{{ item.name }}</div>
-                      <div class="price-search">{{ item.price.toLocaleString() }}₫</div>
+                      <div class="price-search">{{formatNumber(item.price) }}</div>
                     </div>
 
 
@@ -238,7 +238,9 @@
   <!-- reservation -->
   <div class="container">
     <transition name="slide-fade">
-      <div v-if="isBookingFormVisible" class="booking-form-container position-relative">
+      <div v-if="isBookingFormVisible"
+      ref="bookingForm"
+       class="booking-form-container position-relative">
         <button @click="closeForm" class="btn-close position-absolute" style="top: 5px; right: 5px;"
           aria-label="Close"></button>
 
@@ -279,7 +281,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/userAuth';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick  } from 'vue';
 import { toast } from 'vue3-toastify';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
@@ -567,13 +569,39 @@ const addToCart = () => {
   alert('Đã thêm vào giỏ hàng!')
 }
 /**form datban */
-const isBookingFormVisible = ref(false);
+const route = useRoute()
+const bookingForm = ref(null)
+const isBookingFormVisible = ref(false)
+
 const closeForm = () => {
   isBookingFormVisible.value = false
 }
+
 const toggleBookingForm = () => {
-  isBookingFormVisible.value = !isBookingFormVisible.value;
-};
+  isBookingFormVisible.value = !isBookingFormVisible.value
+}
+watch(isBookingFormVisible, (visible) => {
+  // Chỉ thực hiện hành động khi form được MỞ RA
+  if (visible) {
+    // Chỉ cuộn nếu người dùng KHÔNG ở đầu trang
+    if (window.scrollY > 0) {
+      // Sử dụng window.scrollTo để cuộn lên đầu trang một cách mượt mà
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      })
+    }
+    // nextTick vẫn hữu ích để đảm bảo form có trong DOM trước khi có thể tương tác
+    nextTick(() => {
+        // Bạn có thể thực hiện các hành động khác ở đây sau khi form đã render
+        // Ví dụ: bookingForm.value.querySelector('input').focus()
+    })
+  }
+})
+watch(route, () => {
+  isBookingFormVisible.value = false
+})
+
 
 const today = new Date().toISOString().split('T')[0]
 const date = ref()

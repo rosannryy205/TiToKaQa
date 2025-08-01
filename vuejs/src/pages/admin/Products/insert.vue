@@ -52,7 +52,7 @@
                   </div>
 
                   <div class="mb-3">
-                    <label for="description" class="form-label">Mô tả</label>
+                    <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
                     <textarea class="form-control rounded-0" id="description" rows="6"
                       v-model="newFood.description"></textarea>
                   </div>
