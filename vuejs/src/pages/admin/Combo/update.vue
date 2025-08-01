@@ -1,170 +1,179 @@
 <template>
-  <div>
-    <div class="d-flex justify-content-between">
-      <h3 class="text-danger fw-bold">Cập nhật Combo</h3>
-      <div>
-        <a href="#" class="btn btn-outline-secondary rounded-0">
-          <i class="bi bi-arrow-counterclockwise"></i> Quay lại
-        </a>
-      </div>
-    </div>
-    <form class="row mt-2" v-if="selectedCombo">
-      <div class="col-md-8">
-        <div class="card rounded-0 border-0 shadow mb-4">
-          <div class="card-body">
-            <div class="row">
-              <div class="col mb-3">
-                <label for="name" class="form-label">
-                  Tên Combo <span class="text-danger">*</span>
-                </label>
-                <input v-model="selectedCombo.name" type="text" class="form-control rounded-0" id="comboName"
-                  required />
-              </div>
-              <div class="col mb-3">
-                <label for="category" class="form-label">
-                  Trạng thái <span class="text-danger">*</span>
-                </label>
-                <div class="input-group">
-                  <select class="form-select rounded-0" id="category" v-model="selectedCombo.status" required>
-                    <option disabled value="">Chọn trạng thái cho combo</option>
-                    <option value="inactive">Ẩn</option>
-                    <option value="active">Hiện</option>
-                  </select>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <h3 class="text-danger fw-bold">Cập nhật Combo</h3>
+            <div>
+              <a href="#" class="btn btn-outline-secondary rounded-0">
+                <i class="bi bi-arrow-counterclockwise"></i> Quay lại
+              </a>
+            </div>
+          </div>
+          <form class="row mt-2" v-if="selectedCombo">
+            <div class="col-md-8">
+              <div class="card rounded-0 border-0 shadow mb-4">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col mb-3">
+                      <label for="name" class="form-label">
+                        Tên Combo <span class="text-danger">*</span>
+                      </label>
+                      <input v-model="selectedCombo.name" type="text" class="form-control rounded-0" id="comboName"
+                        required />
+                    </div>
+                    <div class="col mb-3">
+                      <label for="category" class="form-label">
+                        Trạng thái <span class="text-danger">*</span>
+                      </label>
+                      <div class="input-group">
+                        <select class="form-select rounded-0" id="category" v-model="selectedCombo.status" required>
+                          <option disabled value="">Chọn trạng thái cho món ăn</option>
+                          <option value="inactive">Ẩn</option>
+                          <option value="active">Hiện</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả</label>
+                    <textarea class="form-control rounded-0" id="description" rows="3"
+                      v-model="selectedCombo.description"></textarea>
+                  </div>
+
+                  <div class="mb-3">
+                    <div style="max-height: 200px; overflow-y: auto;" class="table-responsive d-none d-lg-block">
+                      <!-- Bảng món ăn trong combo -->
+                      <table class="table table-bordered">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Chọn</th>
+                            <th>Món ăn</th>
+                            <th>Giá bán</th>
+                            <th>Số lượng</th>
+                            <th>Tuỳ chọn</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="food in selectedCombo.foods" :key="food.id">
+                            <td><input type="checkbox" v-model="food.checked" /></td>
+                            <td>
+                              <img :src="`/img/food/${food.image}`" :alt="food.name" class="me-2 img_thumbnail" />
+                              {{ food.name }}
+                            </td>
+                            <td>{{ formatNumber(food.price) }} VNĐ</td>
+                            <td>
+                              <div class="qty-control px-2 py-1">
+                                <button type="button" class="btn-sm" @click="decreaseQuantity(food)"
+                                  style="background-color: #fff">-</button>
+                                <span>{{ food.quantity }}</span>
+                                <button type="button" class="btn-sm" @click="increaseQuantity(food)"
+                                  style="background-color: #fff">+</button>
+                              </div>
+                            </td>
+                            <td class="d-flex justify-content-center gap-2">
+                              <button class="btn btn-danger-delete" @click.prevent="removeFood(food.id)">Xoá</button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                      <button type="button" class="btn btn-danger-save" data-bs-toggle="modal"
+                        data-bs-target="#menuModal">
+                        Thêm món
+                      </button>
+                      <span class="text-danger fw-bold medium">Giá gốc Combo: {{
+                        numeral(originalTotalPrice).format('0,0') }}
+                        VNĐ</span>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
-            <div class="mb-3">
-              <label for="description" class="form-label">Mô tả</label>
-              <textarea class="form-control rounded-0" id="description" rows="3"
-                v-model="selectedCombo.description"></textarea>
-            </div>
+            <div class="col-md-4 mb-4">
+              <div class="card rounded-0 border-0 shadow mb-2">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col mb-3">
+                      <p>Giá combo (ưu đãi) hiện tại: {{ numeral(selectedCombo.price).format('0,0') }} VNĐ</p>
+                      <input v-model="selectedCombo.price" type="number" class="form-control rounded-0 mt-1" id="price"
+                        min="0" required />
 
-            <div class="mb-3">
-              <div style="max-height: 200px; overflow-y: auto;" class="table-responsive d-none d-lg-block">
-                <!-- Bảng món ăn trong combo -->
-                <table class="table table-bordered">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Chọn</th>
-                      <th>Món ăn</th>
-                      <th>Giá bán</th>
-                      <th>Số lượng</th>
-                      <th>Tuỳ chọn</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="food in selectedCombo.foods" :key="food.id">
-                      <td><input type="checkbox" v-model="food.checked" /></td>
-                      <td>
-                        <img :src="`/img/food/${food.image}`" :alt="food.name" class="me-2 img_thumbnail" />
-                        {{ food.name }}
-                      </td>
-                      <td>{{ formatNumber(food.price) }} VNĐ</td>
-                      <td>
-                        <div class="qty-control px-2 py-1">
-                          <button type="button" class="btn-sm" @click="decreaseQuantity(food)"
-                            style="background-color: #fff">-</button>
-                          <span>{{ food.quantity }}</span>
-                          <button type="button" class="btn-sm" @click="increaseQuantity(food)"
-                            style="background-color: #fff">+</button>
-                        </div>
-                      </td>
-                      <td class="d-flex justify-content-center gap-2">
-                        <button class="btn btn-danger-delete" @click.prevent="removeFood(food.id)">Xoá</button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="d-flex justify-content-between align-items-center mt-2">
-                <button type="button" class="btn btn-danger-save" data-bs-toggle="modal" data-bs-target="#menuModal">
-                  Thêm món
-                </button>
-                <span class="text-danger fw-bold medium">Giá gốc Combo: {{ numeral(originalTotalPrice).format('0,0') }}
-                  VNĐ</span>
+              <div class="card rounded-0 border-0 shadow">
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label for="image" class="form-label">Ảnh Combo <span class="text-danger">*</span></label>
+                    <input class="form-control rounded-0" type="file" id="image" @change="handleImageUpload" />
+                    <div class="mb-3 p-2 text-center">
+                      <img :src="imagePreview" v-if="imagePreview" class="w-50" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 mb-4">
-        <div class="card rounded-0 border-0 shadow mb-2">
-          <div class="card-body">
-            <div class="row">
-              <div class="col mb-3">
-                <p>Giá combo (ưu đãi) hiện tại: {{ numeral(selectedCombo.price).format('0,0') }} VNĐ</p>
-                <input v-model="selectedCombo.price" type="number" class="form-control rounded-0 mt-1" id="price"
-                  min="0" required />
-
+          </form>
+          <button type="button" class="btn btn-danger-save mt-2" @click="updateCombo">Cập nhật Combo</button>
+          <div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-xl">
+              <div class="modal-content shadow-sm rounded-3">
+                <div class="modal-header">
+                  <h5 class="modal-title fw-semibold" id="menuModalLabel">Danh sách món</h5>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal"
+                    aria-label="Close">
+                    &times;
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="row mb-3">
+                    <div class="col-12 col-md-8 mb-2 mb-md-0">
+                      <input type="text" class="form-control rounded" id="searchInput" placeholder="Nhập tên món..." />
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
+                        <option value="">Tất cả món ăn</option>
+                        <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
+                          {{ item.indent }}{{ item.name }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table align-middle">
+                      <thead class="table-light">
+                        <tr>
+                          <th style="width: 5%">Chọn</th>
+                          <th style="width: 60%">Tên món</th>
+                          <th style="width: 35%">Giá</th>
+                        </tr>
+                      </thead>
+                      <tbody id="menuList">
+                        <tr v-for="food in foods" :key="food.id" :value="food.name">
+                          <td>
+                            <input type="checkbox" class="form-check-input menu-checkbox" :value="food.id"
+                              @change="toggleSelect(food)" :checked="isSelected(food.id)" />
+                          </td>
+                          <td class="text-start">{{ food.name }}</td>
+                          <td>{{ formatNumber(food.price) }} VND</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger-delete" data-bs-dismiss="modal">Đóng</button>
+                  <button @click="addSelectedFoods" type="button" class="btn btn-danger-save">
+                    Thêm vào
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="card rounded-0 border-0 shadow">
-          <div class="card-body">
-            <div class="mb-3">
-              <label for="image" class="form-label">Ảnh Combo <span class="text-danger">*</span></label>
-              <input class="form-control rounded-0" type="file" id="image" @change="handleImageUpload" />
-              <div class="mb-3 p-2 text-center">
-                <img :src="imagePreview" v-if="imagePreview" class="w-50" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </form>
-    <button type="button" class="btn btn-danger-save mt-2" @click="updateCombo">Cập nhật Combo</button>
-    <div class="modal fade" id="menuModal" tabindex="-1" aria-labelledby="menuModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-scrollable modal-xl">
-        <div class="modal-content shadow-sm rounded-3">
-          <div class="modal-header">
-            <h5 class="modal-title fw-semibold" id="menuModalLabel">Danh sách món</h5>
-            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" aria-label="Close">
-              &times;
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="row mb-3">
-              <div class="col-12 col-md-8 mb-2 mb-md-0">
-                <input type="text" class="form-control rounded" id="searchInput" placeholder="Nhập tên món..." />
-              </div>
-              <div class="col-12 col-md-4">
-                <select class="form-control rounded" @change="getFoodByCategory($event.target.value)">
-                  <option value="">Tất cả món ăn</option>
-                  <option v-for="item in flatCategoryList" :key="item.id" :value="item.id">
-                    {{ item.indent }}{{ item.name }}
-                  </option>
-                </select>
-              </div>
-            </div>
-            <div class="table-responsive">
-              <table class="table align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th style="width: 5%">Chọn</th>
-                    <th style="width: 60%">Tên món</th>
-                    <th style="width: 35%">Giá</th>
-                  </tr>
-                </thead>
-                <tbody id="menuList">
-                  <tr v-for="food in foods" :key="food.id" :value="food.name">
-                    <td>
-                      <input type="checkbox" class="form-check-input menu-checkbox" :value="food.id"
-                        @change="toggleSelect(food)" :checked="isSelected(food.id)" />
-                    </td>
-                    <td class="text-start">{{ food.name }}</td>
-                    <td>{{ formatNumber(food.price) }} VND</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger-delete" data-bs-dismiss="modal">Đóng</button>
-            <button @click="addSelectedFoods" type="button" class="btn btn-danger-save">
-              Thêm vào
-            </button>
           </div>
         </div>
       </div>
