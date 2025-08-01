@@ -24,6 +24,10 @@ class DatabaseSeeder extends Seeder
                 Table::class,
                 RolePermission::class,
                 LuckyWheelPrizeSeeder::class,
+                IngredientsSeeder::class,
+                SuppliersSeeder::class,
+                RecipeIngredientsSeeder::class,
+                SupplierIngredientSeeder::class,
             ]
         );
     }
