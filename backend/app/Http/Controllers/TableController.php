@@ -73,11 +73,9 @@ class TableController extends Controller
     public function updateTable(Request $request)
     {
         $request->validate([
-            'id' => 'required|exists:tables,id',
             'table_number' => 'required|integer|min:1|unique:tables,table_number,' . $request->id,
             'capacity' => 'required|integer|min:1',
         ], [
-            'id.required' => 'ID bàn không được bỏ trống.',
             'id.exists' => 'Bàn không tồn tại.',
             'table_number.required' => 'Số bàn không được bỏ trống.',
             'table_number.integer' => 'Số bàn phải là số nguyên.',

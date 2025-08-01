@@ -566,22 +566,21 @@ export default {
         }
       } catch (err) {
         console.error(err)
+        isLoading.value = false
+
         if (err.response?.status === 422 && err.response?.data?.errors) {
           const errors = err.response.data.errors
 
-          // Hiển thị lỗi chi tiết bằng Swal
-          const formattedErrors = Object.values(errors).flat().join('<br>')
+          const formattedErrors = Object.values(errors)
+            .map(messages => messages.join('<br>'))
+            .join('<hr>')
 
           Swal.fire({
             icon: 'error',
-            title: 'Lỗi nhập liệu',
+            title: 'Vui lòng kiểm tra lại thông tin!',
             html: formattedErrors,
             confirmButtonText: 'Đã hiểu'
           })
-
-          // Nếu muốn hiển thị lỗi dưới input:
-          formErrors.value = errors
-
         } else {
           Swal.fire({
             toast: true,
@@ -594,6 +593,7 @@ export default {
           });
         }
       }
+
     }
 
     //==============

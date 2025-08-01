@@ -1790,5 +1790,7 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
 /*end Discount details */
 
 
-
+.frame {
+  z-index: 9 !important;
+}
 

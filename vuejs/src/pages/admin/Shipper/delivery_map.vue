@@ -1,60 +1,66 @@
 <template>
-  <div>
-    <div v-if="isLoading" class="isLoading-overlay">
-      <div class="spinner-border text-danger" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-stats card-raised">
+        <div class="card-body">
+          <div v-if="isLoading" class="isLoading-overlay">
+            <div class="spinner-border text-danger" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
 
-    <div class="delivery-container px-3 py-4">
-      <h4 class="text-primary fw-bold mb-3">
-        <i class="bi bi-geo-alt-fill me-2"></i>Hành trình giao hàng
-      </h4>
+          <div class="delivery-container px-3 py-4">
+            <h4 class="text-primary fw-bold mb-3">
+              <i class="bi bi-geo-alt-fill me-2"></i>Hành trình giao hàng
+            </h4>
 
-      <!-- Button chọn đơn hàng -->
+            <!-- Button chọn đơn hàng -->
 
 
-      <!-- Thông tin khách hàng -->
-      <div class="bg-white rounded-3 shadow-sm p-3 mb-3">
-        <p class="mb-1"><strong>👤 Khách:</strong> {{ order?.data?.guest_name }}</p>
-        <p class="mb-1"><strong>📍 Địa chỉ:</strong> {{ order?.data?.guest_address }}</p>
-        <p class="mb-0">
-          <strong>📞 SĐT: </strong>
-          <span class="text-decoration-none text-primary">
-            {{ order?.data?.guest_phone }}
-          </span>
-        </p>
-      </div>
+            <!-- Thông tin khách hàng -->
+            <div class="bg-white rounded-3 shadow-sm p-3 mb-3">
+              <p class="mb-1"><strong>👤 Khách:</strong> {{ order?.data?.guest_name }}</p>
+              <p class="mb-1"><strong>📍 Địa chỉ:</strong> {{ order?.data?.guest_address }}</p>
+              <p class="mb-0">
+                <strong>📞 SĐT: </strong>
+                <span class="text-decoration-none text-primary">
+                  {{ order?.data?.guest_phone }}
+                </span>
+              </p>
+            </div>
 
-      <!-- Bản đồ giao hàng -->
-      <div id="deliveryMap" class="map-box position-relative mb-3">
-        <div id="distanceBox" v-show="showDistanceBox"
-          class="position-absolute top-0 start-0 m-3 bg-white px-3 py-2 rounded shadow text-dark fw-semibold">
-          0 km
+            <!-- Bản đồ giao hàng -->
+            <div id="deliveryMap" class="map-box position-relative mb-3">
+              <div id="distanceBox" v-show="showDistanceBox"
+                class="position-absolute top-0 start-0 m-3 bg-white px-3 py-2 rounded shadow text-dark fw-semibold">
+                0 km
+              </div>
+            </div>
+
+            <!-- Nút thao tác -->
+            <div class="action-buttons mt-4">
+
+              <SwipeToConfirm v-if="order?.data?.order_status === 'Bắt đầu giao'" label="Bắt đầu giao" color="#28a745"
+                @confirm="() => changeStatus('Đang giao hàng')" />
+
+              <SwipeToConfirm v-if="order?.data?.order_status === 'Đang giao hàng'" label="Xác nhận đã giao"
+                color="#007bff" @confirm="() => changeStatus('Giao thành công')" />
+
+              <SwipeToConfirm v-if="order?.data?.order_status === 'Đang giao hàng'" label="Giao thất bại"
+                color="#dc3545" @confirm="() => changeStatus('Giao thất bại')" />
+
+
+
+              <button class="action-btn back" @click="goBack">
+                <i class="bi bi-arrow-left"></i>
+                Quay lại
+              </button>
+            </div>
+
+
+          </div>
         </div>
       </div>
-
-      <!-- Nút thao tác -->
-      <div class="action-buttons mt-4">
-
-        <SwipeToConfirm v-if="order?.data?.order_status === 'Bắt đầu giao'" label="Bắt đầu giao" color="#28a745"
-          @confirm="() => changeStatus('Đang giao hàng')" />
-
-        <SwipeToConfirm v-if="order?.data?.order_status === 'Đang giao hàng'" label="Xác nhận đã giao" color="#007bff"
-          @confirm="() => changeStatus('Giao thành công')" />
-
-        <SwipeToConfirm v-if="order?.data?.order_status === 'Đang giao hàng'" label="Giao thất bại" color="#dc3545"
-          @confirm="() => changeStatus('Giao thất bại')" />
-
-
-
-        <button class="action-btn back" @click="goBack">
-          <i class="bi bi-arrow-left"></i>
-          Quay lại
-        </button>
-      </div>
-
-
     </div>
   </div>
 </template>
@@ -340,7 +346,7 @@ const getRoutePolyline = async (start, end) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: '5b3ce3597851110001cf62482b60c4bf4dd35899168bdb73789d885e63b65a8ba7f4add869673f46'
+      Authorization: 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImI4MmM0ODBmMDg2YmUyNmFlYmUyMTY1NDBmMmU0NWRlMWUyMGI3NjU1ZjZjNjFhNmI1OGQ1MWQ1IiwiaCI6Im11cm11cjY0In0='
     },
     body: JSON.stringify({
       coordinates: [

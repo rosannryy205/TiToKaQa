@@ -1,3 +1,5 @@
+@use '../variables' as vars;
+
 %card-stats{
   hr{
     margin: 5px 15px;
@@ -17,8 +19,8 @@
         }
         .stats-title{
             margin-bottom: 5px;
-            color: $dark-gray;
-            font-weight: $font-weight-normal;
+            color: vars.$dark-gray;
+            font-weight: vars.$font-weight-normal;
         }
 
         &.statistics-horizontal,
@@ -43,7 +45,7 @@
 
       .stats-details{
         display:block;
-        color: $default-color;
+        color: vars.$default-color;
       }
     }
 
@@ -51,7 +53,7 @@
       text-align: right;
 
       .dot{
-        background-color: $black-color;
+        background-color: vars.$black-color;
         height: 3px;
         width: 3px;
         border-radius: 50%;
@@ -67,7 +69,7 @@
             width: 1px;
             height: calc(100% - 40px);
             content: "";
-            background: $medium-gray;
+            background: vars.$medium-gray;
 
         }
     }

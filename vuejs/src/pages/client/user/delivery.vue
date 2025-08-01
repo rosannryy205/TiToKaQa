@@ -107,9 +107,10 @@ const listenToShipperLocation = (shipperId, map, icon) => {
 
     // 🟢 Khi shipper đến nơi (cách < 10m)
     const distToCustomer = newLatLng.distanceTo(L.latLng(customer.value.lat, customer.value.lng))
-    if (distToCustomer < 15 && !hasArrived) {
+    if (distToCustomer < 10 && !hasArrived) {
       toast.success('Shipper đã đến nơi!')
       hasArrived = true
+      localStorage.setItem('hasArrived', 'true')
     }
   }, {
     onlyOnce: false
@@ -118,13 +119,13 @@ const listenToShipperLocation = (shipperId, map, icon) => {
 
 
 
-
+//Heigit
 async function getRoutePolyline(start, end) {
   const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': '5b3ce3597851110001cf62482b60c4bf4dd35899168bdb73789d885e63b65a8ba7f4add869673f46'
+      'Authorization': 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImI4MmM0ODBmMDg2YmUyNmFlYmUyMTY1NDBmMmU0NWRlMWUyMGI3NjU1ZjZjNjFhNmI1OGQ1MWQ1IiwiaCI6Im11cm11cjY0In0='
     },
     body: JSON.stringify({
       coordinates: [
@@ -141,7 +142,7 @@ async function getRoutePolyline(start, end) {
   const distance = data.features[0].properties.summary.distance
   return { coords, distance }
 }
-
+//LocationIQ
 const getCoordinatesFromAddress = async (address) => {
   const apiKey = 'pk.a3a8213154230324b5a5b37fd3e5f48a'
   const res = await axios.get('https://us1.locationiq.com/v1/search.php', {
@@ -161,6 +162,11 @@ const getCoordinatesFromAddress = async (address) => {
 }
 
 onMounted(async () => {
+  if (localStorage.getItem('hasArrived') === 'true') {
+    localStorage.removeItem('hasArrived')  // reset để lần sau không bị kẹt
+    window.history.back()
+    return
+  }
   isLoading.value = true
   try {
     const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${order_id}`)
