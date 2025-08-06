@@ -8,21 +8,33 @@
   </div>
 </template>
 
-
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 const visible = ref(false)
+const route = useRoute()
 
-onMounted(() => {
+function isHiddenRoute(path) {
+  return path.startsWith('/admin') || path.startsWith('/login') || path.startsWith('/register')
+}
+
+function checkAndTogglePopup(path) {
   const today = new Date().toDateString()
   const dismissedDate = localStorage.getItem('popupDismissed')
 
-  if (dismissedDate !== today) {
-    setTimeout(() => {
-      visible.value = true
-    }, 1500)
+  if (!isHiddenRoute(path) && dismissedDate !== today) {
+    visible.value = true
+  } else {
+    visible.value = false
   }
+}
+
+onMounted(() => {
+  checkAndTogglePopup(route.path)
+})
+watch(() => route.path, (newPath) => {
+  checkAndTogglePopup(newPath)
 })
 
 function closePopup() {
@@ -30,6 +42,8 @@ function closePopup() {
   localStorage.setItem('popupDismissed', new Date().toDateString())
 }
 </script>
+
+
 
 
 <style scoped>
