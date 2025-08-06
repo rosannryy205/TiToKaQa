@@ -346,7 +346,7 @@ const getRoutePolyline = async (start, end) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: '5b3ce3597851110001cf62482b60c4bf4dd35899168bdb73789d885e63b65a8ba7f4add869673f46'
+      Authorization: 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImI4MmM0ODBmMDg2YmUyNmFlYmUyMTY1NDBmMmU0NWRlMWUyMGI3NjU1ZjZjNjFhNmI1OGQ1MWQ1IiwiaCI6Im11cm11cjY0In0='
     },
     body: JSON.stringify({
       coordinates: [
