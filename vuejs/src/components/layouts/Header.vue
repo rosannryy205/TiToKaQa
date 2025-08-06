@@ -61,7 +61,7 @@
                       :alt="item.name" class="me-2  img-search" />
                     <div class="info-search">
                       <div class="name-search">{{ item.name }}</div>
-                      <div class="price-search">{{ item.price.toLocaleString() }}₫</div>
+                      <div class="price-search">{{formatNumber(item.price) }}</div>
                     </div>
 
 

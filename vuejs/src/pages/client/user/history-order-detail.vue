@@ -5,50 +5,70 @@
     </div>
   </div>
   <div class="container">
-    <div class="card p-3">
-      <h5 class="border-bottom pb-2">Thông tin</h5>
-      <div class="row">
-        <div class="col-6">Ngày đặt:</div>
-        <div class="col-6 text-end">{{ formatDate(info.order_time) }}</div>
-        <div class="col-6" v-show="info.reservations_time">Ngày dự kiến nhận bàn:</div>
-        <div class="col-6 text-end" v-show="info.reservations_time">{{ formatDate(info.reservations_time) }}</div>
-        <div class="col-6" v-show="info.reservations_time">Giờ nhận bàn dự kiến:</div>
-        <div class="col-6 text-end" v-show="info.reservations_time">
-          {{ formatTime(info.reservations_time) }} - {{ formatTime(info.expiration_time) }} giờ
+    <div class="row gx-3">
+      <!-- Card 1: Thông tin đặt bàn -->
+      <div class="col-md-6">
+        <div class="card p-3 mt-3 w-100">
+          <h5 class="border-bottom pb-2">Thông tin</h5>
+          <div class="row">
+            <div class="col-6">Ngày đặt:</div>
+            <div class="col-6 text-end">{{ formatDate(info.order_time) }}</div>
+
+            <template v-if="info.reservations_time">
+              <div class="col-6">Ngày dự kiến nhận bàn:</div>
+              <div class="col-6 text-end">{{ formatDate(info.reservations_time) }}</div>
+
+              <div class="col-6">Giờ nhận bàn dự kiến:</div>
+              <div class="col-6 text-end">
+                {{ formatTime(info.reservations_time) }} - {{ formatTime(info.expiration_time) }} giờ
+              </div>
+
+              <div class="col-6">Lượng khách:</div>
+              <div class="col-6 text-end">{{ info.guest_count }} người</div>
+
+              <div class="col-6">Bàn:</div>
+              <div class="col-6 text-end">{{ tableNumbers || 'Chưa xếp' }}</div>
+            </template>
+
+            <div class="col-6">Phương thức thanh toán:</div>
+            <div class="col-6 text-end">{{ info.payment_info?.payment_method || '---' }}</div>
+
+            <div class="col-6">Trạng thái thanh toán:</div>
+            <div class="col-6 text-end">{{ info.payment_info?.payment_status || '---'  }}</div>
+
+            <div class="col-6">Trạng thái đơn:</div>
+            <div class="col-6 text-end">
+              <span v-if="info.reservations_time">{{ info.reservation_status }}</span>
+              <span v-else>{{ info.order_status }}</span>
+            </div>
+
+            <div class="col-6">Ghi chú:</div>
+            <div class="col-6 text-end">{{ info.note || 'không có' }}</div>
+          </div>
         </div>
-        <div class="col-6" v-show="info.reservations_time">Lượng khách:</div>
-        <div class="col-6 text-end" v-show="info.reservations_time">{{ info.guest_count }} người</div>
-        <div class="col-6" v-show="info.reservations_time">Bàn: </div>
-        <div class="col-6 text-end" v-show="info.reservations_time">
-          {{ tableNumbers || 'Chưa xếp' }}
+      </div>
+
+      <!-- Card 2: Thông tin khách hàng -->
+      <div class="col-md-6">
+        <div class="card p-3 mt-3 w-100">
+          <h5 class="border-bottom pb-2">Thông tin khách hàng</h5>
+          <div class="row">
+            <div class="col-6">Họ tên:</div>
+            <div class="col-6 text-end">{{ info.guest_name }}</div>
+
+            <div class="col-6">Số điện thoại:</div>
+            <div class="col-6 text-end">{{ info.guest_phone }}</div>
+
+            <div class="col-6">Email:</div>
+            <div class="col-6 text-end">{{ info.guest_email }}</div>
+
+            <div class="col-6">Địa chỉ:</div>
+            <div class="col-6 text-end">{{ info.guest_address || '' }}</div>
+          </div>
         </div>
-        <div class="col-6">Phương thức thanh toán:</div>
-        <div class="col-6 text-end">Chưa rõ</div>
-        <div class="col-6">Trạng thái thanh toán:</div>
-        <div class="col-6 text-end">Chưa rõ</div>
-        <div class="col-6">Trạng thái đơn:</div>
-        <div class="col-6 text-end">
-          <span v-if="info.reservations_time">{{ info.reservation_status }}</span>
-          <span v-else>{{ info.order_status }}</span>
-        </div>
-        <div class="col-6">Ghi chú:</div>
-        <div class="col-6 text-end">{{ info.note || 'không có' }}</div>
       </div>
     </div>
 
-    <div class="card p-3 mt-3">
-      <h5 class="border-bottom pb-2">Thông tin khách hàng</h5>
-      <div class="row">
-        <div class="col-6">Họ tên:</div>
-        <div class="col-6 text-end">{{ info.guest_name }}</div>
-        <div class="col-6">Số điện thoại:</div>
-        <div class="col-6 text-end">{{ info.guest_phone }}</div>
-        <div class="col-6">Email:</div>
-        <div class="col-6 text-end">{{ info.guest_email }}</div>
-        <div class="col-6">Địa chỉ:</div>
-        <div class="col-6 text-end">{{ info.guest_address || '' }}</div>
-      </div>
-    </div>
 
     <!-- Chi tiết hóa đơn -->
     <div class="card p-3 mt-3">
@@ -174,7 +194,6 @@ export default {
       getImageUrl,
       formatTime
     } = Info.setup()
-
 
     const cancelOrder = async () => {
       const result = await Swal.fire({

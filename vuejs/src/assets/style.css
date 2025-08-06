@@ -72,6 +72,12 @@ body {
 .username-display {
     font-weight: 500;
 }
+.text-red {
+    color: #c92c3c !important;
+}
+.text-red:hover {
+    color: #ffffff !important;
+}
 .text-primary-red {
     color: #c92c3c !important;
 }
@@ -950,7 +956,7 @@ footer {
 
   footer .input-group {
     display: flex;
-    /* gap: 10px; */
+    gap: 10px;
   }
 
   footer .input-group input {
@@ -1181,7 +1187,7 @@ color: #000000;
 }
 .form-select,
 .form-control {
-  border-radius: 999px;
+  /* border-radius: 999px; */
   padding: 0.5rem 1rem;
 }
 .border-end {
