@@ -247,7 +247,9 @@ class PaymentController extends Controller
                             'qr_url' => $uploadedFileUrl
                         ];
 
-                        Mail::to($formattedOrderData['guest_email'])->send(new ReservationMail($formattedOrderData));
+                        if (!empty($formattedOrderData['guest_email'])) {
+                            Mail::to($formattedOrderData['guest_email'])->send(new ReservationMail($formattedOrderData));
+                        }
                     } else {
                         $mailData = [
                             'order_id' => $order->id,
@@ -262,7 +264,9 @@ class PaymentController extends Controller
                             'order_status' =>  'Chờ xác nhận',
                             'shippingFee' =>  $order->ship_cost
                         ];
-                        Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+                        if (!empty($mailData['guest_email'])) {
+                            Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+                        }
                     }
                 } else {
                     $payment->update([
@@ -407,8 +411,9 @@ class PaymentController extends Controller
                 'order_status' =>  'Chờ xác nhận',
                 'shippingFee' =>  $order->ship_cost
             ];
-
-            Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+            if (!empty($mailData['guest_email'])) {
+                Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+            }
 
             DB::commit();
 
