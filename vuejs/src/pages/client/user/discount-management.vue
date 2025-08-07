@@ -34,95 +34,97 @@
       </div>
     </div>
     <div class="row g-3">
-  <div
-    v-for="discount in filterUserDiscount"
-    :key="discount.id"
-    class="col-md-6"
-  >
-    <div
-      v-if="activeTab === 4"
-      class="d-flex align-items-center bg-white shadow-sm rounded p-3 w-100"
-    >
-      <i class="bi bi-ticket-perforated text-danger fs-4 me-3"></i>
-      <div class="flex-grow-1">
-        <div class="fw-semibold mb-1">
-          {{ getVoucherHistoryLabel(discount.pivot?.source) }}
-          <span class="text-primary">"{{ discount.name }}"</span>
-        </div>
-        <div class="text-muted small">
-          🕒 {{ formatDate(discount.pivot?.exchanged_at) || 'Không rõ' }}
-        </div>
-      </div>
+      <div v-for="discount in filterUserDiscount" :key="discount.id" class="col-md-6">
+        <div
+  v-if="activeTab === 4"
+  class="d-flex align-items-center bg-white shadow-sm rounded p-3 w-100"
+>
+  <i class="bi bi-ticket-perforated text-danger fs-4 me-3"></i>
+  <div class="flex-grow-1" style="min-width: 0">
+    <div class="fw-semibold mb-1 text-truncate d-block">
+      {{ getVoucherHistoryLabel(discount.pivot?.source) }}
+      <span class="text-primary">"{{ discount.name }}"</span>
     </div>
-    <div
-      v-else
-      class="d-flex shadow-sm bg-white rounded overflow-hidden"
-      :class="{ 'expired-discount': isExpired(discount) }"
-      style="min-height: 110px"
-    >
-      <div
-        class="text-white d-flex flex-column justify-content-center align-items-center"
-        :style="`background-color: ${
-          discount.discount_type === 'freeship' ? '#00bfa5' : '#f44336'
-        }; width: 28%`"
-      >
-        <img :src="getImageByType(discount.discount_type)" alt="icon" style="width: 40px" />
-        <div class="fw-bold small mt-2 text-center" style="font-size: 12px">
-          {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
-        </div>
-      </div>
 
-      <div class="flex-grow-1 px-3 py-2" style="width: 72%">
-        <div class="fw-bold mb-1 text-truncate">Mã: {{ discount.name }}</div>
-        <div class="text-muted small mb-1 text-truncate d-block">
-          <i class="bi bi-clock me-1"></i>Hạn dùng: {{ discount.pivot.expiry_at }}
-        </div>
-        <div class="text-muted small mb-1 text-truncate">
-          <a
-            href="#"
-            class="ms-1 text-primary"
-            @click.prevent="showConditionModal(discount.condition, discount.name)"
-          >
-            Điều kiện
-          </a>
-        </div>
-        <div class="d-flex justify-content-between align-items-center">
-          <div
-            class="fw-bold coins-exchange d-flex align-items-center"
-            :class="{ invisible: activeTab !== 4 }"
-          >
-            {{ formatCurrency(discount.cost) }}
-            <img class="coins ms-1" src="/img/xubac.png" alt="coin" />
-          </div>
-          <button
-            class="btn btn-outline-danger btn-sm float-end"
-            :disabled="isExpired(discount)"
-          >
-            {{ isExpired(discount) ? 'Hết hạn' : 'Dùng Ngay' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Trống -->
-  <div v-if="filterUserDiscount.length === 0" class="col-12">
-    <div class="text-center text-muted py-5">
-      <i class="bi bi-ticket-perforated fs-1 mb-3 d-block"></i>
-      <p class="fw-bold mb-1">Kho đang trống</p>
-      <p class="mb-0">
-        Vui lòng đổi mã bằng
-        <img
-          src="/img/xubac.png"
-          alt="Tcoin"
-          style="width: 16px; vertical-align: text-bottom"
-        />
-        Tcoin
-      </p>
+    <div class="text-muted small">
+      🕒 {{ formatDate(discount.pivot?.exchanged_at) || 'Không rõ' }}
     </div>
   </div>
 </div>
 
+        <div
+          v-else
+          class="d-flex shadow-sm bg-white rounded overflow-hidden"
+          :class="{ 'expired-discount': isExpired(discount) }"
+          style="min-height: 110px"
+        >
+          <div
+            class="text-white d-flex flex-column justify-content-center align-items-center"
+            :style="`background-color: ${
+              discount.discount_type === 'freeship' ? '#00bfa5' : '#f44336'
+            }; width: 28%`"
+          >
+            <img :src="getImageByType(discount.discount_type)" alt="icon" style="width: 40px" />
+            <div class="fw-bold small mt-2 text-center" style="font-size: 12px">
+              {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
+            </div>
+          </div>
+
+          <div class="flex-grow-1 px-3 py-2" style="width: 72%">
+            <div class="fw-bold mb-1 text-truncate">Mã: {{ discount.name }}</div>
+            <div class="text-muted small mb-1 text-truncate d-block">
+              <i class="bi bi-clock me-1"></i>Hạn dùng: {{ discount.pivot.expiry_at }}
+            </div>
+            <div class="text-muted small mb-1 text-truncate">
+              <a
+                href="#"
+                class="ms-1 text-primary"
+                @click.prevent="showConditionModal(discount.condition, discount.name)"
+              >
+                Điều kiện
+              </a>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <div
+                class="fw-bold coins-exchange d-flex align-items-center"
+                :class="{ invisible: activeTab !== 4 }"
+              >
+                {{ formatCurrency(discount.cost) }}
+                <img class="coins ms-1" src="/img/xubac.png" alt="coin" />
+              </div>
+              <router-link
+                v-if="!isExpired(discount)"
+                to="/food"
+                class="btn btn-outline-danger btn-sm float-end"
+              >
+                Dùng Ngay
+              </router-link>
+
+              <button v-else class="btn btn-outline-danger btn-sm float-end" disabled>
+                Hết hạn
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trống -->
+      <div v-if="filterUserDiscount.length === 0" class="col-12">
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-ticket-perforated fs-1 mb-3 d-block"></i>
+          <p class="fw-bold mb-1">Kho đang trống</p>
+          <p class="mb-0">
+            Vui lòng đổi mã bằng
+            <img
+              src="/img/xubac.png"
+              alt="Tcoin"
+              style="width: 16px; vertical-align: text-bottom"
+            />
+            Tcoin
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
   <div
     class="modal fade"
@@ -157,6 +159,7 @@ import { Modal } from 'bootstrap'
 import axios from 'axios'
 import { Discounts } from '@/stores/discount'
 import { useUserStore } from '@/stores/userAuth'
+import Swal from 'sweetalert2';
 
 const {
   getImageByType,
@@ -220,11 +223,54 @@ const filterUserDiscount = computed(() => {
 
 const handleVoucherCode = async () => {
   const code = voucherCode.value.trim().toUpperCase()
-  if (!code) return alert('Vui lòng nhập mã voucher!')
+  if (!code) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Vui lòng nhập mã voucher!',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    })
+  }
+
   const exists = userDiscounts.value.find((d) => d.code.toUpperCase() === code)
-  if (exists) return alert('Bạn đã có mã này rồi!')
+  if (exists) {
+    return Swal.fire({
+      icon: 'info',
+      title: 'Bạn đã có mã này rồi!',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    })
+  }
+
   const found = systemDiscounts.value.find((d) => d.code.toUpperCase() === code)
-  if (!found) return alert('Không tìm thấy mã trong hệ thống!')
+  if (!found) {
+    return Swal.fire({
+      icon: 'error',
+      title: 'Không tìm thấy mã trong hệ thống!',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    })
+  }
+
+  const confirm = await Swal.fire({
+    title: 'Bạn chắc chắn muốn đổi mã này?',
+    text: `Mã: ${code}`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Đổi mã',
+    cancelButtonText: 'Hủy',
+  })
+
+  if (!confirm.isConfirmed) return
 
   try {
     const res = await axios.post(
@@ -234,16 +280,42 @@ const handleVoucherCode = async () => {
         headers: { Authorization: `Bearer ${userStore.token}` },
       },
     )
+
     if (res.data.status) {
-      userDiscounts.value.push(res.data.data)
-      alert('Đổi mã thành công!')
+      await fetchUserDiscounts()
       voucherCode.value = ''
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Đổi mã thành công!',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      })
     } else {
-      alert(res.data.message || 'Đổi mã thất bại!')
+      Swal.fire({
+        icon: 'error',
+        title: res.data.message || 'Đổi mã thất bại!',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      })
     }
   } catch (err) {
     console.error(err)
-    alert('Lỗi khi gửi yêu cầu đổi mã!')
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi khi gửi yêu cầu đổi mã!',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    })
   }
 }
 
@@ -400,5 +472,13 @@ onMounted(async () => {
   max-height: 80vh;
   overflow-y: auto;
   padding: 6px;
+}
+/**an text */
+.voucher-title {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
 }
 </style>
