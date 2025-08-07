@@ -7,6 +7,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
 
 class ProviderCallbackController extends Controller
 {
@@ -45,7 +46,7 @@ class ProviderCallbackController extends Controller
             }
             if (
                 !$user->avatar ||
-                str_contains($user->avatar, 'googleusercontent.com')
+                Str::contains($user->avatar, 'googleusercontent.com')
             ) {
                 $user->avatar = $socialUser->getAvatar();
                 $user->save();

@@ -25,7 +25,7 @@ export const User = {
         form.address = res.data.address || ''
         form.username = res.data.username || ''
         form.avatar = res.data.avatar
-          ? (res.data.avatar.startsWith('https://')
+          ? (res.data.avatar.startsWith('https://') || res.data.avatar.startsWith('http://')
             ? res.data.avatar
             : `http://127.0.0.1:8000/storage/${res.data.avatar}`)
           : null
@@ -35,6 +35,7 @@ export const User = {
         form.use_points = false
 
         tempAvatar.value = null
+        console.log(res.data.avatar)
       } catch (error) {
         console.error('Không lấy được thông tin người dùng', error)
       }
@@ -116,16 +117,10 @@ export const User = {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
           });
-
           localStorage.removeItem('user')
           localStorage.removeItem('token')
           user.value = null
           isLoggedIn.value = false
-
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
-          user.value = null;
-          isLoggedIn.value = false;
           Swal.fire({
             toast: true,
             position: 'top-end',

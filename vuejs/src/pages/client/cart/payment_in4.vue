@@ -369,7 +369,7 @@ export default {
               icon: 'error',
               title: 'Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.',
               showConfirmButton: false,
-              timer: 2000,
+              timer: 1500,
               timerProgressBar: true
             });
             return
@@ -392,7 +392,7 @@ export default {
               icon: 'error',
               title: 'Không tạo được link thanh toán VNPAY.',
               showConfirmButton: false,
-              timer: 2000,
+              timer: 1500,
               timerProgressBar: true
             });
           }
@@ -406,7 +406,7 @@ export default {
             icon: 'info',
             title: 'Chức năng thanh toán MoMo đang được phát triển!',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
           // localStorage.setItem('order_id', orderId)
@@ -423,7 +423,7 @@ export default {
               icon: 'info',
               title: 'Tài khoản của bạn đã bị hạn chế. Không thể thanh toán bằng tiền mặt.',
               showConfirmButton: false,
-              timer: 2000,
+              timer: 1500,
               timerProgressBar: true
             });
             return
@@ -452,7 +452,7 @@ export default {
           icon: 'error',
           title: 'Thanh toán thất bại: ' + error.response.data.message,
           showConfirmButton: false,
-          timer: 2000,
+          timer: 1500,
           timerProgressBar: true
         });
       }
@@ -468,7 +468,7 @@ export default {
             icon: 'info',
             title: 'Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
           isLoading.value = false
@@ -481,7 +481,7 @@ export default {
             icon: 'info',
             title: 'Vui lòng chọn phương thức thanh toán trước khi đặt hàng!',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
           isLoading.value = false
@@ -518,7 +518,7 @@ export default {
             icon: 'info',
             title: 'Vui lòng nhập địa chỉ và thêm món ăn vào giỏ hàng.',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
           isLoading.value = false
@@ -562,7 +562,7 @@ export default {
             icon: 'success',
             title: 'Đơn hàng đã được tạo thành công!',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
           if (orderData.discount_id) {
@@ -579,7 +579,7 @@ export default {
             icon: 'error',
             title: 'Không nhận được ID đơn hàng từ server.',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
         }
@@ -607,7 +607,7 @@ export default {
             icon: 'error',
             title: err?.response?.data?.message || 'Đặt hàng thất bại.',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
         }

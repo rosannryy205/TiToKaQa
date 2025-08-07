@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminCategoryToppingController;
 use App\Http\Controllers\AdminFoodController;
+use App\Http\Controllers\AdminPaymentController;
 use App\Http\Controllers\AdminToppingController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;

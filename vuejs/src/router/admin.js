@@ -18,6 +18,7 @@ const admin = [
           header: () => import('../pages/admin/Dashboard/DashboardHeader.vue')
         },
         meta: {
+          title: 'Thống kê',
           requiresAdmin: true,
           headerSize: 'lg'
         },

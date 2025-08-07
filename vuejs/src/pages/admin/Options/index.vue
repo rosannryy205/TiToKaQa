@@ -66,7 +66,7 @@
             </table>
           </div>
 
-          <button class="btn btn-danger-delete delete_desktop" v-if="hasPermission('delete_topping')">Xoá</button>
+          <!-- <button class="btn btn-danger-delete delete_desktop" v-if="hasPermission('delete_topping')">Xoá</button> -->
 
           <!-- Mobile View -->
           <div class="d-block d-lg-none">
@@ -129,9 +129,6 @@
               </ul>
             </nav>
           </div>
-
-
-          <button class="btn btn-danger-delete delete_mobile">Xoá</button>
 
           <!-- Modal Thêm topping -->
           <div class="modal fade" id="addToppingModal" tabindex="-1" aria-hidden="true">
@@ -269,14 +266,16 @@ export default {
             category_name: category ? category.name : "Chưa phân Loại"
           }
         });
-        console.log("Lấy topping: ", toppings.value)
-
-
       } catch (error) {
         console.error("Không lấy được topping", error);
-        toast.error("Không thể tải topping.");
+        await Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: 'Không thể tải topping.',
+        });
       }
     }
+
 
     const fetchCategoryToppings = async () => {
       if (!token) return;
@@ -287,9 +286,14 @@ export default {
         category_toppings.value = res.data;
       } catch (error) {
         console.error("Lỗi khi tải danh mục:", error);
-        toast.error("Không thể tải danh mục.");
+        await Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: 'Không thể tải danh mục.',
+        });
       }
     };
+
 
     const addTopping = async () => {
       try {
@@ -298,7 +302,6 @@ export default {
             Authorization: `Bearer ${token}`,
           }
         })
-        // toast.success("Thêm topping thành công.");
 
         await Swal.fire({
           title: 'Thêm topping thành công',
@@ -311,9 +314,14 @@ export default {
         formTopping.value = { name: '', price: '', category_id: '' };
       } catch (error) {
         console.log(error);
-        toast.error("Thêm topping thất bại.");
+        await Swal.fire({
+          icon: 'error',
+          title: 'Thất bại',
+          text: 'Thêm topping thất bại.',
+        });
       }
     }
+
 
     const getToppingById = async (id) => {
       try {
@@ -329,9 +337,14 @@ export default {
         };
       } catch (error) {
         console.log(error);
-        toast.error("Chưa lấy được topping thất bại.");
+        await Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: 'Không thể lấy topping.',
+        });
       }
     }
+
 
     const updateTopping = async (id) => {
       try {
@@ -340,7 +353,7 @@ export default {
             Authorization: `Bearer ${token}`,
           }
         })
-        // toast.success("Cập nhật topping thành công.");
+
         await Swal.fire({
           title: 'Cập nhật topping thành công',
           icon: 'success',
@@ -351,9 +364,14 @@ export default {
         fetchTopping();
       } catch (error) {
         console.log(error);
-        toast.error("Cập nhật topping thất bại.");
+        await Swal.fire({
+          icon: 'error',
+          title: 'Thất bại',
+          text: 'Cập nhật topping thất bại.',
+        });
       }
     }
+
 
     const selectedCateId = ref(null);
     const filteredToppings = computed(() => {

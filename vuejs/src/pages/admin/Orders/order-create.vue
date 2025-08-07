@@ -296,6 +296,7 @@ import vSelect from 'vue-select'
 import { FoodList } from '@/stores/food'
 import { useRouter } from 'vue-router'
 import { Permission } from '@/stores/permission'
+import Swal from 'sweetalert2';
 
 
 export default {
@@ -393,7 +394,15 @@ export default {
         selectguest.value = guestDefaultOption
         handleGuestSelection()
       } catch (error) {
-        console.error('Lỗi khi lấy danh sách người dùng:', error)
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Lỗi khi lấy danh sách người dùng:', error,
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
       }
     }
 
@@ -405,15 +414,39 @@ export default {
       try {
 
         if (!guest_name.value) {
-          toast.info('Vui lòng nhập đầy đủ thông tin khách hàng!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng nhập đầy đủ thông tin khách hàng!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           return
         }
         if (cartItems.value.length === 0) {
-          toast.error('Giỏ hàng trống! Vui lòng thêm món ăn.')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Giỏ hàng trống! Vui lòng thêm món ăn.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           return
         }
         if (!paymentMethod.value) {
-          toast.info('Vui lòng chọn phương thức thanh toán.')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng chọn phương thức thanh toán.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           return;
         }
 
@@ -435,12 +468,29 @@ export default {
           })),
           type_order: 'takeaway',
         }
+
         const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/ordertakecaway', orderData)
         if (orderCreationResponse.data && orderCreationResponse.data.order_id) {
           current_order_id.value = orderCreationResponse.data.order_id
-          toast.success('Đơn hàng đã được tạo thành công!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Đơn hàng đã được tạo thành công!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
         } else {
-          toast.error('Lỗi: Không nhận được order_id từ server.')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Lỗi: Không nhận được order_id từ server.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           isLoading.value = false
           return
         }
@@ -455,7 +505,15 @@ export default {
             localStorage.removeItem(cartKey.value)
             window.location.href = paymentRes.data.payment_url
           } else {
-            toast.error('Không tạo được link thanh toán VNPAY.')
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: 'Không tạo được link thanh toán VNPAY.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
           }
           clearCart();
           guest_name.value = '';
@@ -464,7 +522,15 @@ export default {
           return
         }
         if (paymentMethod.value === 'MOMO') {
-          toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Chức năng thanh toán MoMo đang được phát triển!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           // TODO: Thêm logic gọi API MoMo khởi tạo tại đây
           // await axios.post('http://127.0.0.1:8000/api/payments/momo-init', {
           //   order_id: current_order_id.value,
@@ -489,16 +555,31 @@ export default {
 
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey.value)
-          toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Đặt hàng và thanh toán bằng tiền mặt thành công!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           clearCart();
           guest_name.value = '';
           note.value = '';
           router.push('/admin/tables/current-order');
         }
-
       } catch (error) {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Đặt hàng thất bại, vui lòng thử lại!' + error.response.data.message,
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
         console.error('Lỗi khi gửi đơn hàng:', error)
-        toast.error('Đặt hàng thất bại, vui lòng thử lại!' + error.response.data.message)
       } finally {
         isLoading.value = false
       }

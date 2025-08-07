@@ -539,7 +539,15 @@ export default {
           } else if (date.value && time.value) {
             rawDateTime = `${date.value}T${time.value}:00`
           } else {
-            toast.error('Vui lòng chọn ngày và giờ')
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Vui lòng chọn ngày và giờ và số lượng khách',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            })
             return
           }
 
@@ -562,7 +570,14 @@ export default {
 
         localStorage.removeItem('selectedDate')
       } catch (error) {
-        toast.error('Lỗi khi lấy danh sách bàn')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Lỗi khi lấy danh sách bàn',
+          showConfirmButton: false,
+          timer: 2000,
+        })
         console.error('Lỗi:', error)
       } finally {
         isLoading.value = false
@@ -629,8 +644,14 @@ export default {
       allSelectedToppings = [...allSelectedToppings, ...normalToppings]
 
       addToCart(foodDetail.value, quantity.value, allSelectedToppings)
-      toast.success('Thêm vào giỏ hàng thành công')
-
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Thêm vào giỏ hàng thành công.',
+        showConfirmButton: false,
+        timer: 2000,
+      })
     }
 
     // hàm thêm/bỏ chọn bàn
@@ -658,14 +679,13 @@ export default {
           toast: true,
           position: 'top-end',
           title: 'Vui lòng chọn các bàn có số liền kề nhau!',
-          icon: 'error',
+          icon: 'warning',
           showConfirmButton: false,
           timer: 1500,
           timerProgressBar: true,
         })
         return
       }
-
       selectedTableIds.value = tempSelected
     }
 
@@ -674,18 +694,57 @@ export default {
     // hàm đặt bàn
     const reservation = async () => {
       isLoading.value = true
-      if (selectedTableIds.value == null) {
-        await Swal.fire({
-          toast: false,
-          position: 'top-end',
-          title: 'Vui lòng chọn bàn!',
-          icon: 'error',
-          showConfirmButton: false,
-          timer: 1500,
-          timerProgressBar: true,
-        })
-      }
+
       try {
+        if (!selectedTableIds.value || selectedTableIds.value.length === 0) {
+          await Swal.fire({
+            toast: true,
+            position: 'top-end',
+            title: 'Vui lòng chọn bàn!',
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          })
+          return;
+        }
+        if (!guest_name.value || !guest_phone.value || !guest_email.value) {
+          await Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng nhập đầy đủ thông tin khách hàng!',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
+          return;
+        }
+
+        if (cartItems.value.length === 0) {
+          await Swal.fire({
+            toast: true,
+            position: 'top-end',
+            title: 'Giỏ hàng trống! Vui lòng thêm món ăn!',
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
+          return
+        }
+        if (!paymentMethod.value) {
+          await Swal.fire({
+            toast: true,
+            position: 'top-end',
+            title: 'Vui lòng chọn phương thức thanh toán!',
+            icon: 'info',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
+          return;
+        }
         const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/reservation', {
           user_id: selectguest.value.id === 'guest' ? null : selectguest.value.id,
           guest_name: guest_name.value,
@@ -774,13 +833,8 @@ export default {
               timer: 1500,
               timerProgressBar: true,
             })
-            // router.push('/admin/tables/current-order');
           }
           clearCart()
-          // guest_name.value = '';
-          // guest_phone.value = '';
-          // guest_email.value = '';
-          // note.value = '';
           router.push('/admin/tables/booking-schedule')
         } else {
           await Swal.fire({
@@ -838,102 +892,7 @@ export default {
       }
     }
 
-    // const handlePayment = async () => {
-    //   isLoading.value = true;
-    //   try {
-    //     if (!guest_name.value) {
-    //       await Swal.fire({
-    //         toast: true,
-    //         position: 'top-end',
-    //         title: 'Vui lòng nhập đầy đủ thông tin khách hàng!',
-    //         icon: 'info',
-    //         showConfirmButton: false,
-    //         timer: 1500,
-    //         timerProgressBar: true,
-    //       });
-    //       return
-    //     }
-    //     if (cartItems.value.length === 0) {
-    //       await Swal.fire({
-    //         toast: true,
-    //         position: 'top-end',
-    //         title: 'Giỏ hàng trống! Vui lòng thêm món ăn!',
-    //         icon: 'info',
-    //         showConfirmButton: false,
-    //         timer: 1500,
-    //         timerProgressBar: true,
-    //       });
-    //       return
-    //     }
-    //     if (!paymentMethod.value) {
-    //       await Swal.fire({
-    //         toast: true,
-    //         position: 'top-end',
-    //         title: 'Vui lòng chọn phương thức thanh toán!',
-    //         icon: 'info',
-    //         showConfirmButton: false,
-    //         timer: 1500,
-    //         timerProgressBar: true,
-    //       });
-    //       return;
-    //     }
-    //     if (!current_order_id.value) {
-    //       await Swal.fire({
-    //         toast: true,
-    //         position: 'top-end',
-    //         title: 'Không có đơn hàng nào để thanh toán. Vui lòng tạo đơn hàng trước!',
-    //         icon: 'info',
-    //         showConfirmButton: false,
-    //         timer: 1500,
-    //         timerProgressBar: true,
-    //       });
-    //       isLoading.value = false;
-    //       return;
-    //     }
-    //     if (paymentMethod.value === 'VNPAY') {
-    //       const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
-    //         order_id: current_order_id.value,
-    //         amount: totalPrice.value,
-    //         return_url: 'http://localhost:5173/admin/tables/current-order',
-    //       })
-    //       if (paymentRes.data.payment_url) {
-    //         localStorage.setItem('payment_method', paymentMethod.value)
-    //         // localStorage.removeItem(cartKey.value)
-    //         window.location.href = paymentRes.data.payment_url
-    //       } else {
-    //         toast.error('Không tạo được link thanh toán VNPAY.')
-    //       }
-    //       clearCart();
-    //       guest_name.value = '';
-    //       note.value = '';
-    //       router.push('/admin/tables/booking-schedule');
-    //       return
-    //     }
-    //     if (paymentMethod.value === 'MOMO') {
-    //       toast.info('Chức năng thanh toán MoMo đang được phát triển!');
-    //       // localStorage.setItem('payment_method', paymentMethod.value);
-    //       return;
-    //     }
-    //     if (paymentMethod.value === 'COD') {
-    //       await new Promise((resolve) => setTimeout(resolve, 300))
-    //       await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
-    //         order_id: current_order_id.value,
-    //         amount_paid: totalPrice.value,
-    //         payment_type: 'Thanh toán toàn bộ',
-    //       })
 
-    //       localStorage.setItem('payment_method', paymentMethod.value)
-    //       // localStorage.removeItem(cartKey.value)
-    //       toast.success('Thanh toán bàn bằng tiền mặt thành công!')
-    //       clearCart();
-    //       router.push('/admin/tables/booking-schedule');
-    //     }
-
-    //   } catch {
-    //     console.log(error);
-
-    //   }
-    // }
     watch(selectguest, handleGuestSelection)
     watch(selectfood, (newValue) => {
       if (newValue === null) {

@@ -233,6 +233,7 @@ import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { watch } from 'vue'
+import Swal from 'sweetalert2';
 
 useMenu().onSelectedKeys(['admin-roles'])
 
@@ -344,7 +345,15 @@ const toggleStatus = async (user) => {
     user.status = newStatus
   } catch (error) {
     console.log('Error:', error)
-    alert('Không thể cập nhật người dùng')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Không thể cập nhật người dùng',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
   }
 }
 
