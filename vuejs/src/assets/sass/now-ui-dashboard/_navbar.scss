@@ -1,241 +1,248 @@
 @use './variables' as vars;
 
-.navbar-admin{
-    padding-top: vars.$navbar-padding-base;
-    padding-bottom: vars.$navbar-padding-base;
-    min-height: 53px;
-    margin-bottom: 20px;
-    box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.15);
+.navbar-admin {
+  padding-top: vars.$navbar-padding-base;
+  padding-bottom: vars.$navbar-padding-base;
+  min-height: 53px;
+  margin-bottom: 20px;
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.15);
 
-    a{
-        vertical-align: middle;
+  a {
+    vertical-align: middle;
 
-        &:not(.btn):not(.dropdown-item){
-            color: vars.$white-color;
-        }
-
-        &.dropdown-item{
-            color: vars.$default-color;
-        }
+    &:not(.btn):not(.dropdown-item) {
+      color: vars.$white-color;
     }
 
-    p{
-        display: inline-block;
+    &.dropdown-item {
+      color: vars.$default-color;
+    }
+  }
+
+  p {
+    display: inline-block;
+    margin: 0;
+    line-height: 1.8em;
+    font-size: 1em;
+    font-weight: 400;
+  }
+
+  &.navbar-absolute {
+    position: absolute;
+    width: 100%;
+    padding-top: 10px;
+    z-index: 1029;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .documentation & {
+    &.fixed-top {
+      left: 0;
+      width: initial;
+    }
+  }
+
+  .navbar-wrapper {
+    display: inline-flex;
+    align-items: center;
+
+    .navbar-minimize {
+      padding-right: 10px;
+
+      .btn {
         margin: 0;
-        line-height: 1.8em;
-        font-size: 1em;
-        font-weight: 400;
+      }
     }
 
-    &.navbar-absolute{
-        position: absolute;
-        width: 100%;
-        padding-top: 10px;
-        z-index: 1029;
-        padding-left: 1rem;
-        padding-right: 1rem;
+    .navbar-toggle {
+      .navbar-toggler {
+        padding-left: 0 !important;
+      }
+
+      &:hover {
+        & .navbar-toggler-bar.bar2 {
+          width: 22px;
+        }
+      }
+
+      .navbar-toggler:focus {
+        box-shadow: none !important;
+        outline: none;
+      }
+    }
+  }
+
+
+
+  .navbar-nav {
+    &.navbar-logo {
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      width: 49px;
+      top: -4px;
     }
 
-    .documentation &{
-        &.fixed-top{
-            left: 0;
-            width: initial;
-        }
+    .nav-link-admin.btn {
+      padding: vars.$padding-btn-vertical vars.$padding-btn-horizontal;
+
+      &.btn-lg {
+        padding: vars.$padding-large-vertical vars.$padding-large-horizontal;
+      }
+
+      &.btn-sm {
+        padding: vars.$padding-small-vertical vars.$padding-small-horizontal;
+      }
     }
 
-    .navbar-wrapper{
-        display: inline-flex;
-        align-items: center;
+    .nav-link-admin {
+      text-transform: uppercase;
+      font-size: vars.$font-size-mini;
+      padding: vars.$padding-base-vertical vars.$padding-base-horizontal;
+      line-height: vars.$line-height-nav-link;
+      margin-right: 3px;
 
-        .navbar-minimize{
-            padding-right: 10px;
+      i.fa+p,
+      i.now-ui-icons+p {
+        margin-left: 3px;
+      }
 
-            .btn{
-                margin: 0;
-            }
+      i.fa,
+      i.now-ui-icons {
+        font-size: 18px;
+        position: relative;
+        top: 3px;
+        text-align: center;
+        width: 21px;
+      }
+
+      i.now-ui-icons {
+        top: 4px;
+        font-size: 16px;
+      }
+
+      &.profile-photo {
+        .profile-photo-small {
+          width: 27px;
+          height: 27px;
         }
+      }
 
-        .navbar-toggle{
-            .navbar-toggler{
-                padding-left: 0 !important;
-            }
-
-            &:hover{
-                & .navbar-toggler-bar.bar2{
-                    width: 22px;
-                }
-            }
-        }
-    }
-
-
-
-    .navbar-nav{
-        &.navbar-logo{
-            position: absolute;
-            left: 0;
-            right: 0;
-            margin: 0 auto;
-            width: 49px;
-            top: -4px;
-        }
-
-        .nav-link-admin.btn{
-            padding: vars.$padding-btn-vertical vars.$padding-btn-horizontal;
-            &.btn-lg{
-                padding: vars.$padding-large-vertical vars.$padding-large-horizontal;
-            }
-            &.btn-sm{
-                padding: vars.$padding-small-vertical vars.$padding-small-horizontal;
-            }
-        }
-
-        .nav-link-admin{
-            text-transform: uppercase;
-            font-size: vars.$font-size-mini;
-            padding: vars.$padding-base-vertical vars.$padding-base-horizontal;
-            line-height: vars.$line-height-nav-link;
-            margin-right: 3px;
-
-            i.fa + p,
-            i.now-ui-icons + p{
-                margin-left: 3px;
-            }
-
-            i.fa,
-            i.now-ui-icons{
-                font-size: 18px;
-                position: relative;
-                top: 3px;
-                text-align: center;
-                width: 21px;
-            }
-
-            i.now-ui-icons{
-                top: 4px;
-                font-size: 16px;
-            }
-
-            &.profile-photo{
-                .profile-photo-small{
-                    width: 27px;
-                    height: 27px;
-                }
-            }
-
-            &.disabled{
-                opacity: .5;
-                color: vars.$white-color;
-            }
-        }
-
-        .nav-item.active .nav-link-admin:not(.btn),
-        .nav-item .nav-link-admin:not(.btn):focus,
-        .nav-item .nav-link-admin:not(.btn):hover,
-        .nav-item .nav-link-admin:not(.btn):active{
-            background-color: vars.$opacity-2;
-            border-radius: vars.$border-radius-small;
-            color: vars.$white-color;
-        }
-    }
-
-    .logo-container{
-        width: 27px;
-        height: 27px;
-        overflow: hidden;
-        margin: 0 auto;
-        border-radius: 50%;
-        border: 1px solid transparent;
-    }
-
-    .navbar-brand{
-        text-transform: uppercase;
-        font-size: vars.$font-size-small;
-        padding-top: vars.$padding-base-vertical;
-        padding-bottom: vars.$padding-base-vertical;
-        line-height: vars.$line-height-nav-link;
-    }
-
-    .navbar-toggler{
-        width: 37px;
-        height: 27px;
-        vertical-align: middle;
-        outline: 0;
-        cursor: pointer;
-        border: 1px solid transparent;
-
-        & .navbar-toggler-bar.navbar-kebab{
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            margin: 0 auto;
-        }
-    }
-
-    .button-dropdown{
-        .navbar-toggler-bar:nth-child(2){
-            width: 17px;
-        }
-    }
-
-    &.navbar-transparent{
-        background-color: vars.$transparent-bg !important;
-        box-shadow: none;
+      &.disabled {
+        opacity: .5;
         color: vars.$white-color;
+      }
     }
 
-    &.bg-white:not(.navbar-transparent){
-        a:not(.dropdown-item):not(.btn){
-            color: vars.$default-color;
-
-            &.disabled{
-                opacity: .5;
-                color: vars.$default-color;
-            }
-        }
-
-        .button-bar{
-            background: vars.$default-color;
-        }
-
-        .nav-item.active .nav-link-admin:not(.btn),
-        .nav-item .nav-link-admin:not(.btn):focus,
-        .nav-item .nav-link-admin:not(.btn):hover,
-        .nav-item .nav-link-admin:not(.btn):active{
-            background-color: vars.$opacity-gray-8;
-            color: vars.$default-color;
-        }
-
-        .logo-container{
-            border: 1px solid vars.$default-color;
-        }
+    .nav-item.active .nav-link-admin:not(.btn),
+    .nav-item .nav-link-admin:not(.btn):focus,
+    .nav-item .nav-link-admin:not(.btn):hover,
+    .nav-item .nav-link-admin:not(.btn):active {
+      background-color: vars.$opacity-2;
+      border-radius: vars.$border-radius-small;
+      color: vars.$white-color;
     }
+  }
+
+  .logo-container {
+    width: 27px;
+    height: 27px;
+    overflow: hidden;
+    margin: 0 auto;
+    border-radius: 50%;
+    border: 1px solid transparent;
+  }
+
+  .navbar-brand {
+    text-transform: uppercase;
+    font-size: vars.$font-size-small;
+    padding-top: vars.$padding-base-vertical;
+    padding-bottom: vars.$padding-base-vertical;
+    line-height: vars.$line-height-nav-link;
+  }
+
+  .navbar-toggler {
+    width: 37px;
+    height: 27px;
+    vertical-align: middle;
+    outline: 0;
+    cursor: pointer;
+    border: 1px solid transparent;
+
+    & .navbar-toggler-bar.navbar-kebab {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      margin: 0 auto;
+    }
+  }
+
+  .button-dropdown {
+    .navbar-toggler-bar:nth-child(2) {
+      width: 17px;
+    }
+  }
+
+  &.navbar-transparent {
+    background-color: vars.$transparent-bg !important;
+    box-shadow: none;
+    color: vars.$white-color;
+  }
+
+  &.bg-white:not(.navbar-transparent) {
+    a:not(.dropdown-item):not(.btn) {
+      color: vars.$default-color;
+
+      &.disabled {
+        opacity: .5;
+        color: vars.$default-color;
+      }
+    }
+
+    .button-bar {
+      background: vars.$default-color;
+    }
+
+    .nav-item.active .nav-link-admin:not(.btn),
+    .nav-item .nav-link-admin:not(.btn):focus,
+    .nav-item .nav-link-admin:not(.btn):hover,
+    .nav-item .nav-link-admin:not(.btn):active {
+      background-color: vars.$opacity-gray-8;
+      color: vars.$default-color;
+    }
+
+    .logo-container {
+      border: 1px solid vars.$default-color;
+    }
+  }
 }
 
-.bg-default{
-    background-color: vars.$default-color !important;
+.bg-default {
+  background-color: vars.$default-color !important;
 }
 
-.bg-primary{
-    background-color: vars.$primary-color !important;
+.bg-primary {
+  background-color: vars.$primary-color !important;
 }
 
-.bg-info{
-    background-color: vars.$info-color !important;
+.bg-info {
+  background-color: vars.$info-color !important;
 }
 
-.bg-success{
-    background-color: vars.$success-color !important;
+.bg-success {
+  background-color: vars.$success-color !important;
 }
 
-.bg-danger{
-    background-color: vars.$danger-color !important;
+.bg-danger {
+  background-color: vars.$danger-color !important;
 }
 
-.bg-warning{
-    background-color: vars.$warning-color !important;
+.bg-warning {
+  background-color: vars.$warning-color !important;
 }
 
-.bg-white{
-    background-color: vars.$white-color !important;
+.bg-white {
+  background-color: vars.$white-color !important;
 }

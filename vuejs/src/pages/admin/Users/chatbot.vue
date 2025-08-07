@@ -109,6 +109,7 @@ import Pusher from 'pusher-js'
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { nextTick } from 'vue'
+import Swal from 'sweetalert2'
 
 export default {
   setup() {
@@ -176,7 +177,12 @@ export default {
         if (index !== -1) {
           messages.value.splice(index, 1)
         }
-        alert('Không thể gửi tin nhắn. Vui lòng thử lại.')
+        Swal.fire({
+          icon: 'error',
+          title: 'Không thể gửi tin nhắn. Vui lòng thử lại.',
+          showConfirmButton: false,
+          timer: 2000,
+        })
       }
     }
 
