@@ -20,44 +20,44 @@
           <a-button type="text" shape="circle" :icon="h(SearchOutlined)" />
         </a-tooltip>
       </a-space>
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a-dropdown :trigger="['click']">
-              <a class="ant-dropdown-link no-underline" @click.prevent style="display:flex; align-items:center;">
-                <a-avatar style=" margin-right: 8px;">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a-dropdown :trigger="['click']">
+            <a class="ant-dropdown-link no-underline" @click.prevent style="display:flex; align-items:center;">
+              <a-avatar style=" margin-right: 8px;">
+                <template #icon>
+                  <UserOutlined />
+                </template>
+              </a-avatar>
+              <span style="color: var(--text-color-white);">Admin</span>
+              <DownOutlined style="margin-left: 8px; color: var(--text-color-dark);" class="nav-item" />
+            </a>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item key="profile">
                   <template #icon>
-                    <UserOutlined />
+                    <IdcardOutlined />
                   </template>
-                </a-avatar>
-                <span style="color: var(--text-color-white);">Admin</span>
-                <DownOutlined style="margin-left: 8px; color: var(--text-color-dark);" class="nav-item" />
-              </a>
-              <template #overlay>
-                <a-menu>
-                  <a-menu-item key="profile">
-                    <template #icon>
-                      <IdcardOutlined />
-                    </template>
-                    Hồ sơ
-                  </a-menu-item>
-                  <a-menu-item key="settings">
-                    <template #icon>
-                      <SettingOutlined />
-                    </template>
-                    Cài đặt tài khoản
-                  </a-menu-item>
-                  <a-menu-divider />
-                  <a-menu-item @click="handleLogout" key="logout" style="color: red;">
-                    <template #icon>
-                      <LogoutOutlined />
-                    </template>
-                    Đăng xuất
-                  </a-menu-item>
-                </a-menu>
-              </template>
-            </a-dropdown>
-          </li>
-        </ul>
+                  Hồ sơ
+                </a-menu-item>
+                <a-menu-item key="settings">
+                  <template #icon>
+                    <SettingOutlined />
+                  </template>
+                  Cài đặt tài khoản
+                </a-menu-item>
+                <a-menu-divider />
+                <a-menu-item @click="handleLogout" key="logout" style="color: red;">
+                  <template #icon>
+                    <LogoutOutlined />
+                  </template>
+                  Đăng xuất
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+        </li>
+      </ul>
     </template>
   </Navbar>
 </template>
@@ -117,6 +117,15 @@ const handleLogout = async () => {
   if (confirmResult.isConfirmed) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    await Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Đăng xuất thành công',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+    });
     window.location.href = '/login';
   }
 };

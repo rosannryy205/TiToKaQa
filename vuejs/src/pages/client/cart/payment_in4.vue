@@ -267,6 +267,7 @@ import { Discounts } from '@/stores/discount'
 import { Cart } from '@/stores/cart'
 import { User } from '@/stores/user'
 import { useShippingStore } from '@/stores/shippingStore'
+import { useUserStore } from "@/stores/userAuth";
 import Swal from 'sweetalert2';
 import { storeToRefs } from 'pinia'
 
@@ -296,7 +297,7 @@ export default {
     const activeTab = ref('Tất cả mã')
     const showAllVoucher = ref(false)
     const today = dayjs().format('YYYY-MM-DD')
-
+    const auth = useUserStore();
     //==============
     // STORE
     //==============
@@ -368,7 +369,7 @@ export default {
               icon: 'error',
               title: 'Thông tin đơn hàng hoặc số tiền không hợp lệ để thanh toán VNPAY.',
               showConfirmButton: false,
-              timer: 2000,
+              timer: 1500,
               timerProgressBar: true
             });
             return
@@ -391,7 +392,7 @@ export default {
               icon: 'error',
               title: 'Không tạo được link thanh toán VNPAY.',
               showConfirmButton: false,
-              timer: 2000,
+              timer: 1500,
               timerProgressBar: true
             });
           }
@@ -405,7 +406,7 @@ export default {
             icon: 'info',
             title: 'Chức năng thanh toán MoMo đang được phát triển!',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
           // localStorage.setItem('order_id', orderId)
@@ -422,7 +423,7 @@ export default {
               icon: 'info',
               title: 'Tài khoản của bạn đã bị hạn chế. Không thể thanh toán bằng tiền mặt.',
               showConfirmButton: false,
-              timer: 2000,
+              timer: 1500,
               timerProgressBar: true
             });
             return
@@ -451,7 +452,7 @@ export default {
           icon: 'error',
           title: 'Thanh toán thất bại: ' + error.response.data.message,
           showConfirmButton: false,
-          timer: 2000,
+          timer: 1500,
           timerProgressBar: true
         });
       }
@@ -467,7 +468,7 @@ export default {
             icon: 'info',
             title: 'Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện và Phường/Xã.',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
           isLoading.value = false
@@ -480,11 +481,29 @@ export default {
             icon: 'info',
             title: 'Vui lòng chọn phương thức thanh toán trước khi đặt hàng!',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
           isLoading.value = false
           return
+        }
+        if (!auth.isLoggedIn) {
+          const result = await Swal.fire({
+            icon: 'warning',
+            title: 'Bạn chưa có tài khoản!',
+            text: 'Bạn sẽ không thể hủy được đơn hàng vì bạn chưa có tài khoản.',
+            showConfirmButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Tôi hiểu',
+            cancelButtonText: 'Hủy',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+          });
+
+          if (!result.isConfirmed) {
+            isLoading.value = false
+            return;
+          }
         }
         const province = provinces.value.find((p) => p.ProvinceID === selectedProvince.value)
         const district = districts.value.find((d) => d.DistrictID === selectedDistrict.value)
@@ -499,7 +518,7 @@ export default {
             icon: 'info',
             title: 'Vui lòng nhập địa chỉ và thêm món ăn vào giỏ hàng.',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
           isLoading.value = false
@@ -543,7 +562,7 @@ export default {
             icon: 'success',
             title: 'Đơn hàng đã được tạo thành công!',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
           if (orderData.discount_id) {
@@ -560,24 +579,40 @@ export default {
             icon: 'error',
             title: 'Không nhận được ID đơn hàng từ server.',
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1500,
             timerProgressBar: true
           });
         }
       } catch (err) {
         console.error(err)
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'error',
-          title: err?.response?.data?.message || 'Đặt hàng thất bại.',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true
-        });
-      } finally {
         isLoading.value = false
+
+        if (err.response?.status === 422 && err.response?.data?.errors) {
+          const errors = err.response.data.errors
+
+          const formattedErrors = Object.values(errors)
+            .map(messages => messages.join('<br>'))
+            .join('<hr>')
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Vui lòng kiểm tra lại thông tin!',
+            html: formattedErrors,
+            confirmButtonText: 'Đã hiểu'
+          })
+        } else {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: err?.response?.data?.message || 'Đặt hàng thất bại.',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true
+          });
+        }
       }
+
     }
 
     //==============
