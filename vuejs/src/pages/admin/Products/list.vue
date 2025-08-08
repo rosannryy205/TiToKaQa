@@ -93,7 +93,7 @@
   <button class="btn btn-danger-delete delete_desktop">Xoá</button> -->
 
 
-          <div class="table-responsive ">
+          <div class="table-responsive " v-if="foods.length > 0">
             <table class="table table-bordered">
               <thead class="table-light">
                 <tr>
@@ -101,6 +101,7 @@
                   <th>Món ăn</th>
                   <th>Danh mục</th>
                   <th>Giá thành</th>
+                  <th>Giá giảm</th>
                   <th>Số lượng</th>
                   <th>Tuỳ chọn</th>
                 </tr>
@@ -114,7 +115,9 @@
                     {{ food.name }}
                   </td>
                   <td>{{ food.category?.name || 'Không có danh mục' }}</td>
-                  <td>{{ food.price.toLocaleString('vi-VN') }} VNĐ</td>
+                  <td>{{ formatNumber(food.price) }} VNĐ</td>
+                  <td v-if="food.sale_price > 0">{{ formatNumber(food.sale_price) }} VNĐ</td>
+                  <td v-else>Không có</td>
                   <td>{{ food.stock }}</td>
                   <td class="d-flex justify-content-center gap-2 flex-wrap">
                     <router-link :to="{ name: 'update-food', params: { id: food.id } }"
@@ -123,8 +126,7 @@
                         Sửa
                       </button>
                     </router-link>
-                    <button class="btn btn-clean btn-delete btn-sm" @click="deleteFood(food.id)"
-                      v-if="hasPermission('delete_food')">Xoá</button>
+
 
                     <button @click="toggleStatus(food)" class="btn btn-toggle-status"
                       :class="food.status === 'active' ? 'btn-outline-secondary' : 'btn-outline-success'"
@@ -140,6 +142,13 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="no-food-found text-center py-5" v-else>
+            <p class="h4 text-muted">
+              <i class="fas fa-exclamation-circle me-2"></i> Không tìm thấy món ăn nào.
+            </p>
+            <p class="text-muted">Xin lỗi, hiện tại không có món ăn nào để hiển thị.</p>
           </div>
 
 
@@ -214,7 +223,7 @@
                   <div class="card-body">
                     <h5 class="card-title">{{ food.name }}</h5>
                     <p class="card-text"><strong>Danh mục:</strong> {{ food.category_name }}</p>
-                    <p class="card-text"><strong>Giá:</strong> {{ food.price.toLocaleString() }} VNĐ</p>
+                    <p class="card-text"><strong>Giá:</strong> {{ formatNumber(food.price) }} VNĐ</p>
                     <p class="card-text"><strong>Số lượng:</strong> {{ food.quantity }}</p>
                     <router-link :to="{ name: 'update-food', params: { id: food.id } }"
                       v-if="hasPermission('edit_food')">
@@ -272,17 +281,19 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import * as bootstrap from 'bootstrap'
-import { Permission } from '@/stores/permission'
-const userId = ref(null)
-const userString = localStorage.getItem('user')
+import * as bootstrap from 'bootstrap';
+import { Permission } from '@/stores/permission';
+
+const userId = ref(null);
+const userString = localStorage.getItem('user');
 if (userString) {
-  const user = JSON.parse(userString)
+  const user = JSON.parse(userString);
   if (user && user.id !== undefined) {
-    userId.value = user.id
+    userId.value = user.id;
   }
 }
-const { hasPermission, permissions } = Permission(userId)
+const { hasPermission, permissions } = Permission(userId);
+
 const foods = ref([]);
 const currentPage = ref(1);
 const lastPage = ref(1);
@@ -290,7 +301,6 @@ const limit = ref(10);
 const selectedCategory = ref('');
 const selectedFoods = ref([]);
 const searchText = ref('');
-
 
 const newFood = ref({
   name: '',
@@ -302,15 +312,11 @@ const newFood = ref({
   image: null
 });
 
-
 const formatNumber = (number) => {
   return new Intl.NumberFormat('vi-VN').format(number);
 };
 
-
-
-
-const categories = ref([])
+const categories = ref([]);
 
 const fetchCategories = async () => {
   try {
@@ -318,18 +324,16 @@ const fetchCategories = async () => {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
-    })
-    categories.value = response.data
+    });
+    categories.value = response.data;
   } catch (error) {
-    console.error('Lỗi khi load danh mục:', error)
+    console.error('Lỗi khi load danh mục:', error);
   }
-}
-
-
+};
 
 const handleImageChange = (e) => {
-  newFood.value.image = e.target.files[0]
-}
+  newFood.value.image = e.target.files[0];
+};
 
 const fetchFoods = async () => {
   try {
@@ -353,36 +357,25 @@ const fetchFoods = async () => {
   }
 };
 
-
-
-
-
-
 onMounted(() => {
-  fetchFoods()
-  fetchCategories()
-})
+  fetchFoods();
+  fetchCategories();
+});
 
-watch(currentPage, () => {
-  fetchFoods()
-})
-
+watch(currentPage, fetchFoods);
 watch(searchText, () => {
-  currentPage.value = 1
-  fetchFoods()
-})
-
+  currentPage.value = 1;
+  fetchFoods();
+});
 watch([limit, selectedCategory], () => {
-  currentPage.value = 1
-  fetchFoods()
-})
-
-
+  currentPage.value = 1;
+  fetchFoods();
+});
 
 const deleteFood = async (id) => {
   const confirmResult = await Swal.fire({
     title: 'Bạn có chắc muốn xoá?',
-    text: "Hành động này không thể hoàn tác!",
+    text: 'Hành động này không thể hoàn tác!',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#d33',
@@ -425,85 +418,20 @@ const deleteFood = async (id) => {
   }
 };
 
-
-
-
-
-
 const isAllSelected = computed(() => {
   return foods.value.length > 0 && selectedFoods.value.length === foods.value.length;
 });
 
 const toggleSelectAll = () => {
-  if (isAllSelected.value) {
-    selectedFoods.value = [];
-  } else {
-    selectedFoods.value = foods.value.map(food => food.id);
-  }
+  selectedFoods.value = isAllSelected.value ? [] : foods.value.map(food => food.id);
 };
-
-// const deleteSelectedFoods = async () => {
-//   const confirmResult = await Swal.fire({
-//     title: 'Xác nhận xoá?',
-//     text: `Bạn có chắc muốn xoá ${selectedFoods.value.length} món đã chọn?`,
-//     icon: 'warning',
-//     showCancelButton: true,
-//     confirmButtonColor: '#d33',
-//     cancelButtonColor: '#3085d6',
-//     confirmButtonText: 'Xoá',
-//     cancelButtonText: 'Huỷ'
-//   });
-
-//   if (confirmResult.isConfirmed) {
-//     try {
-//       await axios.post('http://127.0.0.1:8000/api/admin/foods/delete-multiple', {
-//         ids: selectedFoods.value
-//       }, {
-//         headers: {
-//           Authorization: `Bearer ${localStorage.getItem('token')}`
-//         }
-//       });
-
-//       Swal.fire({
-//         toast: true,
-//         position: 'top-end',
-//         icon: 'success',
-//         title: 'Đã xoá thành công',
-//         showConfirmButton: false,
-//         timer: 2000,
-//         timerProgressBar: true
-//       });
-
-//       selectedFoods.value = [];
-//       fetchFoods();
-
-//     } catch (error) {
-//       Swal.fire({
-//         toast: true,
-//         position: 'top-end',
-//         icon: 'error',
-//         title: error.response?.data?.message || 'Xoá thất bại',
-//         showConfirmButton: false,
-//         timer: 2500,
-//         timerProgressBar: true
-//       });
-//     }
-//   }
-
-
-
-// };
 
 const toggleStatus = async (food) => {
   const newStatus = food.status === 'active' ? 'inactive' : 'active';
 
-  console.log('food:', food); // Kiểm tra toàn bộ object
-  console.log('Gửi ID:', food.id);
-  console.log('Trạng thái mới:', newStatus);
-
   try {
     await axios.put(`http://127.0.0.1:8000/api/admin/food/${food.id}/status`, {
-      status: newStatus,
+      status: newStatus
     }, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -521,9 +449,8 @@ const toggleStatus = async (food) => {
       timer: 2000,
       timerProgressBar: true
     });
-
   } catch (err) {
-    console.error('Lỗi khi gọi API:', err); // In rõ lỗi hơn
+    console.error('Lỗi khi gọi API:', err);
     Swal.fire({
       toast: true,
       position: 'top-end',
@@ -534,12 +461,11 @@ const toggleStatus = async (food) => {
       timerProgressBar: true
     });
   }
-}
+};
 
-// topping
-const selectedFood = ref(null); // Món ăn đang chọn
-const toppings = ref([]);       // Toàn bộ topping
-const selectedToppingIds = ref([]); // ID các topping đã được chọn
+const selectedFood = ref(null);
+const toppings = ref([]);
+const selectedToppingIds = ref([]);
 const loadingToppingModal = ref(false);
 
 const openToppingModal = async (food) => {
@@ -556,38 +482,28 @@ const openToppingModal = async (food) => {
   modal.show();
 };
 
-
-
-// Lấy toàn bộ topping
 const fetchAllToppings = async () => {
   try {
     const res = await axios.get('http://127.0.0.1:8000/api/admin/topping-food', {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
     toppings.value = res.data.data;
-    console.log('topping:', toppings)
   } catch (err) {
     console.error('Lỗi khi lấy topping:', err);
   }
 };
 
-// Lấy topping đã được chọn của món
 const fetchSelectedToppings = async (foodId) => {
   try {
     const res = await axios.get(`http://127.0.0.1:8000/api/admin/food/topping/${foodId}`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
-
-    // cập nhật danh sách tất cả topping
-    toppings.value = res.data.data
-
-    // cập nhật danh sách topping đã chọn
+    toppings.value = res.data.data;
     selectedToppingIds.value = res.data.selected_ids;
-
   } catch (err) {
     console.error('Lỗi khi lấy topping của món:', err);
   }
@@ -599,29 +515,26 @@ const saveToppings = async () => {
       topping_ids: selectedToppingIds.value
     }, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
 
     Swal.fire({
-      icon: 'success',
-      title: 'Đã lưu topping',
       toast: true,
       position: 'top-end',
+      icon: 'success',
+      title: 'Đã lưu topping',
+      showConfirmButton: false,
       timer: 2000,
-      showConfirmButton: false
+      timerProgressBar: true
     });
-
   } catch (err) {
     console.error('Lỗi khi lưu topping:', err);
 
-    // Lấy thông điệp lỗi chi tiết
     const errorMessage = err.response?.data?.message || 'Lỗi không xác định';
     const validationErrors = err.response?.data?.errors;
 
     let detailMessage = errorMessage;
-
-    // Nếu có lỗi validate, gộp lại
     if (validationErrors) {
       detailMessage += '\n' + Object.values(validationErrors).flat().join('\n');
     }
@@ -635,10 +548,8 @@ const saveToppings = async () => {
     });
   }
 };
-
-
-
 </script>
+
 
 
 <script>

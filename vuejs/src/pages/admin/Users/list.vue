@@ -79,11 +79,11 @@
                 </tr>
               </tbody>
             </table>
-            <div class="d-flex justify-content-end mt-3 me-2">
-              <ul class="pagination pagination-sm">
+            <div class="d-flex justify-content-between align-items-center">
+              <ul class="pagination">
                 <li class="page-item" :class="{ disabled: pagination.currentPage === 1 }">
                   <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage - 1)">
-                    <i class="bi bi-chevron-left"></i>
+                    <!-- <i class="bi bi-chevron-left"></i> -->«
                   </a>
                 </li>
 
@@ -94,7 +94,7 @@
 
                 <li class="page-item" :class="{ disabled: pagination.currentPage === totalPages }">
                   <a class="page-link" href="#" @click.prevent="changePage(pagination.currentPage + 1)">
-                    <i class="bi bi-chevron-right"></i>
+                    <!-- <i class="bi bi-chevron-right"></i> -->»
                   </a>
                 </li>
               </ul>
@@ -233,6 +233,7 @@ import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { watch } from 'vue'
+import Swal from 'sweetalert2';
 
 useMenu().onSelectedKeys(['admin-roles'])
 
@@ -344,7 +345,15 @@ const toggleStatus = async (user) => {
     user.status = newStatus
   } catch (error) {
     console.log('Error:', error)
-    alert('Không thể cập nhật người dùng')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Không thể cập nhật người dùng',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    });
   }
 }
 
@@ -442,7 +451,7 @@ watch(route, async (newRoute, oldRoute) => {
   }
 }
 
-.pagination .page-link {
+/* .pagination .page-link {
   color: #C92C3C;
   border: 1px solid #dee2e6;
 }
@@ -451,16 +460,16 @@ watch(route, async (newRoute, oldRoute) => {
   background-color: #C92C3C;
   color: white;
   border-color: #C92C3C;
-}
+} */
 
-.pagination .page-link:hover {
+/* .pagination .page-link:hover {
   background-color: #f8d7da;
   color: #C92C3C;
-}
+} */
 
-.pagination {
+/* .pagination {
   margin-bottom: 0;
-}
+} */
 
 .search-btn {
   background: linear-gradient(135deg, #007bff, #0056b3);

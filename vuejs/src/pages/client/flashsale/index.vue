@@ -25,7 +25,7 @@
           <div class="product-image-wrapper">
             <img :src="getImageUrl(food.image)" :alt="food.name" />
             <button class="cart-icon-btn" @click="addToCartFlashSale(food)">
-              <i class="fas fa-shopping-cart"></i>
+              <i class="bi bi-cart"></i>
             </button>
           </div>
           <div class="product-info">
@@ -149,7 +149,7 @@ const addToCartFlashSale = (food) => {
     is_flash_sale: isFlashSale,
     flash_sale_end: isFlashSale ? food.flash_sale_end : null,
   }
-  
+
   const existingItemIndex = cart.findIndex(
     (item) => item.id === cartItem.id && item.is_flash_sale === cartItem.is_flash_sale
   )
@@ -501,7 +501,7 @@ del {
 /**disable card */
 .product-card.sold-out {
   opacity: 0.6;
-  pointer-events: none; 
+  pointer-events: none;
   position: relative;
 }
 
