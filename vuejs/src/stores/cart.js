@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { ref, onMounted, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2'
+
 export function Cart() {
   const cartItems = ref([])
   const user = JSON.parse(localStorage.getItem('user')) || {}
@@ -28,19 +29,19 @@ export function Cart() {
   const cartKey = computed(() => {
     let key = ''
     if (isAdmin.value) {
-            key = orderId.value
-                ? `cart_admin_reservation_${orderId.value}`
-                : `cart_admin_reservation`
-        } else {
-            key = orderId.value
-                ? `cart_${userId}_reservation_${orderId.value}`
-                : `cart_${userId}`
-        }
+      key = orderId.value
+        ? `cart_admin_reservation_${orderId.value}`
+        : `cart_admin_reservation`
+    } else {
+      key = orderId.value
+        ? `cart_${userId}_reservation_${orderId.value}`
+        : `cart_${userId}`
+    }
 
-        if (isChatbotActive.value) {
-            return `${key}_chatbot`
-        }
-        return key
+    if (isChatbotActive.value) {
+      return `${key}_chatbot`
+    }
+    return key
 
   })
 
@@ -59,8 +60,8 @@ export function Cart() {
       const toppingPrice =
         item.type === 'food'
           ? item.toppings.reduce((tsum, topping) => {
-              return tsum + Number(topping.price) * item.quantity
-            }, 0)
+            return tsum + Number(topping.price) * item.quantity
+          }, 0)
           : 0
       return sum + basePrice + toppingPrice
     }, 0)
@@ -81,13 +82,13 @@ export function Cart() {
       is_deal: isDeal
 
     }
-      const existingItemIndex = cartItems.value.findIndex(
-        (item) =>
-          item.id === newCartItem.id &&
+    const existingItemIndex = cartItems.value.findIndex(
+      (item) =>
+        item.id === newCartItem.id &&
         JSON.stringify(item.toppings.sort((a, b) => a.id - b.id)) ===
         JSON.stringify(newCartItem.toppings.sort((a, b) => a.id - b.id)) &&
-      item.is_deal === newCartItem.is_deal
-      )
+        item.is_deal === newCartItem.is_deal
+    )
 
     if (existingItemIndex !== -1) {
       cartItems.value[existingItemIndex].quantity += newCartItem.quantity
@@ -119,12 +120,30 @@ export function Cart() {
   }
 
   const removeItem = (index) => {
-    const confirmed = window.confirm('Bạn có chắc chắn xóa món này khỏi giỏ hàng ?')
-    if (confirmed) {
-      cartItems.value.splice(index, 1)
-      saveCart()
-    }
+    Swal.fire({
+      title: 'Bạn có chắc chắn?',
+      text: 'Xoá món này khỏi giỏ hàng?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Xoá',
+      cancelButtonText: 'Huỷ'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        cartItems.value.splice(index, 1)
+        saveCart()
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Đã xoá món khỏi giỏ hàng',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true
+        })
+      }
+    })
   }
+
   const totalQuantity = computed(() => {
     return cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
   })
@@ -134,8 +153,8 @@ export function Cart() {
     const toppingPrice =
       item.type === 'food'
         ? item.toppings.reduce((sum, topping) => {
-            return sum + Number(topping.price) * item.quantity
-          }, 0)
+          return sum + Number(topping.price) * item.quantity
+        }, 0)
         : 0
     return itemPrice + toppingPrice
   }

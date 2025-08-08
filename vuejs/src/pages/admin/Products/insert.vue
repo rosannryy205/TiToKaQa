@@ -52,7 +52,7 @@
                   </div>
 
                   <div class="mb-3">
-                    <label for="description" class="form-label">Mô tả</label>
+                    <label for="description" class="form-label">Mô tả <span class="text-danger">*</span></label>
                     <textarea class="form-control rounded-0" id="description" rows="6"
                       v-model="newFood.description"></textarea>
                   </div>
@@ -170,6 +170,8 @@ const handleImageChange = (e) => {
 
 // Gửi dữ liệu lên server
 // Gửi dữ liệu lên server
+// ... phần trên giữ nguyên ...
+
 const addFood = async () => {
   try {
     if (newFood.value.stock < 0) {
@@ -184,6 +186,7 @@ const addFood = async () => {
       })
       return
     }
+
     const formData = new FormData()
     formData.append('name', newFood.value.name)
     formData.append('price', newFood.value.price)
@@ -227,12 +230,8 @@ const addFood = async () => {
     previewImage.value = null
 
   } catch (error) {
-    console.error('Lỗi khi gửi request:', error)
-
+    errorAdd.value = {}
     if (error.response) {
-      console.error('Status:', error.response.status)
-      console.error('Data:', error.response.data)
-
       if (error.response.status === 422) {
         const allErrors = error.response.data.errors
         const priorityOrder = [
@@ -246,11 +245,9 @@ const addFood = async () => {
           'status'
         ]
 
-        errorAdd.value = {}
         for (const field of priorityOrder) {
           if (allErrors[field]) {
             errorAdd.value[field] = allErrors[field][0]
-
             Swal.fire({
               toast: true,
               position: 'top-end',
@@ -260,7 +257,6 @@ const addFood = async () => {
               timer: 3000,
               timerProgressBar: true
             })
-
             break
           }
         }
@@ -288,6 +284,7 @@ const addFood = async () => {
     }
   }
 }
+
 
 
 

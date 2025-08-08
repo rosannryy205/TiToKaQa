@@ -197,37 +197,18 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img
-                  :src="getImageUrl(foodDetail.image)"
-                  :alt="foodDetail.name"
-                  class="modal-image img-fluid"
-                />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
-              <p
-                v-if="foodDetail.flash_sale_price && isInFlashSaleTime(foodDetail)"
-                class="text-center"
-              >
-                <span class="text-danger fw-bold fs-5"
-                  >{{ formatNumber(foodDetail.flash_sale_price) }} VNĐ</span
-                >
-                <del class="text-muted ms-2">{{ formatNumber(foodDetail.price) }} VNĐ</del>
-                <span class="badge bg-danger ms-2">
-                  -{{ calculateDiscount(foodDetail.price, foodDetail.flash_sale_price) }}%
-                </span>
-              </p>
-              <p v-else class="text-danger fw-bold fs-5 text-center">
+              <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
               </p>
-
               <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
             </div>
             <div class="col-md-6 d-flex flex-column">
               <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
                 <div class="flex-grow-1">
-                  <div
-                    class="topping-container mb-3"
-                    v-if="toppingList.length || spicyLevel.length"
-                  >
+                  <div class="topping-container mb-3" v-if="toppingList.length
+                    || spicyLevel.length">
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" id="spicyLevel">
@@ -236,14 +217,9 @@
                         </option>
                       </select>
                     </div>
-                    <label v-if="toppingList.length" class="form-label fw-bold"
-                      >🧀 Chọn Topping:</label
-                    >
-                    <div
-                      v-for="topping in toppingList"
-                      :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2"
-                    >
+                    <label v-if="toppingList.length" class="form-label fw-bold">🧀 Chọn Topping:</label>
+                    <div v-for="topping in toppingList" :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2">
                       <label class="d-flex align-items-center">
                         <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                         {{ topping.name }}
@@ -307,12 +283,11 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { useRoute } from 'vue-router'
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 import { computed } from 'vue'
 
 export default {
   name: 'HomePage',
-
   methods: {
     isAvailableInFlashSale(item) {
       return (
@@ -332,7 +307,7 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `/img/food/${image}`
+      return `http://127.0.0.1:8000/storage/img/food/${image}`
     },
     getImageMenuUrl(image) {
       return `/img/food/imgmenu/${image}`
@@ -622,7 +597,7 @@ export default {
       isLoading.value = true
 
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/home/foods')
+        const res = await axios.get('http://127.0.0.1:8000/api/home/api/foods')
         foods.value = res.data
         await new Promise((resolve) => setTimeout(resolve, 5000))
       } catch (e) {
@@ -667,7 +642,7 @@ export default {
 <style scoped>
 .fixed-element {
   position: fixed;
-  top: 100px;
+  top: 157px;
   left: 50%;
   transform: translateX(-50%);
   width: 84%;
