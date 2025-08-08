@@ -272,3 +272,5 @@ Route::post('/admin/combos/create', [ComboController::class, 'createCombosByAdmi
 Route::post('/admin/combos/update/{id}', [ComboController::class, 'updateCombosForAdmin']);
 Route::put('/admin/combos/{id}/toggle-status', [ComboController::class, 'toggleStatusComboForAdmin']);
 
+/** crud discounts mqua*/
+Route::get('/admin-categories', [CategoryController::class, 'getAllCategoriesForAdmin']);
