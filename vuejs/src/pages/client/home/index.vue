@@ -98,8 +98,9 @@
 
             <div class="col-lg-9 align-items-center text-center">
               <div class="title-food-menu text-center d-flex">
-                <span class="title-food-menu fw-bold">{{ selectedCategoryName || 'Món Ăn' }}</span>
-              </div>
+  <span class="title-food-menu fw-bold">{{ selectedCategoryName || 'Món Ăn' }}</span>
+</div>
+
               <section v-if="isLoading">
                 <div v-for="n in 4" :key="n" class="foods-homepages">
                   <!-- Giống item.id % 2 !== 0 -->
