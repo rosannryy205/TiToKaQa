@@ -168,7 +168,7 @@
       </section>
     </div>
   </section>
- 
+
   <section class="populars-infors-pots">
     <!---->
     <section class="popular-searches container py-4">
@@ -298,7 +298,7 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `/img/food/${image}`
+      return `http://127.0.0.1:8000/storage/img/food/${image}`
     },
   },
   setup() {

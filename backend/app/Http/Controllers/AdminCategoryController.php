@@ -26,7 +26,7 @@ class AdminCategoryController extends Controller
     }
     public function index(Request $request)
     {
-        $query = Category::with('parent'); // 👈 Load luôn quan hệ cha
+        $query = Category::with('parent');
 
         if ($request->search) {
             $query->where('name', 'like', '%' . $request->search . '%');

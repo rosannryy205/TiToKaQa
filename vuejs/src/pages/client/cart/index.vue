@@ -275,7 +275,7 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `/img/food/${image}`
+      return `http://127.0.0.1:8000/storage/img/food/${image}`
     },
   },
 
@@ -361,7 +361,7 @@ export default {
     const increaseQuantity = async (index) => {
   const item = cartItems.value[index]
   const currentQuantity = item.quantity
-  
+
   const isFlashSale = item.flash_sale_end && new Date(item.flash_sale_end) > new Date()
   const flashQuantity = item.flash_sale_quantity || 0
 
