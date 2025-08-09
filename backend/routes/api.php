@@ -200,8 +200,8 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 Route::get('/admin/manage/foods', [AdminFoodController::class, 'index']);
 Route::post('/admin/foods', [AdminFoodController::class, 'store']);
 Route::get('/admin/foods/search', [FoodController::class, 'search']);
-Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
-Route::post('/admin/foods/delete-multiple', [AdminFoodController::class, 'deleteMultiple']);
+// Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
+// Route::post('/admin/foods/delete-multiple', [AdminFoodController::class, 'deleteMultiple']);
 Route::put('/admin/food/{id}/status', [AdminFoodController::class, 'updateStatus']);
 Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
 Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
@@ -224,8 +224,9 @@ Route::get('/admin/categories/list', [AdminCategoryController::class, 'index']);
 Route::get('/admin/categories/{id}', [AdminCategoryController::class, 'show']);
 Route::post('/admin/categories', [AdminCategoryController::class, 'store']);
 Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update']);
-Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
-Route::post('/admin/categories/delete-multiple', [AdminCategoryController::class, 'deleteMultiple']);
+// Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
+// Route::post('/admin/categories/delete-multiple',
+// [AdminCategoryController::class, 'deleteMultiple']);
 
 
 
