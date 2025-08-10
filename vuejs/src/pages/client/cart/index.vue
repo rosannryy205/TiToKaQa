@@ -373,7 +373,7 @@ export default {
     const result = await Swal.fire({
       title: '⚠️ Flash Sale giới hạn!',
       html: `Sản phẩm này chỉ áp dụng giá khuyến mãi cho 1 sản phẩm đầu tiên.<br>
-      Nếu bạn mua thêm, phần vượt sẽ tính theo <b>giá gốc</b>.`,
+        Nếu bạn mua thêm, phần vượt sẽ tính theo <b>giá gốc</b>.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Đồng ý',
@@ -381,15 +381,39 @@ export default {
     })
 
     if (!result.isConfirmed) return
+
     const newItem = { ...item }
     newItem.price = item.original_price
     newItem.quantity = 1
-    newItem.is_flash_sale = false,
+    newItem.is_flash_sale = false
     delete newItem.flash_sale_quantity
     delete newItem.flash_sale_end
     cartItems.value.push(newItem)
+  }
 
-  } else {
+  else if (item.is_deal && currentQuantity >= (item.free_quantity || 1)) {
+    const result = await Swal.fire({
+      title: '⚠️ Deal giới hạn!',
+      html: `Deal này chỉ áp dụng cho <b>số lượng sản phẩm là 1</b>.<br>
+        Nếu bạn mua thêm, phần vượt sẽ tính theo <b>giá gốc</b>.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy',
+    })
+
+    if (!result.isConfirmed) return
+
+    const newItem = { ...item }
+    newItem.price = item.original_price
+    newItem.quantity = 1
+    newItem.is_deal = false
+    delete newItem.reward_id
+    delete newItem.free_quantity
+    cartItems.value.push(newItem)
+  }
+
+  else {
     cartItems.value[index].quantity++
   }
 
