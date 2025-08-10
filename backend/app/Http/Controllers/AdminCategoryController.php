@@ -26,7 +26,7 @@ class AdminCategoryController extends Controller
     }
     public function index(Request $request)
     {
-        $query = Category::with('parent'); // 👈 Load luôn quan hệ cha
+        $query = Category::with('parent');
 
         if ($request->search) {
             $query->where('name', 'like', '%' . $request->search . '%');
@@ -39,8 +39,6 @@ class AdminCategoryController extends Controller
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
-
-        // Sắp xếp mới nhất trước
         $query->orderByDesc('id');
 
         $perPage = $request->input('per_page', 10);

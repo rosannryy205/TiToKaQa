@@ -95,35 +95,20 @@
                 </tr>
               </tbody>
             </table>
-            <!-- <div class="d-flex justify-content-center align-items-center gap-2 mt-3">
-              <button
-                class="btn btn-outline-secondary btn-sm"
-                :disabled="currentPage === 1"
-                @click="changePage(currentPage - 1)"
-              >
-                Trước
-              </button>
-
-              <button
-                v-for="page in totalPages"
-                :key="page"
-                class="btn btn-sm"
-                :class="page === currentPage ? 'btn-primary' : 'btn-outline-secondary'"
-                @click="changePage(page)"
-              >
-                {{ page }}
-              </button>
-
-              <button
-                class="btn btn-outline-secondary btn-sm"
-                :disabled="currentPage === totalPages"
-                @click="changePage(currentPage + 1)"
-              >
-                Sau
-              </button>
-            </div> -->
+            <nav class="mt-3">
+            <ul class="pagination">
+              <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                <a class="page-link" href="#" @click="changePage(currentPage - 1)">«</a>
+              </li>
+              <li class="page-item" v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }">
+                <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
+              </li>
+              <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                <a class="page-link" href="#" @click="changePage(currentPage + 1)">»</a>
+              </li>
+            </ul>
+          </nav>
           </div>
-
           <!--modal-->
           <div
             class="modal fade"
