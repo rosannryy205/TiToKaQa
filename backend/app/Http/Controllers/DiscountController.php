@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Discount;
 use App\Services\PointService;
 use Illuminate\Http\Request;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class DiscountController extends Controller
 {
@@ -75,6 +76,36 @@ class DiscountController extends Controller
         return response()->json($discounts);
     }
     
+    public function createDiscounts(Request $request){
+
+        $data = $request->validate([
+            'code' => 'required|string|max:50|unique:vouchers,code',
+            'name' => 'required|string|max:255',
+            'discount_value' => 'required|integer|min:1',
+            'discount_method' => 'required|in:percent,fixed',
+            'discount_type' => 'required|in:freeship,salefood',
+            'max_discount_amount' => 'nullable|integer|min:1|required_if:discount_method,percent',
+            'min_order_value' => 'nullable|integer|min:0',
+            'category_id' => 'nullable|exists:categories,id',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'status' => 'required|in:active,inactive',
+            'usage_limit' => 'required|integer|min:1',
+            'source' => 'required|in:system,point_exchange,lucky_wheel,for_users',
+            'user_level' => 'nullable|in:new,silver,gold,diamond',
+            'cost' => 'nullable|integer|min:0|required_if:source,point_exchange',
+            'condition' => 'nullable|string|max:255',
+            'custom_condition_note' => 'nullable|string|max:255',
+        ]);
+        try {
+           $discount = Discount::create([
+            
+           ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
+    }
 
     
 }

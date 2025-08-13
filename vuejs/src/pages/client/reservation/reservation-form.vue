@@ -217,7 +217,6 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { Discounts } from '@/stores/discount'
 import { Cart } from '@/stores/cart'
 import numeral from 'numeral'
-import { toast } from 'vue3-toastify'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
@@ -300,7 +299,19 @@ export default {
       isLoading.value = true
 
       try {
-        if (!paymentMethod.value && cart_reservation != null) {
+        if (!cart_reservation || cart_reservation.length === 0) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng chọn món!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
+          return
+        }
+        if (!paymentMethod.value) {
           Swal.fire({
             toast: true,
             position: 'top-end',
@@ -380,7 +391,15 @@ export default {
           return
         }
         if (paymentMethod.value === 'MOMO') {
-          toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Chức năng thanh toán MoMo đang được phát triển!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value);
           localStorage.removeItem(cartKey);
@@ -396,7 +415,15 @@ export default {
           localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey)
-          toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Đặt hàng và thanh toán bằng tiền mặt thành công!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           router.push({
             name: 'payment-result',
             query: {
@@ -555,8 +582,15 @@ export default {
       // Reset
       editCartIndex.value = null;
       document.querySelector('#productModal .btn-close')?.click();
-
-      toast.success(' Đã cập nhật topping thành công!');
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Đã cập nhật topping thành công!',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      });
     };
 
     const increaseQuantity = () => {

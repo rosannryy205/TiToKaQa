@@ -143,7 +143,7 @@ export default {
         icon: icon,
         title: message,
         showConfirmButton: false,
-        timer: 3000,
+        timer: 1500,
         timerProgressBar: true,
       })
     }
@@ -179,26 +179,9 @@ export default {
           for (const key in errors) {
             msg += `${errors[key][0]}\n`
           }
-
-          Swal.fire({
-            icon: 'error',
-            title: 'Lỗi xác thực',
-            text: msg,
-            toast: true,
-            timer: 5000,
-            position: 'top-end',
-            showConfirmButton: false,
-          })
+          showToast('Lỗi xác thực!', 'error')
         } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Lỗi server',
-            text: 'Không thể cập nhật danh mục.',
-            toast: true,
-            timer: 4000,
-            position: 'top-end',
-            showConfirmButton: false,
-          })
+          showToast('Lỗi server: Không thể cập nhật danh mục!', 'error')
         }
       }
     }

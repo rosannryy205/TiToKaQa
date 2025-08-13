@@ -82,8 +82,8 @@
                         <h3 class="user-name">{{ order.guest_name }}</h3>
                         <p class="order-details-line">
                           #{{ order.id }}
-                          <span v-if="order.tables">/ Bàn: {{order.tables?.map((t) => `${t.table_number}`).join(',
-                            ')}}</span>
+                          <span v-if="order.tables">/ Bàn: {{order.tables?.map((t) =>
+                            `${t.table_number}`).join(',')}}</span>
                         </p>
                       </div>
                     </div>
@@ -238,7 +238,7 @@
 import axios from 'axios'
 import { onMounted, ref, watch } from 'vue'
 import { Info } from '@/stores/info-order-reservation'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 import { Permission } from '@/stores/permission'
 import { Html5QrcodeScanner } from 'html5-qrcode'
@@ -309,15 +309,36 @@ export default {
 
     const updateStatusOrder = async (id, status) => {
       try {
-        if (confirm(`Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}`)) {
+        const result = await Swal.fire({
+          title: `Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Đồng ý',
+          cancelButtonText: 'Hủy',
+        })
+        if (result.isConfirmed) {
           await axios.put(`http://127.0.0.1:8000/api/update/${id}/status`, {
             order_status: status,
           })
-          toast.success('Cập nhật thành công')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Cập nhật thành công',
+            showConfirmButton: false,
+            timer: 2000,
+          })
           await getOrderTakeAway()
         }
       } catch (error) {
-        toast.error('Có lỗi xảy ra')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Có lỗi xảy ra',
+          showConfirmButton: false,
+          timer: 2000,
+        })
         console.log(error)
       }
     }
@@ -350,11 +371,25 @@ export default {
 
     const onScanSuccess = (decodedText) => {
       closeQrScanner()
-      toast.success(`Quét thành công`);
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Quét thành công',
+        showConfirmButton: false,
+        timer: 2000,
+      })
 
       const match = decodedText.match(/\/(\d+)$/); // Lấy ID từ URL
       if (!match) {
-        toast.error("QR không hợp lệ. Không tìm thấy ID đơn hàng.");
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'QR không hợp lệ. Không tìm thấy ID đơn hàng.',
+          showConfirmButton: false,
+          timer: 2000,
+        })
         return;
       }
       const scannedId = parseInt(match[1]);
@@ -363,7 +398,14 @@ export default {
         scannedOrder.value = foundOrder;
         showScannedOrderPopup.value = true;
       } else {
-        toast.error("Không tìm thấy đơn hàng này trong danh sách.");
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Không tìm thấy đơn hàng này trong danh sách.',
+          showConfirmButton: false,
+          timer: 2000,
+        })
       }
     };
 
@@ -406,17 +448,38 @@ export default {
 
     const updateStatus = async (id, status) => {
       try {
-        if (confirm(`Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}`)) {
+        const result = await Swal.fire({
+          title: `Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Đồng ý',
+          cancelButtonText: 'Hủy',
+        })
+        if (result.isConfirmed) {
           await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
             id: id,
             order_status: status,
           })
-          toast.success('Cập nhật thành công')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Cập nhật thành công.',
+            showConfirmButton: false,
+            timer: 2000,
+          })
           showScannedOrderPopup.value = false;
           await getOrderOfTable()
         }
       } catch (error) {
-        toast.error('Có lỗi xảy ra')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Có lỗi xảy ra.',
+          showConfirmButton: false,
+          timer: 2000,
+        })
         console.log(error)
       }
     }
@@ -456,15 +519,36 @@ export default {
         .then((res) => {
           if (hasVnpParams) {
             if (res.data.success) {
-              toast.success('Thanh toán thành công!')
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Thanh toán thành công!',
+                showConfirmButton: false,
+                timer: 2000,
+              })
             } else {
-              toast.error('Thanh toán thất bại hoặc có lỗi!')
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'Thanh toán thất bại hoặc có lỗi!',
+                showConfirmButton: false,
+                timer: 2000,
+              })
             }
           }
         })
         .catch(() => {
           if (hasVnpParams) {
-            toast.error('Lỗi xác minh thanh toán!')
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: 'Lỗi xác minh thanh toán!',
+              showConfirmButton: false,
+              timer: 2000,
+            })
           }
         })
         .finally(() => {

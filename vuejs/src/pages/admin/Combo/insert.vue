@@ -6,9 +6,10 @@
           <div class="d-flex justify-content-between">
             <h3 class="text-danger fw-bold">Thêm Combo</h3>
             <div>
-              <a href="#" class="btn btn-outline-secondary rounded-0">
+              <router-link to="/admin/products/combo"><a href="#" class="btn btn-outline-secondary rounded-0">
                 <i class="bi bi-arrow-counterclockwise"></i> Quay lại
               </a>
+            </router-link>
             </div>
           </div>
           <form class="row mt-2">
@@ -50,10 +51,7 @@
                         <tbody>
                           <tr v-for="food in selectedFoods" :key="food.id">
                             <td>
-                              <input type="checkbox" v-model="food.checked" />
-                            </td>
-                            <td>
-                              <img :src="`/img/food/${food.image}`" :alt="food.name" class="me-2 img_thumbnail" />
+                              <img :src="getImageUrl(food.image)" :alt="food.name" class="me-2 img_thumbnail" />
                               {{ food.name }}
                             </td>
                             <td>{{ formatNumber(food.price) }} VNĐ</td>
@@ -192,12 +190,17 @@ import { FoodList } from '@/stores/food.js'
 import { Modal } from 'bootstrap'
 import { toast } from 'vue3-toastify'
 import { Permission } from '@/stores/permission'
+import Swal from 'sweetalert2'
 
 const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
 
 const formatNumber = (value) => numeral(value).format('0,0')
-
-
+const getImageUrl = (image) => {
+  return `http://127.0.0.1:8000/storage/img/food/${image}`
+}
+// ============================
+// USER PERMISSION
+// ============================
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -227,7 +230,7 @@ const fetchAllCatesForCombo = async () => {
   try {
     const res = await axios.get('http://127.0.0.1:8000/api/admin/categories')
     const data = res.data || []
-    data.shift() // Bỏ "Tất cả"
+    data.shift()
     allCatesForAdmin.value = data
   } catch (error) {
     console.error('Lỗi lấy danh mục:', error)
@@ -253,17 +256,17 @@ function handleImage(event) {
 }
 
 // ============================
-// MÓN ĂN ĐƯỢC CHỌN và SEARCH
+// MÓN ĂN ĐƯỢC CHỌN & SEARCH
 // ============================
 const selectedFoods = ref([])
-const searchQuery = ref('');
+const searchQuery = ref('')
 
 const filteredCombos = computed(() => {
-  const keyword = searchQuery.value.toLowerCase();
+  const keyword = searchQuery.value.toLowerCase()
   return foods.value.filter((p) =>
     p.name.toLowerCase().includes(keyword)
-  );
-});
+  )
+})
 
 const isSelected = (id) => {
   return selectedFoods.value.some((item) => item.id === id)
@@ -310,33 +313,84 @@ function decreaseQuantity(food) {
 }
 
 function removeFood(id) {
-  if (confirm('Bạn có muốn xóa món khỏi danh sách hiện tại?')) {
-    selectedFoods.value = selectedFoods.value.filter((f) => f.id !== id)
-  }
+  Swal.fire({
+    icon: 'question',
+    title: 'Xác nhận',
+    text: 'Bạn có muốn xóa món này khỏi danh sách?',
+    showCancelButton: true,
+    confirmButtonText: 'Xóa',
+    cancelButtonText: 'Hủy',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      selectedFoods.value = selectedFoods.value.filter((f) => f.id !== id)
+    }
+  })
 }
+
 // ============================
-// GIÁ GỐC & ĐỊNH DẠNG
+// TÍNH GIÁ GỐC
 // ============================
 const originPrice = computed(() =>
   selectedFoods.value.reduce((sum, food) => {
     return sum + food.price * (food.quantity || 1)
   }, 0)
 )
-
 const originPriceFormatted = computed(() =>
   formatNumber(originPrice.value)
 )
 
 // ============================
-// VALIDATION & RESET
+// VALIDATION
 // ============================
 const validateBeforeSubmit = () => {
-  if (!comboName.value.trim()) return 'Vui lòng nhập tên Combo'
-  if (!status.value) return 'Vui lòng chọn trạng thái'
-  if (!salePrice.value || salePrice.value <= 0) return 'Giá bán không hợp lệ'
-  if (!selectedImage.value) return 'Vui lòng chọn ảnh Combo'
-  if (selectedFoods.value.length === 0) return 'Vui lòng chọn ít nhất 1 món'
-  return null
+  if (!comboName.value.trim()) {
+    Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng nhập tên Combo' })
+    return false
+  }
+
+  if (!status.value) {
+    Swal.fire({ icon: 'warning', title: 'Thiếu thông tin', text: 'Vui lòng chọn trạng thái' })
+    return false
+  }
+
+  if (!salePrice.value || salePrice.value <= 0) {
+    Swal.fire({ icon: 'warning', title: 'Giá không hợp lệ', text: 'Giá bán phải lớn hơn 0' })
+    return false
+  }
+
+  if (!selectedImage.value) {
+    Swal.fire({ icon: 'warning', title: 'Thiếu ảnh', text: 'Vui lòng chọn ảnh Combo' })
+    return false
+  }
+
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+  const maxSizeMB = 2
+  const file = selectedImage.value
+
+  if (!allowedTypes.includes(file.type)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Định dạng ảnh không hợp lệ',
+      text: 'Ảnh phải là jpg, jpeg, png hoặc webp',
+    })
+    return false
+  }
+
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Ảnh quá lớn',
+      text: 'Dung lượng ảnh tối đa là 2MB',
+    })
+    return false
+  }
+
+  if (selectedFoods.value.length === 0) {
+    Swal.fire({ icon: 'warning', title: 'Chưa chọn món', text: 'Vui lòng chọn ít nhất 1 món' })
+    return false
+  }
+
+  return true
 }
 
 const resetForm = () => {
@@ -350,14 +404,10 @@ const resetForm = () => {
 }
 
 // ============================
-// SUBMIT COMBO
+// GỬI FORM
 // ============================
 const createCombosByAdmin = async () => {
-  const errorMsg = validateBeforeSubmit()
-  if (errorMsg) {
-    alert(errorMsg)
-    return
-  }
+  if (!validateBeforeSubmit()) return
 
   try {
     const formData = new FormData()
@@ -378,17 +428,41 @@ const createCombosByAdmin = async () => {
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )
 
-    toast.success('Tạo combo thành công!')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: 'Tạo combo thành công!',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    })
+
     resetForm()
   } catch (error) {
-    if (error.response?.status === 422 && error.response.data.error) {
-      toast.warning('Tên Combo đã tồn tại')
-      console.log(error.response.data.error)
+    if (error.response?.status === 422 && error.response.data.errors) {
+      const messages = Object.values(error.response.data.errors).flat().join('<br>')
+      Swal.fire({
+        icon: 'warning',
+        title: 'Lỗi xác thực!',
+        html: messages,
+      })
+    } else if (error.response?.status === 422 && error.response.data.error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi!',
+        text: error.response.data.error,
+      })
     } else {
-      alert('Lỗi khác khi tạo combo')
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi hệ thống!',
+        text: error.response?.data?.message || 'Đã có lỗi xảy ra',
+      })
     }
   }
 }
+
 // ============================
 // ON MOUNT
 // ============================
@@ -402,6 +476,7 @@ onMounted(() => {
   }
 })
 </script>
+
 
 
 <style>
