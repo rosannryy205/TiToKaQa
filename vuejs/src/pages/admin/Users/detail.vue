@@ -113,17 +113,15 @@
                     </td>
                     <td v-else data-label="Sửa"></td>
 
-                    <td
-                      v-if="moduleKey !== 'dashboard' && moduleKey !== 'order' && moduleKey !== 'booking' && moduleKey !== 'employee' && moduleKey !== 'customer'"
-                      data-label="Xoá">
+                    <td v-if="moduleKey == 'food' || moduleKey == 'combo'" data-label="Xoá">
                       <div class="checkbox-container">
-                        <input class="checkbox-input" type="checkbox" :id="`delete-${moduleKey}-${currentRoleId}`"
-                          v-model="currentRoleAbilities[moduleKey].delete" @change="handleAbilityChange(moduleKey)"
+                        <input class="checkbox-input" type="checkbox" :id="`hidden-${moduleKey}-${currentRoleId}`"
+                          v-model="currentRoleAbilities[moduleKey].hidden" @change="handleAbilityChange(moduleKey)"
                           :disabled="(isedit && !hasPermission('edit_role')) ||
                             (isinsert && !hasPermission('create_role')) ||
                             (!isedit && !isinsert)
                             " />
-                        <label class="checkbox" :for="`delete-${moduleKey}-${currentRoleId}`"> <span
+                        <label class="checkbox" :for="`hidden-${moduleKey}-${currentRoleId}`"> <span
                             class="line line1"></span>
                           <span class="line line2"></span>
                         </label>
@@ -208,7 +206,7 @@ export default {
       'shipper': 'Giao hàng',
     };
 
-    const actionKeys = ['view', 'create', 'edit', 'delete'];
+    const actionKeys = ['view', 'create', 'edit', 'hidden'];
 
     // tạo cấu trúc quyền mặc định cho từng module
     const createAbilitiesStructure = (abilitiesData = null) => {
@@ -218,7 +216,7 @@ export default {
           view: false,
           create: false,
           edit: false,
-          delete: false,
+          hidden: false,
           all: false
         };
       }
@@ -273,13 +271,15 @@ export default {
         if (moduleKey === 'dashboard') {
           allChecked = abilities.view;
 
-          // nếu như quyền là đơn hiện thời hoặc là lịch đặt bàn thì tick vào ô xem và thêm là xem như bật toàn quyền
-        } else if (moduleKey === 'current_order' || moduleKey === 'booking') {
+          // nếu như quyền là đơn hàng hoặc là lịch đặt bàn thì tick vào ô xem và thêm là xem như bật toàn quyền
+        } else if (moduleKey === 'order') {
           allChecked = abilities.view && abilities.create;
+        } else if (moduleKey === 'table' || moduleKey === 'role' || moduleKey === 'employee' || moduleKey === 'customer' || moduleKey === 'shipper' || moduleKey === 'category' || moduleKey === 'topping' || moduleKey === 'booking') {
+          allChecked = abilities.view && abilities.create && abilities.edit;
 
           //các quyền còn lại có đầy đủ crud
         } else {
-          allChecked = abilities.view && abilities.create && abilities.edit && abilities.delete;
+          allChecked = abilities.view && abilities.create && abilities.edit && abilities.hidden;
         }
 
         nextTick(() => {
@@ -300,15 +300,11 @@ export default {
         if (moduleKey === 'dashboard') {
           abilities.view = isChecked;
 
-          // nếu quyền đơn hiện thời và đặt bàn bật checkbox create xem như là toàn quyền
-        } else if (moduleKey === 'current_order' || moduleKey === 'booking') {
-          abilities.create = isChecked;
-
           //các quyền còn lại phải tắt hết
         } else {
           abilities.create = isChecked;
           abilities.edit = isChecked;
-          abilities.delete = isChecked;
+          abilities.hidden = isChecked;
         }
       }
     };
