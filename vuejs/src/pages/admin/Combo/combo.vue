@@ -34,7 +34,7 @@
                       <button type="button" class="btn btn-outline btn-sm"
                         v-if="hasPermission('edit_combo')">Sửa</button>
                       <button class="btn btn-outline btn-sm" @click="toggleComboStatus(item.id)"
-                        v-if="hasPermission('delete_combo')">
+                        v-if="hasPermission('hidden_combo')">
                         {{ item.status === 'inactive' ? 'Hiện' : 'Ẩn' }}
                       </button>
                       <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
@@ -50,7 +50,7 @@
                         v-if="hasPermission('edit_combo')">Sửa</router-link>
                       <button class="btn btn-outline btn-sm"
                         :class="item.status === 'inactive' ? 'btn-secondary' : 'btn-warning'"
-                        @click="toggleComboStatus(item.id)" v-if="hasPermission('delete_combo')">
+                        @click="toggleComboStatus(item.id)" v-if="hasPermission('hidden_combo')">
                         {{ item.status === 'inactive' ? 'Hiện' : 'Ẩn' }}
                       </button>
                       <button class="btn btn-outline btn-sm" data-bs-toggle="modal" data-bs-target="#menuModal"
