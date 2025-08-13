@@ -35,7 +35,8 @@
             <td class="d-flex justify-content-center gap-2">
               <router-link :to="`/admin/users/list-role-edit/${item.id}`" class="btn btn-outline"
                 v-if="hasPermission('edit_role')">Sửa</router-link>
-              <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_role')" @click="deletePermission(item.id)">
+              <button class="btn btn-danger-delete btn-sm" v-if="hasPermission('delete_role')"
+                @click="deletePermission(item.id)">
                 Xoá
               </button>
             </td>
@@ -144,12 +145,12 @@ export default {
     });
 
     const deletePermission = async (id) => {
-      if(!confirm('Bạn có muốn xoá quyền này!')){
+      if (!confirm('Bạn có muốn xoá quyền này!')) {
         return
       }
       try {
-      await axios.delete(`http://127.0.0.1:8000/api/permission/${id}`)
-              await getAllPermission()
+        await axios.delete(`http://127.0.0.1:8000/api/permission/${id}`)
+        await getAllPermission()
 
         alert('xoá thành công')
       } catch (error) {

@@ -50,7 +50,7 @@
                   <th>Xem</th>
                   <th>Thêm</th>
                   <th>Sửa</th>
-                  <th>Xoá</th>
+                  <th>Ẩn</th>
                   <th>Toàn quyền</th>
                 </tr>
               </thead>

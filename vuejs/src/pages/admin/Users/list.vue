@@ -7,7 +7,7 @@
             <h2>
               {{ isEmployee ? 'Danh sách nhân viên' : 'Danh sách khách hàng' }}
             </h2>
-            <router-link to="/admin/insert_staff">
+            <router-link to="/admin/insert_staff" v-if="hasPermission('create_employee')">
               <button v-if="isEmployee" class="btn btn-insert">
                 <i class="bi bi-person-plus-fill"></i> Thêm nhân viên
               </button>
@@ -71,10 +71,16 @@
                       Chi tiết
                     </button>
 
-                    <button @click="toggleStatus(user)" v-if="user.status === 'Active'"
-                      class="btn btn-danger-delete">Khoá</button>
-                    <button @click="toggleStatus(user)" v-else="user.status==='Block'" class="btn btn-primary">Mở
-                      Khóa</button>
+                    <button @click="toggleStatus(user)"
+                      v-if="user.status === 'Active' && hasPermission('edit_employee')" class="btn btn-danger-delete">
+                      Khoá
+                    </button>
+
+                    <button @click="toggleStatus(user)"
+                      v-else-if="user.status === 'Block' && hasPermission('edit_employee')" class="btn btn-primary">
+                      Mở Khóa
+                    </button>
+
                   </td>
                 </tr>
               </tbody>
@@ -233,9 +239,18 @@ import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { watch } from 'vue'
+import { Permission } from '@/stores/permission'
 
 useMenu().onSelectedKeys(['admin-roles'])
-
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
 const selectedUser = ref(null);
 
 const pagination = ref({

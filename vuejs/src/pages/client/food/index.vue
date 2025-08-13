@@ -228,7 +228,7 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `http://127.0.0.1:8000/storage/img/food/${image}`
+      return `/img/food/${image}`
     },
     getImageMenuUrl(image) {
       return `/img/food/imgmenu/${image}`

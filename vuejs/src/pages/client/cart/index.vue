@@ -361,7 +361,7 @@ export default {
     const increaseQuantity = async (index) => {
   const item = cartItems.value[index]
   const currentQuantity = item.quantity
-  
+
   const isFlashSale = item.flash_sale_end && new Date(item.flash_sale_end) > new Date()
   const flashQuantity = item.flash_sale_quantity || 0
 
