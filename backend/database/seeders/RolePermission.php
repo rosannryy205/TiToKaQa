@@ -11,46 +11,38 @@ class RolePermission extends Seeder
     public function run(): void
     {
         $modules = [
-            'dashboard' => 'Thống kê',
-            'category' => 'Danh mục',
-            'food' => 'Món ăn',
-            'topping' => 'Topping',
-            'combo' => 'Combo',
-            'order' => 'Đơn hàng',
-            'table' => 'Bàn',
-            'booking' => 'Lịch đặt bàn',
-            'role' => 'Vai trò',
-            'employee' => 'Nhân viên',
-            'customer' => 'Khách hàng',
-            'shipper' => 'Giao hàng',
+            'dashboard' => ['view'],
+            'order'     => ['view', 'create'],
+            'category'  => ['view', 'create', 'edit', 'hidden'],
+            'table'     => ['view', 'create', 'edit', 'hidden'],
+            'topping'   => ['view', 'create', 'edit', 'hidden'],
+            'booking'   => ['view', 'create', 'edit', 'hidden'],
+            'role'      => ['view', 'create', 'edit', 'hidden'],
+            'employee'  => ['view', 'create', 'edit', 'hidden'],
+            'customer'  => ['view', 'create', 'edit', 'hidden'],
+            'shipper'   => ['view', 'create', 'edit'],
+            'food'      => ['view', 'create', 'edit', 'hidden'],
+            'combo'     => ['view', 'create', 'edit', 'hidden'],
         ];
 
-        $actions = [
-            'view' => 'Xem',
-            'create' => 'Thêm',
-            'edit' => 'Sửa',
-            'delete' => 'Xoá',
-        ];
-
-        foreach ($modules as $moduleKey => $moduleName) {
-            foreach ($actions as $actionKey => $actionName) {
+        foreach ($modules as $moduleKey => $actions) {
+            foreach ($actions as $actionKey) {
                 Permission::firstOrCreate([
                     'name' => "{$actionKey}_{$moduleKey}",
                 ]);
             }
         }
 
-        $manager = Role::firstOrCreate(['name' => 'quanly']);
-        $staff = Role::firstOrCreate(['name' => 'nhanvien']);
+        $manager   = Role::firstOrCreate(['name' => 'quanly']);
+        $staff     = Role::firstOrCreate(['name' => 'nhanvien']);
         $warehouse = Role::firstOrCreate(['name' => 'nhanvienkho']);
-        $customer = Role::firstOrCreate(['name' => 'khachhang']);
+        $customer  = Role::firstOrCreate(['name' => 'khachhang']);
 
         $manager->givePermissionTo(Permission::all());
 
         $staff->givePermissionTo([
             'view_order',
             'create_order',
-            'edit_order',
             'view_table',
             'view_food',
             'view_combo',
