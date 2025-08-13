@@ -34,7 +34,8 @@ class ClaimPrizesController extends Controller
             $user->save();
         }
         if ($spin->prize_type === 'food') {
-            $food = Food::find($spin->prize_data['food_id'] ?? null);
+            $prizeData = is_array($spin->prize_data) ? $spin->prize_data : json_decode($spin->prize_data, true);
+            $food = Food::find($prizeData['food_id'] ?? null);
 
             if (!$food) {
                 return response()->json(['message' => 'Không tìm thấy món ăn.'], 404);
@@ -43,7 +44,7 @@ class ClaimPrizesController extends Controller
                 'user_id' => $user->id,
                 'code' => strtoupper(Str::random(10)),
                 'name' => $spin->prize_name,
-                'food_id' => $spin->prize_data['food_id'] ?? null,
+                'food_id' => $prizeData['food_id'] ?? null,
                 'expired_at' => now()->addDays(7),
                 'food_snapshot' => $food->toArray()
             ]);

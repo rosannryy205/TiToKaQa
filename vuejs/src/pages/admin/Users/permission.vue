@@ -91,6 +91,7 @@ import axios from 'axios'
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css';
 import { Permission } from '@/stores/permission'
+import Swal from 'sweetalert2';
 
 export default {
   components: {
@@ -145,17 +146,30 @@ export default {
     });
 
     const deletePermission = async (id) => {
-      if (!confirm('Bạn có muốn xoá quyền này!')) {
+      const result = Swal.fire({
+        title: 'Bạn có muốn xoá quyền này?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy',
+      })
+      if (result.isConfirmed) {
         return
       }
       try {
         await axios.delete(`http://127.0.0.1:8000/api/permission/${id}`)
         await getAllPermission()
-
-        alert('xoá thành công')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Xoá thành công',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        });
       } catch (error) {
         console.log(error);
-
       }
     }
 

@@ -1,8 +1,6 @@
 <template>
   <div class="container py-3 position-relative col-12 col-md-8 col-lg-9">
     <h4 class="fw-bold mb-3 text-danger">🎉 Deal Món Đã Nhận</h4>
-
-    <!-- Tabs -->
     <div class="d-flex border-bottom mb-3" style="gap: 20px; font-size: 14px">
       <div
         v-for="(tab, index) in tabs"
@@ -21,8 +19,6 @@
         ></span>
       </div>
     </div>
-
-    <!-- Deal Cards -->
     <div class="row g-3">
       <div
         class="col-md-6"
@@ -46,8 +42,6 @@
               Hạn sử dụng: {{ formatDate(deal.expired_at) || 'Không rõ' }}
             </div>
           </div>
-
-          <!-- Nút dùng hoặc hết hạn -->
           <button
             v-if="!isExpired(deal.expired_at)"
             class="btn btn-outline-danger btn-sm"
@@ -84,7 +78,6 @@ const tabs = ref([
   { label: 'Deal hết hạn', count: 0 }
 ])
 
-// Gọi API
 const getDealsFood = async () => {
   const res = await axios.get('http://localhost:8000/api/deals-food', {
     headers: { Authorization: `Bearer ${userStore.token}` },
@@ -99,8 +92,6 @@ const getDealsFood = async () => {
     tabs.value[1].count = expiredCount
   }
 }
-
-// Format ngày
 const formatDate = (dateStr) => {
   if (!dateStr) return null
   const date = new Date(dateStr)
@@ -112,22 +103,17 @@ const formatDate = (dateStr) => {
     year: 'numeric',
   })
 }
-
-// Check hết hạn
 const isExpired = (expired_at) => {
   if (!expired_at) return false
   return new Date(expired_at) < new Date()
 }
 
-// Lọc theo tab
 const filteredDealsFood = computed(() => {
   if (activeTab.value === 1) {
     return dealsFood.value.filter((d) => isExpired(d.expired_at))
   }
   return dealsFood.value
 })
-
-// Dùng ngay (nếu chưa hết hạn)
 const useDealNow = (deal) => {
   const userId = userStore.user.id
   const cartKey = `cart_${userId}`
@@ -146,6 +132,7 @@ const useDealNow = (deal) => {
       name: food.name,
       image: food.image,
       price: '0',
+      original_price: food.price,
       toppings: [],
       quantity: 1,
       type: 'Food',
