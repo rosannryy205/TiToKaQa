@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminCategoryToppingController;
 use App\Http\Controllers\AdminFoodController;
+use App\Http\Controllers\AdminPaymentController;
 use App\Http\Controllers\AdminToppingController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -280,3 +281,5 @@ Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombo
 Route::apiResource('ingredients', IngredientController::class);
 Route::put('/admin/combos/{id}/toggle-status', [ComboController::class, 'toggleStatusComboForAdmin']);
 
+/** crud discounts mqua*/
+Route::get('/admin-categories', [CategoryController::class, 'getAllCategoriesForAdmin']);

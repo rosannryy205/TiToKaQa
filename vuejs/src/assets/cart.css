@@ -417,6 +417,10 @@ input .form-control-customer:focus {
   gap: 10px;
 }
 
+.input-group span {
+  margin-top: 12px;
+}
+
 .input-group-text {
   margin-top: 10px;
   height: 48px;

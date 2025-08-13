@@ -228,6 +228,7 @@ async function onRotateEnd(prize: PrizeConfig) {
   }).then(async (result) => {
     if (result.isConfirmed && spinId.value) {
       await claimReward(spinId.value)
+      spinId.value = null
     }
   })
 

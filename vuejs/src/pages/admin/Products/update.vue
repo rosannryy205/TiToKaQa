@@ -114,8 +114,9 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2'
 import { Permission } from '@/stores/permission'
+
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -182,7 +183,6 @@ const fetchFood = async (id) => {
     food.value.price = data.price
     food.value.sale_price = data.sale_price
     food.value.image = data.image
-
   } catch (error) {
     const msg = error.response?.data?.message || error.message || 'Không xác định'
     Swal.fire({
@@ -206,7 +206,6 @@ const onFileChange = (e) => {
   }
 }
 
-
 const updateFood = async () => {
   try {
     const formData = new FormData()
@@ -219,7 +218,6 @@ const updateFood = async () => {
     if (food.value.sale_price !== null && food.value.sale_price !== '') {
       formData.append('sale_price', food.value.sale_price)
     }
-
     if (selectedFile) {
       formData.append('image', selectedFile)
     }
@@ -266,8 +264,6 @@ const updateFood = async () => {
   }
 }
 
-
-
 onMounted(() => {
   fetchCategories()
   const id = route.params.id
@@ -276,6 +272,7 @@ onMounted(() => {
   }
 })
 </script>
+
 
 <style>
 .themsp {

@@ -98,7 +98,7 @@ const menuItems = [
     key: 'categories-management',
     label: 'Danh mục',
     icon: UnorderedListOutlined,
-    permission: 'view_category', // Quyền để xem mục Danh mục cha
+    permission: 'view_category', 
     children: [
       {
         key: '/admin/categories',
@@ -106,6 +106,36 @@ const menuItems = [
         label: 'Danh mục món ăn',
         icon: AppstoreOutlined,
         permission: 'view_category',
+      },
+    ],
+  },
+  {
+    key: 'discounts-management',
+    label: 'Mã giảm giá',
+    icon: FileTextOutlined,
+    permission: 'view_discounts', 
+    children: [
+      {
+        key: '/admin/discounts',
+        to: '/admin/discounts',
+        label: 'Mã giảm giá',
+        icon: FileTextOutlined,
+        permission: 'view_discounts',
+      },
+    ],
+  },
+  {
+    key: 'luckyprizes-management',
+    label: 'Quà Vòng Quay',
+    icon: GoldOutlined,
+    permission: 'view_luckyprizes', 
+    children: [
+      {
+        key: '/admin/luckyprizes',
+        to: '/admin/luckyprizes',
+        label: 'Quà Vòng Quay',
+        icon: GoldOutlined,
+        permission: 'view_luckyprizes',
       },
     ],
   },

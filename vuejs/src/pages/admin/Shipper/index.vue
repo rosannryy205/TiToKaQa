@@ -44,13 +44,10 @@
                       </li>
                       <li class="d-flex align-items-start">
                         <i class="bi bi-geo-alt-fill me-2 text-secondary"></i>
-                        <strong class="me-1">Địa chỉ:</strong>
-                        <div class="text-truncate d-inline-block" :title="order.guest_address"
-                          style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                          {{ order.guest_address }}
+                        <div class="text-truncate" style="max-width: 100%" :title="order.guest_address">
+                          <strong>Địa chỉ:</strong> {{ order.guest_address }}
                         </div>
                       </li>
-
 
                       <li><i class="bi bi-clock-fill me-2 text-secondary"></i><strong>Thời gian:</strong> {{ order.order_time
                         }}</li>

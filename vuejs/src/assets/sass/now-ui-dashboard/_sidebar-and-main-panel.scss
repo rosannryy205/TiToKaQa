@@ -459,7 +459,7 @@
   position: relative;
   float: right;
   width: vars.$sidebar-width;
-  // width: 100%;
+  width: 100%;
   // background-color: vars.$light-gray;
   // background-color: #ebecf1;
 
@@ -591,14 +591,14 @@
 }
 
 .panel-header {
-  height: 260px;
+  // height: 260px;
   padding-top: 80px;
   padding-bottom: 45px;
-  background: #c92c3c;
+  // background: #c92c3c;
   /* fallback for old browsers */
-  // background: -webkit-gradient(linear, left top, right top, from(#0c2646), color-stop(60%, #204065), to(#2a5788));
-  // background: linear-gradient(to right, #0c2646 0%, #204065 60%, #2a5788 100%);
-  background: linear-gradient(to right, #c92c3c 0%, #dc4754 60%, #e56a73 100%);
+  background: -webkit-gradient(linear, left top, right top, from(#c92c3c), color-stop(60%, #dc4754), to(#e56a73));
+  // background: linear-gradient(to right, #c92c3c 0%, #dc4754 60%, #e56a73 100%);
+  background: linear-gradient(to right, #c92c3c 0%, #d63c49 40%, #dc4754 70%, #e56a73 100%);
   position: relative;
   overflow: hidden;
 

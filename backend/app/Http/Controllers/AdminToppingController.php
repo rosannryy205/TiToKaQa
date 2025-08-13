@@ -26,7 +26,7 @@ class AdminToppingController extends Controller
         $request->validate([
             'name' => 'required|string',
             'price' => 'required|numeric',
-            'category_id' => 'required|exists:category_toppings,id'
+            'category_id' => 'required|exists:categories,id'
         ], [
             'name.required' => 'Tên topping là bắt buộc',
             'price.required' => 'Giá món ăn là bắt buộc.',

@@ -177,7 +177,7 @@ import viLocale from '@fullcalendar/core/locales/vi'
 import { onMounted } from 'vue'
 import axios from 'axios'
 import { Info } from '@/stores/info-order-reservation'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router'
 import { Permission } from '@/stores/permission'
 
@@ -290,16 +290,39 @@ const closeDetailPopup = () => {
 
 const updateStatus = async (id, status) => {
   try {
-    if (confirm(`Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}`)) {
+    const result = await Swal.fire({
+      title: `Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Xác nhận',
+      cancelButtonText: 'Hủy',
+    })
+    if (!result.isConfirmed) {
       await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
         id: id,
         order_status: status,
       })
-      toast.success('Cập nhật thành công')
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Cập nhật thành công!',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      })
       await getOrderOfTable()
     }
   } catch (error) {
-    toast.error('Có lỗi xảy ra')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Có lỗi xảy ra',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    })
     console.log(error)
   }
 }

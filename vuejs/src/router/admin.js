@@ -18,6 +18,7 @@ const admin = [
           header: () => import('../pages/admin/Dashboard/DashboardHeader.vue')
         },
         meta: {
+          title: 'Thống kê',
           requiresAdmin: true,
           headerSize: 'lg'
         },
@@ -58,15 +59,7 @@ const admin = [
           headerSize: 'sm'
         },
       },
-      {
-        path: "options/category-options",
-        name: "admin-category-options",
-        component: () => import("../pages/admin/Category-Options/index.vue"),
-        meta: {
-          requiresAdmin: true,
-          headerSize: 'sm'
-        },
-      },
+
       {
         path: "tables",
         name: "admin-tables",
@@ -356,6 +349,24 @@ const admin = [
         path: '/admin/foods_post',
         name: 'admin/foods_post',
         component: () => import('../pages/admin/Foods_Post/index.vue'),
+        meta: {
+          requiresAdmin: true,
+          headerSize: 'sm'
+         },
+      },
+      {
+        path: '/admin/discounts',
+        name: 'admin/discounts',
+        component: () => import('../pages/admin/Discount/index.vue'),
+        meta: {
+          requiresAdmin: true,
+          headerSize: 'sm'
+         },
+      },
+      {
+        path: '/admin/luckyprizes',
+        name: 'admin/luckyprizes',
+        component: () => import('../pages/admin/LuckyPrize/index.vue'),
         meta: {
           requiresAdmin: true,
           headerSize: 'sm'

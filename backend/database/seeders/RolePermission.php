@@ -23,6 +23,8 @@ class RolePermission extends Seeder
             'shipper'   => ['view', 'create', 'edit'],
             'food'      => ['view', 'create', 'edit', 'hidden'],
             'combo'     => ['view', 'create', 'edit', 'hidden'],
+            'discounts'     => ['view', 'create', 'edit', 'hidden'],
+            'luckyprizes'     => ['view', 'create', 'edit', 'hidden'],
         ];
 
         foreach ($modules as $moduleKey => $actions) {
