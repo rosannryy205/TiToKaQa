@@ -152,7 +152,7 @@
                 </div>
                 <div class="popup-actions" v-if="hasPermission('edit_booking')">
                   <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
-                  <router-link :to="`/admin/tables/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
+                  <router-link :to="`/admin/tables-change/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
                   <router-link :to="`/admin/tables-setup/${info.id}`" class="btn edit-button">Xếp bàn</router-link>
                 </div>
               </div>

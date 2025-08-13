@@ -22,8 +22,8 @@
       <slot></slot>
       <ul class="nav">
         <slot name="links">
-          <SidebarItem v-for="(link, index) in menuItems" :key="link.label || index" :link="link">
-            <SidebarItem v-for="subLink in link.children" :to="subLink.to" :link="subLink" />
+          <SidebarItem v-for="(link, index) in filteredMenuItems" :key="link.key || index" :link="link">
+            <SidebarItem v-for="subLink in link.children || []" :key="subLink.key" :to="subLink.to" :link="subLink" />
           </SidebarItem>
         </slot>
       </ul>
@@ -31,11 +31,10 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted, provide } from 'vue'
 import SidebarItem from '@/components/Admin/SideBarPlugin/SideBarItem.vue'
-
+import { Permission } from '@/stores/permission'
 import {
   DashboardOutlined,
   AppstoreOutlined,
@@ -50,14 +49,24 @@ import {
   UnorderedListOutlined,
   TableOutlined,
   DeliveredProcedureOutlined,
-  FileTextOutlined
+  FileTextOutlined,
 } from '@ant-design/icons-vue'
+import { computed } from 'vue'
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
+const { hasPermission, permissions } = Permission(userId)
+
 const props = defineProps({
   backgroundColor: {
     type: String,
     default: 'grey',
-    validator: (value) =>
-      ['grey', ''].includes(value),
+    validator: (value) => ['grey', ''].includes(value),
   },
   logo: {
     type: String,
@@ -65,12 +74,12 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: "TITOKAQA",
+    default: 'TITOKAQA',
   },
   autoClose: {
     type: Boolean,
     default: true,
-  }
+  },
 })
 
 // Provide autoClose cho component con
@@ -98,15 +107,6 @@ const menuItems = [
         icon: AppstoreOutlined,
         permission: 'view_category',
       },
-
-      {
-        key: '/admin/options/category-options',
-        to: '/admin/options/category-options',
-        label: 'Danh mục topping',
-        icon: AppstoreOutlined,
-        permission: 'view_topping', // Quyền xem topping category
-      },
-
     ],
   },
   {
@@ -122,7 +122,6 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_food',
       },
-
     ],
   },
   {
@@ -138,7 +137,6 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_combo',
       },
-
     ],
   },
   {
@@ -154,24 +152,9 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_topping',
       },
+    ],
+  },
 
-    ],
-  },
-  {
-    key: 'foods_post',
-    label: 'Bài viết',
-    icon: FileTextOutlined, // hoặc ReadOutlined, ProfileOutlined, EditOutlined
-    permission: 'view_order',
-    children: [
-      {
-        key: '/admin/foods_post',
-        to: '/admin/foods_post',
-        label: 'Danh sách bài viết',
-        icon: AppstoreOutlined,
-        permission: 'view_order',
-      },
-    ],
-  },
   {
     key: 'order-management',
     label: 'Đơn hàng',
@@ -258,13 +241,6 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_role',
       },
-      // {
-      //   key: '/admin/roles/insert', // Đổi key/to để phù hợp với vai trò
-      //   to: '/admin/roles/insert',
-      //   label: 'Thêm vai trò',
-      //   icon: TagsOutlined,
-      //   permission: 'create_role',
-      // },
     ],
   },
   {
@@ -280,7 +256,6 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_employee',
       },
-
     ],
   },
   {
@@ -296,14 +271,6 @@ const menuItems = [
         icon: UnorderedListOutlined,
         permission: 'view_customer',
       },
-      {
-        key: '/admin/users/chat', // Đổi key/to để phù hợp
-        to: '/admin/users/chat',
-        label: 'Chat',
-        icon: UnorderedListOutlined,
-        permission: 'view_customer',
-      },
-
     ],
   },
 ]
@@ -319,12 +286,27 @@ function minimizeSidebar() {
     clearInterval(simulateWindowResize)
   }, 1000)
 }
+
+const filteredMenuItems = computed(() => {
+  return menuItems
+    .map((item) => {
+      const filteredChildren = item.children
+        ? item.children.filter((child) => hasPermission(child.permission))
+        : []
+
+      return {
+        ...item,
+        children: filteredChildren,
+      }
+    })
+    .filter((item) => hasPermission(item.permission))
+})
+
 onMounted(() => {
   if (localStorage.getItem('sidebar-mini') === 'true') {
     document.body.classList.add('sidebar-mini')
   }
 })
-
 </script>
 
 <style scoped>
