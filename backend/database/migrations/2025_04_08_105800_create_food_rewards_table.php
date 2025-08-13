@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->json('food_snapshot')->nullable();
-            $table->string('code')->unique();         
-            $table->string('name');                    
-            $table->unsignedBigInteger('food_id');     
-            $table->timestamp('expired_at');       
+            $table->string('code')->unique();
+            $table->string('name');
+            $table->unsignedBigInteger('food_id');
+            $table->timestamp('expired_at');
             $table->timestamps();
             $table->boolean('is_used')->default(false);
             $table->timestamp('used_at')->nullable();
