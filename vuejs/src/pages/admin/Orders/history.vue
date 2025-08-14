@@ -163,7 +163,11 @@ const fetchOrders = async () => {
     const response = await axios.get(`http://127.0.0.1:8000/api/get_all_orders`);
     const apiOrders = response.data.orders;
 
-    const fillterOrder = apiOrders.filter(order => order.type_order !== 'takeaway');
+    const fillterOrder = apiOrders.filter(order => {
+      // Loại bỏ đơn hàng có type_order hoặc reservation_code
+      return !order.type_order && !order.reservation_code;
+    });
+
 
     orders.value = fillterOrder.map(order => {
       return {

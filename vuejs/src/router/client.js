@@ -159,6 +159,12 @@ const client = [
         component: () => import('../pages/client/user/delivery.vue'),
         meta: { title: 'Theo dõi đơn hàng' },
       },
+      {
+        path: 'posts',
+        name: 'posts',
+        component: () => import('../pages/client/post/index.vue'),
+        meta: { title: 'Theo dõi đơn hàng' },
+      },
     ],
   },
 ]

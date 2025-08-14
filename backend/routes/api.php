@@ -3,7 +3,9 @@
 use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminCategoryToppingController;
 use App\Http\Controllers\AdminFoodController;
+use App\Http\Controllers\AdminFoodPost;
 use App\Http\Controllers\AdminToppingController;
+use App\Http\Controllers\AIController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
@@ -279,3 +281,15 @@ Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombo
 Route::apiResource('ingredients', IngredientController::class);
 Route::put('/admin/combos/{id}/toggle-status', [ComboController::class, 'toggleStatusComboForAdmin']);
 
+/** Admin / FOOD_POST */
+Route::get('/get_all_post', [AdminFoodPost::class, 'index']);
+Route::get('/get_all_food', [AdminFoodPost::class, 'getAllFoods']);
+Route::get('/get_post/{id}', [AdminFoodPost::class, 'getPostById']);
+Route::post('/post/{id}/update', [AdminFoodPost::class, 'updatePost']);
+Route::post('/insert_post', [AdminFoodPost::class, 'store']);
+Route::post('/post/{id}/toggle-hide', [AdminFoodPost::class, 'hidePost']);
+
+
+/** Generate Post */
+Route::post('/generate/post', [AIController::class, 'generatePost']);
+Route::post('/check-seo', [AIController::class, 'checkSeo']);
