@@ -50,7 +50,7 @@
                   <th>Xem</th>
                   <th>Thêm</th>
                   <th>Sửa</th>
-                  <th>Xoá</th>
+                  <th>Ẩn</th>
                   <th>Toàn quyền</th>
                 </tr>
               </thead>
@@ -86,9 +86,9 @@
                         <input class="checkbox-input" type="checkbox" :id="`create-${moduleKey}-${currentRoleId}`"
                           v-model="currentRoleAbilities[moduleKey].create" @change="handleAbilityChange(moduleKey)
                             " :disabled="(isedit && !hasPermission('edit_role')) ||
-                                  (isinsert && !hasPermission('create_role')) ||
-                                  (!isedit && !isinsert)
-                                  " />
+                              (isinsert && !hasPermission('create_role')) ||
+                              (!isedit && !isinsert)
+                              " />
                         <label class="checkbox" :for="`create-${moduleKey}-${currentRoleId}`"> <span
                             class="line line1"></span>
                           <span class="line line2"></span>
@@ -113,17 +113,15 @@
                     </td>
                     <td v-else data-label="Sửa"></td>
 
-                    <td
-                      v-if="moduleKey !== 'dashboard' && moduleKey !== 'order' && moduleKey !== 'booking' && moduleKey !== 'employee' && moduleKey !== 'customer'"
-                      data-label="Xoá">
+                    <td v-if="moduleKey == 'food' || moduleKey == 'combo'" data-label="Xoá">
                       <div class="checkbox-container">
-                        <input class="checkbox-input" type="checkbox" :id="`delete-${moduleKey}-${currentRoleId}`"
-                          v-model="currentRoleAbilities[moduleKey].delete" @change="handleAbilityChange(moduleKey)"
+                        <input class="checkbox-input" type="checkbox" :id="`hidden-${moduleKey}-${currentRoleId}`"
+                          v-model="currentRoleAbilities[moduleKey].hidden" @change="handleAbilityChange(moduleKey)"
                           :disabled="(isedit && !hasPermission('edit_role')) ||
                             (isinsert && !hasPermission('create_role')) ||
                             (!isedit && !isinsert)
                             " />
-                        <label class="checkbox" :for="`delete-${moduleKey}-${currentRoleId}`"> <span
+                        <label class="checkbox" :for="`hidden-${moduleKey}-${currentRoleId}`"> <span
                             class="line line1"></span>
                           <span class="line line2"></span>
                         </label>
@@ -161,8 +159,9 @@ import { onMounted } from 'vue';
 import { computed } from 'vue';
 import { ref, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { toast } from 'vue3-toastify';
+import Swal from 'sweetalert2';
 import { Permission } from '@/stores/permission'
+import { toast } from 'vue3-toastify';
 
 export default {
   name: 'RolePermissionManager',
@@ -206,9 +205,11 @@ export default {
       'employee': 'Nhân viên',
       'customer': 'Khách hàng',
       'shipper': 'Giao hàng',
+      'discounts': 'Mã giảm giá',
+      'luckyprizes': 'Quà',
     };
 
-    const actionKeys = ['view', 'create', 'edit', 'delete'];
+    const actionKeys = ['view', 'create', 'edit', 'hidden'];
 
     // tạo cấu trúc quyền mặc định cho từng module
     const createAbilitiesStructure = (abilitiesData = null) => {
@@ -218,7 +219,7 @@ export default {
           view: false,
           create: false,
           edit: false,
-          delete: false,
+          hidden: false,
           all: false
         };
       }
@@ -257,7 +258,15 @@ export default {
         // toast.success('Tải dử liệu thành công')
       } catch (error) {
         console.log('Lỗi khi lấy dữ liệu quyền:', error);
-        toast.error('Lỗi khi lấy dữ liệu quyền')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          text: 'Lỗi khi lấy dữ liệu quyền',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
       } finally {
         loading.value = false;
       }
@@ -273,13 +282,15 @@ export default {
         if (moduleKey === 'dashboard') {
           allChecked = abilities.view;
 
-          // nếu như quyền là đơn hiện thời hoặc là lịch đặt bàn thì tick vào ô xem và thêm là xem như bật toàn quyền
-        } else if (moduleKey === 'current_order' || moduleKey === 'booking') {
+          // nếu như quyền là đơn hàng hoặc là lịch đặt bàn thì tick vào ô xem và thêm là xem như bật toàn quyền
+        } else if (moduleKey === 'order') {
           allChecked = abilities.view && abilities.create;
+        } else if (moduleKey === 'table' || moduleKey === 'role' || moduleKey === 'employee' || moduleKey === 'customer' || moduleKey === 'shipper' || moduleKey === 'category' || moduleKey === 'topping' || moduleKey === 'booking') {
+          allChecked = abilities.view && abilities.create && abilities.edit;
 
           //các quyền còn lại có đầy đủ crud
         } else {
-          allChecked = abilities.view && abilities.create && abilities.edit && abilities.delete;
+          allChecked = abilities.view && abilities.create && abilities.edit && abilities.hidden;
         }
 
         nextTick(() => {
@@ -300,15 +311,11 @@ export default {
         if (moduleKey === 'dashboard') {
           abilities.view = isChecked;
 
-          // nếu quyền đơn hiện thời và đặt bàn bật checkbox create xem như là toàn quyền
-        } else if (moduleKey === 'current_order' || moduleKey === 'booking') {
-          abilities.create = isChecked;
-
           //các quyền còn lại phải tắt hết
         } else {
           abilities.create = isChecked;
           abilities.edit = isChecked;
-          abilities.delete = isChecked;
+          abilities.hidden = isChecked;
         }
       }
     };
@@ -330,7 +337,15 @@ export default {
 
         if (isinsert.value) {
           if (!roleName.value.trim()) {
-            toast.error('Vui lòng nhập tên vai trò.');
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'warning',
+              text: 'Vui lòng nhập tên vai trò.',
+              showConfirmButton: false,
+              timer: 1500,
+              timerProgressBar: true,
+            });
             loading.value = false;
             return;
           }
@@ -340,7 +355,15 @@ export default {
             permissions: permissionsToSave,
           });
 
-          toast.success('Thêm vai trò thành công!');
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Thêm vai trò thành công!',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+          });
           router.back();
         } else if (isedit.value) {
           const payload = {
@@ -355,7 +378,15 @@ export default {
         }
       } catch (error) {
         console.error('Lỗi khi lưu vai trò/quyền:', error);
-        toast.error('Lỗi khi lưu vai trò/quyền');
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Lỗi khi lưu vai trò/quyền',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true,
+        });
       } finally {
         loading.value = false;
       }
@@ -363,15 +394,38 @@ export default {
 
 
     const resetPermissions = () => {
-      if (confirm('Bạn có chắc chắn muốn đặt lại tất cả quyền về trạng thái ban đầu (dựa trên dữ liệu tải lần cuối)?')) {
+      const result = Swal.fire({
+        title: `Bạn có chắc chắn muốn đặt lại tất cả quyền về trạng thái ban đầu (dựa trên dữ liệu tải lần cuối)?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy',
+      })
+      if (result.isConfirmed) {
         if (originalData.value) {
           currentRoleAbilities.value = JSON.parse(JSON.stringify(originalData.value));
           for (const moduleKey in moduleMap) {
             handleAbilityChange(moduleKey);
           }
-          toast.success('Đã đặt lại quyền về trạng thái ban đầu.');
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Đã đặt lại quyền về trạng thái ban đầu.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          })
         } else {
-          toast.success('Không có gì thay đôir.');
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Không có gì thay đổi.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          })
         }
       }
     };

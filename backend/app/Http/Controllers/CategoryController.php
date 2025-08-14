@@ -19,6 +19,17 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Lỗi khi lấy danh sách danh mục', 'error' => $e->getMessage()], 500);
         }
     }
+    public function getAllCategoriesForAdmin()
+    {
+        try {
+            $cates = Category::with('children')
+            ->where('type', 'food')
+            ->get();
+            return response()->json($cates);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Lỗi khi lấy danh sách danh mục', 'error' => $e->getMessage()], 500);
+        }
+    }
         public function getAllCategories()
 {
     return response()->json(Category::all());

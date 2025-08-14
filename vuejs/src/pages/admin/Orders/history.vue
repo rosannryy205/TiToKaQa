@@ -139,7 +139,7 @@
 import { ref, computed, reactive, watch } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
-import { message } from 'ant-design-vue';
+import Swal from 'sweetalert2';
 // Import các icon nếu cần cho nút hoặc các phần khác
 // import { EyeOutlined, PrinterOutlined } from '@ant-design/icons-vue';
 
@@ -249,24 +249,24 @@ const handleStatusChange = async (orderId, newStatus) => {
 
   // Kiểm tra newStatus hợp lệ
   if (!allowedStatuses.includes(newStatus)) {
-    message.warning('Trạng thái không hợp lệ.');
+    Swal.fire({ icon: 'warning', title: 'Trạng thái không hợp lệ.' });
     return;
   }
 
   // Logic kiểm soát cập nhật trạng thái
   if (currentStatus === 'Đang giao hàng') {
     if (!['Giao thành công', 'Giao thất bại'].includes(newStatus)) {
-      message.warning('Chỉ có thể cập nhật trạng thái thành công hoặc thất bại khi đang giao hàng.');
+      Swal.fire({ icon: 'warning', title: 'Chỉ có thể cập nhật trạng thái thành công hoặc thất bại khi đang giao hàng.' });
       return;
     }
   } else {
     if (newStatus === 'Đã hủy') {
       if (!['Chờ xác nhận', 'Đã xác nhận'].includes(currentStatus)) {
-        message.warning('Chỉ có thể hủy đơn khi đơn ở trạng thái chờ xác nhận hoặc đã xác nhận.');
+        Swal.fire({ icon: 'warning', title: 'Chỉ có thể hủy đơn khi đơn ở trạng thái chờ xác nhận hoặc đã xác nhận.' });
         return;
       }
     } else if (currentStatus !== 'Đang giao hàng' && !['Giao thành công', 'Giao thất bại'].includes(newStatus) && statusOrder[newStatus] !== statusOrder[currentStatus] + 1) {
-      message.warning('Không thể nhảy trạng thái không theo thứ tự.');
+      Swal.fire({ icon: 'warning', title: 'Không thể nhảy trạng thái không theo thứ tự.' });
       return;
     }
   }
@@ -284,7 +284,14 @@ const handleStatusChange = async (orderId, newStatus) => {
       if (selectedOrder.value?.id === orderId) {
         selectedOrder.value.status = newStatus;
       }
-      message.success('Cập nhật trạng thái thành công');
+      Swal.fire({
+        icon: 'success',
+        title: `Cập nhật trạng thái thành "${newStatus}"`,
+        timer: 1500,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
       if (['Giao thành công', 'Giao thất bại', 'Đã hủy'].includes(newStatus)) {
         await fetchOrders();
         const updatedOrder = orders.value.find(order => order.id === orderId);
@@ -293,11 +300,11 @@ const handleStatusChange = async (orderId, newStatus) => {
         }
       }
     } else {
-      message.error('Cập nhật trạng thái thất bại');
+      Swal.fire({ icon: 'error', title: 'Cập nhật trạng thái thất bại' });
     }
   } catch (error) {
     console.error('Lỗi cập nhật trạng thái:', error);
-    message.error('Có lỗi xảy ra khi cập nhật trạng thái');
+    Swal.fire({ icon: 'error', title: 'Có lỗi xảy ra khi cập nhật trạng thái' });
   }
 };
 

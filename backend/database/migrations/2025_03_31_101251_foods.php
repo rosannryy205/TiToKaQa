@@ -24,8 +24,8 @@ return new class extends Migration
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->decimal('flash_sale_price', 10, 2)->nullable();
-            $table->integer('flash_sale_quantity')->nullable(); 
-            $table->integer('flash_sale_sold')->default(0);  
+            $table->integer('flash_sale_quantity')->nullable();
+            $table->integer('flash_sale_sold')->default(0);
             $table->timestamp('flash_sale_start')->nullable();
             $table->timestamp('flash_sale_end')->nullable();
             $table->timestamps();

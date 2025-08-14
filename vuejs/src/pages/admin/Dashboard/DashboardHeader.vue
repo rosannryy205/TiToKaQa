@@ -1,6 +1,6 @@
 <template>
   <!-- <div class="panel-header "> -->
-    <canvas ref="canvasRef" :height="255"></canvas>
+  <canvas ref="canvasRef" :height="255"></canvas>
   <!-- </div> -->
 </template>
 
@@ -35,8 +35,8 @@ ChartJS.register(
 
 // Chart data
 const chartData = [
-  50, 150, 100, 190, 130, 90,
-  150, 160, 120, 140, 190, 95
+  50, 150, 100, 290, 130, 90,
+  150, 300, 120, 90, 270, 450
 ]
 
 const chartLabels = [
@@ -50,13 +50,13 @@ onMounted(() => {
   const ctx = canvasRef.value.getContext('2d')
   const chartColor = '#FFFFFF'
 
-  const gradientStroke = ctx.createLinearGradient(500, 0, 100, 0)
-  gradientStroke.addColorStop(0, '#80b6f4')
-  gradientStroke.addColorStop(1, chartColor)
+  // const gradientStroke = ctx.createLinearGradient(500, 0, 100, 0)
+  // gradientStroke.addColorStop(0, '#80b6f4')
+  // gradientStroke.addColorStop(1, chartColor)
 
   const gradientFill = ctx.createLinearGradient(0, 200, 0, 50)
   gradientFill.addColorStop(0, 'rgba(128, 182, 244, 0)')
-  gradientFill.addColorStop(1, 'rgba(255, 255, 255, 0.24)')
+  gradientFill.addColorStop(1, 'rgba(255, 255, 255, 0.3)')
 
   new ChartJS(ctx, {
     type: 'line',
@@ -64,7 +64,7 @@ onMounted(() => {
       labels: chartLabels,
       datasets: [
         {
-          label: 'Data',
+          label: 'Doanh thu',
           data: chartData,
           borderColor: chartColor,
           backgroundColor: gradientFill,
@@ -94,11 +94,11 @@ onMounted(() => {
       maintainAspectRatio: false,
       plugins: {
         tooltip: {
-          backgroundColor: '#fff',
-          titleColor: '#333',
-          bodyColor: '#666',
+          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+          titleColor: '#000',
+          bodyColor: '#333',
           bodySpacing: 4,
-          padding: 12
+          padding: 12,
         },
         legend: {
           display: false
@@ -107,31 +107,35 @@ onMounted(() => {
       scales: {
         y: {
           ticks: {
-            color: 'rgba(255,255,255,0.4)',
+            color: 'rgba(255, 255, 255, 0.75)',
             font: {
               weight: 'bold'
             },
             beginAtZero: true,
-            maxTicksLimit: 5,
+            maxTicksLimit: 6,
             padding: 10
           },
           grid: {
             drawTicks: true,
             drawBorder: false,
-            color: 'rgba(255,255,255,0.1)',
+            color: 'rgba( 255, 255, 255, 0.25)',
             zeroLineColor: 'transparent'
           }
         },
         x: {
           ticks: {
             padding: 10,
-            color: 'rgba(255,255,255,0.4)',
+            color: 'rgba( 255, 255, 255, 0.6)',
             font: {
               weight: 'bold'
             }
           },
           grid: {
-            display: false
+            display: false,          // tắt grid lines
+            drawTicks: false,        // tắt tick nhỏ
+            drawOnChartArea: false,  // không vẽ trên vùng chart
+            drawBorder: false,
+            color: 'transparent'
           }
         }
       }

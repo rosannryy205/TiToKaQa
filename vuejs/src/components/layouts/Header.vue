@@ -62,7 +62,7 @@
                       :alt="item.name" class="me-2  img-search" />
                     <div class="info-search">
                       <div class="name-search">{{ item.name }}</div>
-                      <div class="price-search">{{formatNumber(item.price) }}</div>
+                      <div class="price-search">{{ formatNumber(item.price) }}</div>
                     </div>
 
 
@@ -239,9 +239,7 @@
   <!-- reservation -->
   <div class="container">
     <transition name="slide-fade">
-      <div v-if="isBookingFormVisible"
-      ref="bookingForm"
-       class="booking-form-container position-relative">
+      <div v-if="isBookingFormVisible" ref="bookingForm" class="booking-form-container position-relative">
         <button @click="closeForm" class="btn-close position-absolute" style="top: 5px; right: 5px;"
           aria-label="Close"></button>
 
@@ -282,7 +280,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/userAuth';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick  } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick } from 'vue';
 import { toast } from 'vue3-toastify';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
@@ -567,7 +565,15 @@ const addToCart = () => {
   }
 
   localStorage.setItem(cartKey, JSON.stringify(cart))
-  alert('Đã thêm vào giỏ hàng!')
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon: 'success',
+    title: 'Đã thêm vào giỏ hàng!',
+    showConfirmButton: false,
+    timer: 1500,
+    timerProgressBar: true
+  });
 }
 /**form datban */
 const route = useRoute()
@@ -594,8 +600,8 @@ watch(isBookingFormVisible, (visible) => {
     }
     // nextTick vẫn hữu ích để đảm bảo form có trong DOM trước khi có thể tương tác
     nextTick(() => {
-        // Bạn có thể thực hiện các hành động khác ở đây sau khi form đã render
-        // Ví dụ: bookingForm.value.querySelector('input').focus()
+      // Bạn có thể thực hiện các hành động khác ở đây sau khi form đã render
+      // Ví dụ: bookingForm.value.querySelector('input').focus()
     })
   }
 })

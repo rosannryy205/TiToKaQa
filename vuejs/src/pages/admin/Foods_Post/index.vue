@@ -7,11 +7,9 @@
             <!-- Header -->
             <div class="flex justify-between items-center mb-4">
               <h2 class="text-2xl font-bold">📄 Danh sách bài viết món ăn</h2>
-              <router-link to="/admin/add_post">
-                <button class="btn btn-success-custom">
-                  <i class="bi bi-plus-circle me-1"></i> Thêm bài viết
-                </button>
-              </router-link>
+              <button class="btn btn-success-custom" @click="addPost">
+                <i class="bi bi-plus-circle me-1"></i> Thêm bài viết
+              </button>
             </div>
 
             <!-- Tìm kiếm & Giới hạn hiển thị -->
@@ -26,7 +24,6 @@
               <div class="d-flex align-items-center gap-2 text-sm">
                 Hiển thị
                 <select v-model.number="perPage" class="form-select-customer">
-                  <option :value="3">3</option>
                   <option :value="5">5</option>
                   <option :value="10">10</option>
                   <option :value="15">15</option>

@@ -63,7 +63,7 @@ class ComboController extends Controller
                 'name' => 'required|string|max:255',
                 'price' => 'required|numeric|min:0',
                 'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-                'description' => 'nullable|string',
+                'description' => 'required|string',
                 'combo_details' => 'required|array|min:1',
                 'combo_details.*.food_id' => 'required|integer|exists:foods,id',
                 'combo_details.*.quantity' => 'required|integer|min:1',
@@ -112,12 +112,17 @@ class ComboController extends Controller
             ]);
 
             if ($request->hasFile('image')) {
+                if ($combo->image && Storage::exists('public/img/food/' . $combo->image)) {
+                    Storage::delete('public/img/food/' . $combo->image);
+                }
                 $image = $request->file('image');
                 $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
                 $image->storeAs('public/img/food', $filename);
+            
                 $combo->image = $filename;
                 $combo->save();
             }
+            
 
             $currentFoods = $combo->foods()->pluck('combo_details.quantity', 'foods.id')->toArray();
             $newFoods = collect(json_decode($request->foods, true));
