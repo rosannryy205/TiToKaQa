@@ -21,6 +21,7 @@
               <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
             </ul>
           </div>
           <div class="me-2">

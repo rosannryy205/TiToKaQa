@@ -119,7 +119,7 @@
                   v-model="paymentMethod" />
                 <label class="form-check-label d-flex align-items-center" for="momo">
                   <span class="me-2">Thanh toán qua COD</span>
-                  <img src="/img/momo.png" height="20" width="20" alt="" />
+                  <img src="/img/cod.png" height="20" width="20" alt="" />
                 </label>
               </div>
 
