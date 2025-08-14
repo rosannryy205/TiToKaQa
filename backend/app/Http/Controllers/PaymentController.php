@@ -103,7 +103,6 @@ class PaymentController extends Controller
 
     public function vnpayReturn(Request $request)
     {
-
         $vnp_HashSecret = config('services.vnpay.hash_secret');
         $inputData = $request->except('vnp_SecureHash', 'vnp_SecureHashType');
         ksort($inputData);
@@ -248,7 +247,9 @@ class PaymentController extends Controller
                             'qr_url' => $uploadedFileUrl
                         ];
 
-                        Mail::to($formattedOrderData['guest_email'])->send(new ReservationMail($formattedOrderData));
+                        if (!empty($formattedOrderData['guest_email'])) {
+                            Mail::to($formattedOrderData['guest_email'])->send(new ReservationMail($formattedOrderData));
+                        }
                     } else {
                         $mailData = [
                             'order_id' => $order->id,
@@ -263,11 +264,13 @@ class PaymentController extends Controller
                             'order_status' =>  'Chờ xác nhận',
                             'shippingFee' =>  $order->ship_cost
                         ];
-                        Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+                        if (!empty($mailData['guest_email'])) {
+                            Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+                        }
                     }
                 } else {
                     $payment->update([
-                        'payment_status' => 'Thất bại',
+                        'payment_status' => 'Thanh toán thất bại',
                         'payment_time' => Carbon::createFromFormat('YmdHis', $request->input('vnp_PayDate'), 'Asia/Ho_Chi_Minh'),
                         'transaction_id' => $request->input('vnp_TransactionNo'),
                         'bank_code' => $request->input('vnp_BankCode'),
@@ -278,8 +281,14 @@ class PaymentController extends Controller
                     if ($order && $order->status == 'Đang chờ xử lý') {
                         $order->update(['status' => 'Thanh toán thất bại']);
                     }
+                    if ($request->input('vnp_ResponseCode') == '24') {
+                        $message = "Giao dịch bị huỷ bởi người dùng";
+                    } else {
+                        $message = "Thanh toán thất bại: Mã phản hồi VNPAY: " . $request->input('vnp_ResponseCode') .
+                            ", Trạng thái giao dịch: " . $request->input('vnp_TransactionStatus');
+                    }
+
                     $responseCode = "02";
-                    $message = "Thanh toán thất bại hoặc bị hủy: Mã phản hồi VNPAY: " . $request->input('vnp_ResponseCode') . ", Trạng thái giao dịch: " . $request->input('vnp_TransactionStatus');
                 }
             }
             DB::commit();
@@ -292,8 +301,14 @@ class PaymentController extends Controller
         return response()->json([
             'RspCode' => $responseCode,
             'Message' => $message,
-            'success' => true,
+            'success' => $responseCode === "00",
             'order_id' => $payment->order_id ?? null,
+            'status' => match ($responseCode) {
+                "00" => 'success',
+                "02" => 'cancel',
+                "24" => 'cancel',
+                default => 'failed'
+            }
         ]);
     }
 
@@ -396,8 +411,9 @@ class PaymentController extends Controller
                 'order_status' =>  'Chờ xác nhận',
                 'shippingFee' =>  $order->ship_cost
             ];
-
-            Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+            if (!empty($mailData['guest_email'])) {
+                Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+            }
 
             DB::commit();
 
@@ -410,6 +426,7 @@ class PaymentController extends Controller
 
 
     public function show(string $id) {}
+
 
     /**
      * Hiển thị biểu mẫu để chỉnh sửa tài nguyên được chỉ định.

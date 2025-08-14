@@ -431,9 +431,10 @@ class UserController extends Controller
 
         $request->validate([
             'fullname' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|max:20|unique:users,phone,' . $id,
             'address' => 'nullable|string|max:255',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ], [
+            'phone.unique' => 'Số điện thoại đã được sử dụng.',
         ]);
 
         try {
@@ -443,9 +444,8 @@ class UserController extends Controller
             $user->save();
 
             return response()->json([
-                'message' => 'Thông tin và ảnh đại diện đã được cập nhật thành công.',
+                'message' => 'Thông tin đã được cập nhật thành công.',
                 'user' => $user,
-                'avatar_url' => $user->avatar ? Storage::url($user->avatar) : null
             ]);
         } catch (Exception $e) {
             return response()->json(['message' => 'Đã xảy ra lỗi server khi cập nhật thông tin.'], 500);

@@ -13,18 +13,18 @@ return new class extends Migration
     {
         Schema::create('discounts', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique(); 
-            $table->string('name');         
-            $table->integer('discount_value'); 
-            $table->enum('discount_method', ['percent', 'fixed'])->default('fixed'); 
-            $table->enum('discount_type', ['freeship', 'salefood'])->default('freeship'); 
+            $table->string('code')->unique();
+            $table->string('name');
+            $table->integer('discount_value');
+            $table->enum('discount_method', ['percent', 'fixed'])->default('fixed');
+            $table->enum('discount_type', ['freeship', 'salefood'])->default('freeship');
             $table->integer('max_discount_amount')->nullable()->comment('Giá trị giảm tối đa, áp dụng cho discount_method là percent');
             $table->integer('min_order_value')->nullable()->default(0)->comment('Giá trị đơn hàng tối thiểu để được áp dụng mã giảm giá');
             $table->unsignedBigInteger('category_id')->nullable()->comment('Áp dụng cho danh mục cụ thể, null nếu toàn hệ thống');
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
-            $table->timestamp('start_date')->nullable(); 
-            $table->timestamp('end_date')->nullable();   
-            $table->enum('status', ['active', 'inactive'])->default('active'); 
+            $table->timestamp('start_date')->nullable();
+            $table->timestamp('end_date')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->integer('used')->default(0);
             $table->integer('usage_limit')->default(1);
             $table->enum('source', ['system', 'point_exchange', 'lucky_wheel', 'for_users'])->default('system')->comment('Nguồn voucher');
@@ -32,10 +32,10 @@ return new class extends Migration
             $table->integer('cost')->nullable()->default(0)->comment('Xu cần để đổi voucher nếu là point_exchange');
             $table->string('condition')->nullable()->comment('Điều kiện tối thiểu để được áp dụng mã giảm giá');
             $table->string('custom_condition_note')->nullable()->comment('Ghi chú điều kiện đặc biệt như thời hạn sử dụng sau khi đổi');
-            $table->softDeletes();                      
-            $table->timestamps();                   
+            $table->softDeletes();
+            $table->timestamps();
         });
-        
+
     }
 
     /**

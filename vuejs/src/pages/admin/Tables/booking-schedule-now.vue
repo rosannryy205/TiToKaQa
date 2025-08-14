@@ -190,7 +190,7 @@ import { ref, watch } from 'vue'
 import { onMounted } from 'vue'
 import axios from 'axios'
 import { Info } from '@/stores/info-order-reservation'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 import { Permission } from '@/stores/permission'
 import { Html5QrcodeScanner } from 'html5-qrcode'
@@ -248,15 +248,38 @@ const onScanSuccess = async (decodedText, decodedResult) => {
         id: orderId,
         order_status: 'Khách đã đến',
       })
-
-      toast.success(`Xác nhận khách đã đến cho đơn #${orderId}`)
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: `Xác nhận khách đã đến cho đơn #${orderId}`,
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      })
       await getOrderOfTable()
     } catch (err) {
-      toast.error('Có lỗi khi cập nhật trạng thái đơn hàng')
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Có lỗi khi cập nhật trạng thái đơn hàng',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      })
       console.error(err)
     }
   } else {
-    toast.error('QR code không hợp lệ')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'QR code không hợp lệ',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    })
   }
 }
 
@@ -296,23 +319,52 @@ const getOrderOfTable = async (selectedDate) => {
     })
   } catch (error) {
     console.error('Lỗi khi lấy dữ liệu đơn đặt bàn:', error)
-    toast.error('Không thể tải dữ liệu đơn đặt bàn.')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Không thể tải dữ liệu đơn đặt bàn.',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    })
   } finally {
     isLoading.value = false
   }
 }
 const updateStatus = async (id, status) => {
   try {
-    if (confirm(`Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}`)) {
+    const result = await Swal.fire({
+      title: `Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy',
+    })
+    if (result.isConfirmed) {
       await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
         id: id,
         order_status: status,
       })
-      toast.success('Cập nhật thành công')
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Cập nhật thành công',
+        showConfirmButton: false,
+        timer: 2000,
+      })
       await getOrderOfTable()
     }
   } catch (error) {
-    toast.error('Có lỗi xảy ra')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Có lỗi xảy ra',
+      showConfirmButton: false,
+      timer: 2000,
+    })
     console.log(error)
   }
 }
