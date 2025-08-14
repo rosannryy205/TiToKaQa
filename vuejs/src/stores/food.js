@@ -9,6 +9,7 @@ export const FoodList = {
     const foods = ref([])
     const combos = ref([])
     const categories = ref([])
+    const categorys = ref([])
     const allCates = ref([])
     const foodDetail = ref([])
     const toppings = ref([])
@@ -42,6 +43,16 @@ export const FoodList = {
         console.error(error)
       }
     }
+    const getCategoryForAdmin = async () => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/api/admin-categories`)
+        categorys.value = res.data  .filter(item => item.type === 'food')
+        categorys.value.shift()
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     const getAllCategory = async () => {
       try {
         const res = await axios.get(`http://127.0.0.1:8000/api/home/all-categories`)
@@ -164,6 +175,7 @@ export const FoodList = {
 
     onMounted(async () => {
       await getCategory()
+      await getCategoryForAdmin()
       await getFood()
       await getAllCombos()
       flatCategoryList
@@ -173,6 +185,7 @@ export const FoodList = {
       foods,
       combos,
       categories,
+      categorys,
       foodDetail,
       toppings,
       spicyLevel,
@@ -188,6 +201,7 @@ export const FoodList = {
       flatCategoryList,
       getImageMenuUrl,
       getCategory,
+      getCategoryForAdmin,
       getAllCategory,
       allCates,
       quantity

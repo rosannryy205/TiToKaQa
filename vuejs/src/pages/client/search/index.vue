@@ -186,6 +186,7 @@ import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import numeral from 'numeral';
 import { Modal } from 'bootstrap';
 import { useRoute } from 'vue-router';
+import Swal from 'sweetalert2'
 
 export default {
   name: 'HomePage',
@@ -436,7 +437,15 @@ export default {
       }
 
       localStorage.setItem(cartKey, JSON.stringify(cart))
-      alert('Đã thêm vào giỏ hàng!')
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Đã thêm vào giỏ hàng!',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true
+      });
     }
 
     onMounted(async () => {

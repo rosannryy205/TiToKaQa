@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminCategoryToppingController;
 use App\Http\Controllers\AdminFoodController;
 use App\Http\Controllers\AdminFoodPost;
+use App\Http\Controllers\AdminPaymentController;
 use App\Http\Controllers\AdminToppingController;
 use App\Http\Controllers\AIController;
 use App\Http\Controllers\CartController;
@@ -247,6 +248,7 @@ Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 
 
 //paymentMethod
+Route::get('/payments/info/{id}', [PaymentController::class, 'show']);
 Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
 Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
@@ -293,3 +295,5 @@ Route::post('/post/{id}/toggle-hide', [AdminFoodPost::class, 'hidePost']);
 /** Generate Post */
 Route::post('/generate/post', [AIController::class, 'generatePost']);
 Route::post('/check-seo', [AIController::class, 'checkSeo']);
+/** crud discounts mqua*/
+Route::get('/admin-categories', [CategoryController::class, 'getAllCategoriesForAdmin']);

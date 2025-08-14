@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Providers;
-
+use Illuminate\Support\Carbon;
 use Illuminate\Support\ServiceProvider;
 use App\Services\DialogflowService;
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Carbon::setLocale('vi');
+        date_default_timezone_set('Asia/Ho_Chi_Minh');
     }
 }
