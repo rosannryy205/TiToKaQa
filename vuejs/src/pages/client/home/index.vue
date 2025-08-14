@@ -33,12 +33,12 @@
       <div class="mid-banner container-fluid position-relative">
         <img :src="images[currentIndex]" alt="banner" class="img-fluid"
           style="border-radius: 25px; transition: opacity 0.5s ease" />
-        <button @click="changeSlide(-1)" class="trans-btn trans-left d-none d-lg-block">
+        <!-- <button @click="changeSlide(-1)" class="trans-btn trans-left d-none d-lg-block">
           <i class="fa-solid fa-arrow-left" style="color: white"></i>
         </button>
         <button @click="changeSlide(1)" class="trans-btn trans-right d-none d-lg-block">
           <i class="fa-solid fa-arrow-right" style="color: white"></i>
-        </button>
+        </button> -->
       </div>
 
       <section class="foods-homepages d-flex mt-5">
