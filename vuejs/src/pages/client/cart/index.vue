@@ -60,6 +60,7 @@
             </div>
             <!-- Nút chọn topping góc dưới bên phải -->
             <button
+              v-if="!item.is_flash_sale"
               class="btn btn-outline-primary btn-sm position-absolute m-2"
               style="bottom: 0; right: 0"
               @click="openModalToEditTopping(item, index)"
