@@ -94,10 +94,10 @@
                             ]"></div>
                           </div>
                         </div>
-                        <button v-if="ban.has_booking_history == false && hasPermission('delete_table')"
+                        <!-- <button v-if="ban.has_booking_history == false && hasPermission('delete_table')"
                           class="rotate-btn" @click="deleteTable(ban.id)">
                           <i class="bi bi-trash3-fill"></i>
-                        </button>
+                        </button> -->
                       </div>
                     </template>
                   </draggable>
@@ -373,10 +373,10 @@
                                 ]"></div>
                               </div>
                             </div>
-                            <button v-if="ban.has_booking_history == false && hasPermission('delete_table')"
+                            <!-- <button v-if="ban.has_booking_history == false && hasPermission('delete_table')"
                               class="rotate-btn" @click="deleteTable(ban.id)">
                               <i class="bi bi-trash3-fill"></i>
-                            </button>
+                            </button> -->
                           </div>
                         </template>
                       </draggable>
@@ -1006,48 +1006,24 @@ export default {
       }
     }
 
-    const deleteTable = async (table_id) => {
-      if (!hasPermission('delete_table')) {
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'warning',
-          title: 'Bạn không có quyền xóa bàn.',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true
-        })
-        return
-      }
+    // const deleteTable = async (table_id) => {
+    //   if (!hasPermission('delete_table')) {
+    //     toast.error('Bạn không có quyền xóa bàn.')
+    //     return
+    //   }
 
-      try {
-        isLoading.value = true
-        await axios.delete(`http://127.0.0.1:8000/api/tables/${table_id}`)
-        await getTable()
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'success',
-          title: 'Xoá bàn thành công',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true
-        })
-      } catch (error) {
-        console.log('Lỗi ' + error)
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'success',
-          title: 'Xoá bàn không thành công',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true
-        })
-      } finally {
-        isLoading.value = false
-      }
-    }
+    //   try {
+    //     isLoading.value = true
+    //     await axios.delete(`http://127.0.0.1:8000/api/tables/${table_id}`)
+    //     await getTable()
+    //     toast.success('Xoá bàn thành công')
+    //   } catch (error) {
+    //     console.log('Lỗi ' + error)
+    //     toast.error('Xoá bàn không thành công')
+    //   } finally {
+    //     isLoading.value = false
+    //   }
+    // }
     const selectedTablesForOrder = ref([])
     const loadTable = async (id) => {
       if (isSetup.value) {
@@ -1395,7 +1371,7 @@ export default {
       addNewTable,
       onNewTableDragEnd,
       onTableAddedFromSidebar,
-      deleteTable,
+      // deleteTable,
       loadTable,
       updateView,
       resetNewTableForm,

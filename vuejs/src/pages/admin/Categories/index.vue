@@ -6,7 +6,8 @@
           <h3 class="title frame">Quản lý danh mục</h3>
 
           <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-            <router-link :to="{ name: 'insert-food-category' }" class="btn btn-add">+ Thêm danh mục</router-link>
+            <router-link :to="{ name: 'insert-food-category' }" class="btn btn-add"
+              v-if="hasPermission('create_category')">+ Thêm danh mục</router-link>
 
             <span class="vd">Tìm kiếm</span>
             <input type="text" v-model="searchKeyword" class="custom-input" placeholder="Tìm danh mục..." />
@@ -66,17 +67,18 @@
 
                   <td class="d-flex justify-content-center gap-2 "
                     style="min-height:100px; min-width: 80px; display: flex; align-items: center; justify-content: center;">
-                    <router-link v-if="item.id !== 1 || hasPermission('edit_category')"
+                    <router-link v-if="item.id === 1 ? false : hasPermission('edit_category')"
                       :to="{ name: 'update-food-category', params: { id: item.id } }" class="btn btn-update btn-sm">
                       Sửa
                     </router-link>
+
 
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div class="no-food-found text-center py-5"  v-else>
+          <div class="no-food-found text-center py-5" v-else>
             <p class="h4 text-muted">
               <i class="fas fa-exclamation-circle me-2"></i> Không tìm thấy danh mục nào.
             </p>

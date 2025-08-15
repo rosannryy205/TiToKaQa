@@ -4,7 +4,7 @@
       <div class="card card-stats card-raised">
         <div class="card-body">
           <h4 class="pb-2">Đơn hiện thời</h4>
-          <router-link to="/admin/order-create">
+          <router-link to="/admin/order-create" v-if="hasPermission('create_order') && hasPermission('create_booking')">
             <button class="btn add-order-fixed-btn me-3">+ Thêm đơn hàng</button>
           </router-link>
           <button class="btn add-order-fixed-btn" @click="openQrScanner" v-if="hasPermission('edit_booking')">

@@ -1,6 +1,6 @@
 <template v-if="hasPermission('view_discounts')">
   <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-12" v-if="filteredDiscounts">
       <div class="card card-stats card-raised">
         <div class="card-body">
           <h3 class="title">Quản lý Mã Giảm Giá</h3>
@@ -81,20 +81,20 @@
                   </td>
                   <td>
                     <div class="d-flex justify-content-center gap-2 flex-nowrap">
-                    <router-link
-                       v-if="activeTab === 2"
-                          :to="`/admin/update-discount/${item.id}`"
-                          class="btn btn-update"
-                        >
+                      <router-link
+                        v-if="activeTab === 2"
+                        :to="`/admin/update-discount/${item.id}`"
+                        class="btn btn-update"
+                      >
                         Gia hạn
-                        </router-link>
+                      </router-link>
                       <template v-else>
                         <button
                           class="btn btn-outline btn-sm"
                           :disabled="loadingIds.has(item.id)"
-    @click="togglePrizeStatus(item)"
-  >
-    {{ (item.status || '').toLowerCase() === 'inactive' ? 'Hiện' : 'Ẩn' }}
+                          @click="togglePrizeStatus(item)"
+                        >
+                          {{ (item.status || '').toLowerCase() === 'inactive' ? 'Hiện' : 'Ẩn' }}
                         </button>
                         <router-link
                           :to="`/admin/update-discount/${item.id}`"
@@ -125,6 +125,13 @@ import Swal from 'sweetalert2'
 import axios from 'axios'
 
 const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
 const { hasPermission } = Permission(userId)
 
 const activeTab = ref(0)
@@ -216,7 +223,9 @@ async function togglePrizeStatus(item) {
   const { isConfirmed } = await Swal.fire({
     icon: 'question',
     title: isInactive ? 'Hiện lại quà này?' : 'Ẩn quà này?',
-    text: isInactive ? 'Quà sẽ xuất hiện lại ngay trong vòng quay.' : 'Quà sẽ ngừng xuất hiện ngay lập tức.',
+    text: isInactive
+      ? 'Quà sẽ xuất hiện lại ngay trong vòng quay.'
+      : 'Quà sẽ ngừng xuất hiện ngay lập tức.',
     showCancelButton: true,
     confirmButtonText: isInactive ? 'Hiện lại' : 'Ẩn ngay',
     cancelButtonText: 'Huỷ',
@@ -229,7 +238,7 @@ async function togglePrizeStatus(item) {
     await axios.patch(
       `http://127.0.0.1:8000/api/admin/discounts/${item.id}/status`,
       { status: nextStatus },
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' } },
     )
     item.status = nextStatus
 
@@ -251,7 +260,7 @@ async function togglePrizeStatus(item) {
       timer: 1200,
       timerProgressBar: true,
     })
-    await Promise.all([ getAllDiscount(), getInactiveDiscounts() ])
+    await Promise.all([getAllDiscount(), getInactiveDiscounts()])
     activeTab.value
   } catch (err) {
     await Swal.fire({

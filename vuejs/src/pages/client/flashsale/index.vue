@@ -8,9 +8,7 @@
           <div class="countdown">
             <span class="countdown-label">Kết thúc trong</span>
             <div class="countdown-timer">
-              <span class="timer-box">{{ countdown.h }}</span
-              >: <span class="timer-box">{{ countdown.m }}</span
-              >:
+              <span class="timer-box">{{ countdown.h }}</span>: <span class="timer-box">{{ countdown.m }}</span>:
               <span class="timer-box">{{ countdown.s }}</span>
             </div>
           </div>
@@ -20,12 +18,20 @@
       <!-- Product List -->
       <div class="product-list">
         <div class="product-card" v-for="(food, index) in flashsaleFoods" :key="index"
-        :class="{ 'sold-out': food.is_sold_out }">
+          :class="{ 'sold-out': food.is_sold_out }">
           <div class="product-image-wrapper">
             <img :src="getImageUrl(food.image)" :alt="food.name" />
             <button class="cart-icon-btn" @click="addToCartFlashSale(food)">
+<<<<<<< HEAD
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="16" height="16">
+                <path fill="#ffffff"
+                  d="M24 48C10.7 48 0 58.7 0 72C0 85.3 10.7 96 24 96L69.3 96C73.2 96 76.5 98.8 77.2 102.6L129.3 388.9C135.5 423.1 165.3 448 200.1 448L456 448C469.3 448 480 437.3 480 424C480 410.7 469.3 400 456 400L200.1 400C188.5 400 178.6 391.7 176.5 380.3L171.4 352L475 352C505.8 352 532.2 330.1 537.9 299.8L568.9 133.9C572.6 114.2 557.5 96 537.4 96L124.7 96L124.3 94C119.5 67.4 96.3 48 69.2 48L24 48zM208 576C234.5 576 256 554.5 256 528C256 501.5 234.5 480 208 480C181.5 480 160 501.5 160 528C160 554.5 181.5 576 208 576zM432 576C458.5 576 480 554.5 480 528C480 501.5 458.5 480 432 480C405.5 480 384 501.5 384 528C384 554.5 405.5 576 432 576z" />
+              </svg>
+=======
               <i class="bi bi-cart"></i>
+>>>>>>> 640f6030221ce418323529fcd4ca0c2ad6f5fb6d
             </button>
+
           </div>
           <div class="product-info">
             <h3 class="product-name text-center">{{ food.name }}</h3>
@@ -271,14 +277,17 @@ onUnmounted(() => {
   font-weight: 500;
   white-space: nowrap;
 }
+
 .time-slots-wrapper {
   overflow-x: auto;
   padding-bottom: 10px;
   margin-bottom: 16px;
 }
+
 .time-slots-wrapper::-webkit-scrollbar {
   display: none;
 }
+
 .time-slots-wrapper {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -319,10 +328,12 @@ onUnmounted(() => {
   font-size: 12px;
   color: var(--text-secondary);
 }
+
 .slot.active .slot-status {
   color: var(--primary-color);
   font-weight: 500;
 }
+
 .product-list {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -341,6 +352,7 @@ onUnmounted(() => {
     gap: 8px;
   }
 }
+
 .product-card {
   background: var(--card-background);
   border-radius: 8px;
@@ -441,35 +453,43 @@ onUnmounted(() => {
   line-height: 18px;
   text-transform: uppercase;
 }
+
 @media (max-width: 768px) {
   .title {
     font-size: 20px;
   }
+
   .header-left {
     gap: 8px;
     flex-direction: column;
     align-items: flex-start;
   }
 }
+
 @media (max-width: 480px) {
   .product-list {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
+
   .product-info {
     padding: 8px;
   }
+
   .product-name {
     font-size: 13px;
     height: 36.4px;
   }
+
   .price strong {
     font-size: 16px;
   }
 }
+
 del {
   text-decoration: line-through;
 }
+
 .cart-icon-btn {
   position: absolute;
   top: 0px;
@@ -496,6 +516,7 @@ del {
 .product-image-wrapper {
   position: relative;
 }
+
 /**disable card */
 .product-card.sold-out {
   opacity: 0.6;
@@ -515,5 +536,4 @@ del {
   font-size: 16px;
   border-radius: 4px;
 }
-
 </style>

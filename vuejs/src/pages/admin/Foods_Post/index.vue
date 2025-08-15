@@ -7,7 +7,7 @@
             <!-- Header -->
             <div class="flex justify-between items-center mb-4">
               <h2 class="text-2xl font-bold">📄 Danh sách bài viết món ăn</h2>
-              <button class="btn btn-success" @click="addPost">
+              <button class="btn btn-success-custom" @click="addPost" v-if="hasPermission('create_post')">
                 <i class="bi bi-plus-circle me-1"></i> Thêm bài viết
               </button>
             </div>
@@ -42,8 +42,9 @@
                   <tr>
                     <th>ID</th>
                     <th>Ảnh</th>
-                    <th>Tên món</th>
+                    <th>Tiêu đề</th>
                     <th>Nội dung</th>
+                    <th>Thể loại</th>
                     <th>Ngày phát hành</th>
                     <th class="text-center">Hành động</th>
                   </tr>
@@ -52,19 +53,20 @@
                   <tr v-for="post in paginatedPosts" :key="post.id">
                     <td class="text-center">{{ post.id }}</td>
                     <td class="text-center">
-                      <img :src="post.image" alt="Ảnh" class="rounded border"
-                        style="width: 80px; height: 56px; object-fit: cover;" />
+                      <img :src="`http://127.0.0.1:8000/storage/img/post/${post.image}`" alt="Ảnh"
+                        class="rounded border" style="width: 100px; height: 100px; object-fit: cover;" />
                     </td>
-                    <td>{{ post.food_name }}</td>
+                    <td>{{ post.title }}</td>
                     <td>{{ truncate(post.content, 100) }}</td>
+                    <td class="text-center">{{ post.category }}</td>
                     <td class="text-center">{{ formatDate(post.published_at) }}</td>
                     <td class="text-center">
-                      <button class="btn btn-sm btn-primary me-2" @click="editPost(post)">
+                      <button class="btn btn-sm btn-primary me-2" v-if="hasPermission('edit_post')" @click="editPost(post)">
                         <i class="bi bi-pencil-square"></i>
                       </button>
-                      <!-- <button class="btn btn-sm btn-danger" @click="deletePost(post)">
-                <i class="bi bi-trash"></i>
-              </button> -->
+                      <button v-if="hasPermission('hidden_post')" class="btn btn-sm btn-danger-custom me-2" @click="toggleHide(post)">
+                        <i class="fa-regular" :class="post.is_hidden ? 'fa-eye' : 'fa-eye-slash'"></i>
+                      </button>
                     </td>
                   </tr>
                   <tr v-if="filteredPosts.length === 0">
@@ -94,106 +96,116 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'FoodPostTable',
-  data() {
-    return {
-      search: '',
-      currentPage: 1,
-      perPage: 5,
-      posts: [
-        {
-          id: 1,
-          food_name: 'Mì Kim Chi Thập Cẩm',
-          image: '/uploads/food_posts/food_1.jpg',
-          content: 'Mì Kim Chi Thập Cẩm là món ăn được yêu thích bởi sự kết hợp hoàn hảo giữa bò Mỹ, hải sản tươi sống và kim chi đậm đà...',
-          published_at: '2025-07-20',
-        },
-        {
-          id: 2,
-          food_name: 'Mì Kim Chi Đùi Gà',
-          image: '/uploads/food_posts/food_2.jpg',
-          content: 'Mì Kim Chi Đùi Gà với phần đùi gà mềm ngọt và nước dùng cay nhẹ tạo nên một hương vị đậm đà khó quên...',
-          published_at: '2025-07-18',
-        },
-        {
-          id: 3,
-          food_name: 'Mì Kim Chi Hải Sản',
-          image: '/uploads/food_posts/food_3.jpg',
-          content: 'Món ăn dành cho tín đồ hải sản, với tôm mực tươi ngon và vị chua cay đặc trưng của kim chi...',
-          published_at: '2025-07-15',
-        },
-        {
-          id: 4,
-          food_name: 'Mì Kim Chi Bò Mỹ',
-          image: '/uploads/food_posts/food_4.jpg',
-          content: 'Thịt bò Mỹ mềm tan kết hợp với sợi mì và nước dùng kim chi đậm đà, đây là món ăn đặc biệt yêu thích...',
-          published_at: '2025-07-12',
-        },
-        {
-          id: 5,
-          food_name: 'Mì Kim Chi Cá',
-          image: '/uploads/food_posts/food_5.jpg',
-          content: 'Mì Kim Chi Cá là sự hòa quyện giữa vị chua cay và độ ngọt tự nhiên của thịt cá, ăn hoài không ngán...',
-          published_at: '2025-07-10',
-        },
-        {
-          id: 6,
-          food_name: 'Mì Cay Hàn Quốc',
-          image: '/uploads/food_posts/food_6.jpg',
-          content: 'Mì cay truyền thống với công thức đậm chất Hàn Quốc, dành cho ai mê vị cay nồng và đậm đà...',
-          published_at: '2025-07-08',
-        },
-      ],
-    }
-  },
-  computed: {
-    filteredPosts() {
-      const keyword = this.search.toLowerCase()
-      return this.posts.filter(
-        (post) =>
-          post.food_name.toLowerCase().includes(keyword) ||
-          post.content.toLowerCase().includes(keyword)
-      )
-    },
-    totalPages() {
-      return Math.ceil(this.filteredPosts.length / this.perPage) || 1
-    },
-    paginatedPosts() {
-      const start = (this.currentPage - 1) * this.perPage
-      return this.filteredPosts.slice(start, start + this.perPage)
-    },
-  },
-  watch: {
-    search() {
-      this.currentPage = 1
-    },
-    perPage() {
-      this.currentPage = 1
-    },
-  },
-  methods: {
-    truncate(text, length) {
-      return text.length > length ? text.substring(0, length) + '...' : text
-    },
-    formatDate(date) {
-      return new Date(date).toLocaleDateString('vi-VN')
-    },
-    addPost() {
-      alert('Đi tới trang thêm bài viết hoặc mở modal')
-    },
-    editPost(post) {
-      alert(`Chỉnh sửa bài viết: ${post.id}`)
-    },
-    deletePost(post) {
-      if (confirm(`Bạn có chắc muốn xoá bài viết "${post.food_name}"?`)) {
-        this.posts = this.posts.filter((p) => p.id !== post.id)
-      }
-    },
-  },
+<script setup>
+import { ref, computed, watch } from 'vue'
+import axios from 'axios'
+import { onMounted } from 'vue'
+import Swal from 'sweetalert2'
+import router from '@/router'
+import { Permission } from '@/stores/permission'
+
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
 }
+const { hasPermission } = Permission(userId)
+
+
+// Props hoặc dữ liệu giả lập
+const posts = ref([]) // Bạn có thể gán dữ liệu từ API sau
+const search = ref('')
+const perPage = ref(5)
+const currentPage = ref(1)
+
+const getAllPost = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/get_all_post');
+    posts.value = res.data.result
+    console.log(posts.value)
+  } catch (error) {
+    console.log(error);
+
+  }
+}
+
+// Computed: lọc bài viết theo từ khóa
+const filteredPosts = computed(() => {
+  const keyword = search.value.toLowerCase()
+  return posts.value.filter((post) => {
+    const title = post.title || ''
+    const content = post.content || ''
+    return (
+      title.toLowerCase().includes(keyword) ||
+      content.toLowerCase().includes(keyword)
+    )
+  })
+})
+
+const toggleHide = async (post) => {
+  try {
+    const res = await axios.post(`http://127.0.0.1:8000/api/post/${post.id}/toggle-hide`)
+
+    post.is_hidden = res.data.post.is_hidden
+
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: res.data.message,
+      showConfirmButton: false,
+      timer: 2000
+    })
+  } catch (error) {
+    console.error(error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi',
+      text: 'Không thể thay đổi trạng thái bài viết'
+    })
+  }
+}
+
+
+// Tổng số trang
+const totalPages = computed(() => {
+  return Math.ceil(filteredPosts.value.length / perPage.value) || 1
+})
+
+// Phân trang
+const paginatedPosts = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value
+  return filteredPosts.value.slice(start, start + perPage.value)
+})
+
+// Watch search và perPage để reset currentPage
+watch([search, perPage], () => {
+  currentPage.value = 1
+})
+
+// Hàm rút gọn nội dung
+const truncate = (text, length) => {
+  return text.length > length ? text.substring(0, length) + '...' : text
+}
+
+// Format ngày tháng
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString('vi-VN')
+}
+
+const editPost = (post) => {
+  router.push(`/admin/edit_post/${post.id}`)
+}
+
+
+onMounted(() => {
+  getAllPost()
+})
 </script>
+
 
 <style scoped>
 .input-group input {
@@ -223,5 +235,15 @@ export default {
   padding: 8px 10px;
   font-size: 14px;
   background-color: #fff;
+}
+
+.btn-danger-custom {
+  background-color: gray;
+  color: #fff;
+}
+
+.btn-success-custom{
+  background-color: #c92c3c;
+  color: #fff;
 }
 </style>
