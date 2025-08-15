@@ -122,7 +122,7 @@
         <li v-for="p in pageList" :key="p.key" class="page-item"
           :class="{ active: p.num === currentPage, disabled: p.ellipsis }">
           <button class="page-link" @click="p.ellipsis ? null : goToPage(p.num)" :disabled="p.ellipsis">{{ p.label
-          }}</button>
+            }}</button>
         </li>
         <li class="page-item" :class="{ disabled: currentPage === lastPage }">
           <button class="page-link" @click="goToPage(currentPage + 1)" :disabled="currentPage === lastPage">»</button>
@@ -155,7 +155,7 @@ const categories = [
 // State
 const loading = ref(false);
 const error = ref("");
-const allPosts = ref([]); // toàn bộ dữ liệu từ API
+const allPosts = ref([]);
 const currentPage = ref(1);
 
 // Helpers
@@ -177,20 +177,22 @@ const fetchPosts = async () => {
   error.value = "";
   try {
     const res = await axios.get(`http://127.0.0.1:8000/api/get_all_post`);
-    // Nếu API trả mảng luôn
+    let posts = [];
     if (Array.isArray(res.data.result)) {
-      allPosts.value = res.data.result;
-      console.log(allPosts.value)
+      posts = res.data.result;
     } else {
-      // Nếu trả dạng paginate thì lấy data thôi
-      allPosts.value = res.data.result.data || [];
+      posts = res.data.result.data || [];
     }
+    // Lọc chỉ lấy bài viết không ẩn
+    allPosts.value = posts.filter(post => post.is_hidden === 0);
+    console.log(allPosts.value);
   } catch (err) {
     error.value = "Không thể tải dữ liệu";
   } finally {
     loading.value = false;
   }
 };
+
 
 // Lọc, tìm kiếm, sắp xếp
 const filteredPosts = computed(() => {
