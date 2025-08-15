@@ -262,14 +262,14 @@ const menuItems = [
     key: 'tables-reservation-management',
     label: 'Bài viết',
     icon: FileTextOutlined,
-    permission: 'view_table',
+    permission: 'view_post',
     children: [
       {
         key: '/admin/post',
         to: '/admin/post',
         label: 'Danh sách bài viết',
         icon: AppstoreOutlined,
-        permission: 'view_table',
+        permission: 'view_post',
       },
     ],
   },
