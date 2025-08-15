@@ -113,7 +113,7 @@
                     </td>
                     <td v-else data-label="Sửa"></td>
 
-                    <td v-if="moduleKey == 'food' || moduleKey == 'combo'" data-label="Xoá">
+                    <td v-if="moduleKey == 'food' || moduleKey == 'combo' || moduleKey == 'discounts' || moduleKey == 'luckyprizes'" data-label="Xoá">
                       <div class="checkbox-container">
                         <input class="checkbox-input" type="checkbox" :id="`hidden-${moduleKey}-${currentRoleId}`"
                           v-model="currentRoleAbilities[moduleKey].hidden" @change="handleAbilityChange(moduleKey)"
