@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class ClaimPrizesController extends Controller
 {
-    public function claimPrize(Request $request)
+      public function claimPrize(Request $request)
     {
         $user = $request->user();
         $reward = null;

@@ -130,7 +130,7 @@
 
                     <button @click="toggleStatus(food)" class="btn btn-toggle-status"
                       :class="food.status === 'active' ? 'btn-outline-secondary' : 'btn-outline-success'"
-                      style="min-width: 60px">
+                      style="min-width: 60px" v-if="hasPermission('hidden_food')">
                       {{ food.status === 'active' ? 'Ẩn' : 'Hiện' }}
                     </button>
                     <button class="btn btn-outline-primary btn-sm" @click="openToppingModal(food)">
@@ -231,12 +231,14 @@
                         Sửa
                       </button>
                     </router-link>
-                    <button @click="toggleStatus(food)" class="btn btn-toggle-status"
+                    <button v-if="hasPermission('hidden_food')" @click="toggleStatus(food)"
+                      class="btn btn-toggle-status"
                       :class="food.status === 'active' ? 'btn-outline-secondary ms-1 ' : 'btn-outline-success ms-1 '"
                       style="min-width: 60px">
                       {{ food.status === 'active' ? 'Ẩn' : 'Hiện' }}
                     </button>
-                    <button class="btn btn-outline-primary btn-sm ms-1 " @click="openToppingModal(food)">
+                    <button v-if="hasPermission('edit_food')" class="btn btn-outline-primary btn-sm ms-1 "
+                      @click="openToppingModal(food)">
                       Topping
                     </button>
                   </div>

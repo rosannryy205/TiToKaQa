@@ -11,14 +11,14 @@ class FoodPost extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'food_id',
+        'category',
         'title',
         'content',
         'image',
         'published_at',
     ];
 
-    public function food()
+    public function foods()
     {
         return $this->belongsTo(Food::class);
     }
