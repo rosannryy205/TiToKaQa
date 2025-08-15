@@ -98,7 +98,7 @@ const menuItems = [
     key: 'categories-management',
     label: 'Danh mục',
     icon: UnorderedListOutlined,
-    permission: 'view_category', 
+    permission: 'view_category',
     children: [
       {
         key: '/admin/categories',
@@ -113,7 +113,7 @@ const menuItems = [
     key: 'discounts-management',
     label: 'Mã giảm giá',
     icon: FileTextOutlined,
-    permission: 'view_discounts', 
+    permission: 'view_discounts',
     children: [
       {
         key: '/admin/discounts',
@@ -128,7 +128,7 @@ const menuItems = [
     key: 'luckyprizes-management',
     label: 'Quà Vòng Quay',
     icon: GoldOutlined,
-    permission: 'view_luckyprizes', 
+    permission: 'view_luckyprizes',
     children: [
       {
         key: '/admin/luckyprizes',
@@ -255,6 +255,21 @@ const menuItems = [
         label: 'Thêm đơn đặt bàn',
         icon: FileAddOutlined,
         permission: 'create_booking',
+      },
+    ],
+  },
+  {
+    key: 'tables-reservation-management',
+    label: 'Bài viết',
+    icon: FileTextOutlined,
+    permission: 'view_table',
+    children: [
+      {
+        key: '/admin/post',
+        to: '/admin/post',
+        label: 'Danh sách bài viết',
+        icon: AppstoreOutlined,
+        permission: 'view_table',
       },
     ],
   },

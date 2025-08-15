@@ -354,8 +354,8 @@ const admin = [
         },
       },
       {
-        path: '/admin/foods_post',
-        name: 'admin/foods_post',
+        path: '/admin/post',
+        name: 'admin/post',
         component: () => import('../pages/admin/Foods_Post/index.vue'),
         meta: {
           requiresAdmin: true,
