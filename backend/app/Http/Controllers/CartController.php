@@ -475,9 +475,6 @@ class CartController extends Controller
             //================================
             // POINT and RANK
             //================================
-            // =================================
-            // POINT and RANK (chỉ áp dụng cho khách có tài khoản)
-            // =================================
             if ($order->user) {
                 $user = $order->user;
                 $pointService = new PointService();
