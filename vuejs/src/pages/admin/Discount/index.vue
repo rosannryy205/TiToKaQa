@@ -6,17 +6,33 @@
           <h3 class="title">Quản lý Mã Giảm Giá</h3>
 
           <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-            <router-link
-              v-if="hasPermission('create_discounts')"
-              :to="{ name: 'insert-discounts' }"
-              class="btn btn-add"
-            >
+            <router-link :to="{ name: 'insert-discount' }" class="btn btn-add">
               + Thêm Mã Giảm Giá
             </router-link>
 
             <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
           </div>
-
+          <div class="d-flex border-bottom mb-3" style="gap: 20px; font-size: 14px">
+            <div
+              v-for="(tab, index) in tabs"
+              :key="index"
+              @click="activeTab = index"
+              class="pb-2 position-relative"
+              :class="{
+                'fw-bold text-danger': activeTab === index,
+                'text-muted': activeTab !== index,
+              }"
+              style="cursor: pointer"
+            >
+              {{ tab.label }}
+              <span v-if="tab.count" class="text-secondary">({{ tab.count }})</span>
+              <span
+                v-if="activeTab === index"
+                class="position-absolute start-0 bottom-0 w-100"
+                style="height: 2px; background-color: #d9363e"
+              ></span>
+            </div>
+          </div>
           <div class="table-responsive">
             <table class="table table-bordered">
               <thead class="table-light">
@@ -33,12 +49,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="(item, index) in filteredDiscounts"
-                  :key="index"
-                  :class="{ 'table-secondary opacity-50': item.status === 'inactive' }"
-                >
-                  <td><strong>{{ item.code }}</strong></td>
+                <tr v-for="(item, index) in filteredDiscounts" :key="index">
+                  <td>
+                    <strong>{{ item.code }}</strong>
+                  </td>
                   <td>{{ mapDiscountType(item.discount_type) }}</td>
                   <td>{{ getCategoryFullName(item.category_id) }}</td>
                   <td>
@@ -57,7 +71,7 @@
                     }}
                   </td>
                   <td>
-                   <span>{{ item.source }}</span>
+                    <span>{{ item.source }}</span>
                   </td>
                   <td>
                     <span v-if="item.start_date && item.end_date">
@@ -65,34 +79,41 @@
                     </span>
                     <span v-else>Không giới hạn</span>
                   </td>
-          <td>
-  <div class="d-flex justify-content-center gap-2 flex-nowrap">
-    <button
-      class="btn btn-outline btn-sm"
-      :class="item.status === 'inactive' ? 'btn-secondary' : 'btn-warning'"
-    >
-      {{ item.status === 'inactive' ? 'Hiện' : 'Ẩn' }}
-    </button>
-    <router-link
-      :to="`/admin/discount/${item.id}`"
-      class="btn btn-update btn-sm"
-    >
-      Sửa
-    </router-link>
-  </div>
-</td>
-
+                  <td>
+                    <div class="d-flex justify-content-center gap-2 flex-nowrap">
+                    <router-link
+                       v-if="activeTab === 2"
+                          :to="`/admin/update-discount/${item.id}`"
+                          class="btn btn-update"
+                        >
+                        Gia hạn
+                        </router-link>
+                      <template v-else>
+                        <button
+                          class="btn btn-outline btn-sm"
+                          :disabled="loadingIds.has(item.id)"
+    @click="togglePrizeStatus(item)"
+  >
+    {{ (item.status || '').toLowerCase() === 'inactive' ? 'Hiện' : 'Ẩn' }}
+                        </button>
+                        <router-link
+                          :to="`/admin/update-discount/${item.id}`"
+                          class="btn btn-update"
+                        >
+                          Sửa
+                        </router-link>
+                      </template>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
-
         </div>
       </div>
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
@@ -100,29 +121,30 @@ import { Permission } from '@/stores/permission'
 import { Discounts } from '@/stores/discount'
 import { FoodList } from '@/stores/food'
 import dayjs from 'dayjs'
+import Swal from 'sweetalert2'
+import axios from 'axios'
 
 const userId = ref(null)
 const { hasPermission } = Permission(userId)
+
+const activeTab = ref(0)
+const tabs = [
+  { label: 'Tất cả', count: 0 },
+  { label: 'Mã đã ẩn', count: 0 },
+  { label: 'Mã hết hạn', count: 0 },
+]
 
 const searchQuery = ref('')
 const { discounts, getAllDiscount } = Discounts()
 const { categorys, getCategoryForAdmin } = FoodList.setup()
 
 const getCategoryFullName = (id) => {
-  const category = categorys.value.find(c => c.id === id)
+  const category = categorys.value.find((c) => c.id === id)
   if (!category) return '-'
 
-  const parent = categorys.value.find(c => c.id === category.parent_id)
+  const parent = categorys.value.find((c) => c.id === category.parent_id)
   return parent ? `${category.name}` : category.name
 }
-
-const filteredDiscounts = computed(() => {
-  const query = searchQuery.value.toLowerCase()
-  return discounts.value.filter(
-    (d) =>
-      d.name.toLowerCase().includes(query) || d.code.toLowerCase().includes(query)
-  )
-})
 
 const formatNumber = (number) => Number(number).toLocaleString('vi-VN')
 const formatDate = (date) => dayjs(date).format('DD/MM/YYYY')
@@ -138,11 +160,114 @@ const mapDiscountType = (type) => {
   }
 }
 
+const discountInactive = ref([])
+const getInactiveDiscounts = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/discounts', {
+      params: { status: 'inactive' },
+    })
+    discountInactive.value = res.data
+  } catch (error) {
+    console.error('Lỗi khi lấy mã giảm giá inactive:', error)
+    discountInactive.value = []
+  }
+}
+
+//loc
+const isExpired = (discounts) => {
+  const expiry = discounts.end_date
+  return expiry && new Date(expiry) < new Date()
+}
+
+const filteredDiscounts = computed(() => {
+  const query = searchQuery.value.toLowerCase()
+  const currentTab = activeTab.value
+  const all = discounts.value || []
+  const inactive = discountInactive.value || []
+
+  let filtered = []
+  switch (currentTab) {
+    case 1:
+      filtered = inactive
+      break
+    case 2:
+      filtered = all.filter((d) => isExpired(d))
+      break
+    default:
+      filtered = all.filter((d) => !isExpired(d))
+      break
+  }
+  if (query) {
+    filtered = filtered.filter(
+      (d) => d.name.toLowerCase().includes(query) || d.code.toLowerCase().includes(query),
+    )
+  }
+
+  return filtered
+})
+
+//an hien
+const loadingIds = ref(new Set())
+
+async function togglePrizeStatus(item) {
+  const isInactive = String(item.status || '').toLowerCase() === 'inactive'
+  const nextStatus = isInactive ? 'active' : 'inactive'
+
+  const { isConfirmed } = await Swal.fire({
+    icon: 'question',
+    title: isInactive ? 'Hiện lại quà này?' : 'Ẩn quà này?',
+    text: isInactive ? 'Quà sẽ xuất hiện lại ngay trong vòng quay.' : 'Quà sẽ ngừng xuất hiện ngay lập tức.',
+    showCancelButton: true,
+    confirmButtonText: isInactive ? 'Hiện lại' : 'Ẩn ngay',
+    cancelButtonText: 'Huỷ',
+    confirmButtonColor: '#c92c3c',
+  })
+  if (!isConfirmed) return
+
+  try {
+    loadingIds.value.add(item.id)
+    await axios.patch(
+      `http://127.0.0.1:8000/api/admin/discounts/${item.id}/status`,
+      { status: nextStatus },
+      { headers: { 'Content-Type': 'application/json' } }
+    )
+    item.status = nextStatus
+
+    // Cách 2: nếu bạn có 2 danh sách active/inactive, di chuyển item giữa 2 mảng
+    // if (nextStatus === 'inactive') {
+    //   prizes.value = prizes.value.filter(p => p.id !== item.id)
+    //   prizesInactive.value.unshift({ ...item, status: 'inactive' })
+    // } else {
+    //   prizesInactive.value = prizesInactive.value.filter(p => p.id !== item.id)
+    //   prizes.value.unshift({ ...item, status: 'active' })
+    // }
+
+    await Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: isInactive ? 'Đã hiện lại mã giảm giá' : 'Đã ẩn mã giảm giá',
+      showConfirmButton: false,
+      timer: 1200,
+      timerProgressBar: true,
+    })
+    await Promise.all([ getAllDiscount(), getInactiveDiscounts() ])
+    activeTab.value
+  } catch (err) {
+    await Swal.fire({
+      icon: 'error',
+      title: 'Không cập nhật được trạng thái',
+      text: err?.response?.data?.message || err.message || 'Vui lòng thử lại.',
+      confirmButtonColor: '#c92c3c',
+    })
+  } finally {
+    loadingIds.value.delete(item.id)
+  }
+}
 onMounted(async () => {
-  await Promise.all([getAllDiscount(), getCategoryForAdmin()])
+  await Promise.all([getAllDiscount(), getInactiveDiscounts(), getCategoryForAdmin()])
 })
 </script>
-
 
 <style scoped>
 .title {

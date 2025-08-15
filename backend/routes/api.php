@@ -28,6 +28,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\LuckyWheelController;
+use App\Models\LuckyWheelPrize;
 use Google\Cloud\Dialogflow\V2\MessageEntry\Role;
 use Illuminate\Http\Request;
 
@@ -283,3 +284,13 @@ Route::put('/admin/combos/{id}/toggle-status', [ComboController::class, 'toggleS
 
 /** crud discounts mqua*/
 Route::get('/admin-categories', [CategoryController::class, 'getAllCategoriesForAdmin']);
+Route::post('/admin/discounts/create', [DiscountController::class, 'createDiscounts']);
+Route::get('/admin/discounts/{id}', [DiscountController::class, 'getDiscountById']);
+Route::put('/admin/discounts/update/{id}', [DiscountController::class, 'updateDiscountByAdmin']);
+Route::patch('/admin/discounts/{id}/status', [DiscountController::class, 'setStatusByAdmin']);
+/**prize */
+Route::post('/admin/luckyprize/create', [LuckyWheelController::class, 'createLuckyPrizeByAdmin']);
+Route::get('/admin/luckyprizes/{id}', [LuckyWheelController::class, 'getLuckyPrizeById']);
+Route::put('/admin/luckyprize/update/{id}', [LuckyWheelController::class, 'updateLuckyPrizeByAdmin']);
+Route::patch('/admin/luckyprize/{id}/status', [LuckyWheelController::class, 'setStatusPrizeByAdmin']);
+
