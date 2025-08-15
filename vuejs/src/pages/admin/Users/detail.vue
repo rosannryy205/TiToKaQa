@@ -207,6 +207,7 @@ export default {
       'shipper': 'Giao hàng',
       'discounts': 'Mã giảm giá',
       'luckyprizes': 'Quà',
+      'post': 'Bài viết',
     };
 
     const actionKeys = ['view', 'create', 'edit', 'hidden'];
@@ -285,7 +286,7 @@ export default {
           // nếu như quyền là đơn hàng hoặc là lịch đặt bàn thì tick vào ô xem và thêm là xem như bật toàn quyền
         } else if (moduleKey === 'order') {
           allChecked = abilities.view && abilities.create;
-        } else if (moduleKey === 'table' || moduleKey === 'role' || moduleKey === 'employee' || moduleKey === 'customer' || moduleKey === 'shipper' || moduleKey === 'category' || moduleKey === 'topping' || moduleKey === 'booking') {
+        } else if (moduleKey === 'table' || moduleKey === 'role' || moduleKey === 'employee' || moduleKey === 'customer' || moduleKey === 'shipper' || moduleKey === 'category' || moduleKey === 'topping' || moduleKey === 'booking' || moduleKey === 'post') {
           allChecked = abilities.view && abilities.create && abilities.edit;
 
           //các quyền còn lại có đầy đủ crud
