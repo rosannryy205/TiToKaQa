@@ -7,15 +7,8 @@
       <form v-if="step === 1" @submit.prevent="handleSendCode">
         <div class="text-danger mb-2" v-if="errorSendCode">{{ errorSendCode }}</div>
         <div class="mb-3">
-          <input
-            type="email"
-            name="email"
-            class="form-control"
-            id="email"
-            placeholder="Nhập địa chỉ email của bạn"
-            v-model="email"
-            required
-          />
+          <input type="email" name="email" class="form-control" id="email" placeholder="Nhập địa chỉ email của bạn"
+            v-model="email" required />
         </div>
 
         <button type="submit" class="btn btn-black w-100" :disabled="isLoading">
@@ -33,19 +26,9 @@
 
 
         <div class="mb-3 d-flex justify-content-between code-inputs">
-          <input
-            v-for="(digit, index) in codeDigits"
-            :key="index"
-            type="text"
-            maxlength="1"
-            class="form-control text-center mx-1"
-            v-model="codeDigits[index]"
-            @input="focusNext(index)"
-            @keydown.backspace="focusPrev($event, index)"
-            ref="codeInputs"
-            style="width: 40px;"
-            required
-          />
+          <input v-for="(digit, index) in codeDigits" :key="index" type="text" maxlength="1"
+            class="form-control text-center mx-1" v-model="codeDigits[index]" @input="focusNext(index)"
+            @keydown.backspace="focusPrev($event, index)" ref="codeInputs" style="width: 40px;" required />
         </div>
         <div class="mb-2 text-muted">Thời gian còn lại: {{ countdownText }}</div>
         <button type="submit" class="btn btn-black w-100" :disabled="isLoading || code.length < 6">
@@ -61,22 +44,11 @@
       <form v-if="step === 3" @submit.prevent="handleResetPassword">
         <div class="text-danger mb-2" v-if="errorReset">{{ errorReset }}</div>
         <div class="mb-3">
-          <input
-            type="password"
-            class="form-control"
-            placeholder="Mật khẩu mới"
-            v-model="newPassword"
-            required
-          />
+          <input type="password" class="form-control" placeholder="Mật khẩu mới" v-model="newPassword" required />
         </div>
         <div class="mb-3">
-          <input
-            type="password"
-            class="form-control"
-            placeholder="Nhập lại mật khẩu mới"
-            v-model="confirmPassword"
-            required
-          />
+          <input type="password" class="form-control" placeholder="Nhập lại mật khẩu mới" v-model="confirmPassword"
+            required />
         </div>
 
         <button type="submit" class="btn btn-black w-100" :disabled="isLoading">
@@ -142,160 +114,160 @@ export default {
       }, 1000)
     },
 
-async handleSendCode() {
-  if (!this.email) {
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'error',
-      title: 'Vui lòng nhập địa chỉ email.',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
-    return;
-  }
-
-  this.isLoading = true;
-  try {
-    await axios.post('http://127.0.0.1:8000/api/forgot', { email: this.email });
-
-    this.step = 2;
-    this.codeDigits = ['', '', '', '', '', ''];
-    this.startCountdown();
-
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'success',
-      title: 'Mã xác nhận đã được gửi đến email của bạn.',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
-
-    this.$nextTick(() => {
-      this.$refs.codeInputs[0]?.focus();
-    });
-  } catch (err) {
-    let message = 'Đã xảy ra lỗi. Vui lòng thử lại.';
-    if (err.response?.data?.message) {
-      message = err.response.data.message;
-    } else if (err.response?.status === 404) {
-      message = 'Email không tồn tại trong hệ thống.';
-    }
-
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'error',
-      title: message,
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
-  } finally {
-    this.isLoading = false;
-  }
-},
-
-async handleVerifyCode() {
-  if (this.code.length < 6) {
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'error',
-      title: 'Vui lòng nhập đầy đủ 6 chữ số.',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
-    return;
-  }
-
-  this.isLoading = true;
-  try {
-    await axios.post('http://127.0.0.1:8000/api/verify-code', {
-      email: this.email,
-      code: this.code
-    });
-
-    this.step = 3;
-    clearInterval(this.interval);
-
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'success',
-      title: 'Mã xác nhận hợp lệ. Vui lòng đặt lại mật khẩu.',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
-  } catch (err) {
-    const message = err.response?.data?.message || 'Mã xác nhận không đúng hoặc đã hết hạn.';
-
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'error',
-      title: message,
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
-  } finally {
-    this.isLoading = false;
-  }
-},
-
-async handleResetPassword() {
-  this.isLoading = true;
-  try {
-    await axios.post('http://127.0.0.1:8000/api/reset-password', {
-      email: this.email,
-      password: this.newPassword,
-      password_confirmation: this.confirmPassword
-    });
-
-    this.step = 4;
-
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'success',
-      title: 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập lại.',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
-  } catch (err) {
-    let message = 'Không thể đặt lại mật khẩu. Vui lòng thử lại.';
-    if (err.response?.status === 422) {
-      const errors = err.response.data.errors;
-      if (errors) {
-        message = Object.values(errors).flat().join(' ');
-      } else {
-        message = err.response.data.message || 'Lỗi xác thực dữ liệu.';
+    async handleSendCode() {
+      if (!this.email) {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Vui lòng nhập địa chỉ email.',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+        return;
       }
-    } else if (err.response?.data?.message) {
-      message = err.response.data.message;
-    }
 
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'error',
-      title: message,
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
-  } finally {
-    this.isLoading = false;
-    localStorage.removeItem('verify_email');
-  }
-},
+      this.isLoading = true;
+      try {
+        await axios.post('http://127.0.0.1:8000/api/forgot', { email: this.email });
+
+        this.step = 2;
+        this.codeDigits = ['', '', '', '', '', ''];
+        this.startCountdown();
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Mã xác nhận đã được gửi đến email của bạn.',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+
+        this.$nextTick(() => {
+          this.$refs.codeInputs[0]?.focus();
+        });
+      } catch (err) {
+        let message = 'Đã xảy ra lỗi. Vui lòng thử lại.';
+        if (err.response?.data?.message) {
+          message = err.response.data.message;
+        } else if (err.response?.status === 404) {
+          message = 'Email không tồn tại trong hệ thống.';
+        }
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: message,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async handleVerifyCode() {
+      if (this.code.length < 6) {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Vui lòng nhập đầy đủ 6 chữ số.',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+        return;
+      }
+
+      this.isLoading = true;
+      try {
+        await axios.post('http://127.0.0.1:8000/api/verify-code', {
+          email: this.email,
+          code: this.code
+        });
+
+        this.step = 3;
+        clearInterval(this.interval);
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Mã xác nhận hợp lệ. Vui lòng đặt lại mật khẩu.',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      } catch (err) {
+        const message = err.response?.data?.message || 'Mã xác nhận không đúng hoặc đã hết hạn.';
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: message,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async handleResetPassword() {
+      this.isLoading = true;
+      try {
+        await axios.post('http://127.0.0.1:8000/api/reset-password', {
+          email: this.email,
+          password: this.newPassword,
+          password_confirmation: this.confirmPassword
+        });
+
+        this.step = 4;
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập lại.',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      } catch (err) {
+        let message = 'Không thể đặt lại mật khẩu. Vui lòng thử lại.';
+        if (err.response?.status === 422) {
+          const errors = err.response.data.errors;
+          if (errors) {
+            message = Object.values(errors).flat().join(' ');
+          } else {
+            message = err.response.data.message || 'Lỗi xác thực dữ liệu.';
+          }
+        } else if (err.response?.data?.message) {
+          message = err.response.data.message;
+        }
+
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: message,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+      } finally {
+        this.isLoading = false;
+        localStorage.removeItem('verify_email');
+      }
+    },
 
 
     focusNext(index) {
@@ -327,7 +299,7 @@ async handleResetPassword() {
 }
 
 .btn-black {
-  background-color:#d41d1d;
+  background-color: #d41d1d;
   border-color: #000;
   color: #fff;
 }

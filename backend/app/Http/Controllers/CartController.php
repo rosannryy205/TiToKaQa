@@ -369,20 +369,20 @@ class CartController extends Controller
                         'food_id' => $detail->food_id,
                         'food_name' => optional($detail->foods)->name,
                         'category_id' => optional($detail->foods)->category_id,
-                        'category_name' => optional($detail->foods->category)->name ?? null,
+                        'category_name' => optional(optional($detail->foods)->category)->name,
                         'quantity' => $detail->quantity,
                         'price' => $detail->price,
                         'image' => optional($detail->foods)->image,
                         'type' => $detail->type,
-                        'toppings' => $detail->toppings->map(function ($toppings) {
+                        'toppings' => $detail->toppings->map(function ($topping) {
                             return [
-                                'food_toppings_id' => $toppings->food_toppings_id,
-                                'topping_name' => $toppings->food_toppings->toppings->name ?? null,
-                                'price' => $toppings->price,
+                                'food_toppings_id' => $topping->food_toppings_id,
+                                'topping_name' => optional(optional($topping->food_toppings)->toppings)->name,
+                                'price' => $topping->price,
                             ];
-                        })
+                        }) ?? []
                     ];
-                });
+                }) ?? [];
 
                 return [
                     'id' => $order->id,
@@ -406,6 +406,7 @@ class CartController extends Controller
                     'expiration_time' => $order->expiration_time,
                     'money_reduce' => $order->money_reduce,
                     'type_order' => $order->type_order,
+                    'reservation_code' => $order->reservation_code,
                     'details' => $details,
                     'tables' => $order->tables->map(function ($table) {
                         return [
@@ -418,13 +419,13 @@ class CartController extends Controller
                             'reserved_from' => $table->pivot->reserved_from,
                             'reserved_to' => $table->pivot->reserved_to,
                         ];
-                    }),
+                    }) ?? [],
                     'payment' => [
-                        'amount_paid' => $order->payment->amount_paid ?? null,
-                        'payment_method' => $order->payment->payment_method ?? null,
-                        'payment_status' => $order->payment->payment_status ?? null,
-                        'payment_time' => $order->payment->payment_time ?? null,
-                        'payment_type' => $order->payment->payment_type ?? null,
+                        'amount_paid' => optional($order->payment)->amount_paid,
+                        'payment_method' => optional($order->payment)->payment_method,
+                        'payment_status' => optional($order->payment)->payment_status,
+                        'payment_time' => optional($order->payment)->payment_time,
+                        'payment_type' => optional($order->payment)->payment_type,
                     ],
                 ];
             });
@@ -441,6 +442,7 @@ class CartController extends Controller
             ]);
         }
     }
+
 
     public function update_status(Request $request, $id)
     {
@@ -473,13 +475,19 @@ class CartController extends Controller
             //================================
             // POINT and RANK
             //================================
-            $user = $order->user;
-            $pointService = new PointService();
-            $rankService = new RanksService();
+            // =================================
+            // POINT and RANK (chỉ áp dụng cho khách có tài khoản)
+            // =================================
+            if ($order->user) {
+                $user = $order->user;
+                $pointService = new PointService();
+                $rankService = new RanksService();
 
-            $pointService->updateUserPointsWhenOrderCompleted($order);
-            $user->refresh();
-            $rankService->updateUserRankByPoints($user);
+                $pointService->updateUserPointsWhenOrderCompleted($order);
+                $user->refresh();
+                $rankService->updateUserRankByPoints($user);
+            }
+
 
             //================================
 

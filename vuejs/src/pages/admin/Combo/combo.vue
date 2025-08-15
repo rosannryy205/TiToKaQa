@@ -40,18 +40,10 @@
                     />
                     {{ item.name }}
                     <div class="d-md-none mt-2 d-flex justify-content-center gap-2 flex-wrap">
-                      <button
-                        type="button"
-                        class="btn btn-outline btn-sm"
-                        v-if="hasPermission('edit_combo') && item.status === 'active'"
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        class="btn btn-outline btn-sm"
-                        v-if="hasPermission('delete_combo')"
-                        @click="toggleComboStatus(item.id)"
-                      >
+                      <button type="button" class="btn btn-outline btn-sm"
+                        v-if="hasPermission('edit_combo')">Sửa</button>
+                      <button class="btn btn-outline btn-sm" @click="toggleComboStatus(item.id)"
+                        v-if="hasPermission('hidden_combo')">
                         {{ item.status === 'inactive' ? 'Hiện' : 'Ẩn' }}
                       </button>
                       <button
@@ -75,11 +67,10 @@
                         Sửa
                       </router-link>
                       <button
-                        v-if="hasPermission('delete_combo')"
+                        v-if="hasPermission('hidden_combo')"
                         class="btn btn-outline btn-sm"
                         :class="item.status === 'inactive' ? 'btn-secondary' : 'btn-warning'"
-                        @click="toggleComboStatus(item.id)"
-                      >
+                        @click="toggleComboStatus(item.id)" >
                         {{ item.status === 'inactive' ? 'Hiện' : 'Ẩn' }}
                       </button>
                       <button
