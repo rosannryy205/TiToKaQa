@@ -79,36 +79,37 @@
 
     <!-- Grid -->
     <div v-else class="row g-3 g-md-4">
-      <article v-for="post in paginatedPosts" :key="post.id" class="col-12 col-sm-6 col-lg-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="position-relative">
-            <a :href="postUrl(post)" class="text-decoration-none">
-              <div class="ratio ratio-16x9 bg-light">
-                <img v-if="post.image" :src="`http://127.0.0.1:8000/storage/img/post/${post.image}`" :alt="post.title"
-                  class="img-fluid object-fit-cover rounded-top" loading="lazy" />
-                <div v-else class="d-flex align-items-center justify-content-center bg-light rounded-top">
-                  <i class="bi bi-image text-secondary"></i>
-                </div>
-              </div>
-            </a>
-            <span v-if="post.badge" class="badge bg-primary position-absolute top-0 start-0 m-2 rounded-pill">
-              {{ post.badge }}
-            </span>
-          </div>
 
-          <div class="card-body d-flex flex-column">
-            <a :href="postUrl(post)" class="stretched-link text-decoration-none text-dark">
-              <h3 class="card-title h5 text-truncate-2 mb-2">{{ post.title }}</h3>
-            </a>
-            <!-- Bỏ truncate -->
-            <div class="d-flex flex-wrap gap-2 small text-secondary mt-auto">
-              <span><i class="bi bi-calendar3 me-1"></i>{{ formatDate(post.published_at || post.created_at) }}</span>
-              <span v-if="post.category"><i class="bi bi-tag me-1"></i>{{ post.category }}</span>
-              <span v-if="post.views != null"><i class="bi bi-eye me-1"></i>{{ n(post.views) }}</span>
-              <span v-if="post.likes != null"><i class="bi bi-heart me-1"></i>{{ n(post.likes) }}</span>
+      <article v-for="post in paginatedPosts" :key="post.id" class="col-12 col-sm-6 col-lg-4">
+        <router-link :to="`/posts_detail/${post.id}`">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="position-relative">
+              <a :href="postUrl(post)" class="text-decoration-none">
+                <div class="ratio ratio-16x9 bg-light">
+                  <img v-if="post.image" :src="`http://127.0.0.1:8000/storage/img/post/${post.image}`" :alt="post.title"
+                    class="img-fluid object-fit-cover rounded-top" loading="lazy" />
+                  <div v-else class="d-flex align-items-center justify-content-center bg-light rounded-top">
+                    <i class="bi bi-image text-secondary"></i>
+                  </div>
+                </div>
+              </a>
+              <span v-if="post.badge" class="badge bg-primary position-absolute top-0 start-0 m-2 rounded-pill">
+                {{ post.badge }}
+              </span>
+            </div>
+
+            <div class="card-body d-flex flex-column">
+              <a :href="postUrl(post)" class="stretched-link text-decoration-none text-dark">
+                <h3 class="card-title h5 text-truncate-2 mb-2">{{ post.title }}</h3>
+              </a>
+              <!-- Bỏ truncate -->
+              <div class="d-flex flex-wrap gap-2 small text-secondary mt-auto">
+                <span><i class="bi bi-calendar3 me-1"></i>{{ formatDate(post.published_at || post.created_at) }}</span>
+                <span v-if="post.category"><i class="bi bi-tag me-1"></i>{{ post.category }}</span>
+              </div>
             </div>
           </div>
-        </div>
+        </router-link>
       </article>
     </div>
 
@@ -121,7 +122,7 @@
         <li v-for="p in pageList" :key="p.key" class="page-item"
           :class="{ active: p.num === currentPage, disabled: p.ellipsis }">
           <button class="page-link" @click="p.ellipsis ? null : goToPage(p.num)" :disabled="p.ellipsis">{{ p.label
-            }}</button>
+          }}</button>
         </li>
         <li class="page-item" :class="{ disabled: currentPage === lastPage }">
           <button class="page-link" @click="goToPage(currentPage + 1)" :disabled="currentPage === lastPage">»</button>
@@ -146,9 +147,9 @@ const filters = ref({
 
 // Categories
 const categories = [
-  { value: "tin-tuc", label: "Tin tức" },
-  { value: "mon-an", label: "Món ăn" },
-  { value: "khuyen-mai", label: "Khuyến mãi" },
+  { value: "Tin tức", label: "Tin tức" },
+  { value: "Món ăn", label: "Món ăn" },
+  { value: "Khuyến mãi", label: "Khuyến mãi" },
 ];
 
 // State
@@ -338,7 +339,7 @@ onMounted(() => {
   }
 }
 
-.header-info{
+.header-info {
   max-width: 350px;
   width: 100%;
 }
