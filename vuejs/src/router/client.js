@@ -139,12 +139,6 @@ const client = [
             component: () => import('../pages/client/user/deal-food.vue'),
             meta: { title: 'Kho Deal Đã Nhận' },
           },
-          {
-            path: 'history-order',
-            name: 'history-order',
-            component: () => import('../pages/client/user/history-order.vue'),
-            meta: { title: 'Lịch sử đơn hàng' },
-          },
         ]
       },
       {
