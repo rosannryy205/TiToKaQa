@@ -118,8 +118,10 @@
           <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
         </ul>
-
         <div class="mobile-actions">
           <div class="input-wrapper position-relative mb-3">
             <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24"
