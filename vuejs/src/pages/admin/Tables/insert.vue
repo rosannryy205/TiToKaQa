@@ -309,38 +309,9 @@
                             </li>
                           </ul>
                           <hr />
-                          <h6 class="mb-3">Phương thức thanh toán</h6>
-                          <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
-                            <button class="btn btn-payment" :class="{ active: paymentMethod === 'COD' }" type="button"
-                              @click="paymentMethod = 'COD'">
-                              <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
-                              <br />
-                              Tiền mặt
-                            </button>
-                            <button class="btn btn-payment" type="button" @click="paymentMethod = 'MOMO'"
-                              :class="{ active: paymentMethod === 'MOMO' }">
-                              <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
-                              <br />
-                              MoMo
-                            </button>
-                            <button class="btn btn-payment" type="button" @click="paymentMethod = 'VNPAY'"
-                              :class="{ active: paymentMethod === 'VNPAY' }">
-                              <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
-                              <br />
-                              QR code
-                            </button>
-                          </div>
-                          <hr />
                           <div class="d-flex flex-column flex-sm-row">
-                            <button type="button" @click="$router.back()"
-                              class="btn btn-outline-dark flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
-                              Quay lại
-                            </button>
-                            <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
+                            <button type="submit" class="btn btn-outline-danger flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
                               Đặt bàn
-                            </button>
-                            <button class="btn btn-outline-danger flex-fill me-sm-2 mb-2 mb-sm-0 p-2" type="submit">
-                              Thanh toán
                             </button>
                           </div>
                         </div>
@@ -531,26 +502,50 @@ export default {
     const findTable = async () => {
       isLoading.value = true
       try {
-        if (date.value && time.value && guest_count.value) {
-          let rawDateTime = ''
+        let rawDateTime = '';
 
-          if (route.params.date) {
-            rawDateTime = route.params.date
-          } else if (date.value && time.value) {
-            rawDateTime = `${date.value}T${time.value}:00`
-          } else {
+        if (route.params.date) {
+          rawDateTime = route.params.date;
+        } else {
+          if (!date.value) {
             Swal.fire({
               toast: true,
               position: 'top-end',
               icon: 'info',
-              title: 'Vui lòng chọn ngày và giờ và số lượng khách',
+              title: 'Vui lòng chọn ngày để tìm bàn',
               showConfirmButton: false,
               timer: 2000,
               timerProgressBar: true
-            })
-            return
+            });
+            return;
           }
-
+          if (!time.value) {
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Vui lòng chọn giờ để tìm bàn',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            return;
+          }
+          if (!guest_count.value) {
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'info',
+              title: 'Vui lòng nhập số lượng khách để tìm bàn',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            return;
+          }
+          rawDateTime = `${date.value}T${time.value}:00`;
+        }
+        if (rawDateTime) {
           const reservedFrom = new Date(rawDateTime)
           const reservedTo = new Date(reservedFrom.getTime() + 2 * 60 * 60 * 1000)
 
@@ -558,8 +553,8 @@ export default {
           const reserved_to = formatDateTime(reservedTo)
 
           const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
-            reserved_from: reserved_from,
-            reserved_to: reserved_to,
+            reserved_from,
+            reserved_to,
             number_of_guests: guest_count.value,
           })
           availableTables.value = res.data.tables
@@ -583,6 +578,7 @@ export default {
         isLoading.value = false
       }
     }
+
 
     const getChairCount = (seats) => {
       if (seats <= 2) return 1
@@ -688,26 +684,24 @@ export default {
       }
       selectedTableIds.value = tempSelected
     }
-
-    const paymentMethod = ref('')
-    const current_order_id = ref(null)
     // hàm đặt bàn
     const reservation = async () => {
       isLoading.value = true
 
       try {
-        if (!selectedTableIds.value || selectedTableIds.value.length === 0) {
+        if (!selectedTableIds.value?.length) {
           await Swal.fire({
             toast: true,
             position: 'top-end',
             title: 'Vui lòng chọn bàn!',
-            icon: 'error',
+            icon: 'info',
             showConfirmButton: false,
             timer: 1500,
             timerProgressBar: true,
           })
-          return;
+          return
         }
+
         if (!guest_name.value || !guest_phone.value || !guest_email.value) {
           await Swal.fire({
             toast: true,
@@ -717,11 +711,11 @@ export default {
             showConfirmButton: false,
             timer: 1500,
             timerProgressBar: true,
-          });
-          return;
+          })
+          return
         }
 
-        if (cartItems.value.length === 0) {
+        if (!cartItems.value.length) {
           await Swal.fire({
             toast: true,
             position: 'top-end',
@@ -730,21 +724,10 @@ export default {
             showConfirmButton: false,
             timer: 1500,
             timerProgressBar: true,
-          });
+          })
           return
         }
-        if (!paymentMethod.value) {
-          await Swal.fire({
-            toast: true,
-            position: 'top-end',
-            title: 'Vui lòng chọn phương thức thanh toán!',
-            icon: 'info',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-          });
-          return;
-        }
+
         const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/reservation', {
           user_id: selectguest.value.id === 'guest' ? null : selectguest.value.id,
           guest_name: guest_name.value,
@@ -767,73 +750,18 @@ export default {
             })),
           })),
         })
-        if (orderCreationResponse.data && orderCreationResponse.data.order_id) {
-          current_order_id.value = orderCreationResponse.data.order_id
+
+        if (orderCreationResponse.data?.order_id) {
+          isLoading.value = false
           await Swal.fire({
             toast: true,
             position: 'top-end',
-            title: 'Đơn hàng đã được tạo thành công!',
+            title: 'Đơn đặt bàn đã được tạo thành công!',
             icon: 'success',
             showConfirmButton: false,
             timer: 1500,
             timerProgressBar: true,
           })
-          if (paymentMethod.value === 'VNPAY') {
-            isLoading.value = false
-            const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
-              order_id: current_order_id.value,
-              amount: totalPrice.value,
-              return_url: 'http://localhost:5173/admin/tables/booking-schedule',
-            })
-            if (paymentRes.data.payment_url) {
-              await Swal.fire({
-                title: 'Đang chuyển hướng sang VNPAY...',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                showConfirmButton: false,
-                didOpen: () => {
-                  Swal.showLoading()
-                  setTimeout(() => {
-                    window.location.href = paymentRes.data.payment_url
-                  }, 1000)
-                },
-              })
-            }
-            else {
-              throw new Error('Không tạo được link thanh toán VNPAY!')
-            }
-            return
-          }
-          if (paymentMethod.value === 'MOMO') {
-            await Swal.fire({
-              toast: true,
-              position: 'top-end',
-              title: 'Chức năng thanh toán MoMo đang được phát triển!',
-              icon: 'info',
-              showConfirmButton: false,
-              timer: 1500,
-              timerProgressBar: true,
-            })
-            return
-          }
-          if (paymentMethod.value === 'COD') {
-            await new Promise((resolve) => setTimeout(resolve, 300))
-            await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
-              order_id: current_order_id.value,
-              amount_paid: totalPrice.value,
-              payment_type: 'Thanh toán toàn bộ',
-            })
-
-            await Swal.fire({
-              toast: true,
-              position: 'top-end',
-              title: 'Thanh toán bàn bằng tiền mặt thành công!',
-              icon: 'success',
-              showConfirmButton: false,
-              timer: 1500,
-              timerProgressBar: true,
-            })
-          }
           clearCart()
           router.push('/admin/tables/booking-schedule')
         } else {
@@ -846,14 +774,11 @@ export default {
             timer: 1500,
             timerProgressBar: true,
           })
-          isLoading.value = false
-          return
         }
-        // toast.success('Đặt bàn thành công!')
-        // clearCart()
+
       } catch (error) {
         console.error('Lỗi khi đặt bàn:', error)
-        let errorMessage = 'Đặt bàn hoặc thanh toán thất bại, vui lòng thử lại!'
+        let errorMessage = 'Đặt bàn thất bại, vui lòng thử lại!'
         let swalOptions = {
           toast: true,
           position: 'top-end',
@@ -862,26 +787,21 @@ export default {
           timer: 3000,
           timerProgressBar: true,
         }
-        if (error.response && error.response.status === 422 && error.response.data.errors) {
-          let validationMessages = []
-          for (const field in error.response.data.errors) {
-            validationMessages.push(...error.response.data.errors[field])
-          }
-          errorMessage = validationMessages.join('\n')
 
+        if (error.response?.status === 422 && error.response.data.errors) {
+          const validationMessages = Object.values(error.response.data.errors).flat()
+          errorMessage = validationMessages.join('\n')
           swalOptions = {
             toast: false,
-            // position: 'center',
             title: 'Lỗi xác thực dữ liệu!',
             html: errorMessage,
             icon: 'error',
-            showConfirmButton: true, // Cần nút xác nhận để người dùng tự đóng
-            timer: undefined, // Không tự đóng
-            timerProgressBar: false,
+            showConfirmButton: true,
           }
-        } else if (error.response && error.response.data && error.response.data.message) {
+        } else if (error.response?.data?.message) {
           errorMessage = error.response.data.message
         }
+
         await Swal.fire({
           ...swalOptions,
           title: swalOptions.title || errorMessage,
@@ -891,6 +811,7 @@ export default {
         isLoading.value = false
       }
     }
+
 
 
     watch(selectguest, handleGuestSelection)
@@ -947,7 +868,6 @@ export default {
       toggleTable,
       selectedTableIds,
       guest,
-      paymentMethod,
 
       currentPage,
       paginatedTables,
@@ -1122,20 +1042,6 @@ export default {
   }
 }
 
-.btn-payment {
-  flex-grow: 1;
-  margin: 0 5px;
-  padding: 5px 10px;
-  border: 1px solid #dee2e6;
-  border-radius: 10px;
-  background-color: #fff;
-  color: #343a40;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
-  text-align: center;
-}
-
 /* Để làm cho dropdown menu giống Bootstrap card/dropdown */
 .v-select .vs__dropdown-menu {
   border: 1px solid rgba(0, 0, 0, 0.15);
@@ -1163,18 +1069,6 @@ export default {
   /* Màu background khi hover/active */
   color: #c92c3c;
   font-weight: 500;
-}
-
-.btn-payment.active {
-  background-color: #fffefe;
-  border-color: #c92c3c;
-  color: #c92c3c;
-}
-
-.payment-icon {
-  width: 15px;
-  height: 15px;
-  object-fit: contain;
 }
 
 .list-group-item:first-child {
