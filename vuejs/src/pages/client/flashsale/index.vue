@@ -17,7 +17,6 @@
         </div>
         <a href="#" class="view-all-btn">Xem tất cả ></a>
       </div>
-
       <!-- Product List -->
       <div class="product-list">
         <div class="product-card" v-for="(food, index) in flashsaleFoods" :key="index"
@@ -37,7 +36,6 @@
                 <span class="product-badge-inline">-{{ food.discount_percent }}%</span>
               </div>
             </div>
-
             <div class="progress-bar">
               <span class="progress-bar-sold">{{ food.progress_label }}</span>
             </div>
@@ -57,7 +55,7 @@ const flashsaleFoods = ref([])
 const countdown = ref({ h: '00', m: '00', s: '00' })
 let intervalId = null
 
-const getImageUrl = (image) => `/img/food/${image}`
+const getImageUrl = (image) => `http://127.0.0.1:8000/storage/img/food/${image}`
 const formatCurrency = (value) => Number(value).toLocaleString('vi-VN') + 'đ'
 
 const getFlashSaleFoods = async () => {
@@ -65,7 +63,7 @@ const getFlashSaleFoods = async () => {
     const res = await axios.get(`http://127.0.0.1:8000/api/flash-sale/foods`)
     const foods = (res.data.data || []).map(item => ({
       ...item,
-      type: 'Food'
+      type: 'food'
     }))
 
     flashsaleFoods.value = foods.map((item) => {

@@ -372,6 +372,24 @@ const admin = [
          },
       },
       {
+        path: 'insert-discount',
+        name: 'insert-discount',
+        component: () => import('../pages/admin/Discount/insert.vue'),
+        meta: {
+          requiresAdmin: true,
+          headerSize: 'sm'
+        },
+      },
+      {
+        path: 'update-discount/:id',
+        name: 'update-discount',
+        component: () => import('../pages/admin/Discount/update.vue'),
+        meta: {
+          requiresAdmin: true,
+          headerSize: 'sm'
+        },
+      },
+      {
         path: '/admin/luckyprizes',
         name: 'admin/luckyprizes',
         component: () => import('../pages/admin/LuckyPrize/index.vue'),
@@ -379,6 +397,24 @@ const admin = [
           requiresAdmin: true,
           headerSize: 'sm'
          },
+      },
+      {
+        path: 'insert-luckyprize',
+        name: 'insert-luckyprize',
+        component: () => import('../pages/admin/LuckyPrize/insert.vue'),
+        meta: {
+          requiresAdmin: true,
+          headerSize: 'sm'
+        },
+      },
+      {
+        path: 'update-luckyprize/:id',
+        name: 'update-luckyprize',
+        component: () => import('../pages/admin/LuckyPrize/update.vue'),
+        meta: {
+          requiresAdmin: true,
+          headerSize: 'sm'
+        },
       },
     ],
   }
