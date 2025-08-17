@@ -12,7 +12,7 @@
           <div class="d-flex flex-column flex-md-row align-items-center mb-3">
             <div class="avatar-container">
               <template v-if="avatarUrl">
-                <img :src="avatarUrl" alt="Avatar" class="avatar-circle" />
+                <img :src="avatarUrl" alt="Avatar" class="avatar-circle" @error="event => event.target.src = '/default-avatar.png'" />
               </template>
               <template v-else>
                 <div class="avatar-circle border-custom d-flex justify-content-center align-items-center">

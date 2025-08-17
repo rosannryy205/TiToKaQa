@@ -25,11 +25,7 @@ export const User = {
         form.phone = res.data.phone || ''
         form.address = res.data.address || ''
         form.username = res.data.username || ''
-        form.avatar = res.data.avatar
-          ? (res.data.avatar.startsWith('https://') || res.data.avatar.startsWith('http://')
-            ? res.data.avatar
-            : `http://127.0.0.1:8000/storage/${res.data.avatar}`)
-          : null
+        form.avatar = res.data.avatar || null
         form.rank_points = res.data.rank_points
         form.usable_points = res.data.usable_points
         form.rank = res.data.rank
@@ -45,10 +41,12 @@ export const User = {
 
     const tempAvatar = ref(null)
     const avatarUrl = computed(() => {
-      if (tempAvatar.value) {
-        return tempAvatar.value
+      if (tempAvatar.value) return tempAvatar.value;
+      if (!form.avatar) return '/default-avatar.png';
+      if (form.avatar.startsWith('http://') || form.avatar.startsWith('https://')) {
+        return form.avatar;
       }
-      return form.avatar;
+      return `http://127.0.0.1:8000/storage/${form.avatar}`;
     });
     const handleImageUpload = async (event) => {
       const file = event.target.files[0];
