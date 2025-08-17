@@ -404,6 +404,9 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   border-right: 2px solid #ddd;
   padding-right: 20px;
 }
+#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-md-3.d-none.d-lg-block.text-start{
+  border-right: 2px dashed #6e6e6e
+}
 .col-md-3 .title-menu {
   font-size: 40px;
   color: #c92c3c;
@@ -523,14 +526,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 
 
 
-/*section food*/
-.title-food-menu {
-  font-size: 40px;
-  color: #c92c3c;
-  /* text-shadow: 2px 2px 5px rgba(177, 177, 177, 0.5); */
-  padding: 15px;
-  background-color: white;
-}
+/*section food*
 /*col3 food*/
 /*menu dropdown*/
 .nav-item.dropdown .dropdown-menu {
@@ -580,20 +576,23 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   color: #c92c3c;
 }
 /*col9 food*/
-.title-food-menu {
+.title-food-menu-wrap {
   position: sticky;
   top: 0;
-  left: 40px;
-  z-index: 1000;
-  background-color: #ffffff62;
+  z-index: 10;
+  background: #fff;
+  font-size: 40px;
+  color: #c92c3c;
 }
 .title-food-menu span{
   background-color: transparent;
 }
-#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center.text-center{
+#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center > div.col{
   margin: 0;
   padding: 0;
   gap: 0;
+  background-color: #f4f3f364;
+  border-radius: 10px;
 }
 /*left*/
 .food-box-left {
@@ -840,7 +839,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
   padding: 10px;
 }
 
-#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center.text-center{
+#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center > div.col{
   max-height: 500px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -848,11 +847,11 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 }
 
 /* Ẩn Webkit (Chrome, Safari) */
-#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center.text-center::-webkit-scrollbar {
+#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center > div.col::-webkit-scrollbar {
   width: 6px;
 }
 
-#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center.text-center::-webkit-scrollbar-thumb {
+#app > div > section.main.d-flex.justify-content-center.align-items-center > div > section > div > div > div.col-lg-9.align-items-center > div.col::-webkit-scrollbar-thumb {
   background-color: #c92c3c;
   border-radius: 10px;
 }

@@ -7,6 +7,7 @@ import { Cart } from '@/stores/cart'
 import { FoodList } from './food'
 import { useUserStore } from '@/stores/userAuth'
 import { User } from '@/stores/user'
+import { API_URL } from '@/config'
 const { form } = User.setup()
 export function Discounts() {
   const shippingStore = useShippingStore()
@@ -56,7 +57,7 @@ export function Discounts() {
   const getAllDiscount = async (query = {}) => {
     try {
       const params = new URLSearchParams(query).toString()
-      const res = await axios.get(`http://127.0.0.1:8000/api/discounts?${params}`)
+      const res = await axios.get(`${API_URL}/discounts?${params}`)
 
       if (query.source) {
         discounts.value = res.data.filter(d => d.source === query.source)
@@ -70,7 +71,7 @@ export function Discounts() {
 
   const fetchUserDiscounts = async () => {
     try {
-      const res = await axios.get('http://127.0.0.1:8000/api/user-vouchers', {
+      const res = await axios.get(`${API_URL}/user-vouchers`, {
         headers: {
           Authorization: `Bearer ${userStore.token}`,
         },
