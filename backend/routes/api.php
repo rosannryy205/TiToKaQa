@@ -15,6 +15,7 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ChatRealTimeController;
 use App\Http\Controllers\ClaimPrizesController;
 use App\Http\Controllers\ComboController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DealFoodsController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
@@ -75,6 +76,8 @@ Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
 Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
 Route::get('/load-order-detail/{order_id}', [OrderController::class, 'showOrderDetail']);
 Route::put('/update-order-detail/{order_id}', [OrderController::class, 'updateOrderDetails']);
+Route::get('/admin/payments/vnpay-return', [PaymentController::class, 'vnpayReturnAdmin']);
+
 
 
 // table-admin
@@ -231,13 +234,10 @@ Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update'])
 Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
 Route::post('/admin/categories/delete-multiple', [AdminCategoryController::class, 'deleteMultiple']);
 
+// Thống kê doanh thu
+Route::get('/admin/revenue-by-month', [DashboardController::class, 'revenueByMonth']);
+Route::get('/admin/get-dashboard-stats', [DashboardController::class, 'getDashboardStats']);
 
-
-
-// Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
-// Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
-// Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
-// });
 
 
 

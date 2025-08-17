@@ -500,8 +500,8 @@ export default {
             cancelButtonColor: '#3085d6',
           });
 
-          if (!result.isConfirmed) {
-            isLoading.value = false
+          if (result.isConfirmed) {
+            isLoading.value = true
             return;
           }
         }

@@ -6,7 +6,8 @@
           <h3 class="title">Quản lý Quà Vòng Quay</h3>
 
           <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-            <router-link :to="{ name: 'insert-luckyprize' }" class="btn btn-add">
+            <router-link :to="{ name: 'insert-luckyprize' }" class="btn btn-add"
+              v-if="hasPermission('create_luckyprizes')">
               + Thêm Quà Vòng Quay
             </router-link>
             <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
@@ -14,23 +15,14 @@
 
           <!-- Tabs -->
           <div class="d-flex border-bottom mb-3" style="gap: 20px; font-size: 14px">
-            <div
-              v-for="(tab, index) in tabs"
-              :key="index"
-              @click="activeTab = index"
-              class="pb-2 position-relative"
+            <div v-for="(tab, index) in tabs" :key="index" @click="activeTab = index" class="pb-2 position-relative"
               :class="{
                 'fw-bold text-danger': activeTab === index,
                 'text-muted': activeTab !== index,
-              }"
-              style="cursor: pointer"
-            >
+              }" style="cursor: pointer">
               {{ tab.label }}
-              <span
-                v-if="activeTab === index"
-                class="position-absolute start-0 bottom-0 w-100"
-                style="height: 2px; background-color: #d9363e"
-              ></span>
+              <span v-if="activeTab === index" class="position-absolute start-0 bottom-0 w-100"
+                style="height: 2px; background-color: #d9363e"></span>
             </div>
           </div>
 
@@ -56,27 +48,20 @@
                   <td>
                     <span v-if="item.type === 'food'">food_id: {{ item.data?.food_id }}</span>
                     <span v-else-if="item.type === 'discount'">code: {{ item.data?.code }}</span>
-                    <span v-else-if="item.type === 'tpoint'"
-                      >points: {{ item.data?.usable_points }}</span
-                    >
+                    <span v-else-if="item.type === 'tpoint'">points: {{ item.data?.usable_points }}</span>
                     <span v-else>{{ stringify(item.data) }}</span>
                   </td>
                   <td>{{ Number(item.probability) || 0 }}%</td>
                   <td>{{ item.status }}</td>
                   <td>
                     <div class="d-flex justify-content-center gap-2 flex-nowrap">
-                      <button
-                        class="btn btn-outline btn-sm"
-                        :disabled="loadingIds.has(item.id)"
-                        @click="togglePrizeStatus(item)"
-                      >
+                      <button class="btn btn-outline btn-sm" :disabled="loadingIds.has(item.id)"
+                        @click="togglePrizeStatus(item)" v-if="hasPermission('hidden_luckyprizes')">
                         {{ (item.status || '').toLowerCase() === 'inactive' ? 'Hiện' : 'Ẩn' }}
                       </button>
 
-                      <router-link
-                        :to="`/admin/update-luckyprize/${item.id}`"
-                        class="btn btn-update"
-                      >
+                      <router-link :to="`/admin/update-luckyprize/${item.id}`" class="btn btn-update"
+                        v-if="hasPermission('edit_luckyprizes')">
                         Sửa
                       </router-link>
                     </div>
@@ -115,6 +100,13 @@ import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 import { API_URL } from '@/config'
 const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) {
+    userId.value = user.id
+  }
+}
 const { hasPermission } = Permission(userId)
 const router = useRouter()
 /* ---------- State ---------- */
