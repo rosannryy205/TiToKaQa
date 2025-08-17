@@ -123,7 +123,7 @@ import { FoodList } from '@/stores/food'
 import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
 import axios from 'axios'
-
+import { API_URL } from '@/config'
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -170,7 +170,7 @@ const mapDiscountType = (type) => {
 const discountInactive = ref([])
 const getInactiveDiscounts = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/discounts', {
+    const res = await axios.get(`${API_URL}/discounts`, {
       params: { status: 'inactive' },
     })
     discountInactive.value = res.data
@@ -236,7 +236,7 @@ async function togglePrizeStatus(item) {
   try {
     loadingIds.value.add(item.id)
     await axios.patch(
-      `http://127.0.0.1:8000/api/admin/discounts/${item.id}/status`,
+      `${API_URL}/admin/discounts/${item.id}/status`,
       { status: nextStatus },
       { headers: { 'Content-Type': 'application/json' } },
     )
