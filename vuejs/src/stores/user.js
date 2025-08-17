@@ -2,6 +2,7 @@ import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { form } from '@/stores/userForm'
 import Swal from 'sweetalert2'
+import { API_URL } from '@/config'
 export const User = {
   setup() {
     const user = ref(null)
@@ -12,7 +13,7 @@ export const User = {
 
     const personally = async (userId) => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/user/${userId}`, {
+        const res = await axios.get(`${API_URL}/user/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -65,7 +66,7 @@ export const User = {
       formData.append("avatar", form.avatar);
 
       try {
-        const response = await axios.post(`http://127.0.0.1:8000/api/user/${user.value.id}/upload-avatar`, formData, {
+        const response = await axios.post(`${API_URL}/user/${user.value.id}/upload-avatar`, formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
             // 'Content-Type': 'multipart/form-data'
@@ -112,7 +113,7 @@ export const User = {
       });
       if (result.isConfirmed) {
         try {
-          await axios.post('http://127.0.0.1:8000/api/logout', null, {
+          await axios.post(`${API_URL}/logout`, null, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -153,7 +154,7 @@ export const User = {
           phone: form.phone || '',
           address: form.address || '',
         }
-        await axios.patch(`http://127.0.0.1:8000/api/user/updateProfile/${user.value.id}`, updateProfile, {
+        await axios.patch(`${API_URL}/user/updateProfile/${user.value.id}`, updateProfile, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           }
