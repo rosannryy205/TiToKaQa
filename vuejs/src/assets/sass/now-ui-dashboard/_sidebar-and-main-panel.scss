@@ -370,67 +370,6 @@
   &[data-color="grey"] {
     @include vendor.sidebar-color(vars.$grey-color);
   }
-
-  .user {
-    padding-bottom: 20px;
-    margin: 20px auto 0;
-    position: relative;
-
-    &:after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      right: 15px;
-      height: 1px;
-      width: calc(100% - 30px);
-      background-color: vars.$opacity-5;
-    }
-
-    .photo {
-      width: 34px;
-      height: 34px;
-      overflow: hidden;
-      float: left;
-      z-index: 5;
-      margin-right: 10px;
-      border-radius: 50%;
-      margin-left: 23px;
-      box-shadow: vars.$box-shadow-raised;
-      @extend .animation-transition-general;
-
-      img {
-        width: 100%;
-      }
-    }
-
-    a {
-      color: vars.$white-color;
-      text-decoration: none;
-      padding: vars.$padding-base-vertical 15px;
-      white-space: nowrap;
-      @extend .animation-transition-general;
-    }
-
-    .info {
-      >a {
-        display: block;
-        line-height: 18px;
-
-        >span {
-          @extend .animation-transition-general;
-          display: block;
-          position: relative;
-          opacity: 1;
-        }
-      }
-
-      .caret {
-        position: absolute;
-        top: 8px;
-        right: 21px;
-      }
-    }
-  }
 }
 
 .visible-on-sidebar-regular {
@@ -459,9 +398,9 @@
   position: relative;
   float: right;
   width: vars.$sidebar-width;
-  width: 100%;
-  // background-color: vars.$light-gray;
-  // background-color: #ebecf1;
+  // width: 100%;
+  background-color: vars.$light-gray;
+  background-color: #ebecf1;
 
   @include vendor.transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
 

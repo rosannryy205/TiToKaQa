@@ -6,31 +6,22 @@
           <h3 class="title">Quản lý Mã Giảm Giá</h3>
 
           <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-            <router-link :to="{ name: 'insert-discount' }" class="btn btn-add">
+            <router-link :to="{ name: 'insert-discount' }" class="btn btn-add" v-if="hasPermission('create_discounts')">
               + Thêm Mã Giảm Giá
             </router-link>
 
             <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
           </div>
           <div class="d-flex border-bottom mb-3" style="gap: 20px; font-size: 14px">
-            <div
-              v-for="(tab, index) in tabs"
-              :key="index"
-              @click="activeTab = index"
-              class="pb-2 position-relative"
+            <div v-for="(tab, index) in tabs" :key="index" @click="activeTab = index" class="pb-2 position-relative"
               :class="{
                 'fw-bold text-danger': activeTab === index,
                 'text-muted': activeTab !== index,
-              }"
-              style="cursor: pointer"
-            >
+              }" style="cursor: pointer">
               {{ tab.label }}
               <span v-if="tab.count" class="text-secondary">({{ tab.count }})</span>
-              <span
-                v-if="activeTab === index"
-                class="position-absolute start-0 bottom-0 w-100"
-                style="height: 2px; background-color: #d9363e"
-              ></span>
+              <span v-if="activeTab === index" class="position-absolute start-0 bottom-0 w-100"
+                style="height: 2px; background-color: #d9363e"></span>
             </div>
           </div>
           <div class="table-responsive">
@@ -81,25 +72,16 @@
                   </td>
                   <td>
                     <div class="d-flex justify-content-center gap-2 flex-nowrap">
-                      <router-link
-                        v-if="activeTab === 2"
-                        :to="`/admin/update-discount/${item.id}`"
-                        class="btn btn-update"
-                      >
+                      <router-link v-if="activeTab === 2 || hasPermission('edit_discounts')" :to="`/admin/update-discount/${item.id}`"
+                        class="btn btn-update">
                         Gia hạn
                       </router-link>
                       <template v-else>
-                        <button
-                          class="btn btn-outline btn-sm"
-                          :disabled="loadingIds.has(item.id)"
-                          @click="togglePrizeStatus(item)"
-                        >
+                        <button v-if="hasPermission('hidden_discounts')" class="btn btn-outline btn-sm" :disabled="loadingIds.has(item.id)"
+                          @click="togglePrizeStatus(item)" >
                           {{ (item.status || '').toLowerCase() === 'inactive' ? 'Hiện' : 'Ẩn' }}
                         </button>
-                        <router-link
-                          :to="`/admin/update-discount/${item.id}`"
-                          class="btn btn-update"
-                        >
+                        <router-link :to="`/admin/update-discount/${item.id}`" class="btn btn-update" v-if="hasPermission('edit_discounts')">
                           Sửa
                         </router-link>
                       </template>
