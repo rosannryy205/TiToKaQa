@@ -10,7 +10,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import 'vue3-toastify/dist/index.css'
 import Swal from 'sweetalert2'
-
+import { API_URL } from '@/config'
 
 const route = useRoute()
 const router = useRouter()
@@ -20,7 +20,7 @@ onMounted(async () => {
   const provider = 'google'
 
   try {
-    const response = await axios.get(`http://localhost:8000/api/auth/${provider}/callback`, {
+    const response = await axios.get(`${API_URL}/auth/${provider}/callback`, {
       params: { code },
     })
     const token = response.data.token

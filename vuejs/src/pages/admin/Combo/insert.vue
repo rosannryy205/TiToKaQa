@@ -191,7 +191,7 @@ import { Modal } from 'bootstrap'
 import { toast } from 'vue3-toastify'
 import { Permission } from '@/stores/permission'
 import Swal from 'sweetalert2'
-
+import { API_URL } from '@/config'
 const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
 
 const formatNumber = (value) => numeral(value).format('0,0')
@@ -219,7 +219,7 @@ const allCatesForAdmin = ref([])
 
 const fetchAllFoodsForCombo = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/foods')
+    const res = await axios.get(`${API_URL}/admin/foods`)
     allFoodsForAdmin.value = res.data || []
   } catch (error) {
     console.error('Lỗi khi lấy dữ liệu thức ăn:', error)
@@ -228,7 +228,7 @@ const fetchAllFoodsForCombo = async () => {
 
 const fetchAllCatesForCombo = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/categories')
+    const res = await axios.get(`${API_URL}/admin/categories`)
     const data = res.data || []
     data.shift()
     allCatesForAdmin.value = data
@@ -423,7 +423,7 @@ const createCombosByAdmin = async () => {
     })
 
     const res = await axios.post(
-      'http://127.0.0.1:8000/api/admin/combos/create',
+      `${API_URL}/admin/combos/create`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )

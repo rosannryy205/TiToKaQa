@@ -188,7 +188,7 @@ import axios from 'axios'
 import numeral from 'numeral'
 import { toast } from 'vue3-toastify'
 import { Permission } from '@/stores/permission'
-
+import { API_URL } from '@/config'
 const combo = ref([])
 const currentPage = ref(1)
 const totalPages = ref(1)
@@ -236,7 +236,7 @@ async function fetchCombos(page = 1) {
       search: searchQuery.value.trim(),
     }
 
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/combos', { params })
+    const res = await axios.get(`${API_URL}/admin/combos`, { params })
 
     combo.value = res.data.data
     currentPage.value = res.data.current_page
@@ -260,7 +260,7 @@ async function toggleComboStatus(comboId) {
   try {
     if (!confirm('Bạn có chắc muốn ẩn/hiện combo này?')) return
 
-    const res = await axios.put(`http://127.0.0.1:8000/api/admin/combos/${comboId}/toggle-status`)
+    const res = await axios.put(`${API_URL}/admin/combos/${comboId}/toggle-status`)
     toast.success(res.data.message)
 
     const index = combo.value.findIndex((c) => c.id === comboId)

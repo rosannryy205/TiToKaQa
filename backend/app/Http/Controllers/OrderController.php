@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Models\Food;
 use App\Models\Food_topping;
+use App\Models\Payment;
 use App\Models\Reservation_table;
 use App\Models\Table;
 use App\Models\User;
@@ -330,7 +331,7 @@ class OrderController extends Controller
                         }
                     }
                 }
-                }
+            }
 
             //     foreach ($request->order_detail as $item) {
             //         $name = null;
@@ -1181,15 +1182,24 @@ class OrderController extends Controller
             $order->check_in_time = Carbon::now();
         }
 
-        if ($request->order_status === 'Hoàn thành' && $reservation) {
-            $reservation->reserved_to = Carbon::now();
-            $reservation->save(); // Nhớ lưu thay đổi
+        if ($request->order_status === 'Hoàn thành') {
+            $payment = Payment::where('order_id', $order->id)->first();
+            if ($payment) {
+                $payment->payment_status = 'Đã thanh toán';
+                $payment->save();
+            }
+
+            if ($reservation) {
+                $reservation->reserved_to = Carbon::now();
+                $reservation->save();
+            }
         }
 
         $order->save();
 
         return response()->json([
             'status' => $request->order_status,
+            'payment_status' => $order->payment_status,
             'message' => 'Đơn hàng đã được cập nhật thành công.'
         ]);
     }
