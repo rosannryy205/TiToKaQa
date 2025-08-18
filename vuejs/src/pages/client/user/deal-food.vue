@@ -67,6 +67,7 @@ import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userAuth'
+import { API_URL } from '@/config'
 
 const dealsFood = ref([])
 const activeTab = ref(0)
@@ -79,7 +80,7 @@ const tabs = ref([
 ])
 
 const getDealsFood = async () => {
-  const res = await axios.get('http://localhost:8000/api/deals-food', {
+  const res = await axios.get(`${API_URL}/deals-food`, {
     headers: { Authorization: `Bearer ${userStore.token}` },
   })
 
@@ -92,6 +93,7 @@ const getDealsFood = async () => {
     tabs.value[1].count = expiredCount
   }
 }
+
 const formatDate = (dateStr) => {
   if (!dateStr) return null
   const date = new Date(dateStr)
@@ -103,6 +105,7 @@ const formatDate = (dateStr) => {
     year: 'numeric',
   })
 }
+
 const isExpired = (expired_at) => {
   if (!expired_at) return false
   return new Date(expired_at) < new Date()
@@ -114,6 +117,7 @@ const filteredDealsFood = computed(() => {
   }
   return dealsFood.value
 })
+
 const useDealNow = (deal) => {
   const userId = userStore.user.id
   const cartKey = `cart_${userId}`

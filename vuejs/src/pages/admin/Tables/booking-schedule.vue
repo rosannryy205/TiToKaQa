@@ -83,10 +83,12 @@
                   </div>
                   <div class="info-item">
                     <div class="info-block">
-                      <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán: Làm sau </span>
+                      <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán:
+                        {{ info.payment_info?.payment_status || 'Chưa thanh toán' }} </span>
                     </div>
                     <div class="info-block">
-                      <span> <i class="bi bi-cash"></i>Phương thức thanh toán: Làm sau </span>
+                      <span> <i class="bi bi-cash"></i>Phương thức thanh toán:
+                        {{ info.payment_info?.payment_method || 'Cần thanh toán' }}</span>
                     </div>
                   </div>
                   <div class="info-item">
@@ -98,8 +100,8 @@
                     <div class="info-block">
                       <i class="bi bi-card-list"></i>
                       <span>Trạng thái đơn:
-                        <select v-model="info.order_status" class="p-1 border rounded-0"
-                          @change="updateStatus(info.id, info.order_status)" :disabled="!hasPermission('edit_booking')">
+                        <select v-model="tempStatus" class="p-1 border rounded-0"
+                          @change="updateStatus(info.id, tempStatus)" :disabled="!hasPermission('edit_booking')">
                           <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
                             Chờ xác nhận
                           </option>
@@ -112,7 +114,7 @@
                           <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
                             Khách đã đến
                           </option>
-                          <option value="Hoàn thành" :disabled="!canSelectStatus(info.order_status, 'Hoàn thành')">
+                          <option value="Hoàn thành" :disabled="canSelectStatus(info.order_status, 'Hoàn thành')">
                             Hoàn thành
                           </option>
                           <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
@@ -150,10 +152,35 @@
                     </div>
                   </div>
                 </div>
-                <div class="popup-actions" v-if="hasPermission('edit_booking')">
-                  <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
-                  <router-link :to="`/admin/tables-change/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
+                <div class="popup-actions" v-if="hasPermission('edit_booking') && info.order_status !== 'Hoàn thành'">
+                  <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn
+                    món</router-link>
+                  <router-link :to="`/admin/tables-change/${info.id}`" class="btn edit-button">Chuyển
+                    bàn</router-link>
                   <router-link :to="`/admin/tables-setup/${info.id}`" class="btn edit-button">Xếp bàn</router-link>
+                </div>
+                <hr>
+                <div class="payment-section p-2" v-if="info.order_status !== 'Hoàn thành'">
+                  <h6 class="mb-3">Phương thức thanh toán</h6>
+                  <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
+                    <button class="btn btn-payment" :class="{ active: paymentMethod === 'COD' }" type="button"
+                      @click="paymentMethod = 'COD'" :disabled="info.order_status !== 'Khách đã đến'">
+                      <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
+                      <br />Tiền mặt
+                    </button>
+                    <button class="btn btn-payment" type="button" @click="paymentMethod = 'VNPAY'"
+                      :class="{ active: paymentMethod === 'VNPAY' }" :disabled="info.order_status !== 'Khách đã đến'">
+                      <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
+                      <br />QR code
+                    </button>
+                  </div>
+                  <hr />
+                  <div class="d-flex flex-column flex-sm-row">
+                    <button class="btn btn-outline-danger flex-fill me-sm-2 mb-2 mb-sm-0 p-2" type="submit"
+                      @click="payMoney" :disabled="info.order_status !== 'Khách đã đến'">
+                      Thanh toán
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -228,7 +255,6 @@ const getOrderOfTable = async () => {
   if (!isLoading.value) {
     isLoading.value = true;
   }
-
   try {
     const res = await axios.get('http://127.0.0.1:8000/api/order-tables')
     orderOfTable.value = res.data.orders
@@ -247,12 +273,120 @@ const getOrderOfTable = async () => {
         total_quantity: order.total_quantity,
       },
     }))
-
   } catch (error) {
     console.log(error)
   } finally {
     isLoading.value = false
+  }
+}
 
+const paymentMethod = ref('')
+const payMoney = async () => {
+  if (!info.value.id) {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      title: 'Không tìm thấy ID đơn hàng!',
+      icon: 'error',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    })
+    return
+  }
+  isLoading.value = true
+  try {
+    if (!paymentMethod.value) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        title: 'Vui lòng chọn phương thức thanh toán!',
+        icon: 'info',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+      return;
+    }
+    if (paymentMethod.value === 'VNPAY') {
+      isLoading.value = false
+      const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+        order_id: info.value.id,
+        amount: info.value.total_price,
+        return_url: 'http://localhost:5173/admin/tables/booking-schedule',
+      })
+      if (paymentRes.data.payment_url) {
+        Swal.fire({
+          title: 'Đang chuyển hướng sang VNPAY...',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading()
+            setTimeout(() => {
+              window.location.href = paymentRes.data.payment_url
+            }, 1000)
+          },
+        })
+      }
+      else {
+        throw new Error('Không tạo được link thanh toán VNPAY!')
+      }
+      return
+    }
+    if (paymentMethod.value === 'MOMO') {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        title: 'Chức năng thanh toán MoMo đang được phát triển!',
+        icon: 'info',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      })
+      return
+    }
+    if (paymentMethod.value === 'COD') {
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+        order_id: info.value.id,
+        amount_paid: info.value.total_price,
+      })
+
+      await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
+        id: info.value.id,
+        order_status: 'Hoàn thành',
+        payment_status: 'Đã thanh toán'
+      })
+
+      info.value.order_status = 'Hoàn thành'
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        title: 'Thanh toán bàn bằng tiền mặt thành công!',
+        icon: 'success',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      })
+    }
+    router.push({ path: '/admin/tables/booking-schedule', query: { order_id: info.value.id } })
+      .then(() => window.location.reload());
+  } catch (error) {
+    console.log(error)
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      title: 'Lỗi: Thanh toán thất bại!',
+      icon: 'error',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    })
+    return
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -270,10 +404,12 @@ function renderEventContent(arg) {
   }
 }
 const showDetailPopup = ref(false)
+const tempStatus = ref(info.value.order_status)
 const getInfoDetail = async (arg) => {
   const { event } = arg
   await getInfo('order', event.id)
   showDetailPopup.value = true
+  tempStatus.value = info.value.order_status
   console.log(info.value)
 }
 
@@ -289,6 +425,7 @@ const closeDetailPopup = () => {
 }
 
 const updateStatus = async (id, status) => {
+  const oldStatus = info.value.order_status
   try {
     const result = await Swal.fire({
       title: `Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}?`,
@@ -296,12 +433,16 @@ const updateStatus = async (id, status) => {
       showCancelButton: true,
       confirmButtonText: 'Xác nhận',
       cancelButtonText: 'Hủy',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
     })
     if (result.isConfirmed) {
       await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
         id: id,
         order_status: status,
       })
+      info.value.order_status = status
+      tempStatus.value = status
       Swal.fire({
         toast: true,
         position: 'top-end',
@@ -312,6 +453,8 @@ const updateStatus = async (id, status) => {
         timerProgressBar: true
       })
       await getOrderOfTable()
+    } else {
+      tempStatus.value = oldStatus
     }
   } catch (error) {
     Swal.fire({
@@ -324,6 +467,7 @@ const updateStatus = async (id, status) => {
       timerProgressBar: true
     })
     console.log(error)
+    tempStatus.value = oldStatus
   }
 }
 
@@ -372,8 +516,6 @@ const handleDateClick = (clickDate) => {
     name: 'insert-reservation-admin-date',
     params: { date: clickDate.dateStr } // chỉ lấy YYYY-MM-DD
   })
-
-
 }
 
 onMounted(async () => {
@@ -381,6 +523,47 @@ onMounted(async () => {
   selectedDateInput.value = new Date().toISOString().split('T')[0];
   // console.log(calendarOptions.value.events)
   // console.log(calendarOptions.value.resources)
+  const params = new URLSearchParams(window.location.search)
+  const hasVnpParams = params.has('vnp_TransactionStatus') || params.has('vnp_TxnRef')
+  isLoading.value = true
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/payments/vnpay-return', { params })
+    if (hasVnpParams) {
+      if (res.data.success) {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Thanh toán thành công!',
+          showConfirmButton: false,
+          timer: 2000,
+        })
+      } else {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Thanh toán thất bại hoặc có lỗi!',
+          showConfirmButton: false,
+          timer: 2000,
+        })
+      }
+    }
+  } catch (error) {
+    if (hasVnpParams) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Lỗi xác minh thanh toán!',
+        showConfirmButton: false,
+        timer: 2000,
+      })
+    }
+  }
+  finally {
+    isLoading.value = false
+  }
 })
 const initialTablesLoaded = ref(false);
 
@@ -522,7 +705,7 @@ const calendarOptions = ref({
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   width: 90%;
-  max-width: 600px;
+  max-width: 650px;
   overflow: hidden;
   font-family: Arial, sans-serif;
   color: #333;
@@ -594,31 +777,37 @@ a {
 
 .popup-actions {
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 10px;
-  padding: 15px 20px;
-  border-top: 1px solid #eee;
-  background-color: #f5f5f5;
+  margin-left: 20px;
 }
+
 
 .popup-actions button {
   padding: 8px 18px;
   border-radius: 5px;
   cursor: pointer;
   font-weight: 500;
-  transition:
-    background-color 0.2s,
-    color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
+  text-decoration: none;
 }
 
 .edit-button {
   color: #c92c3c;
   border: 1px solid #c92c3c;
+  background-color: #fff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  height: 35px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
 .edit-button:hover {
   background-color: #c92c3c;
-  color: white;
+  color: #fff;
 }
 
 .delete-button {

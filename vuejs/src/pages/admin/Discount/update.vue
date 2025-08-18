@@ -304,7 +304,7 @@
   import { Permission } from '@/stores/permission'
   import { FoodList } from '@/stores/food'
   import { useRouter, useRoute } from 'vue-router'
-  
+  import { API_URL } from '@/config'
   // Router/Route
   const router = useRouter()
   const route = useRoute()
@@ -415,7 +415,7 @@
     }
     loading.value = true
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/api/admin/discounts/${discountId.value}`)
+      const res = await axios.get(`${API_URL}/admin/discounts/${discountId.value}`)
       fillForm(res.data?.data || res.data)
     } catch (err) {
       await Swal.fire({
@@ -446,7 +446,7 @@
   
     try {
       const payload = buildPayload()
-      await axios.put(`http://127.0.0.1:8000/api/admin/discounts/update/${discountId.value}`, payload, {
+      await axios.put(`${API_URL}/admin/discounts/update/${discountId.value}`, payload, {
         headers: { 'Content-Type': 'application/json' },
       })
   
