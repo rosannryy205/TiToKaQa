@@ -297,7 +297,7 @@ const updateStatus = async (id, status) => {
       confirmButtonText: 'Xác nhận',
       cancelButtonText: 'Hủy',
     })
-    if (!result.isConfirmed) {
+    if (result.isConfirmed) {
       await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
         id: id,
         order_status: status,
