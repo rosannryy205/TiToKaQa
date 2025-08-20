@@ -198,37 +198,14 @@
                           Tạm tính
                           <span>{{ formatNumber(totalPrice) }} VNĐ</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
-                          Phí giữ bàn
-                          <span>100,000 VNĐ</span>
-                        </li>
                         <li
                           class="list-group-item mb-0 pb-0 d-flex justify-content-between align-items-center fw-bold fs-6 text-danger">
                           Tổng thanh toán
                           <span class="text-danger fw-bold">
-                            {{ formatNumber(totalPrice + 100000) }} VNĐ
+                            {{ formatNumber(totalPrice) }} VNĐ
                           </span>
                         </li>
                       </ul>
-                      <hr />
-                      <h6 class="mb-3">Phương thức thanh toán</h6>
-                      <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
-                        <button class="btn btn-payment active" type="button">
-                          <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
-                          <br />
-                          Tiền mặt
-                        </button>
-                        <button class="btn btn-payment" type="button">
-                          <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
-                          <br />
-                          MoMo
-                        </button>
-                        <button class="btn btn-payment" type="button">
-                          <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
-                          <br />
-                          QR code
-                        </button>
-                      </div>
                       <hr />
                       <div class="d-flex flex-column flex-sm-row">
                         <button type="button" @click="$router.back()"
@@ -237,9 +214,6 @@
                         </button>
                         <button type="submit" class="btn btn-outline-success flex-fill me-sm-2 mb-2 mb-sm-0 p-2">
                           Lưu lại
-                        </button>
-                        <button class="btn btn-outline-danger flex-fill me-sm-2 mb-2 mb-sm-0 p-2" type="button">
-                          Thanh toán
                         </button>
                       </div>
                     </div>

@@ -1,7 +1,7 @@
 <template>
-  <div class="container py-2">
+  <div class="container py-2" v-for="order in orders" :key="order.id">
     <div class="text-center p-2 rounded mb-5">
-      <div class="row text-center mb-2" v-for="order in orders" :key="order.id">
+      <div class="row text-center mb-2">
         <div class="col-md-3 col-6">
           <div class="text-uppercase text-muted title">Mã đơn hàng:</div>
           <div class="fw-semibold">#{{ order.id }}</div>
@@ -12,7 +12,13 @@
         </div>
         <div class="col-md-3 col-6">
           <div class="text-uppercase text-muted title">Tổng cộng:</div>
-          <div class="fw-semibold">{{ formatNumber(order.total_price) }} VND</div>
+          <div v-if="order.table_fee && order.table_fee > 0" class="fw-semibold">
+            {{ formatNumber(order.table_fee) }} VND
+            <small class="text-muted d-block">(Phí giữ bàn)</small>
+          </div>
+          <div v-else class="fw-semibold">
+            {{ formatNumber(order.total_price) }} VND
+          </div>
         </div>
         <div class="col-md-3 col-6">
           <div class="text-uppercase text-muted title">Phương thức thanh toán:</div>
@@ -31,7 +37,11 @@
 
         <div class="d-grid gap-2 d-md-flex justify-content-center mt-4">
           <router-link to="/" class="btn btn-check-out">Về trang chủ</router-link>
-          <router-link v-if="isLoggedIn" to="/account/order-management" class="btn btn-check-out">Xem chi tiết đơn hàng</router-link>
+          <router-link v-if="isLoggedIn"
+            :to="order.reservation_code ? '/reservation' : '/account/order-management'"
+            class="btn btn-check-out">
+            {{ order.reservation_code ? 'Xem chi tiết đặt bàn' : 'Xem chi tiết đơn hàng' }}
+          </router-link>
         </div>
       </div>
     </div>
@@ -40,15 +50,15 @@
 
 <script>
 import { Info } from "@/stores/info-order-reservation";
-import { useUserStore  } from "@/stores/userAuth";
+import { useUserStore } from "@/stores/userAuth";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   props: ["orders", "methodLabel", "paymentMessage"],
   setup() {
     const { formatNumber, formatDate } = Info.setup();
-    const auth = useUserStore ();
-    return { formatNumber, formatDate,isLoggedIn: auth.isLoggedIn, };
+    const auth = useUserStore();
+    return { formatNumber, formatDate, isLoggedIn: auth.isLoggedIn, };
   },
 });
 </script>

@@ -121,7 +121,6 @@ export function Cart() {
 
   const removeItem = (index) => {
     Swal.fire({
-      title: 'Bạn có chắc chắn?',
       text: 'Xoá món này khỏi giỏ hàng?',
       icon: 'warning',
       showCancelButton: true,
