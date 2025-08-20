@@ -24,6 +24,7 @@ class Order extends Model
         'type_order',
         'tpoint_used',
         'ship_cost',
+        'table_fee',
         'user_id',
         'discount_id',
         'guest_address',
@@ -51,7 +52,7 @@ class Order extends Model
     }
     public function payment()
     {
-        return $this->hasOne(Payment::class, 'order_id');
+        return $this->hasMany(Payment::class, 'order_id', 'id');
     }
 
 }

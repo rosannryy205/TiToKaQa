@@ -36,48 +36,128 @@
         <card class="card-chart" no-footer-line>
           <div slot="header">
             <h5 class="card-category">Thống kê người dùng</h5>
-            <h2 class="card-title">
-              <animated-number :value="34252"> </animated-number>
+            <h2 class="card-title d-flex flex-wrap align-items-center gap-2">
+              <TeamOutlined style="color: #f96332;" />
+              <animated-number :value="totalUsers" class="ms-2 me-2 fw-bold fs-2"></animated-number>
+              <small class="text-muted fs-6">(Tổng người dùng)</small>
             </h2>
+            <h4 class="d-flex flex-wrap align-items-center gap-2">
+              <animated-number :value="filteredUsers" class="ms-2 me-2 fs-5">
+              </animated-number>
+              <small class="text-muted fs-6">({{ filterLabel }})</small>
+            </h4>
             <Dropdown :hide-arrow="true" position="right">
               <template #title>
                 <n-button class="dropdown-toggle no-caret" round simple icon>
                   <SettingOutlined />
                 </n-button>
               </template>
-
-              <a class="dropdown-items" href="#">Ngày hiện tại</a>
-              <a class="dropdown-items" href="#">Bộ lọc</a>
+              <!-- <div class="dropdown-menu-custom"> -->
+              <a class="dropdown-items" href="#" @click.prevent="fetchStatsUsersByTime('today')">
+                <CalendarOutlined class="me-2" /> Ngày hiện tại
+              </a>
+              <a class="dropdown-items" href="#" @click.prevent="fetchStatsUsersByTime('this_week')">
+                <ScheduleOutlined class="me-2" /> Tuần hiện tại
+              </a>
+              <a class="dropdown-items" href="#" @click.prevent="fetchStatsUsersByTime('month')">
+                <FieldTimeOutlined class="me-2" /> Tháng hiện tại
+              </a>
+              <a class="dropdown-items" href="#" @click.prevent="fetchStatsUsersByTime('year')">
+                <LineChartOutlined class="me-2" /> Năm hiện tại
+              </a>
+              <!-- </div> -->
             </Dropdown>
           </div>
           <div class="chart-area">
-            <LineChart :labels="charts.activeUsers.labels" :data="charts.activeUsers.data"
-              :color="charts.activeUsers.color" :height="200" />
-          </div>
-          <!-- <div class="table-responsive">
-            <Table :data-source="data" :pagination="false" row-key="id" bordered>
-              <template #bodyCell="{ column, record }">
-                <td>
-                  <div class="flag">
-                    <img :src="record.flag" />
-                  </div>
-                </td>
-                <td>{{ record.country }}</td>
-                <td class="text-right">
-                  {{ record.value }}
-                </td>
-                <td class="text-right">
-                  {{ record.percentage }}
-                </td>
-              </template>
-            </Table>
-          </div> -->
-          <div slot="footer" class="stats">
-            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+            <LineChart :labels="charts.users.labels" :data="charts.users.data"
+              :color="charts.users.color" :height="200" />
           </div>
         </card>
       </div>
-
+      <div class="col-lg-4">
+        <card class="card-chart" no-footer-line>
+          <div slot="header">
+            <h5 class="card-category">Thống kê đặt bàn</h5>
+            <h2 class="card-title d-flex flex-wrap align-items-baseline">
+              <BarChartOutlined style="color: #2CA8FF;" />
+              <animated-number :value="totalRes" class="ms-2 me-2 fw-bold fs-2"></animated-number>
+              <small class="text-muted fs-6">(Tổng bàn đã đặt)</small>
+            </h2>
+            <h4 class="d-flex flex-wrap align-items-center gap-2">
+              <animated-number :value="filteredRes" class="ms-2 me-2 fs-5">
+              </animated-number>
+              <small class="text-muted fs-6">({{ filterLabelRes }})</small>
+            </h4>
+            <Dropdown :hide-arrow="true" position="right">
+              <template #title>
+                <n-button class="dropdown-toggle no-caret" round simple icon>
+                  <SettingOutlined />
+                </n-button>
+              </template>
+              <!-- <div class="dropdown-menu-custom"> -->
+              <a class="dropdown-items" href="#" @click.prevent="getResStats('today')">
+                <CalendarOutlined class="me-2" /> Ngày hiện tại
+              </a>
+              <a class="dropdown-items" href="#" @click.prevent="getResStats('this_week')">
+                <ScheduleOutlined class="me-2" /> Tuần hiện tại
+              </a>
+              <a class="dropdown-items" href="#" @click.prevent="getResStats('month')">
+                <FieldTimeOutlined class="me-2" /> Tháng hiện tại
+              </a>
+              <a class="dropdown-items" href="#" @click.prevent="getResStats('year')">
+                <LineChartOutlined class="me-2" /> Năm hiện tại
+              </a>
+              <!-- </div> -->
+            </Dropdown>
+          </div>
+          <div class="chart-area">
+            <LineChart :labels="charts.reservations.labels" :data="charts.reservations.data"
+              :color="charts.reservations.color" :height="200" />
+          </div>
+        </card>
+      </div>
+      <div class="col-lg-4">
+        <card class="card-chart" no-footer-line>
+          <div slot="header">
+            <h5 class="card-category">Thống kê đơn hàng</h5>
+            <h2 class="card-title d-flex flex-wrap align-items-baseline">
+              <ShoppingCartOutlined style="color: #18ce0f;" />
+              <animated-number :value="totalOrder" class="ms-2 me-2 fw-bold fs-2"></animated-number>
+              <small class="text-muted fs-6">(Tổng đơn hàng đã đặt)</small>
+            </h2>
+            <h4 class="d-flex flex-wrap align-items-center gap-2">
+              <animated-number :value="filteredOrder" class="ms-2 me-2 fs-5">
+              </animated-number>
+              <small class="text-muted fs-6">({{ filterLabelOrder }})</small>
+            </h4>
+            <Dropdown :hide-arrow="true" position="right">
+              <template #title>
+                <n-button class="dropdown-toggle no-caret" round simple icon>
+                  <SettingOutlined />
+                </n-button>
+              </template>
+              <!-- <div class="dropdown-menu-custom"> -->
+              <a class="dropdown-items" href="#" @click.prevent="getOrderStats('today')">
+                <CalendarOutlined class="me-2" /> Ngày hiện tại
+              </a>
+              <a class="dropdown-items" href="#" @click.prevent="getOrderStats('this_week')">
+                <ScheduleOutlined class="me-2" /> Tuần hiện tại
+              </a>
+              <a class="dropdown-items" href="#" @click.prevent="getOrderStats('month')">
+                <FieldTimeOutlined class="me-2" /> Tháng hiện tại
+              </a>
+              <a class="dropdown-items" href="#" @click.prevent="getOrderStats('year')">
+                <LineChartOutlined class="me-2" /> Năm hiện tại
+              </a>
+              <!-- </div> -->
+            </Dropdown>
+          </div>
+          <div class="chart-area">
+            <LineChart :labels="charts.orders.labels" :data="charts.orders.data"
+              :color="charts.orders.color" :height="200" />
+          </div>
+        </card>
+      </div>
     </div>
   </div>
 </template>
@@ -98,7 +178,13 @@ import {
   DollarCircleOutlined,
   UserOutlined,
   ShoppingOutlined,
-  SettingOutlined
+  SettingOutlined,
+  CalendarOutlined,
+  ScheduleOutlined,
+  FieldTimeOutlined,
+  LineChartOutlined,
+  TeamOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons-vue';
 
 const userId = ref(null)
@@ -131,7 +217,7 @@ const fetchStats = async () => {
         title: 'Đơn hàng hôm nay',
         value: OrdersToday.value,
         icon: ShoppingCartOutlined,
-        iconClass: 'text-primary',
+        iconClass: 'text-info',
       },
       {
         title: 'Doanh Thu Hôm Nay',
@@ -143,7 +229,7 @@ const fetchStats = async () => {
         title: 'Khách đặt bàn hôm nay',
         value: ReservationsToday.value,
         icon: UserOutlined,
-        iconClass: 'text-info',
+        iconClass: 'text-primary',
       },
       {
         title: 'Món bán chạy nhất hôm nay',
@@ -156,71 +242,153 @@ const fetchStats = async () => {
     console.error(err)
   }
 }
+
 const charts = ref({
-  activeUsers: {
-    labels: [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ],
-    data: [542, 480, 430, 550, 530, 453, 380, 434, 568, 610, 700, 630],
-    color: '#f96332'
-  }
+  users: { labels: [], data: [], color: '#f96332' },
+  reservations: { labels: [], data: [], color: '#2CA8FF' },
+  orders: { labels: [], data: [], color: '#18ce0f' }
 })
-const columns = [
-  { title: 'Quốc kỳ', dataIndex: 'flag', key: 'flag' },
-  { title: 'Quốc gia', dataIndex: 'country', key: 'country' },
-  { title: 'Giá trị', dataIndex: 'value', key: 'value' },
-  { title: 'Phần trăm', dataIndex: 'percentage', key: 'percentage' },
-]
 
+const totalUsers = ref(0)
+const filteredUsers = ref(0)
+const filterLabel = ref('')
+const fetchStatsUsers = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/get-total-users')
+    totalUsers.value = res.data.total
+  } catch (error) {
+    console.error(error)
+  }
+}
+const fetchStatsUsersByTime = async (filter = 'today') => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/stats-user-by-time',
+      { params: { filter } }
+    )
+    charts.value.users.labels = res.data.labels
+    charts.value.users.data = res.data.data
+    filteredUsers.value = Array.isArray(res.data.data)
+      ? res.data.data.reduce((sum, val) => sum + val, 0)
+      : 0
+    switch (filter) {
+      case 'today':
+        filterLabel.value = 'Hôm nay'
+        break
+      case 'this_week':
+        filterLabel.value = 'Tuần này'
+        break
+      case 'month':
+        filterLabel.value = 'Tháng này'
+        break
+      case 'year':
+        filterLabel.value = 'Năm nay'
+        break
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
 
-const data = ref([
-  {
-    flag: 'https://flagcdn.com/vn.svg',
-    country: 'Việt Nam',
-    value: 1000,
-    percentage: 60
-  },
-  {
-    flag: 'https://flagcdn.com/kr.svg',
-    country: 'Hàn Quốc',
-    value: 800,
-    percentage: 40
-  },
-  {
-    flag: "https://flagcdn.com/us.svg",
-    country: "Mỹ",
-    value: "2.920",
-    percentage: "53.23%",
-  },
-  {
-    flag: "https://flagcdn.com/de.svg",
-    country: "Đức",
-    value: "1.300",
-    percentage: "20.43%",
-  },
-  {
-    flag: "https://flagcdn.com/au.svg",
-    country: "Úc",
-    value: "760",
-    percentage: "10.35%",
-  },
-])
-onMounted(fetchStats)
+const totalRes = ref(0)
+const filteredRes = ref(0)
+const filterLabelRes = ref('')
+const getTotalRes = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/get-total-res')
+    totalRes.value = res.data.total
+  } catch (error) {
+    console.error(error)
+  }
+}
+const getResStats = async (filter = 'today') => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/stats-res-by-time',
+      { params: { filter } }
+    )
+    charts.value.reservations.labels = res.data.labels
+    charts.value.reservations.data = res.data.data
+    filteredRes.value = Array.isArray(res.data.data)
+      ? res.data.data.reduce((sum, val) => sum + val, 0)
+      : 0
+    switch (filter) {
+      case 'today':
+        filterLabelRes.value = 'Hôm nay'
+        break
+      case 'this_week':
+        filterLabelRes.value = 'Tuần này'
+        break
+      case 'month':
+        filterLabelRes.value = 'Tháng này'
+        break
+      case 'year':
+        filterLabelRes.value = 'Năm nay'
+        break
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const totalOrder = ref(0)
+const filteredOrder = ref(0)
+const filterLabelOrder = ref('')
+const getTotalOrder = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/get-total-order')
+    totalOrder.value = res.data.total
+  } catch (error) {
+    console.error(error)
+  }
+}
+const getOrderStats = async (filter = 'today') => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/stats-order-by-time',
+      { params: { filter } }
+    )
+    charts.value.orders.labels = res.data.labels
+    charts.value.orders.data = res.data.data
+    filteredOrder.value = Array.isArray(res.data.data)
+      ? res.data.data.reduce((sum, val) => sum + val, 0)
+      : 0
+    switch (filter) {
+      case 'today':
+        filterLabelOrder.value = 'Hôm nay'
+        break
+      case 'this_week':
+        filterLabelOrder.value = 'Tuần này'
+        break
+      case 'month':
+        filterLabelOrder.value = 'Tháng này'
+        break
+      case 'year':
+        filterLabelOrder.value = 'Năm nay'
+        break
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+onMounted(() => {
+  fetchStats()
+
+  fetchStatsUsers()
+  fetchStatsUsersByTime()
+
+  getTotalRes()
+  getResStats()
+
+  getTotalOrder()
+  getOrderStats()
+})
 </script>
 
 <style lang="scss" scoped>
-@import "../../../assets/sass/now-ui-dashboard/_variables.scss";
+@use "../../../assets/sass/now-ui-dashboard/variables" as *;
+
+.text-primary {
+  color: #0d6efd !important;
+}
 
 .info {
   .info-title {

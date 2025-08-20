@@ -140,10 +140,10 @@ class PaymentController extends Controller
                         'card_type' => $request->input('vnp_CardType'),
                     ]);
 
-                    $order = Order::find($payment->order_id);
-                    if ($order && $order->status == 'Đang chờ xử lý') {
-                        $order->update(['status' => 'Đã thanh toán']);
-                    }
+                    // $order = Order::find($payment->order_id);
+                    // if ($order && $order->order_status == 'Chờ xác nhận') {
+                    //     $order->update(['order_status' => 'Đã thanh toán']);
+                    // }
                     $responseCode = "00";
                     $message = "Thanh toán thành công";
                     $order = Order::with([
@@ -279,8 +279,8 @@ class PaymentController extends Controller
                     ]);
 
                     $order = Order::find($payment->order_id);
-                    if ($order && $order->status == 'Đang chờ xử lý') {
-                        $order->update(['status' => 'Thanh toán thất bại']);
+                    if ($order && $order->order_status == 'Đã xác nhận') {
+                        $order->update(['order_status' => 'Đã hủy']);
                     }
                     if ($request->input('vnp_ResponseCode') == '24') {
                         $message = "Giao dịch bị huỷ bởi người dùng";
@@ -490,8 +490,8 @@ class PaymentController extends Controller
                     ]);
 
                     $order = Order::find($payment->order_id);
-                    if ($order && $order->order_status  == 'Đang chờ xử lý') {
-                        $order->update(['status' => 'Thanh toán thất bại']);
+                    if ($order && $order->order_status  == 'Đang xử lý') {
+                        $order->update(['order_status' => 'Đã hủy']);
                     }
                     if ($request->input('vnp_ResponseCode') == '24') {
                         $message = "Giao dịch bị huỷ bởi người dùng";
@@ -543,10 +543,122 @@ class PaymentController extends Controller
                 'payment_time' => Carbon::now('Asia/Ho_Chi_Minh'),
             ]);
 
-            $order = Order::find($validated['order_id']);
-            if ($order && $order->status === 'Đang chờ xử lý') {
-                $order->update(['status' => 'Đã thanh toán']);
+            // $order = Order::find($validated['order_id']);
+            // if ($order && $order->order_status === 'Đang chờ xử lý') {
+            //     $order->update(['order_status' => 'Đã thanh toán']);
+            // }
+
+            $order = Order::with([
+                'details.foods',
+                'details.combos',
+                'details.toppings.food_toppings.toppings',
+                'tables'
+            ])->find($validated['order_id']);
+
+            if (!$order) {
+                return response()->json([
+                    'message' => 'Không tìm thấy đơn hàng với ID: ' . $validated['order_id']
+                ], 404);
             }
+
+            $guestName = $order->guest_name ?? 'Khách hàng';
+            $guestEmail = $order->guest_email ?? null;
+            $guestPhone = $order->guest_phone ?? 'N/A';
+            $guestAddress = $order->guestAddress;
+
+            $orderDetailsWithNames = [];
+            $subtotal = 0;
+
+
+            foreach ($order->details as $orderDetail) {
+                $name = null;
+                $image = null;
+                $basePrice = $orderDetail->price;
+
+                if ($orderDetail->type === 'food' && $orderDetail->foods) {
+                    $name = $orderDetail->foods->name;
+                    $image = $orderDetail->foods->image;
+                } elseif ($orderDetail->type === 'combo' && $orderDetail->combos) {
+                    $name = $orderDetail->combos->name;
+                    $image = $orderDetail->combos->image;
+                }
+
+                $toppingsWithNames = [];
+                $itemToppingPrice = 0;
+
+                foreach ($orderDetail->toppings as $orderTopping) {
+                    if ($orderTopping->food_toppings && $orderTopping->food_toppings->toppings) {
+                        $toppingsWithNames[] = [
+                            'name' => $orderTopping->food_toppings->toppings->name,
+                            'price' => $orderTopping->price
+                        ];
+                        $itemToppingPrice += $orderTopping->price;
+                    }
+                }
+
+                $itemSubtotal = ($basePrice + $itemToppingPrice) * $orderDetail->quantity;
+                $subtotal += $itemSubtotal;
+
+                $orderDetailsWithNames[] = [
+                    'name' => $name,
+                    'image' => $image,
+                    'quantity' => $orderDetail->quantity,
+                    'price' => $basePrice,
+                    'type' => $orderDetail->type,
+                    'toppings' => $toppingsWithNames,
+                    'item_total' => $itemSubtotal // Tổng giá của từng item bao gồm topping và số lượng
+                ];
+            }
+
+            $mailData = [
+                'order_id' => $order->id,
+                'guest_name' => $guestName,
+                'guest_email' => $guestEmail,
+                'guest_phone' => $guestPhone,
+                'guest_address' => $guestAddress,
+                'total_price' => $order->total_price ?? null,
+                'note' => $request->note ?? null,
+                'order_details' => $orderDetailsWithNames,
+                'subtotal' => $subtotal,
+                'order_status' =>  'Chờ xác nhận',
+                'shippingFee' =>  $order->ship_cost
+            ];
+            if (!empty($mailData['guest_email'])) {
+                Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
+            }
+
+            DB::commit();
+
+            return response()->json(['status' => true, 'message' => 'Đã lưu thông tin thanh toán COD']);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json(['status' => false, 'message' => 'Lỗi khi xử lý dữ liệu thanh toán COD', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function handleCodPayAdmin(Request $request)
+    {
+        Log::info('🔥 DỮ LIỆU THANH TOÁN COD ĐÃ NHẬN', $request->all());
+        try {
+            $validated = $request->validate([
+                'order_id' => 'required|exists:orders,id',
+                'amount_paid' => 'required|numeric',
+            ]);
+
+            DB::beginTransaction();
+
+            Payment::create([
+                'order_id' => $validated['order_id'],
+                'amount_paid' => $validated['amount_paid'],
+                'payment_method' => 'COD',
+                'payment_status' => 'Đã thanh toán',
+                'payment_time' => Carbon::now('Asia/Ho_Chi_Minh'),
+            ]);
+
+            // $order = Order::find($validated['order_id']);
+            // if ($order && $order->order_status === 'Đang chờ xử lý') {
+            //     $order->update(['order_status' => 'Đã thanh toán']);
+            // }
 
             $order = Order::with([
                 'details.foods',

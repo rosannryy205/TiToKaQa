@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('view_post')">
   <div class="row">
     <div class="col-md-12">
       <div class="card card-stats card-raised">

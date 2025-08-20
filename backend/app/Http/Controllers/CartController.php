@@ -421,11 +421,11 @@ class CartController extends Controller
                         ];
                     }) ?? [],
                     'payment' => [
-                        'amount_paid' => optional($order->payment)->amount_paid,
-                        'payment_method' => optional($order->payment)->payment_method,
-                        'payment_status' => optional($order->payment)->payment_status,
-                        'payment_time' => optional($order->payment)->payment_time,
-                        'payment_type' => optional($order->payment)->payment_type,
+                        'amount_paid' => optional($order->payment->first())->amount_paid,
+                        'payment_method' => optional($order->payment->first())->payment_method,
+                        'payment_status' => optional($order->payment->first())->payment_status,
+                        'payment_time' => optional($order->payment->first())->payment_time,
+                        'payment_type' => optional($order->payment->first())->payment_type,
                     ],
                 ];
             });
@@ -450,7 +450,7 @@ class CartController extends Controller
             'order_status' => 'required|string|max:255'
         ]);
 
-        $order = Order::with('details', 'payment')->find($id);
+        $order = Order::with('details', 'payment')->where('id', $id)->first();
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
@@ -489,8 +489,8 @@ class CartController extends Controller
             //================================
 
             if ($order->payment) {
-                $payment = $order->payment;
-                if ($newStatus === 'Giao thành công') {
+                $payment = $order->payment->first();
+                if ($newStatus === 'Giao thành công' || $newStatus === 'Hoàn thành') {
 
                     $payment->payment_status = 'Đã thanh toán';
                 } elseif (in_array($newStatus, ['Giao thất bại', 'Đã hủy'])) {
