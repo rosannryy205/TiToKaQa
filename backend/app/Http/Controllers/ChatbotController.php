@@ -295,7 +295,7 @@ class ChatbotController extends Controller
                 [
                     'text' => [
                         'text' => [
-                            "✅ Đặt bàn thành công! Mã đặt bàn của bạn là: {$order->id}. Hẹn gặp bạn lúc " . $from->format('H:i d/m/Y') . ". Bạn có muốn chọn trước món không?"
+                            "✅ Đặt bàn thành công! Mã đặt bàn của bạn là: {$order->reservation_code}. Hẹn gặp bạn lúc " . $from->format('H:i d/m/Y') . ". Bạn có muốn chọn trước món không?"
                         ]
                     ]
                 ],

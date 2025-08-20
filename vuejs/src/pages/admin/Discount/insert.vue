@@ -305,10 +305,10 @@ import { onMounted, reactive, ref, computed } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
-// Store quyền & category theo đúng dự án của bạn
 import { Permission } from '@/stores/permission'
 import { FoodList } from '@/stores/food'
 import { useRouter } from 'vue-router'
+import { API_URL } from '@/config'
 const router = useRouter()
 // ============================
 // Lấy danh mục (category) từ store của bạn
@@ -447,7 +447,7 @@ async function submitCreateDiscount() {
     const payload = buildPayload()
 
     // Nếu dùng axios với baseURL & interceptor token thì không cần set headers thủ công
-    const res = await axios.post('http://127.0.0.1:8000/api/admin/discounts/create', payload, {
+    const res = await axios.post(`${API_URL}/admin/discounts/create`, payload, {
       headers: { 'Content-Type': 'application/json' },
     })
 

@@ -98,7 +98,7 @@ import axios from 'axios'
 import { Permission } from '@/stores/permission'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
-
+import { API_URL } from '@/config'
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -138,7 +138,7 @@ function stringify(v) {
 }
 
 /* ---------- API ---------- */
-const API = 'http://localhost:8000/api/lucky-wheel/prizes'
+const API = `${API_URL}/lucky-wheel/prizes`
 
 const getPrizesForAdmin = async () => {
   try {
@@ -223,7 +223,7 @@ async function togglePrizeStatus(item) {
   try {
     loadingIds.value.add(item.id)
     await axios.patch(
-      `http://127.0.0.1:8000/api/admin/luckyprize/${item.id}/status`,
+      `${API_URL}/admin/luckyprize/${item.id}/status`,
       { status: nextStatus },
       { headers: { 'Content-Type': 'application/json' } },
     )
