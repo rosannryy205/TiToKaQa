@@ -1,5 +1,5 @@
 <template>
-  <div class="popup-bottom-right" v-if="visible">
+  <div class="popup-bottom-left" v-if="visible">
     <div class="popup-inner">
       <button class="popup-close" @click="closePopup">×</button>
       <router-link  to="/flashsale" ><img src="/public/img/flsale.png" alt="" class="wiggle-image"></router-link>
@@ -47,7 +47,7 @@ function closePopup() {
 
 
 <style scoped>
-.popup-bottom-right {
+.popup-bottom-left {
   position: fixed;
   bottom: 20px;
   left: 20px;
@@ -68,7 +68,7 @@ function closePopup() {
   transform: translate(50%, -50%);
   background: white;
   border: 1px solid #ccc;
-  color: #e74c3c;
+  color: #c92c3c;
   font-size: 14px;
   width: 24px;
   height: 24px;
@@ -84,7 +84,7 @@ function closePopup() {
 
 .popup-button {
   margin-top: 6px;
-  background-color: #f4511e;
+  background-color: #c92c3c;
   color: white;
   border: none;
   padding: 6px 12px;
@@ -92,6 +92,7 @@ function closePopup() {
   font-weight: bold;
   cursor: pointer;
   font-size: 12px;
+  text-decoration: none;
 }
 
 @keyframes wiggle {
