@@ -259,9 +259,9 @@ class OrderController extends Controller
                     'note' => $request->note ?? null,
                     'total_price' => $request->total_price ?? null,
                     'money_reduce' => $request->money_reduce ?? null,
+                    'table_fee' => $request->table_fee,
                     'order_status' => 'Đã xác nhận',
                     'reservation_code' => $this->generateReservationCode(),
-
                 ]);
             } else {
                 $orderTime = Carbon::now();
@@ -277,6 +277,7 @@ class OrderController extends Controller
                     'note' => $request->note ?? null,
                     'total_price' => $request->total_price ?? null,
                     'money_reduce' => $request->money_reduce ?? null,
+                    'table_fee' => $request->table_fee ?? 0,
                     'order_status' => 'Đã xác nhận',
                     'reservation_code' => $this->generateReservationCode(),
                 ]);
@@ -749,7 +750,15 @@ class OrderController extends Controller
                 'reservation_status' => $table->pivot->reservation_status,
             ];
         });
-        $paymentInfo  = optional($reservation->payment);
+        $paymentInfo = $reservation->payment->map(function ($p) {
+            return [
+                'payment_id' => $p->id,
+                'payment_method' => $p->payment_method,
+                'payment_status' => $p->payment_status,
+                'amount_paid' => $p->amount_paid,
+                'payment_time' => $p->payment_time,
+            ];
+        });
 
         return response()->json([
             'status' => true,
@@ -764,6 +773,7 @@ class OrderController extends Controller
                 'total_price' => $reservation->total_price,
                 'tpoint_used' => $reservation->tpoint_used,
                 'ship_cost' => $reservation->ship_cost,
+                'table_fee' => $reservation->table_fee,
                 'comment' => $reservation->comment,
                 'review_time' => $reservation->review_time,
                 'rating' => $reservation->rating,
@@ -779,12 +789,8 @@ class OrderController extends Controller
                 'expiration_time' => $reservation->expiration_time,
                 'details' => $details,
                 'tables' => $tables,
-                'payment_info' => [
-                    'payment_id' => $paymentInfo->id,
-                    'payment_method' => $paymentInfo->payment_method,
-                    'payment_status' => $paymentInfo->payment_status,
-                ],
-
+                'payment_info' => $paymentInfo,
+                'total_paid' => $reservation->payment->sum('amount_paid'),
             ]
         ], 200);
     }

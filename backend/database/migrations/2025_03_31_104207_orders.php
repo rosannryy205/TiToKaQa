@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('type_order')->nullable();
             $table->unsignedInteger('tpoint_used')->nullable();
             $table->unsignedInteger('ship_cost')->nullable();
+            $table->unsignedInteger('table_fee')->default(0)->comment('Phí giữ bàn (VNĐ)');
             $table->boolean('points_awarded')->default(false);
             $table->string('guest_name')->nullable();
             $table->string('guest_phone')->nullable();

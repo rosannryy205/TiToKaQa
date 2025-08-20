@@ -77,6 +77,7 @@ Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']
 Route::get('/load-order-detail/{order_id}', [OrderController::class, 'showOrderDetail']);
 Route::put('/update-order-detail/{order_id}', [OrderController::class, 'updateOrderDetails']);
 Route::get('/admin/payments/vnpay-return', [PaymentController::class, 'vnpayReturnAdmin']);
+Route::post('/admin/payments/cod-payment', [PaymentController::class, 'handleCodPayAdmin']);
 
 
 
@@ -234,9 +235,19 @@ Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update'])
 Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
 Route::post('/admin/categories/delete-multiple', [AdminCategoryController::class, 'deleteMultiple']);
 
-// Thống kê doanh thu
+//  ------- Thống kê admin --------
 Route::get('/admin/revenue-by-month', [DashboardController::class, 'revenueByMonth']);
 Route::get('/admin/get-dashboard-stats', [DashboardController::class, 'getDashboardStats']);
+// người dùng
+Route::get('/admin/get-total-users', [DashboardController::class, 'getTotalUser']);
+Route::get('/admin/stats-user-by-time', [DashboardController::class, 'statsUserByTime']);
+// Đặt bàn
+Route::get('/admin/get-total-res', [DashboardController::class, 'getTotalRes']);
+Route::get('/admin/stats-res-by-time', [DashboardController::class, 'statsResByTime']);
+// Đơn hàng
+Route::get('/admin/get-total-order', [DashboardController::class, 'getTotalOrder']);
+Route::get('/admin/stats-order-by-time', [DashboardController::class, 'statsOrderByTime']);
+// --------------------------------
 
 
 
