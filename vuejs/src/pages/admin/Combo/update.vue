@@ -190,7 +190,7 @@ import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
-
+import { API_URL } from '@/config'
 
 
 // ================== BIẾN & ROUTE ==================
@@ -236,7 +236,7 @@ const recalculateComboPrice = () => {
 // ================== HÀM LẤY DỮ LIỆU BAN ĐẦU ==================
 async function fetchComboById() {
   try {
-    const res = await axios.get(`http://127.0.0.1:8000/api/admin/combos/${comboId}`)
+    const res = await axios.get(`${API_URL}/admin/combos/${comboId}`)
     const combo = res.data
 
     selectedCombo.value = {
@@ -378,7 +378,7 @@ async function updateCombo() {
     formData.append('foods', JSON.stringify(foods))
 
     await axios.post(
-      `http://127.0.0.1:8000/api/admin/combos/update/${comboId}`,
+      `${API_URL}/admin/combos/update/${comboId}`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )

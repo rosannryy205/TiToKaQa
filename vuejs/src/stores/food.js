@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { computed } from 'vue'
-
+import { API_URL } from '@/config'
 export const FoodList = {
   setup() {
     const foods = ref([])
@@ -36,7 +36,7 @@ export const FoodList = {
 
     const getCategory = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`)
+        const res = await axios.get(`${API_URL}/home/categories`)
         categories.value = res.data  .filter(item => item.type === 'food')
         categories.value.shift()
       } catch (error) {
@@ -45,7 +45,7 @@ export const FoodList = {
     }
     const getCategoryForAdmin = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/admin-categories`)
+        const res = await axios.get(`${API_URL}/admin-categories`)
         categorys.value = res.data  .filter(item => item.type === 'food')
         categorys.value.shift()
       } catch (error) {
@@ -55,7 +55,7 @@ export const FoodList = {
 
     const getAllCategory = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/all-categories`)
+        const res = await axios.get(`${API_URL}/home/all-categories`)
         allCates.value = res.data
         allCates.value.shift()
       } catch (error) {
@@ -65,7 +65,7 @@ export const FoodList = {
 
     const getFood = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`)
+        const res = await axios.get(`${API_URL}/home/foods`)
         foods.value = res.data.map((item) => ({ ...item, type: 'food' }))
       } catch (error) {
         console.error(error)
@@ -85,16 +85,16 @@ export const FoodList = {
         }
 
         if (categoryId == 14) {
-          const comboRes = await axios.get(`http://127.0.0.1:8000/api/home/combos`)
+          const comboRes = await axios.get(`${API_URL}/home/combos`)
           tempFoods = comboRes.data.map((item) => ({ ...item, type: 'combo' }))
         } else {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
+          const res = await axios.get(`${API_URL}/home/category/${categoryId}/food`)
           tempFoods = res.data.map((item) => ({ ...item, type: 'food' }))
 
           const selectedCategory = categories.value.find((c) => c.id == categoryId)
           if (selectedCategory && selectedCategory.children && selectedCategory.children.length) {
             const childRequests = selectedCategory.children.map((child) =>
-              axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
+              axios.get(`${API_URL}/home/category/${child.id}/food`),
             )
             const childResults = await Promise.all(childRequests)
             childResults.forEach((childRes) => {
@@ -115,7 +115,7 @@ export const FoodList = {
 
     const getAllCombos = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/home/combos')
+        const res = await axios.get(`${API_URL}/home/combos`)
         combos.value = res.data
       } catch (error) {
         console.error(error)
@@ -130,10 +130,10 @@ export const FoodList = {
       quantity.value = 1
       try {
         if (item.type === 'food') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/food/${item.id}`)
           foodDetail.value = { ...res.data, type: 'food' }
 
-          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
           toppings.value = res1.data
 
           spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
@@ -142,7 +142,7 @@ export const FoodList = {
             item.price = item.price || 0
           })
         } else if (item.type === 'combo') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
           foodDetail.value = { ...res.data, type: 'combo' }
         }
 
