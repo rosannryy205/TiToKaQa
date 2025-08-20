@@ -20,7 +20,9 @@ class ComboController extends Controller
             if ($request->has('search') && !empty($request->search)) {
                 $query->where('name', 'like', '%' . $request->search . '%');
             }
-    
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
             $combos = $query->orderBy('created_at', 'desc')->paginate($perPage);
     
             return response()->json($combos);
@@ -109,6 +111,7 @@ class ComboController extends Controller
                 'name' => $request->name,
                 'price' => $request->price,
                 'description' => $request->description,
+                'status' => $request->status,
             ]);
 
             if ($request->hasFile('image')) {

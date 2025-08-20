@@ -15,14 +15,32 @@
 
           <!-- Tabs -->
           <div class="d-flex border-bottom mb-3" style="gap: 20px; font-size: 14px">
-            <div v-for="(tab, index) in tabs" :key="index" @click="activeTab = index" class="pb-2 position-relative"
+            <div
+              v-for="(tab, index) in tabs"
+              :key="index"
+              @click="activeTab = index"
+              class="pb-2 position-relative"
               :class="{
                 'fw-bold text-danger': activeTab === index,
                 'text-muted': activeTab !== index,
-              }" style="cursor: pointer">
+              }"
+              style="cursor: pointer"
+            >
               {{ tab.label }}
-              <span v-if="activeTab === index" class="position-absolute start-0 bottom-0 w-100"
-                style="height: 2px; background-color: #d9363e"></span>
+              <span class="text-secondary">
+                ({{
+                  index === 0
+                    ? tabCounts.all
+                    : index === 1
+                      ? tabCounts.inactive
+                      : tabCounts.expired
+                }})
+              </span>
+              <span
+                v-if="activeTab === index"
+                class="position-absolute start-0 bottom-0 w-100"
+                style="height: 2px; background-color: #d9363e"
+              />
             </div>
           </div>
 
@@ -83,8 +101,29 @@
                   </td>
                   <td></td>
                 </tr>
+                <tr v-if="!filteredPrizes.length">
+                  <td colspan="3" class="text-center text-muted py-4">Không có quà nào.</td>
+                </tr>
               </tfoot>
             </table>
+            <nav class="mt-3">
+              <ul class="pagination">
+                <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                  <a class="page-link" href="#" @click="changePage(currentPage - 1)">«</a>
+                </li>
+                <li
+                  class="page-item"
+                  v-for="page in totalPages"
+                  :key="page"
+                  :class="{ active: page === currentPage }"
+                >
+                  <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
+                </li>
+                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                  <a class="page-link" href="#" @click="changePage(currentPage + 1)">»</a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
@@ -121,7 +160,8 @@ const tabs = ref([
   { label: 'Tất cả', count: 0 },
   { label: 'Quà đã ẩn', count: 0 },
 ])
-/* ---------- Utils ---------- */
+
+
 function safeParse(s) {
   try {
     return typeof s === 'string' ? JSON.parse(s) : s
@@ -136,13 +176,10 @@ function stringify(v) {
     return String(v)
   }
 }
-
-/* ---------- API ---------- */
 const API = `${API_URL}/lucky-wheel/prizes`
-
 const getPrizesForAdmin = async () => {
   try {
-    const res = await axios.get(API) // mặc định trả active
+    const res = await axios.get(API) 
     const raw = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
     prizes.value = raw.map((p) => ({
       ...p,
@@ -164,15 +201,23 @@ const getInactivePrizes = async () => {
     }))
   } catch (e) {
     console.error(e)
-    // giữ im lặng tab inactive, không chặn toàn trang
     prizesInactive.value = []
   }
 }
 
-/* ---------- Derived ---------- */
 const currentList = computed(() =>
   activeTab.value === 1 ? prizesInactive.value || [] : prizes.value || [],
 )
+
+const tabCounts = computed(() => {
+  const all = prizes.value || []
+  const inactive = prizesInactive.value || []
+
+  return {
+    all: all.length,
+    inactive: inactive.length,
+  }
+})
 
 const filteredPrizes = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()

@@ -237,19 +237,20 @@
         </template>
 
         <template v-else>
-          <div class="row d-flex">
-            <div
-              v-for="combo in combos"
-              :key="combo.id"
-              class="col-12 col-md-4 mb-4 text-center"
-              @click="openModal(combo)"
-            >
-              <img :src="getImageUrl(combo.image)" class="img-fluid mb-2" />
-              <div class="view-more">
-                <a href="#" class="link fw-bold">{{ combo.name }}</a>
-              </div>
-            </div>
-          </div>
+          <div class="row g-3">
+  <div
+    v-for="combo in combos"
+    :key="combo.id"
+    class="col-12 col-md-4 text-center combo-card"
+    @click="openModal(combo)"
+  >
+    <img :src="getImageUrl(combo.image)" class="img-fluid mb-2" alt="" />
+    <div class="view-more">
+      <a href="#" class="link fw-bold">{{ combo.name }}</a>
+    </div>
+  </div>
+</div>
+
         </template>
       </div>
     </section>
@@ -380,7 +381,7 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `/img/food/${image}`
+      return `http://127.0.0.1:8000/storage/img/food/${image}`
     },
   },
   setup() {
@@ -751,7 +752,6 @@ export default {
 }
 
 /**combo */
-/* Chỉ dùng cho combo section */
 .combo-skeleton-img {
   background: #eee;
   border-radius: 8px;
@@ -770,4 +770,5 @@ export default {
     height: 120px;
   }
 }
+
 </style>

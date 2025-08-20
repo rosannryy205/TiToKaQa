@@ -579,7 +579,7 @@ body > section > section.main.d-flex.justify-content-center.align-items-center >
 .title-food-menu-wrap {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 1;
   background: #fff;
   font-size: 40px;
   color: #c92c3c;
@@ -878,15 +878,6 @@ transition: 0.5s;
 font-size: 20px;
 color: #c92c3c;
 }
-@media (max-width: 768px){
-  #app > div > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div > a{
-   font-size: 10px;
-   color: #c92c3c;
-   bottom: 0% !important;
-}
-}
-
-
 
 /*section infor - post - pupular*/
 .popular-searches{
@@ -912,6 +903,28 @@ color: #c92c3c;
   filter: none;
   filter: brightness(1);
 }
+.popular-searches .combo-card {
+  cursor: pointer;
+}
+
+.popular-searches img {
+  width: 100%;
+  height: auto;      
+  border-radius: 8px;
+  display: block;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .popular-searches img {
+    object-fit: contain; 
+    max-height: 200px;   
+  }
+  #app > div.client > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div > a{
+    font-size: 1rem;
+  }
+}
+
 /*footer*/
 footer .row a {
   text-decoration: none;
