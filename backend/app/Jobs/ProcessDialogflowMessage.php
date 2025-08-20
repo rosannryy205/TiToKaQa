@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Log;
 use App\Events\MessageSent;
 use Google\Protobuf\Struct;
 use Google\Protobuf\Value;
-use Google\Protobuf\ListValue;
 
 class ProcessDialogflowMessage implements ShouldQueue
 {
@@ -43,10 +42,14 @@ class ProcessDialogflowMessage implements ShouldQueue
                     $fields = $payload->getFields();
                     if ($fields->offsetExists('richContent')) {
                         $richContentValue = $fields->offsetGet('richContent');
-                        $botRichContent = $this->convertProtobufValueToNative($richContentValue);
+                        $botRichContent = $this->convertProtobufValueToNativeOrStruct($richContentValue);
                     }
                 }
             }
+
+            $outputContexts = $queryResult->getOutputContexts()
+                ? $this->convertProtobufContextsToNative($queryResult->getOutputContexts())
+                : [];
 
             $botMessageData = [
                 'session_id' => $this->sessionId,
@@ -55,6 +58,7 @@ class ProcessDialogflowMessage implements ShouldQueue
                 'created_at' => now()->toISOString(),
                 'sender_type' => 'bot',
                 'sender_id' => 'bot-system',
+                'outputContexts' => $outputContexts,
             ];
 
             event(new MessageSent($botMessageData));
@@ -67,36 +71,58 @@ class ProcessDialogflowMessage implements ShouldQueue
                 'created_at' => now()->toISOString(),
                 'sender_type' => 'bot',
                 'sender_id' => 'bot-error',
+                'outputContexts' => [],
             ]));
         } finally {
             $dialogflowService->close();
         }
     }
 
-    private function convertProtobufValueToNative(Value $protobufValue)
+    private function convertProtobufStructToNative(Struct $struct)
     {
-        if ($protobufValue->getStructValue()) {
-            $struct = $protobufValue->getStructValue();
-            $result = [];
-            foreach ($struct->getFields() as $key => $value) {
-                $result[$key] = $this->convertProtobufValueToNative($value);
+        $result = [];
+        foreach ($struct->getFields() as $key => $value) {
+            $result[$key] = $this->convertProtobufValueToNativeOrStruct($value);
+        }
+        return $result;
+    }
+
+    private function convertProtobufValueToNativeOrStruct($protobuf)
+    {
+        if ($protobuf instanceof Struct) {
+            return $this->convertProtobufStructToNative($protobuf);
+        } elseif ($protobuf instanceof Value) {
+            if ($protobuf->getStructValue()) {
+                return $this->convertProtobufStructToNative($protobuf->getStructValue());
+            } elseif ($protobuf->getListValue()) {
+                $list = [];
+                foreach ($protobuf->getListValue()->getValues() as $item) {
+                    $list[] = $this->convertProtobufValueToNativeOrStruct($item);
+                }
+                return $list;
+            } elseif ($protobuf->getStringValue() !== null) {
+                return (string) $protobuf->getStringValue();
+            } elseif ($protobuf->getBoolValue() !== null) {
+                return (bool) $protobuf->getBoolValue();
+            } elseif ($protobuf->getNumberValue() !== null) {
+                return (float) $protobuf->getNumberValue();
+            } elseif ($protobuf->getNullValue() !== null) {
+                return null;
             }
-            return $result;
-        } elseif ($protobufValue->getListValue()) {
-            $list = [];
-            foreach ($protobufValue->getListValue()->getValues() as $item) {
-                $list[] = $this->convertProtobufValueToNative($item);
-            }
-            return $list;
-        } elseif ($protobufValue->getStringValue() !== null) {
-            return (string) $protobufValue->getStringValue();
-        } elseif ($protobufValue->getBoolValue() !== null) {
-            return (bool) $protobufValue->getBoolValue();
-        } elseif ($protobufValue->getNumberValue() !== null) {
-            return (float) $protobufValue->getNumberValue();
-        } elseif ($protobufValue->getNullValue() !== null) {
-            return null;
         }
         return null;
+    }
+
+    private function convertProtobufContextsToNative($protobufContexts)
+    {
+        $contexts = [];
+        foreach ($protobufContexts as $ctx) {
+            $contexts[] = [
+                'name' => $ctx->getName(),
+                'lifespanCount' => $ctx->getLifespanCount(),
+                'parameters' => $this->convertProtobufStructToNative($ctx->getParameters()),
+            ];
+        }
+        return $contexts;
     }
 }
