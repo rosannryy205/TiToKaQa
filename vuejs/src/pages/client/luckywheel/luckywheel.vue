@@ -317,7 +317,6 @@ const filteredRewards = computed(() => userRewards.value)
 
 
 <style scoped>
-/* ---- BACKGROUND ANIMATION ---- */
 @keyframes gradient-animation {
   0% {
     background-position: 0% 50%;
@@ -329,19 +328,16 @@ const filteredRewards = computed(() => userRewards.value)
     background-position: 0% 50%;
   }
 }
-
-/* ---- MAIN WRAPPER LAYOUT ---- */
 .lucky-wrapper {
   width: 100%;
   min-height: 80vh;
   padding: 2rem;
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  background-size: 400% 400%;
-  animation: gradient-animation 15s ease infinite;
-  
-  /* Flexbox settings for centering and wrapping */
+
+  background: url('@/assets/bg.png') no-repeat center center;
+  background-size: cover;
+
   display: flex;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
   gap: 2rem;

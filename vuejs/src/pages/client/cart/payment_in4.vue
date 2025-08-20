@@ -487,24 +487,24 @@ export default {
           isLoading.value = false
           return
         }
-        if (!auth.isLoggedIn) {
-          const result = await Swal.fire({
-            icon: 'warning',
-            title: 'Bạn chưa có tài khoản!',
-            text: 'Bạn sẽ không thể hủy được đơn hàng vì bạn chưa có tài khoản.',
-            showConfirmButton: true,
-            showCancelButton: true,
-            confirmButtonText: 'Tôi hiểu',
-            cancelButtonText: 'Hủy',
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-          });
+        // if (!auth.isLoggedIn) {
+        //   const result = await Swal.fire({
+        //     icon: 'warning',
+        //     title: 'Bạn chưa có tài khoản!',
+        //     text: 'Bạn sẽ không thể hủy được đơn hàng vì bạn chưa có tài khoản.',
+        //     showConfirmButton: true,
+        //     showCancelButton: true,
+        //     confirmButtonText: 'Tôi hiểu',
+        //     cancelButtonText: 'Hủy',
+        //     confirmButtonColor: '#d33',
+        //     cancelButtonColor: '#3085d6',
+        //   });
 
-          if (result.isConfirmed) {
-            isLoading.value = true
-            return;
-          }
-        }
+        //   if (result.isConfirmed) {
+        //     isLoading.value = true
+        //     return;
+        //   }
+        // }
         const province = provinces.value.find((p) => p.ProvinceID === selectedProvince.value)
         const district = districts.value.find((d) => d.DistrictID === selectedDistrict.value)
         const ward = wards.value.find((w) => w.WardCode === selectedWard.value)
