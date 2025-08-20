@@ -42,7 +42,7 @@ defineProps({
 </script>
 
 <style lang="scss" scoped>
-@import "../../../assets/sass/now-ui-dashboard/_variables.scss";
+@use "../../../assets/sass/now-ui-dashboard/variables" as *;
 
 h1, .h1 {
     font-size: $font-size-h1;
