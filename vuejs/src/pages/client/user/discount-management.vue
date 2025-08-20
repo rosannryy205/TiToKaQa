@@ -159,7 +159,8 @@ import { Modal } from 'bootstrap'
 import axios from 'axios'
 import { Discounts } from '@/stores/discount'
 import { useUserStore } from '@/stores/userAuth'
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2'
+import { API_URL } from '@/config'
 
 const {
   getImageByType,
@@ -274,7 +275,7 @@ const handleVoucherCode = async () => {
 
   try {
     const res = await axios.post(
-      'http://127.0.0.1:8000/api/redeem-discount',
+      `${API_URL}/redeem-discount`,
       { discount_id: found.id },
       {
         headers: { Authorization: `Bearer ${userStore.token}` },
@@ -355,6 +356,7 @@ onMounted(async () => {
   }
 })
 </script>
+
 
 <style scoped>
 .category-icon {

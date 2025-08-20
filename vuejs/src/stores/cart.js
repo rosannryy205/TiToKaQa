@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ref, onMounted, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
-
+import { API_URL } from '@/config'
 export function Cart() {
   const cartItems = ref([])
   const user = JSON.parse(localStorage.getItem('user')) || {}

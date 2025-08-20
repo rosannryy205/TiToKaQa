@@ -2,7 +2,7 @@
 import axios from 'axios'
 import { onMounted, ref} from 'vue'
 import { useUserStore } from '@/stores/userAuth'
-
+import { API_URL } from '@/config'
 export function Rewards() {
 const userStore = useUserStore()
 
@@ -11,7 +11,7 @@ const userRewards = ref([])
 const getUserRewards = async (query = {}) => {
   try {
     const params = new URLSearchParams(query).toString()
-    const res = await axios.get(`http://127.0.0.1:8000/api/user-rewards?${params}`, {
+    const res = await axios.get(`${API_URL}/user-rewards?${params}`, {
       headers: {
         Authorization: `Bearer ${userStore.token}`,
       },
