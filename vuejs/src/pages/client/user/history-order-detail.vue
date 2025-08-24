@@ -34,7 +34,7 @@
             <div class="col-6 text-end">{{ info.payment_info?.payment_method || '---' }}</div>
 
             <div class="col-6">Trạng thái thanh toán:</div>
-            <div class="col-6 text-end">{{ info.payment_info?.payment_status || '---'  }}</div>
+            <div class="col-6 text-end">{{ info.payment_info?.payment_status || '---' }}</div>
 
             <div class="col-6">Trạng thái đơn:</div>
             <div class="col-6 text-end">
@@ -73,34 +73,36 @@
     <!-- Chi tiết hóa đơn -->
     <div class="card p-3 mt-3">
       <h5 class="border-bottom pb-2">Chi tiết hóa đơn</h5>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>STT</th>
-            <th>Mặt hàng</th>
-            <th>Giá bán</th>
-            <th>Số lượng</th>
-            <th>Thành tiền</th>
-          </tr>
-        </thead>
-        <tbody v-if="info.details && info.details.length">
-          <tr v-for="item in info.details" :key="item.id">
-            <td>{{ item.item_id }}</td>
-            <td>
-              <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
-              {{ item.food_name || item.combo_name }}
-              <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3 ">
-                <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
-                  + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }} đ)
-                </li>
-              </ul>
-            </td>
-            <td>{{ formatNumber(item.price) }} VNĐ</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ formatNumber(item.price * item.quantity) }} VNĐ</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-scroll">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Mặt hàng</th>
+              <th>Giá bán</th>
+              <th>Số lượng</th>
+              <th>Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody v-if="info.details && info.details.length">
+            <tr v-for="item in info.details" :key="item.id">
+              <td>{{ item.item_id }}</td>
+              <td>
+                <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
+                {{ item.food_name || item.combo_name }}
+                <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3 ">
+                  <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
+                    + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }} đ)
+                  </li>
+                </ul>
+              </td>
+              <td>{{ formatNumber(item.price) }} VNĐ</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ formatNumber(item.price * item.quantity) }} VNĐ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div class="text-end">
         <p>Phí ship: {{ formatNumber(info.ship_cost) }} VNĐ</p>
         <p>Khuyến mãi: -{{ formatNumber(info.money_reduce) }} VNĐ</p>
@@ -387,5 +389,29 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Ẩn trên Firefox */
+}
+
+.table-scroll::-webkit-scrollbar {
+  display: none;
+  /* Ẩn trên Chrome, Safari */
+}
+
+@media (max-width: 768px) {
+  .table-scroll {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .table-scroll table {
+    min-width: 600px;
+    /* đảm bảo có thể cuộn */
+  }
 }
 </style>

@@ -11,6 +11,7 @@ class FoodPost extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'user_id',
         'category',
         'title',
         'content',
@@ -21,5 +22,10 @@ class FoodPost extends Model
     public function foods()
     {
         return $this->belongsTo(Food::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

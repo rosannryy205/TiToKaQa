@@ -76,6 +76,7 @@ import Swal from 'sweetalert2'
 import { useRoute } from 'vue-router'
 import { onMounted } from 'vue'
 
+const API_URL = "http://127.0.0.1:8000/api"
 const route = useRoute()
 const postId = route.params.id
 
@@ -145,7 +146,7 @@ const savePost = async () => {
     }
 
     if (postId) {
-      await axios.post(`http://127.0.0.1:8000/api/post/${postId}/update`, formData, {
+      await axios.post(`${API_URL}/post/${postId}/update`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       Swal.fire({
@@ -158,7 +159,7 @@ const savePost = async () => {
         timerProgressBar: true
       })
     } else {
-      await axios.post(`http://127.0.0.1:8000/api/insert_post`, formData, {
+      await axios.post(`${API_URL}/insert_post`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       Swal.fire({
@@ -196,7 +197,7 @@ const generateWithAI = async () => {
   }
 
   try {
-    const res = await axios.post(`http://127.0.0.1:8000/api/generate/post`, {
+    const res = await axios.post(`${API_URL}/generate/post`, {
       title: title.value
     })
 
@@ -241,7 +242,7 @@ const checkSEO = async () => {
   }
 
   try {
-    const res = await axios.post(`http://127.0.0.1:8000/api/check-seo`, {
+    const res = await axios.post(`${API_URL}/check-seo`, {
       title: title.value,
       content: content.value
     })
@@ -260,7 +261,7 @@ const checkSEO = async () => {
 onMounted(async () => {
   if (postId) {
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/api/get_post/${postId}`)
+      const res = await axios.get(`${API_URL}/get_post/${postId}`)
       title.value = res.data.data.title
       content.value = res.data.data.content
       selectedCategory.value = res.data.data.category

@@ -137,6 +137,8 @@
 import axios from "axios";
 import { ref, computed, onMounted } from "vue";
 
+const API_URL = "http://127.0.0.1:8000/api"
+
 // Filters
 const filters = ref({
   search: "",
@@ -176,7 +178,7 @@ const fetchPosts = async () => {
   loading.value = true;
   error.value = "";
   try {
-    const res = await axios.get(`http://127.0.0.1:8000/api/get_all_post`);
+    const res = await axios.get(`${API_URL}/get_all_post`);
     let posts = [];
     if (Array.isArray(res.data.result)) {
       posts = res.data.result;

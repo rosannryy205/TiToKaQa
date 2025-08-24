@@ -41,6 +41,75 @@ defineProps({
 })
 </script>
 
-<style scoped>
-/* Tuấn có thể thêm style riêng tại đây nếu cần */
+<style lang="scss" scoped>
+@use "../../../assets/sass/now-ui-dashboard/variables" as *;
+
+h1, .h1 {
+    font-size: $font-size-h1;
+    line-height: 1.15;
+    margin-bottom: $margin-base-vertical * 2;
+
+    small{
+        font-weight: $font-weight-bold;
+        text-transform: uppercase;
+        opacity: .8;
+    }
+}
+h3, .h3{
+    font-size: $font-size-h3;
+    margin-bottom: $margin-base-vertical * 2;
+    line-height: 1.4em;
+}
+h4, .h4{
+    font-size: $font-size-h4;
+    line-height: 1.45em;
+    margin-top: $margin-base-vertical * 2;
+    margin-bottom: $margin-base-vertical;
+}
+h5, .h5 {
+    font-size: $font-size-h5;
+    line-height: 1.4em;
+    margin-bottom: 15px;
+}
+h6, .h6{
+    font-size: $font-size-h6;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+}
+p{
+    &.description{
+        font-size: 1.14em;
+    }
+}
+
+.title{
+    font-weight: $font-weight-bold;
+
+    &.title-up{
+        text-transform: uppercase;
+
+        a{
+            color: $black-color;
+            text-decoration: none;
+        }
+    }
+    & + .category{
+        margin-top: -10px;
+    }
+}
+
+.description,
+.card-description,
+.footer-big p,
+.card .footer .stats{
+    color: $dark-gray;
+    font-weight: $font-weight-light;
+}
+.category,
+.card-category{
+    text-transform: capitalize;
+    font-weight: $font-weight-normal;
+    color: $dark-gray;
+    font-size: $font-size-mini;
+}
 </style>

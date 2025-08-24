@@ -113,7 +113,7 @@
                     </td>
                     <td v-else data-label="Sửa"></td>
 
-                    <td v-if="moduleKey == 'food' || moduleKey == 'combo'" data-label="Xoá">
+                    <td v-if="moduleKey == 'food' || moduleKey == 'combo' || moduleKey == 'discounts' || moduleKey == 'luckyprizes'" data-label="Xoá">
                       <div class="checkbox-container">
                         <input class="checkbox-input" type="checkbox" :id="`hidden-${moduleKey}-${currentRoleId}`"
                           v-model="currentRoleAbilities[moduleKey].hidden" @change="handleAbilityChange(moduleKey)"
@@ -166,6 +166,7 @@ import { toast } from 'vue3-toastify';
 export default {
   name: 'RolePermissionManager',
   setup() {
+    const API_URL = "http://127.0.0.1:8000/api"
     const currentRoleId = ref(null);
     const currentRoleAbilities = ref({});
     const originalData = ref(null);
@@ -207,6 +208,7 @@ export default {
       'shipper': 'Giao hàng',
       'discounts': 'Mã giảm giá',
       'luckyprizes': 'Quà',
+      'post': 'Bài viết',
     };
 
     const actionKeys = ['view', 'create', 'edit', 'hidden'];
@@ -240,7 +242,7 @@ export default {
       loading.value = true;
 
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/role-permission/${id}`);
+        const response = await axios.get(`${API_URL}/role-permission/${id}`);
         const roleData = response.data.data;
         const fetchedAbilities = createAbilitiesStructure(roleData.abilities);
 
@@ -285,7 +287,7 @@ export default {
           // nếu như quyền là đơn hàng hoặc là lịch đặt bàn thì tick vào ô xem và thêm là xem như bật toàn quyền
         } else if (moduleKey === 'order') {
           allChecked = abilities.view && abilities.create;
-        } else if (moduleKey === 'table' || moduleKey === 'role' || moduleKey === 'employee' || moduleKey === 'customer' || moduleKey === 'shipper' || moduleKey === 'category' || moduleKey === 'topping' || moduleKey === 'booking') {
+        } else if (moduleKey === 'table' || moduleKey === 'role' || moduleKey === 'employee' || moduleKey === 'customer' || moduleKey === 'shipper' || moduleKey === 'category' || moduleKey === 'topping' || moduleKey === 'booking' || moduleKey === 'post') {
           allChecked = abilities.view && abilities.create && abilities.edit;
 
           //các quyền còn lại có đầy đủ crud
@@ -350,7 +352,7 @@ export default {
             return;
           }
 
-          await axios.post('http://127.0.0.1:8000/api/role-permission-create', {
+          await axios.post(`${API_URL}/role-permission-create`, {
             name: roleName.value,
             permissions: permissionsToSave,
           });
@@ -371,7 +373,7 @@ export default {
             permissions: permissionsToSave,
           };
 
-          await axios.put('http://127.0.0.1:8000/api/role-permission-update', payload);
+          await axios.put(`${API_URL}/role-permission-update`, payload);
 
           localStorage.setItem('toastMessage', 'Cập nhật quyền thành công!');
           window.location.reload();

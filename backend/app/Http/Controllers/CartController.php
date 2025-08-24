@@ -475,9 +475,6 @@ class CartController extends Controller
             //================================
             // POINT and RANK
             //================================
-            // =================================
-            // POINT and RANK (chỉ áp dụng cho khách có tài khoản)
-            // =================================
             if ($order->user) {
                 $user = $order->user;
                 $pointService = new PointService();
@@ -493,7 +490,7 @@ class CartController extends Controller
 
             if ($order->payment) {
                 $payment = $order->payment;
-                if ($newStatus === 'Giao thành công') {
+                if ($newStatus === 'Giao thành công' || $newStatus === 'Hoàn thành') {
 
                     $payment->payment_status = 'Đã thanh toán';
                 } elseif (in_array($newStatus, ['Giao thất bại', 'Đã hủy'])) {

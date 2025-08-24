@@ -6,6 +6,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
 import {
   Chart as ChartJS,
@@ -32,40 +33,40 @@ ChartJS.register(
   Title,
   Filler,
 )
-
-// Chart data
-const chartData = [
-  50, 150, 100, 290, 130, 90,
-  150, 300, 120, 90, 270, 450
-]
-
-const chartLabels = [
-  'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-  'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
-]
-
 const canvasRef = ref(null)
+const chartInstance = ref(null)
+const chartLabels = ref([])
+const chartData = ref([])
 
-onMounted(() => {
+
+const fetchRevenue = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/revenue-by-month')
+    chartLabels.value = res.data.labels
+    chartData.value = res.data.data
+    renderChart()
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const renderChart = () => {
   const ctx = canvasRef.value.getContext('2d')
   const chartColor = '#FFFFFF'
-
-  // const gradientStroke = ctx.createLinearGradient(500, 0, 100, 0)
-  // gradientStroke.addColorStop(0, '#80b6f4')
-  // gradientStroke.addColorStop(1, chartColor)
-
   const gradientFill = ctx.createLinearGradient(0, 200, 0, 50)
   gradientFill.addColorStop(0, 'rgba(128, 182, 244, 0)')
   gradientFill.addColorStop(1, 'rgba(255, 255, 255, 0.3)')
 
-  new ChartJS(ctx, {
+  if (chartInstance.value) chartInstance.value.destroy()
+
+  chartInstance.value = new ChartJS(ctx, {
     type: 'line',
     data: {
-      labels: chartLabels,
+      labels: chartLabels.value,
       datasets: [
         {
           label: 'Doanh thu',
-          data: chartData,
+          data: chartData.value,
           borderColor: chartColor,
           backgroundColor: gradientFill,
           pointBorderColor: chartColor,
@@ -141,7 +142,8 @@ onMounted(() => {
       }
     }
   })
+}
 
-})
+onMounted(fetchRevenue)
 
 </script>

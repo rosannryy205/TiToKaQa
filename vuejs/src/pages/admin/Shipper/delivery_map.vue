@@ -27,6 +27,10 @@
                   {{ order?.data?.guest_phone }}
                 </span>
               </p>
+              <p class="mb-1">
+                <strong>📝 Ghi chú:</strong>
+                {{ order?.data?.note ? order.data.note : 'Không có' }}
+              </p>
             </div>
 
             <!-- Bản đồ giao hàng -->
@@ -78,7 +82,7 @@ import Swal from 'sweetalert2'
 import { set, ref as dbRef } from 'firebase/database'
 import { database } from '@/stores/firebase'
 import { remove } from 'firebase/database'
-
+const API_URL = "http://127.0.0.1:8000/api"
 const goBack = () => window.history.back()
 const route = useRoute()
 const order_id = route.params.id
@@ -224,7 +228,7 @@ const updateMap = async () => {
 
 const changeStatus = async (newStatus) => {
   try {
-    const response = await axios.put(`http://127.0.0.1:8000/api/update/${order_id}/status`, {
+    const response = await axios.put(`${API_URL}/update/${order_id}/status`, {
       order_status: newStatus
     })
 
@@ -241,12 +245,12 @@ const changeStatus = async (newStatus) => {
 
       if (newStatus === 'Giao thành công' || newStatus === 'Giao thất bại') {
         const shipperId = JSON.parse(localStorage.getItem('user'))?.id
-        const res = await axios.get(`http://127.0.0.1:8000/api/shipper/${shipperId}/active-orders`)
+        const res = await axios.get(`${API_URL}/shipper/${shipperId}/active-orders`)
         const remainingOrders = res.data.orders || []
 
         const newPos = remainingOrders.length < 1 ? restaurant.value : customer.value
 
-        await axios.post('http://127.0.0.1:8000/api/shipper/update-location', {
+        await axios.post(`${API_URL}/shipper/update-location`, {
           shipper_id: shipperId,
           lat: newPos.lat,
           lng: newPos.lng,
@@ -296,7 +300,7 @@ const changeStatus = async (newStatus) => {
 }
 
 const fetchOrder = async () => {
-  const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${order_id}`)
+  const res = await axios.get(`${API_URL}/delivery/${order_id}`)
   order.value = res.data
 }
 

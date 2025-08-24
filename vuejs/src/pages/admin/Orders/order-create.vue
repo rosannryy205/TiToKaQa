@@ -333,7 +333,7 @@ export default {
       spicyLevel,
       toppingList,
     } = FoodList.setup()
-
+    const API_URL = "http://127.0.0.1:8000/api"
     const router = useRouter()
     const isLoading = ref(false)
     const selectfood = ref(null)
@@ -373,7 +373,7 @@ export default {
 
     const getAllUser = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/user')
+        const res = await axios.get(`${API_URL}/user`)
 
         const guestDefaultOption = {
           id: 'guest',
@@ -469,7 +469,7 @@ export default {
           type_order: 'takeaway',
         }
 
-        const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/ordertakecaway', orderData)
+        const orderCreationResponse = await axios.post(`${API_URL}/ordertakecaway`, orderData)
         if (orderCreationResponse.data && orderCreationResponse.data.order_id) {
           current_order_id.value = orderCreationResponse.data.order_id
           Swal.fire({
@@ -495,7 +495,7 @@ export default {
           return
         }
         if (paymentMethod.value === 'VNPAY') {
-          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+          const paymentRes = await axios.post(`${API_URL}/payments/vnpay-init`, {
             order_id: current_order_id.value,
             amount: totalPrice.value,
             return_url: 'http://localhost:5173/admin/tables/current-order',
@@ -547,7 +547,7 @@ export default {
         }
         if (paymentMethod.value === 'COD') {
           await new Promise((resolve) => setTimeout(resolve, 300))
-          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+          await axios.post(`${API_URL}/payments/cod-payment`, {
             order_id: current_order_id.value,
             amount_paid: totalPrice.value,
             payment_type: 'Thanh toán toàn bộ',

@@ -25,6 +25,7 @@ class RolePermission extends Seeder
             'combo'     => ['view', 'create', 'edit', 'hidden'],
             'discounts'     => ['view', 'create', 'edit', 'hidden'],
             'luckyprizes'     => ['view', 'create', 'edit', 'hidden'],
+            'post'     => ['view', 'create', 'edit', 'hidden'],
         ];
 
         foreach ($modules as $moduleKey => $actions) {
