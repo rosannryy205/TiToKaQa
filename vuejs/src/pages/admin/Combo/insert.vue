@@ -192,12 +192,13 @@ import { Permission } from '@/stores/permission'
 const router = useRouter()
 import Swal from 'sweetalert2'
 import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 import { useRouter } from 'vue-router'
 const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
 
 const formatNumber = (value) => numeral(value).format('0,0')
 const getImageUrl = (image) => {
-  return `http://127.0.0.1:8000/storage/img/food/${image}`
+  return `${STORAGE_URL}/img/food/${image}`
 }
 // ============================
 // USER PERMISSION
