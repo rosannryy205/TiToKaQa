@@ -8,12 +8,20 @@
               <div class="col-md-3" v-for="item in stats" :key="item.title">
                 <div class="statistics">
                   <div class="info">
-                    <div :class="['icon mb-2', item.iconClass]">
+                    <div :class="['icon', item.iconClass]">
                       <component :is="item.icon" style="font-size: 24px" />
                     </div>
-                    <h3 class="info-title">
-                      <animated-number :value="item.value" />
-                    </h3>
+                    <h4 class="info-title">
+                      <template v-if="item.title === 'Món bán chạy nhất hôm nay'">
+                        <span>{{ item.value }}</span>
+                      </template>
+                      <template v-else-if="item.title === 'Doanh Thu Hôm Nay'">
+                        <animated-number :value="Number(item.value)" format="currency" />
+                      </template>
+                      <template v-else>
+                        <animated-number :value="Number(item.value)" format="number" />
+                      </template>
+                    </h4>
                     <h6 class="stats-title">{{ item.title }}</h6>
                   </div>
                 </div>
@@ -27,17 +35,26 @@
       <div class="col-lg-4">
         <card class="card-chart" no-footer-line>
           <div slot="header">
-            <h5 class="card-category">Active Users</h5>
+            <h5 class="card-category">Thống kê người dùng</h5>
             <h2 class="card-title">
               <animated-number :value="34252"> </animated-number>
             </h2>
+            <Dropdown :hide-arrow="true" position="right">
+              <template #title>
+                <n-button class="dropdown-toggle no-caret" round simple icon>
+                  <SettingOutlined />
+                </n-button>
+              </template>
+
+              <a class="dropdown-items" href="#">Ngày hiện tại</a>
+              <a class="dropdown-items" href="#">Bộ lọc</a>
+            </Dropdown>
           </div>
           <div class="chart-area">
-            <line-chart :labels="charts.activeUsers.labels" :data="charts.activeUsers.data"
+            <LineChart :labels="charts.activeUsers.labels" :data="charts.activeUsers.data"
               :color="charts.activeUsers.color" :height="200" />
-
           </div>
-          <div class="table-responsive">
+          <!-- <div class="table-responsive">
             <Table :data-source="data" :pagination="false" row-key="id" bordered>
               <template #bodyCell="{ column, record }">
                 <td>
@@ -54,7 +71,7 @@
                 </td>
               </template>
             </Table>
-          </div>
+          </div> -->
           <div slot="footer" class="stats">
             <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
           </div>
@@ -66,21 +83,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import axios from 'axios';
 import Card from '@/components/Admin/Cards/Card.vue';
 import AnimatedNumber from '@/components/Admin/AnimatedNumber.vue'
-import LineChart from '@/components/Admin/Charts/LineChart';
-
-import { h } from 'vue'
-import {
-  MessageOutlined,
-  DollarCircleOutlined,
-  UsergroupAddOutlined,
-  CustomerServiceOutlined,
-} from '@ant-design/icons-vue';
-
+import Dropdown from '@/components/Admin/Dropdown.vue'
+import NButton from '@/components/Admin/Button.vue'
+import LineChart from '@/components/Admin/Charts/LineChart.vue';
 import { Table } from 'ant-design-vue'
 import { Permission } from '@/stores/permission'
+import { h } from 'vue'
+import {
+  ShoppingCartOutlined,
+  DollarCircleOutlined,
+  UserOutlined,
+  ShoppingOutlined,
+  SettingOutlined
+} from '@ant-design/icons-vue';
 
 const userId = ref(null)
 const userString = localStorage.getItem('user')
@@ -91,32 +110,52 @@ if (userString) {
   }
 }
 const { hasPermission, permissions } = Permission(userId)
-const stats = [
-  {
-    title: 'Messages',
-    value: 853,
-    icon: MessageOutlined,
-    iconClass: 'text-primary',
-  },
-  {
-    title: 'Today Revenue',
-    value: 3521,
-    icon: DollarCircleOutlined,
-    iconClass: 'text-success',
-  },
-  {
-    title: 'Customers',
-    value: 562,
-    icon: UsergroupAddOutlined,
-    iconClass: 'text-info',
-  },
-  {
-    title: 'Support Requests',
-    value: 353,
-    icon: CustomerServiceOutlined,
-    iconClass: 'text-danger',
-  },
-]
+
+const OrdersToday = ref(0)
+const RevenueToday = ref(0)
+const ReservationsToday = ref(0)
+const BestSellingDish = ref('')
+
+const stats = ref([])
+
+const fetchStats = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/get-dashboard-stats')
+    OrdersToday.value = res.data.orders_today
+    RevenueToday.value = res.data.revenue_today
+    ReservationsToday.value = res.data.reservations_today
+    BestSellingDish.value = res.data.best_selling_dish
+
+    stats.value = [
+      {
+        title: 'Đơn hàng hôm nay',
+        value: OrdersToday.value,
+        icon: ShoppingCartOutlined,
+        iconClass: 'text-primary',
+      },
+      {
+        title: 'Doanh Thu Hôm Nay',
+        value: Number(RevenueToday.value),
+        icon: DollarCircleOutlined,
+        iconClass: 'text-success',
+      },
+      {
+        title: 'Khách đặt bàn hôm nay',
+        value: ReservationsToday.value,
+        icon: UserOutlined,
+        iconClass: 'text-info',
+      },
+      {
+        title: 'Món bán chạy nhất hôm nay',
+        value: BestSellingDish.value,
+        icon: ShoppingOutlined,
+        iconClass: 'text-danger',
+      },
+    ]
+  } catch (err) {
+    console.error(err)
+  }
+}
 const charts = ref({
   activeUsers: {
     labels: [
@@ -177,11 +216,71 @@ const data = ref([
     percentage: "10.35%",
   },
 ])
-
+onMounted(fetchStats)
 </script>
 
-<style scoped>
-.icon i {
-  font-size: 30px;
+<style lang="scss" scoped>
+@use "../../../assets/sass/now-ui-dashboard/variables" as *;
+
+.info {
+  .info-title {
+    margin: $margin-base-vertical 0 5px;
+    padding: 0 15px;
+    color: $black-color;
+
+    span {
+      font-weight: $font-weight-bold;
+    }
+  }
+}
+
+.icon {
+  color: $default-color;
+  transition: transform .4s, box-shadow .4s;
+
+  >span {
+    font-size: 2.3em !important;
+  }
+}
+
+h2,
+.h2 {
+  font-size: $font-size-h2;
+  margin-bottom: $margin-base-vertical * 2;
+}
+
+h4,
+.h4 {
+  font-size: $font-size-h4;
+  line-height: 1.45em;
+  margin-top: $margin-base-vertical * 2;
+  margin-bottom: $margin-base-vertical;
+
+  &+.category,
+  &.title+.category {
+    margin-top: -10px;
+  }
+}
+
+h5,
+.h5 {
+  font-size: $font-size-h5;
+  line-height: 1.4em;
+  margin-bottom: 15px;
+}
+
+h6,
+.h6 {
+  font-size: $font-size-h6;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+}
+
+.category,
+.card-category {
+  text-transform: capitalize;
+  font-weight: $font-weight-normal;
+  color: $dark-gray;
+  font-size: $font-size-mini;
 }
 </style>

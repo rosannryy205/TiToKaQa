@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Log;
 use App\Models\Discount;
 use App\Models\Food;
 use App\Models\FoodReward;
@@ -10,7 +10,6 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class ClaimPrizesController extends Controller
@@ -146,8 +145,4 @@ class ClaimPrizesController extends Controller
             return response()->json(['message' => 'Có lỗi xảy ra khi nhận quà.'], 500);
         }
     }
-
-
-
-
 }

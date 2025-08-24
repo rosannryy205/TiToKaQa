@@ -98,6 +98,7 @@ export default {
     'v-select': vSelect,
   },
   setup() {
+    const API_URL = "http://127.0.0.1:8000/api"
     const permission = ref([])
     const selectpermission = ref(null)
 
@@ -105,7 +106,7 @@ export default {
     const itemsPerPageUserSelected = ref(10);
     const getAllPermission = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/permission')
+        const res = await axios.get(`${API_URL}/permission`)
         permission.value = res.data
       } catch (error) {
         console.log(error);
@@ -157,7 +158,7 @@ export default {
         return
       }
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/permission/${id}`)
+        await axios.delete(`${API_URL}/permission/${id}`)
         await getAllPermission()
         Swal.fire({
           toast: true,

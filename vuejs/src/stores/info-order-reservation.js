@@ -30,7 +30,7 @@ export const Info = {
     }
 
     const getImageUrl = (image) => {
-      return `/img/food/${image}`
+      return `http://127.0.0.1:8000/storage/img/food/${image}`
     }
     const formatDate = (dateStr) => {
       if (!dateStr) return '';

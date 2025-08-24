@@ -15,10 +15,9 @@
         <div class="copyright">
           © {{ new Date().getFullYear() }}, crafted by
           <a href="/home" class="font-weight-bold ml-1 titokaqua" target="_blank" rel="noopener">
-            TITOKAQUA
+            TITOKAQA
           </a>
            Admin Dashboard. All rights reserved.
-
         </div>
       </div>
     </div>

@@ -33,6 +33,8 @@ import { database } from '@/stores/firebase'
 
 const goBack = () => window.history.back()
 
+const API_URL = "http://127.0.0.1:8000/api"
+
 const isLoading = ref(false)
 const route = useRoute()
 const order_id = route.params.id
@@ -128,7 +130,7 @@ async function getRoutePolyline(start, end) {
       'Authorization': 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImY2N2UzNGY1YmFmZWVhODlmZmQyZTI4M2M0YjVjNTZjNGQxYTcyZjI4Yzg3YjRiYzIwNDk0ZmZlIiwiaCI6Im11cm11cjY0In0='
     },
     body: JSON.stringify({
-      coordinates: [
+     coordinates: [
         [start.lng, start.lat],
         [end.lng, end.lat]
       ]
@@ -169,11 +171,11 @@ onMounted(async () => {
   }
   isLoading.value = true
   try {
-    const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${order_id}`)
+    const res = await axios.get(`${API_URL}/delivery/${order_id}`)
     const order = res.data
     const shipperId = order.data.shipper_id
 
-    const res2 = await axios.get(`http://127.0.0.1:8000/api/shipper/${shipperId}/last-location`)
+    const res2 = await axios.get(`${API_URL}/shipper/${shipperId}/last-location`)
     shipper.value = {
       lat: res2.data.lat,
       lng: res2.data.lng

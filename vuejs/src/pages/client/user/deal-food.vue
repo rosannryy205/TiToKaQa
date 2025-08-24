@@ -1,6 +1,6 @@
 <template>
   <div class="container py-3 position-relative col-12 col-md-8 col-lg-9">
-    <h4 class="fw-bold mb-3 text-danger">🎉 Deal Món Đã Nhận</h4>
+    <h4 class="fw-bold mb-3 text-danger">Deal Món Đã Nhận</h4>
     <div class="d-flex border-bottom mb-3" style="gap: 20px; font-size: 14px">
       <div
         v-for="(tab, index) in tabs"

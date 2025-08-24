@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('type'); 
             $table->json('data')->nullable();
-            $table->unsignedInteger('probability'); 
+            $table->unsignedInteger('probability');
+            $table->enum('status', ['active', 'inactive'])->default('active'); 
             $table->timestamps();
         });
     }

@@ -1,11 +1,6 @@
 <template>
   <!-- Main Content -->
-  <!-- <div v-if="isLoading" class="isLoading-overlay">
-    <div class="spinner-border text-danger" role="status">
-      <span class="visually-hidden">isLoading...</span>
-    </div>
-  </div> -->
-  <div v-if="isLoading" class="isLoading-overlay d-flex justify-content-center align-items-center">
+  <div v-if="loading" class="isLoading-overlay d-flex justify-content-center align-items-center">
     <div class="spinner-border text-danger" role="status">
       <span class="visually-hidden">Đang xử lý...</span>
     </div>
@@ -112,7 +107,6 @@ import { Info } from "@/stores/info-order-reservation";
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import axios from "axios";
 import Swal from 'sweetalert2';
-import { toast } from 'vue3-toastify'
 import { useRouter } from 'vue-router';
 
 export default {
@@ -121,7 +115,6 @@ export default {
     const userId = userData ? JSON.parse(userData).id : null;
     // console.log('User ID:', userId);
     const loading = ref(true);
-    const isLoading = ref(false);
     const orders = ref([]);
     const isDesktop = ref(window.innerWidth >= 768);
 
@@ -291,6 +284,7 @@ export default {
 .order-tabs {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  white-space: nowrap;
 }
 
 .order-tabs::-webkit-scrollbar {

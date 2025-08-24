@@ -60,6 +60,7 @@
             </div>
             <!-- Nút chọn topping góc dưới bên phải -->
             <button
+              v-if="!item.is_flash_sale"
               class="btn btn-outline-primary btn-sm position-absolute m-2"
               style="bottom: 0; right: 0"
               @click="openModalToEditTopping(item, index)"
@@ -465,6 +466,7 @@ export default {
     const toppingList = ref([])
     const spicyLevel = ref([])
     const quantity = ref(1)
+    const API_URL = "http://127.0.0.1:8000/api"
 
     const openModal = async (item) => {
       foodDetail.value = {}
@@ -474,10 +476,10 @@ export default {
       quantity.value = 1
       try {
         if (item.type === 'food') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/food/${item.id}`)
           foodDetail.value = { ...res.data, type: 'food' }
           console.log(foodDetail.value);
-          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
           toppings.value = res1.data
           console.log(toppings.value)
           spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
@@ -486,7 +488,7 @@ export default {
             item.price = item.price || 0
           })
         } else if (item.type === 'combo') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
           foodDetail.value = { ...res.data, type: 'combo' }
         }
 
@@ -509,10 +511,10 @@ export default {
         // Gọi API để lấy lại thông tin món (food hoặc combo)
         let res;
         if (item.type === 'food') {
-          res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`);
+          res = await axios.get(`${API_URL}/home/food/${item.id}`);
           foodDetail.value = { ...res.data, type: 'food' };
 
-          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
           toppings.value = res1.data
 
           spicyLevel.value = toppings.value.filter((i) => i.category_id == 15)
@@ -521,7 +523,7 @@ export default {
             i.price = i.price || 0;
           });
         } else if (item.type === 'combo') {
-          res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`);
+          res = await axios.get(`${API_URL}/home/combo/${item.id}`);
           foodDetail.value = { ...res.data, type: 'combo' };
         }
 

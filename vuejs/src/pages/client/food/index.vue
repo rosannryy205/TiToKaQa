@@ -314,6 +314,7 @@ export default {
     },
   },
   setup() {
+    const API_URL = "http://127.0.0.1:8000/api"
     const foods = ref([])
     const categories = ref([])
     const foodDetail = ref([])
@@ -353,7 +354,7 @@ export default {
 
     const getCategory = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`)
+        const res = await axios.get(`${API_URL}/home/categories`)
         categories.value = res.data
         categories.value.shift()
       } catch (error) {
@@ -363,7 +364,7 @@ export default {
 
     const getFood = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`)
+        const res = await axios.get(`${API_URL}/home/foods`)
         foods.value = res.data.map((item) => ({ ...item, type: 'food' }))
       } catch (error) {
         console.error(error)
@@ -377,7 +378,7 @@ export default {
           return
         }
 
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
+        const res = await axios.get(`${API_URL}/home/category/${categoryId}/food`)
         let allFoods = res.data.map((item) => ({ ...item, type: 'food' }))
 
         let parentName = ''
@@ -412,7 +413,7 @@ export default {
         const selectedCategory = categories.value.find((c) => c.id === categoryId)
         if (selectedCategory?.children?.length) {
           const childRequests = selectedCategory.children.map((child) =>
-            axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
+            axios.get(`${API_URL}/home/category/${child.id}/food`),
           )
           const childResults = await Promise.all(childRequests)
           childResults.forEach((childRes) => {
@@ -422,7 +423,7 @@ export default {
         }
 
         if (categoryId === 14) {
-          const comboRes = await axios.get(`http://127.0.0.1:8000/api/home/combos`)
+          const comboRes = await axios.get(`${API_URL}/home/combos`)
           const combosWithType = comboRes.data.map((item) => ({ ...item, type: 'combo' }))
           allFoods = [...allFoods, ...combosWithType]
         }
@@ -441,10 +442,10 @@ export default {
       quantity.value = 1
       try {
         if (item.type === 'food') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/food/${item.id}`)
           foodDetail.value = { ...res.data, type: 'food' }
 
-          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
           toppings.value = res1.data
 
           spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
@@ -453,7 +454,7 @@ export default {
             item.price = item.price || 0
           })
         } else if (item.type === 'combo') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
           foodDetail.value = { ...res.data, type: 'combo' }
         }
 
@@ -597,7 +598,7 @@ export default {
       isLoading.value = true
 
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/home/api/foods')
+        const res = await axios.get('${API_URL}/home/api/foods')
         foods.value = res.data
         await new Promise((resolve) => setTimeout(resolve, 5000))
       } catch (e) {

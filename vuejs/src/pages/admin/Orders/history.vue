@@ -144,6 +144,7 @@ import Swal from 'sweetalert2';
 // import { EyeOutlined, PrinterOutlined } from '@ant-design/icons-vue';
 
 import { Permission } from '@/stores/permission'
+const API_URL = "http://127.0.0.1:8000/api"
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -160,13 +161,12 @@ const ordersRaw = ref([]);
 
 const fetchOrders = async () => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/get_all_orders`);
+    const response = await axios.get(`${API_URL}/get_all_orders`);
     const apiOrders = response.data.orders;
 
-    const fillterOrder = apiOrders.filter(order => {
-      // Loại bỏ đơn hàng có type_order hoặc reservation_code
-      return !order.type_order && !order.reservation_code;
-    });
+    const fillterOrder = apiOrders.filter(order =>
+      order.type_order !== 'takeaway' && !order.reservation_code
+    );
 
 
     orders.value = fillterOrder.map(order => {
@@ -272,7 +272,7 @@ const handleStatusChange = async (orderId, newStatus) => {
   }
 
   try {
-    const response = await axios.put(`http://127.0.0.1:8000/api/update/${orderId}/status`, {
+    const response = await axios.put(`${API_URL}/update/${orderId}/status`, {
       order_status: newStatus,
     });
 
@@ -490,7 +490,7 @@ const viewOrderDetails = (record) => {
 };
 
 const printInvoice = (record) => {
-  axios.get(`http://127.0.0.1:8000/api/invoice/${record}`, {
+  axios.get(`${API_URL}/invoice/${record}`, {
     responseType: 'blob'
   })
     .then(response => {

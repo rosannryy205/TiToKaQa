@@ -1800,3 +1800,39 @@ body > div.container.custom-container > div > div.col-md-6.form-section.mt-2 > b
   z-index: 9 !important;
 }
 
+.btn-payment {
+  flex-grow: 1;
+  margin: 0 5px;
+  padding: 5px;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background-color: #fff;
+  color: #343a40;
+  font-size: 14px;
+  font-weight: 400;
+  transition: all 0.2s ease-in-out;
+  text-align: center;
+}
+.btn-payment.active {
+  background-color: #fffefe !important;
+  border-color: #c92c3c !important;
+  color: #c92c3c !important;
+}
+
+.btn-payment:hover {
+  border-color: #c92c3c;
+  color: #c92c3c;
+  background-color: #fff7f7;
+}
+
+.payment-icon {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+}
+
+.payment-section {
+  flex: 1;
+  min-width: 200px;
+  margin: 10px;
+}

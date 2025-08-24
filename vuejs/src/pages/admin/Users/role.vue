@@ -77,12 +77,13 @@ export default {
     'v-select': vSelect,
   },
   setup() {
+    const API_URL = "http://127.0.0.1:8000/api"
     const role = ref([])
     const selectrole = ref(null)
 
     const getAllRole = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/role')
+        const res = await axios.get(`${API_URL}/role`)
         role.value = res.data
       } catch (error) {
         console.log(error);

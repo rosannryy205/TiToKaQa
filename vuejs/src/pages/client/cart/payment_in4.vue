@@ -292,6 +292,7 @@ export default {
     //==============
     // STATE & REF
     //==============
+    const API_URL = "http://127.0.0.1:8000/api"
     const note = ref('')
     const paymentMethod = ref('')
     const activeTab = ref('Tất cả mã')
@@ -375,7 +376,7 @@ export default {
             return
           }
 
-          const res = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+          const res = await axios.post(`${API_URL}/payments/vnpay-init`, {
             order_id: orderId,
             amount: finalTotal.value,
           })
@@ -428,7 +429,7 @@ export default {
             });
             return
           }
-          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+          await axios.post(`${API_URL}/payments/cod-payment`, {
             order_id: orderId,
             amount_paid: finalTotal.value,
           })
@@ -500,8 +501,8 @@ export default {
             cancelButtonColor: '#3085d6',
           });
 
-          if (!result.isConfirmed) {
-            isLoading.value = false
+          if (result.isConfirmed) {
+            isLoading.value = true
             return;
           }
         }
@@ -553,7 +554,7 @@ export default {
           })),
         }
 
-        const res = await axios.post('http://127.0.0.1:8000/api/order', orderData)
+        const res = await axios.post(`${API_URL}/order`, orderData)
 
         if (res.data?.status && res.data.order_id) {
           Swal.fire({
@@ -566,7 +567,7 @@ export default {
             timerProgressBar: true
           });
           if (orderData.discount_id) {
-            await axios.post('http://127.0.0.1:8000/api/discounts/use', {
+            await axios.post(`${API_URL}/discounts/use`, {
               discount_id: orderData.discount_id,
               order_id: res.data.order_id,
             })

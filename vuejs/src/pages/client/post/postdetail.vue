@@ -50,8 +50,9 @@ export default {
   methods: {
     async fetchPost() {
       try {
+        const API_URL = "http://127.0.0.1:8000/api"
         const postId = router.currentRoute.value.params.id; // lấy id từ URL
-        const res = await fetch(`http://127.0.0.1:8000/api/get_post/${postId}`);
+        const res = await fetch(`${API_URL}/get_post/${postId}`);
         const data = await res.json();
         this.post = data.data;
         this.parsedContent = marked.parse(this.post.content);
