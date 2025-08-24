@@ -191,6 +191,7 @@ import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 
 
 // ================== BIẾN & ROUTE ==================
@@ -203,7 +204,7 @@ const imagePreview = ref('')
 const selectedFoods = ref([])
 
 const getImageUrl = (image) => {
-  return `http://127.0.0.1:8000/storage/img/food/${image}`
+  return `${STORAGE_URL}/img/food/${image}`
 }
 // ================== STORE GỌI TỪ PINIA ==================
 const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
@@ -253,7 +254,7 @@ async function fetchComboById() {
       }))
     }
 
-    imagePreview.value = `http://127.0.0.1:8000/storage/img/food/${combo.image}`
+    imagePreview.value = `${STORAGE_URL}/img/food/${combo.image}`
   } catch (error) {
     console.error(error)
     toast.error('Lỗi khi tải combo!')

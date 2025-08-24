@@ -394,6 +394,7 @@ import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
 import { toast } from 'vue3-toastify'
 import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 
 export default {
   name: 'HomePage',
@@ -402,7 +403,7 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `http://127.0.0.1:8000/storage/img/food/${image}`
+      return `${STORAGE_URL}/img/food/${image}`
     },
   },
   setup() {
