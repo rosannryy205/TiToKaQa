@@ -20,7 +20,9 @@ class ComboController extends Controller
             if ($request->has('search') && !empty($request->search)) {
                 $query->where('name', 'like', '%' . $request->search . '%');
             }
-    
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
             $combos = $query->orderBy('created_at', 'desc')->paginate($perPage);
     
             return response()->json($combos);
@@ -39,7 +41,17 @@ class ComboController extends Controller
           ->where('status', 'active')
           ->orderBy('created_at', 'desc')
           ->get();
-            return response()->json($combos);
+
+          $topCombos = Combo::with('foods')
+            ->where('status', 'active')
+            ->orderBy('quantity_sold', 'desc')
+            ->take(3)
+            ->get();
+            
+        return response()->json([
+            'all' => $combos,
+            'top' => $topCombos
+        ]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Lỗi khi lấy danh combo món ăn', 'error' => $e->getMessage()], 500);
         }
@@ -109,6 +121,7 @@ class ComboController extends Controller
                 'name' => $request->name,
                 'price' => $request->price,
                 'description' => $request->description,
+                'status' => $request->status,
             ]);
 
             if ($request->hasFile('image')) {
