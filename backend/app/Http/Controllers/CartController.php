@@ -97,7 +97,16 @@ class CartController extends Controller
                             'reward_id' => $item['reward_id'] ?? null,
 
                         ]);
-
+                        if (!empty($item['combo_id'])) {
+                            $combo = Combo::find($item['combo_id']);
+                            if ($combo) {
+                                $qty = (int) ($item['quantity'] ?? 1);
+                                $currentSold = (int) ($combo->quantity_sold ?? 0);
+                                $combo->quantity_sold = $currentSold + $qty;
+                                $combo->save();
+                            }
+                        }
+                        
                         /**check flashsale */
                         if (!empty($item['food_id'])) {
                             $food = Food::find($item['food_id']);

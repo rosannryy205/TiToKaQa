@@ -1,6 +1,6 @@
 <template>
   <div class="container col-12 col-md-8 col-lg-9 py-4">
-    <h4 class="fw-bold mb-3">Kho Voucher</h4>
+    <h4 class="fw-bold mb-3">Kho mã giảm giá</h4>
 
     <!-- Nhập mã voucher -->
     <div class="d-flex align-items-center mb-3" style="gap: 10px">

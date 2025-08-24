@@ -424,7 +424,7 @@ export default {
 
         if (categoryId === 14) {
           const comboRes = await axios.get(`${API_URL}/home/combos`)
-          const combosWithType = comboRes.data.map((item) => ({ ...item, type: 'combo' }))
+          const combosWithType = comboRes.data.all.map((item) => ({ ...item, type: 'combo' }))
           allFoods = [...allFoods, ...combosWithType]
         }
 

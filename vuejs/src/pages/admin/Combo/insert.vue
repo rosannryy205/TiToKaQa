@@ -188,10 +188,11 @@ import axios from 'axios'
 import numeral from 'numeral'
 import { FoodList } from '@/stores/food.js'
 import { Modal } from 'bootstrap'
-import { toast } from 'vue3-toastify'
 import { Permission } from '@/stores/permission'
+const router = useRouter()
 import Swal from 'sweetalert2'
 import { API_URL } from '@/config'
+import { useRouter } from 'vue-router'
 const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
 
 const formatNumber = (value) => numeral(value).format('0,0')
@@ -439,6 +440,7 @@ const createCombosByAdmin = async () => {
     })
 
     resetForm()
+    router.push('/admin/discounts')
   } catch (error) {
     if (error.response?.status === 422 && error.response.data.errors) {
       const messages = Object.values(error.response.data.errors).flat().join('<br>')

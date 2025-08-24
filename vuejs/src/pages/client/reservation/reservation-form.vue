@@ -295,7 +295,7 @@ export default {
       }
     };
 
-    const paymentMethod = ref('')
+    const paymentMethod = ref('VNPAY')
     const tableKeeping = 50000;
     const check_payment = async (orderId) => {
       isLoading.value = true

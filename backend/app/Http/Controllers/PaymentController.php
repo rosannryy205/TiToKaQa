@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -672,6 +673,17 @@ class PaymentController extends Controller
                 ], 404);
             }
 
+
+            //tao code huy don
+            if (empty($order->order_code)) {
+                do {
+                    $code = Str::upper(Str::random(10));
+                } while (Order::where('order_code', $code)->exists());
+                $order->order_code = $code;
+                $order->save();
+            }
+
+
             $guestName = $order->guest_name ?? 'Khách hàng';
             $guestEmail = $order->guest_email ?? null;
             $guestPhone = $order->guest_phone ?? 'N/A';
@@ -693,7 +705,6 @@ class PaymentController extends Controller
                     $name = $orderDetail->combos->name;
                     $image = $orderDetail->combos->image;
                 }
-
                 $toppingsWithNames = [];
                 $itemToppingPrice = 0;
 
@@ -723,6 +734,7 @@ class PaymentController extends Controller
 
             $mailData = [
                 'order_id' => $order->id,
+                'order_code'   => $order->order_code,
                 'guest_name' => $guestName,
                 'guest_email' => $guestEmail,
                 'guest_phone' => $guestPhone,

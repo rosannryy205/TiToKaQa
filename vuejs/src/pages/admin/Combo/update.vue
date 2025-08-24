@@ -344,7 +344,7 @@ async function updateCombo() {
     formData.append('name', selectedCombo.value.name)
     formData.append('price', selectedCombo.value.price)
     formData.append('description', selectedCombo.value.description || '')
-    formData.append('status', selectedCombo.value.status || 'active')
+    formData.append('status', selectedCombo.value.status)
 
     if (imageFile.value) {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
@@ -408,7 +408,6 @@ setTimeout(() => {
     })
   }
 }
-// ================== KHỞI TẠO ==================Add commentMore actions
 onMounted(() => {
   fetchComboById()
 })
