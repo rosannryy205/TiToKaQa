@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Socialite;
 
 use App\Http\Controllers\Controller;
+use App\Models\Discount;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 
@@ -31,6 +33,9 @@ class ProviderCallbackController extends Controller
 
                 $user = $existingUser;
             } else {
+                DB::transaction(function () use ($provider, $socialUser, &$user) {
+                    $issuedAt = now();
+                    $expiryAt = now()->addDays(7);
                 $user = User::create([
                     'name' => $socialUser->getName() ?? $socialUser->getNickname(),
                     'email' => $socialUser->getEmail(),
@@ -43,7 +48,29 @@ class ProviderCallbackController extends Controller
                 ]);
 
                 $user->assignRole('khachhang');
+                $newUserDiscounts = Discount::query()
+                ->where('user_level', 'new')
+                ->where('status', 'active')
+                ->where('source', 'for_users')
+                ->get();
+
+            if ($newUserDiscounts->isNotEmpty()) {
+                $data = [];
+                foreach ($newUserDiscounts as $discount) {
+                    $data[$discount->id] = [
+                        'point_used'   => 0,
+                        'exchanged_at' => $issuedAt,
+                        'expiry_at'    => $expiryAt,
+                        'used_at'      => null,
+                        'source'       => 'register_reward',
+                        'created_at'   => $issuedAt,
+                        'updated_at'   => $issuedAt,
+                    ];
+                }
+                $user->discounts()->attach($data);
             }
+        });
+    }
             if (
                 !$user->avatar ||
                 Str::contains($user->avatar, 'googleusercontent.com')

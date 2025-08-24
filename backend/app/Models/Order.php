@@ -9,11 +9,12 @@ class Order extends Model
 {
     use HasFactory;
     protected $table = "orders";
-    public $timestamps = false; // Bật timestamps
+    public $timestamps = false; 
 
     protected $fillable = [
         'guest_name',
         'guest_phone',
+        'order_code',
         'guest_email',
         'guest_count',
         'note',
@@ -31,6 +32,8 @@ class Order extends Model
         'order_status',
         'shippingFee',
         'reservation_code',
+        'canceled_at',
+        'canceled_reason',
 
     ];
     public function details()

@@ -31,6 +31,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\LuckyWheelController;
+use App\Http\Controllers\MessengerWebhookController;
 use App\Models\LuckyWheelPrize;
 use Google\Cloud\Dialogflow\V2\MessageEntry\Role;
 use Illuminate\Http\Request;
@@ -121,6 +122,14 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
+//huy cho guess
+Route::prefix('orders')->controller(OrderController::class)->group(function () {
+    Route::get('lookup', 'lookup')->name('orders.lookup')->middleware('throttle:30,1');
+    Route::get('{code}', 'show')->name('orders.show')->where('code', '[A-Za-z0-9\-._]+')->middleware('throttle:60,1');
+});
+Route::post('orders/{code}/cancel', [OrderController::class, 'cancelByConfirm'])
+    ->where('code', '[A-Za-z0-9\-\._]+')
+    ->middleware('throttle:15,1'); 
 
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
@@ -254,10 +263,6 @@ Route::get('/admin/stats-order-by-time', [DashboardController::class, 'statsOrde
 
 //adminfood
 Route::get('/admin/foods', [AdminFoodController::class, 'getAllFood']);
-
-//admin combo
-Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
-
 
 //paymentMethod
 Route::get('/payments/info/{id}', [PaymentController::class, 'show']);

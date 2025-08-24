@@ -5,25 +5,51 @@
         <div class="card-body">
           <h3 class="title">Quản lý Mã Giảm Giá</h3>
 
+          <!-- Actions -->
           <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
-            <router-link :to="{ name: 'insert-discount' }" class="btn btn-add" v-if="hasPermission('create_discounts')">
+            <router-link
+              v-if="hasPermission('create_discounts')"
+              :to="{ name: 'insert-discount' }"
+              class="btn btn-add"
+            >
               + Thêm Mã Giảm Giá
             </router-link>
 
             <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
           </div>
+
+          <!-- Tabs -->
           <div class="d-flex border-bottom mb-3" style="gap: 20px; font-size: 14px">
-            <div v-for="(tab, index) in tabs" :key="index" @click="activeTab = index" class="pb-2 position-relative"
+            <div
+              v-for="(tab, index) in tabs"
+              :key="index"
+              @click="activeTab = index"
+              class="pb-2 position-relative"
               :class="{
                 'fw-bold text-danger': activeTab === index,
                 'text-muted': activeTab !== index,
-              }" style="cursor: pointer">
+              }"
+              style="cursor: pointer"
+            >
               {{ tab.label }}
-              <span v-if="tab.count" class="text-secondary">({{ tab.count }})</span>
-              <span v-if="activeTab === index" class="position-absolute start-0 bottom-0 w-100"
-                style="height: 2px; background-color: #d9363e"></span>
+              <span class="text-secondary">
+                ({{
+                  index === 0
+                    ? tabCounts.all
+                    : index === 1
+                      ? tabCounts.inactive
+                      : tabCounts.expired
+                }})
+              </span>
+              <span
+                v-if="activeTab === index"
+                class="position-absolute start-0 bottom-0 w-100"
+                style="height: 2px; background-color: #d9363e"
+              />
             </div>
           </div>
+
+          <!-- Table -->
           <div class="table-responsive">
             <table class="table table-bordered">
               <thead class="table-light">
@@ -40,7 +66,12 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, index) in filteredDiscounts" :key="index">
+                <!-- Có dữ liệu -->
+                <tr
+                  v-for="(item, index) in filteredDiscounts"
+                  :key="index"
+                  v-if="filteredDiscounts.length"
+                >
                   <td>
                     <strong>{{ item.code }}</strong>
                   </td>
@@ -72,24 +103,85 @@
                   </td>
                   <td>
                     <div class="d-flex justify-content-center gap-2 flex-nowrap">
-                      <router-link v-if="activeTab === 2 || hasPermission('edit_discounts')" :to="`/admin/update-discount/${item.id}`"
-                        class="btn btn-update">
+                      <router-link
+                        v-if="activeTab === 2 && hasPermission('edit_discounts')"
+                        :to="`/admin/update-discount/${item.id}`"
+                        class="btn btn-update"
+                      >
                         Gia hạn
                       </router-link>
+
+                      <template v-else-if="activeTab === 1">
+                        <button
+                          v-if="!isExpired(item) && hasPermission('hidden_discounts')"
+                          class="btn btn-outline btn-sm"
+                          :disabled="loadingIds.has(item.id)"
+                          @click="togglePrizeStatus(item)"
+                        >
+                          Hiện
+                        </button>
+                        <template v-else-if="isExpired(item)">
+                          <router-link
+                            v-if="hasPermission('edit_discounts')"
+                            :to="`/admin/update-discount/${item.id}`"
+                            class="btn btn-update"
+                          >
+                            Gia hạn
+                          </router-link>
+                          <button
+                            v-if="hasPermission('hidden_discounts')"
+                            class="btn btn-outline btn-sm"
+                            :disabled="loadingIds.has(item.id)"
+                            @click="togglePrizeStatus(item)"
+                          >
+                            Hiện
+                          </button>
+                        </template>
+                      </template>
                       <template v-else>
-                        <button v-if="hasPermission('hidden_discounts')" class="btn btn-outline btn-sm" :disabled="loadingIds.has(item.id)"
-                          @click="togglePrizeStatus(item)" >
+                        <button
+                          v-if="hasPermission('hidden_discounts')"
+                          class="btn btn-outline btn-sm"
+                          :disabled="loadingIds.has(item.id)"
+                          @click="togglePrizeStatus(item)"
+                        >
                           {{ (item.status || '').toLowerCase() === 'inactive' ? 'Hiện' : 'Ẩn' }}
                         </button>
-                        <router-link :to="`/admin/update-discount/${item.id}`" class="btn btn-update" v-if="hasPermission('edit_discounts')">
+                        <router-link
+                          v-if="hasPermission('edit_discounts')"
+                          :to="`/admin/update-discount/${item.id}`"
+                          class="btn btn-update"
+                        >
                           Sửa
                         </router-link>
                       </template>
                     </div>
                   </td>
                 </tr>
+
+                <tr v-else>
+                  <td colspan="9" class="text-center text-muted py-4">Không có mã giảm giá nào.</td>
+                </tr>
               </tbody>
             </table>
+            <nav class="mt-3">
+              <ul class="pagination">
+                <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                  <a class="page-link" href="#" @click="changePage(currentPage - 1)">«</a>
+                </li>
+                <li
+                  class="page-item"
+                  v-for="page in totalPages"
+                  :key="page"
+                  :class="{ active: page === currentPage }"
+                >
+                  <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
+                </li>
+                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                  <a class="page-link" href="#" @click="changePage(currentPage + 1)">»</a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
@@ -106,13 +198,12 @@ import dayjs from 'dayjs'
 import Swal from 'sweetalert2'
 import axios from 'axios'
 import { API_URL } from '@/config'
+
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
   const user = JSON.parse(userString)
-  if (user && user.id !== undefined) {
-    userId.value = user.id
-  }
+  if (user && user.id !== undefined) userId.value = user.id
 }
 const { hasPermission } = Permission(userId)
 
@@ -122,19 +213,21 @@ const tabs = [
   { label: 'Mã đã ẩn', count: 0 },
   { label: 'Mã hết hạn', count: 0 },
 ]
-
 const searchQuery = ref('')
 const { discounts, getAllDiscount } = Discounts()
 const { categorys, getCategoryForAdmin } = FoodList.setup()
+const discountInactive = ref([])
+const allDiscount = computed(() => {
+  return [...(discounts.value || []), ...(discountInactive.value || [])]
+})
+console.log('allDiscount:', allDiscount.value)
 
 const getCategoryFullName = (id) => {
   const category = categorys.value.find((c) => c.id === id)
   if (!category) return '-'
-
   const parent = categorys.value.find((c) => c.id === category.parent_id)
   return parent ? `${category.name}` : category.name
 }
-
 const formatNumber = (number) => Number(number).toLocaleString('vi-VN')
 const formatDate = (date) => dayjs(date).format('DD/MM/YYYY')
 
@@ -149,53 +242,60 @@ const mapDiscountType = (type) => {
   }
 }
 
-const discountInactive = ref([])
 const getInactiveDiscounts = async () => {
   try {
-    const res = await axios.get(`${API_URL}/discounts`, {
-      params: { status: 'inactive' },
-    })
+    const res = await axios.get(`${API_URL}/discounts`, { params: { status: 'inactive' } })
     discountInactive.value = res.data
   } catch (error) {
     console.error('Lỗi khi lấy mã giảm giá inactive:', error)
     discountInactive.value = []
   }
 }
-
-//loc
-const isExpired = (discounts) => {
-  const expiry = discounts.end_date
+const isExpired = (d) => {
+  const expiry = d?.end_date
   return expiry && new Date(expiry) < new Date()
 }
-
-const filteredDiscounts = computed(() => {
-  const query = searchQuery.value.toLowerCase()
-  const currentTab = activeTab.value
-  const all = discounts.value || []
+const tabCounts = computed(() => {
+  const all = allDiscount.value || []
   const inactive = discountInactive.value || []
+  const expired = allDiscount.value.filter((d) => isExpired(d))
+  const activeNonExpired = all.filter((d) => !isExpired(d))
 
-  let filtered = []
-  switch (currentTab) {
-    case 1:
-      filtered = inactive
-      break
-    case 2:
-      filtered = all.filter((d) => isExpired(d))
-      break
-    default:
-      filtered = all.filter((d) => !isExpired(d))
-      break
+  return {
+    all: activeNonExpired.length,
+    inactive: inactive.length,
+    expired: expired.length,
   }
-  if (query) {
-    filtered = filtered.filter(
-      (d) => d.name.toLowerCase().includes(query) || d.code.toLowerCase().includes(query),
-    )
-  }
-
-  return filtered
 })
 
-//an hien
+const filteredDiscounts = computed(() => {
+  const query = (searchQuery.value || '').toLowerCase()
+  const all = allDiscount.value || []
+  const inactive = discountInactive.value || []
+
+  let list = []
+  switch (activeTab.value) {
+    case 1:
+      list = inactive
+      break
+    case 2:
+      list = all.filter((d) => isExpired(d))
+      break
+    default:
+      list = all.filter((d) => !isExpired(d))
+      break
+  }
+
+  if (query) {
+    list = list.filter(
+      (d) =>
+        (d.name || '').toLowerCase().includes(query) ||
+        (d.code || '').toLowerCase().includes(query),
+    )
+  }
+  return list
+})
+/* ===== Actions ===== */
 const loadingIds = ref(new Set())
 
 async function togglePrizeStatus(item) {
@@ -204,10 +304,8 @@ async function togglePrizeStatus(item) {
 
   const { isConfirmed } = await Swal.fire({
     icon: 'question',
-    title: isInactive ? 'Hiện lại quà này?' : 'Ẩn quà này?',
-    text: isInactive
-      ? 'Quà sẽ xuất hiện lại ngay trong vòng quay.'
-      : 'Quà sẽ ngừng xuất hiện ngay lập tức.',
+    title: isInactive ? 'Hiện lại mã này?' : 'Ẩn mã này?',
+    text: isInactive ? 'Mã sẽ xuất hiện lại ngay lập tức.' : 'Mã sẽ ngừng áp dụng ngay lập tức.',
     showCancelButton: true,
     confirmButtonText: isInactive ? 'Hiện lại' : 'Ẩn ngay',
     cancelButtonText: 'Huỷ',
@@ -224,15 +322,6 @@ async function togglePrizeStatus(item) {
     )
     item.status = nextStatus
 
-    // Cách 2: nếu bạn có 2 danh sách active/inactive, di chuyển item giữa 2 mảng
-    // if (nextStatus === 'inactive') {
-    //   prizes.value = prizes.value.filter(p => p.id !== item.id)
-    //   prizesInactive.value.unshift({ ...item, status: 'inactive' })
-    // } else {
-    //   prizesInactive.value = prizesInactive.value.filter(p => p.id !== item.id)
-    //   prizes.value.unshift({ ...item, status: 'active' })
-    // }
-
     await Swal.fire({
       toast: true,
       position: 'top-end',
@@ -242,8 +331,9 @@ async function togglePrizeStatus(item) {
       timer: 1200,
       timerProgressBar: true,
     })
+
+    // làm tươi dữ liệu để phản ánh ở cả 2 tab
     await Promise.all([getAllDiscount(), getInactiveDiscounts()])
-    activeTab.value
   } catch (err) {
     await Swal.fire({
       icon: 'error',
@@ -255,6 +345,8 @@ async function togglePrizeStatus(item) {
     loadingIds.value.delete(item.id)
   }
 }
+
+/* ===== Init ===== */
 onMounted(async () => {
   await Promise.all([getAllDiscount(), getInactiveDiscounts(), getCategoryForAdmin()])
 })
