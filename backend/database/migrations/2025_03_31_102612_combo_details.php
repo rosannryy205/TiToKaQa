@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('combo_id')->constrained('combos')->onDelete('cascade');
             $table->foreignId('food_id')->constrained('foods')->onDelete('cascade');
             $table->integer('quantity');
+            
         });
     }
 
