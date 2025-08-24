@@ -1,26 +1,22 @@
 <template>
   <div>
-    <div class="popup-mid-right" v-if="visible">
+    <div  v-if="visible && isGuest" class="popup-mid-right">
       <div class="popup-inner">
         <button class="popup-close" @click="closePopup">×</button>
 
         <a class="plain-btn" @click="openModal">
-          <img src="/img/support_guess.png" alt="Support" class="wiggle-image" />
+          <img src="/img/search.png" alt="Support" class="wiggle-image" />
         </a>
-
-        <a class="popup-button" @click="openModal">HỖ TRỢ ⚠️</a>
+        <a class="popup-button" @click="openModal">TRA CỨU ĐƠN</a>
       </div>
     </div>
 
-    <!-- Modal -->
     <div v-if="isModalOpen" class="modal-overlay" @click.self="handleModalClose">
       <div class="modal-card">
         <div class="modal-header">
           <h5 class="m-0">Tra cứu đơn hàng</h5>
         </div>
-
         <div class="modal-body">
-          <!-- Form -->
           <div class="form-grid">
             <div>
               <label class="form-label">Số điện thoại</label>
@@ -106,13 +102,11 @@
             </div>
           </section>
 
-          <!-- Danh sách khi tra bằng PHONE -->
           <div class="d-none d-md-block" v-if="!searchedByCode">
             <template v-if="orders && orders.length">
               <table class="table w-100 custom-borderless-table">
                 <thead class="table-secondary">
                   <tr>
-                    <th>Mã đơn</th>
                     <th>Ngày đặt</th>
                     <th>Tổng tiền</th>
                     <th>Trạng thái</th>
@@ -121,7 +115,6 @@
                 </thead>
                 <tbody>
                   <tr v-for="o in orders" :key="o.id">
-                    <td>{{ o.id }}</td>
                     <td>{{ formatDate(o.order_time ?? o.created_at) }}</td>
                     <td>{{ formatVND(o.total_price) }}</td>
                     <td class="text-primary">{{ o.status }}</td>
@@ -147,10 +140,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
-
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
 const ASSET_BASE = import.meta.env.VITE_ASSET_BASE || 'http://127.0.0.1:8000'
 const CANCELLABLE = ['Chờ xác nhận', 'Đã xác nhận']
@@ -169,6 +161,33 @@ const error = ref('')
 const cancelBusy = ref(false)
 
 // helpers
+const isGuest = ref(true)
+function refreshAuthFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem('user')
+    if (!raw) {
+      isGuest.value = true
+      return
+    }
+    const u = JSON.parse(raw)
+    const flag = typeof u?.isGuest === 'string' ? u.isGuest === 'true' : !!u?.isGuest
+    isGuest.value = flag
+  } catch {
+    isGuest.value = true
+  }
+}
+
+function onStorage(e) {
+  if (e.key === 'user') refreshAuthFromLocalStorage()
+}
+onMounted(() => {
+  refreshAuthFromLocalStorage()
+  window.addEventListener('storage', onStorage)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('storage', onStorage)
+})
+
 function formatVND(v) {
   return Number(v || 0).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
 }
@@ -356,7 +375,7 @@ function handleModalClose() {
 .popup-mid-right {
   position: fixed;
   bottom: 15%;
-  right: 20px;
+  right: 5px;
   z-index: 10;
 }
 .popup-inner {
@@ -371,7 +390,7 @@ function handleModalClose() {
   pointer-events: auto;
   position: absolute;
   top: 0;
-  right: 0;
+  right: 10px;
   transform: translate(50%, -50%);
   background: white;
   border: 1px solid #ccc;
@@ -420,7 +439,7 @@ function handleModalClose() {
   animation: wiggle 1.5s infinite ease-in-out;
   transform-origin: bottom center;
   display: inline-block;
-  width: 100%;
+  width: 75%;
   height: auto;
   cursor: pointer;
 }

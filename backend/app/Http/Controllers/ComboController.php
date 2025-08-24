@@ -41,7 +41,17 @@ class ComboController extends Controller
           ->where('status', 'active')
           ->orderBy('created_at', 'desc')
           ->get();
-            return response()->json($combos);
+
+          $topCombos = Combo::with('foods')
+            ->where('status', 'active')
+            ->orderBy('quantity_sold', 'desc')
+            ->take(3)
+            ->get();
+            
+        return response()->json([
+            'all' => $combos,
+            'top' => $topCombos
+        ]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Lỗi khi lấy danh combo món ăn', 'error' => $e->getMessage()], 500);
         }

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Combo extends Model
 {
     protected $table= "combos";
-    protected $fillable = ['name', 'price', 'image', 'description', 'status'];
+    protected $fillable = ['name', 'price', 'image', 'description', 'status','quantity_sold'];
     use HasFactory;
 
     public function foods()
