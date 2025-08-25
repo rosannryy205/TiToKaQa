@@ -30,22 +30,28 @@ class RanksService
 
     public function giveRankVoucher(User $user, string $rank)
     {
-        $discount = Discount::where('source', 'for_users')
+        $discount = Discount::query()
+            ->where('source', 'for_users')
             ->where('user_level', $rank)
             ->where('status', 'active')
             ->first();
-
-        if ($discount && $user->discounts()->where('discount_id', $discount->id)->doesntExist()) {
-            $now = now();
+    
+        if (!$discount) return;
+    
+        if ($user->discounts()->where('discount_id', $discount->id)->doesntExist()) {
+            $issuedAt = now();
+            $expiryAt = now()->addDays(7);
+    
             $user->discounts()->attach($discount->id, [
-                'point_used' => 0,
-                'exchanged_at' => $now,
-                'expiry_at' => $now->addDays(7),
-                'used_at' => null,
-                'source' => 'rank_reward',
-                'created_at' => $now,
-                'updated_at' => $now,
+                'point_used'   => 0,
+                'exchanged_at' => $issuedAt,
+                'expiry_at'    => $expiryAt,
+                'used_at'      => null,
+                'source'       => 'rank_reward',
+                'created_at'   => $issuedAt,
+                'updated_at'   => $issuedAt,
             ]);
         }
     }
+    
 }

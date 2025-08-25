@@ -24,167 +24,200 @@
           <transition name="popup-fade">
             <div v-show="showDetailPopup" class="event-detail-popup-overlay" @click="closeDetailPopup">
               <div class="event-detail-popup" @click.stop>
+                <!-- Header -->
                 <div class="popup-header">
-                  <h3 class="popup-title">Thông tin chi tiết đơn hàng {{ info.id }}</h3>
+                  <h3 class="popup-title">Chi tiết đơn hàng #{{ info.id }}</h3>
                   <button class="close-button" @click="closeDetailPopup">&times;</button>
                 </div>
-                <div class="popup-content" v-if="info">
-                  <div class="info-item">
-                    <div class="info-block">
-                      <i class="bi bi-table"></i>Ngày đặt:
-                      <span v-for="(t, index) in info.tables" :key="index">
-                        {{ formatDate(t.reserved_from)
-                        }}<span v-if="index < info.tables.length - 1">, </span>
-                      </span>
+                <!-- Body -->
+                <div class="popup-body row">
+                  <!-- Cột trái: Thông tin + Món ăn -->
+                  <div class="col-md-7 popup-content" v-if="info">
+                    <!-- Thông tin chung -->
+                    <div class="info-section">
+                      <div class="info-item">
+                        <div class="info-block">
+                          <i class="bi bi-table"></i>Ngày đặt:
+                          <span v-for="(t, index) in info.tables" :key="index">
+                            {{ formatDate(t.reserved_from)
+                            }}<span v-if="index < info.tables.length - 1">, </span>
+                          </span>
+                        </div>
+                        <div class="info-block">
+                          <i class="bi bi-clock"></i>Giờ đặt:
+                          <span v-for="(t, index) in info.tables" :key="index">
+                            {{ formatTime(t.reserved_from) }} - {{ formatTime(t.reserved_to)
+                            }}<span v-if="index < info.tables.length - 1">, </span>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                        <div class="info-block">
+                          <i class="fa-solid fa-calendar"></i>
+                          <span>Bàn số:
+                            <span v-for="(t, index) in info.tables" :key="index">
+                              {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
+                            </span>
+                          </span>
+                        </div>
+                        <div class="info-block">
+                          <i class="bi bi-people"></i>
+                          <span>Lượng khách:
+                            {{ info.guest_count }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                        <div class="info-block">
+                          <i class="fa-solid fa-user"></i>
+                          <span>Khách hàng: {{ info.guest_name }}</span>
+                        </div>
+                        <div class="info-block">
+                          <i class="bi bi-telephone"></i>
+                          <span>SĐT: {{ info.guest_phone }}</span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                        <div class="info-block">
+                          <i class="bi bi-envelope"></i>
+                          <span>Email: {{ info.guest_email }}</span>
+                        </div>
+                        <div class="info-block">
+                          <i class="bi bi-card-heading"></i>
+                          <span>Ghi chú: {{ info.note || 'Không có' }}</span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                        <div class="info-block">
+                          <i class="bi bi-cash-coin"></i>
+                          <span>Phí giữ bàn: {{ formatNumber(info.table_fee) }} VNĐ</span>
+                        </div>
+                        <div class="info-block">
+                          <i class="bi bi-card-list"></i>
+                          <span>Trạng thái đơn:
+                            <select v-model="tempStatus" class="p-1 border rounded-0"
+                              @change="updateStatus(info.id, tempStatus)" :disabled="!hasPermission('edit_booking')">
+                              <option value="Chờ xác nhận"
+                                :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
+                                Chờ xác nhận
+                              </option>
+                              <option value="Đã xác nhận"
+                                :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
+                                Đã xác nhận
+                              </option>
+                              <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
+                                Đang xử lý
+                              </option>
+                              <option value="Khách đã đến"
+                                :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
+                                Khách đã đến
+                              </option>
+                              <option value="Hoàn thành" :disabled="canSelectStatus(info.order_status, 'Hoàn thành')">
+                                Hoàn thành
+                              </option>
+                              <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
+                                Đã hủy
+                              </option>
+                            </select>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                        <div class="info-block">
+                          <span>
+                            <i class="bi bi-cash-stack"></i>Tổng tiền món: {{ formatNumber(info.total_price) }} VNĐ
+                          </span>
+                        </div>
+                        <div class="info-block">
+                          <span>
+                            <i class="bi bi-cash-stack"></i>Đã thanh toán: {{ formatNumber(info.total_paid) }} VNĐ
+                          </span>
+                        </div>
+                      </div>
+                      <div class="info-item">
+                         <div class="info-block fw-bold text-danger">
+                          <span>
+                            <i class="bi bi-cash-stack"></i>Tổng tiền đơn:
+                            {{ formatNumber(Number(info.total_price) + Number(info.table_fee)) }} VNĐ
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div class="info-block">
-                      <i class="bi bi-clock"></i>Giờ đặt:
-                      <span v-for="(t, index) in info.tables" :key="index">
-                        {{ formatTime(t.reserved_from) }} - {{ formatTime(t.reserved_to)
-                        }}<span v-if="index < info.tables.length - 1">, </span>
-                      </span>
-                    </div>
-                  </div>
-                  <div class="info-item">
-                    <div class="info-block">
-                      <i class="fa-solid fa-calendar"></i>
-                      <span>Bàn số:
-                        <span v-for="(t, index) in info.tables" :key="index">
-                          {{ t.table_number }}<span v-if="index < info.tables.length - 1">, </span>
-                        </span>
-                      </span>
-                    </div>
-                    <div class="info-block">
-                      <i class="bi bi-people"></i>
-                      <span>Lượng khách:
-                        {{ info.guest_count }}
-                      </span>
-                    </div>
-                  </div>
-                  <div class="info-item">
-                    <div class="info-block">
-                      <i class="fa-solid fa-user"></i>
-                      <span>Khách hàng: {{ info.guest_name }}</span>
-                    </div>
-                    <div class="info-block">
-                      <i class="bi bi-telephone"></i>
-                      <span>SĐT: {{ info.guest_phone }}</span>
-                    </div>
-                  </div>
-                  <div class="info-item">
-                    <div class="info-block">
-                      <i class="bi bi-envelope"></i>
-                      <span>Email: {{ info.guest_email }}</span>
-                    </div>
-                    <div class="info-block">
-                      <i class="bi bi-card-heading"></i>
-                      <span>Ghi chú: {{ info.note || 'Không có' }}</span>
-                    </div>
-                  </div>
-                  <div class="info-item">
-                    <div class="info-block">
-                      <span> <i class="bi bi-card-list"></i>Trạng thái thanh toán:
-                        {{ info.payment_info?.payment_status || 'Chưa thanh toán' }} </span>
-                    </div>
-                    <div class="info-block">
-                      <span> <i class="bi bi-cash"></i>Phương thức thanh toán:
-                        {{ info.payment_info?.payment_method || 'Cần thanh toán' }}</span>
-                    </div>
-                  </div>
-                  <div class="info-item">
-                    <div class="info-block">
-                      <span>
-                        <i class="bi bi-cash"></i>Tổng tiền: {{ formatNumber(info.total_price) }} VNĐ
-                      </span>
-                    </div>
-                    <div class="info-block">
-                      <i class="bi bi-card-list"></i>
-                      <span>Trạng thái đơn:
-                        <select v-model="tempStatus" class="p-1 border rounded-0"
-                          @change="updateStatus(info.id, tempStatus)" :disabled="!hasPermission('edit_booking')">
-                          <option value="Chờ xác nhận" :disabled="!canSelectStatus(info.order_status, 'Chờ xác nhận')">
-                            Chờ xác nhận
-                          </option>
-                          <option value="Đã xác nhận" :disabled="!canSelectStatus(info.order_status, 'Đã xác nhận')">
-                            Đã xác nhận
-                          </option>
-                          <option value="Đang xử lý" :disabled="!canSelectStatus(info.order_status, 'Đang xử lý')">
-                            Đang xử lý
-                          </option>
-                          <option value="Khách đã đến" :disabled="!canSelectStatus(info.order_status, 'Khách đã đến')">
-                            Khách đã đến
-                          </option>
-                          <option value="Hoàn thành" :disabled="canSelectStatus(info.order_status, 'Hoàn thành')">
-                            Hoàn thành
-                          </option>
-                          <option value="Đã hủy" :disabled="!canSelectStatus(info.order_status, 'Đã hủy')">
-                            Đã hủy
-                          </option>
-                        </select>
-                      </span>
-                    </div>
-                  </div>
-                  <div class="info-item1">
-                    <i class="bi bi-journals" style="padding-right: 15px"></i>
-                    <span>Các món đã đặt</span>
-                    <div class="card-custom" style="max-height: 200px; overflow-y: auto">
-                      <div class="row align-items-center border-bottom" v-for="item in info.details" :key="item.id">
-                        <div class="col-6 p-2">
-                          <div class="item-name">
-                            {{ item.food_name }}
-                          </div>
-                          <div class="item-details">
-                            <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3">
+                    <!-- Món đã đặt -->
+                    <div class="order-items mt-2">
+                      <h6><i class="bi bi-journals me-2"></i>Các món đã đặt</h6>
+                      <div class="card-custom p-2" style="max-height: 220px; overflow-y: auto; overflow-x: hidden;">
+                        <div v-for="item in info.details" :key="item.id"
+                          class="row align-items-center py-2 border-bottom">
+                          <div class="col-6 text-truncate pe-2">
+                            <div class="fw-bold text-truncate" :title="item.food_name">{{ item.food_name }}</div>
+                            <ul v-if="item.toppings?.length" class="small text-muted ps-3 mb-0">
                               <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
-                                + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }}
-                                đ)
+                                + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }} đ)
                               </li>
                             </ul>
                           </div>
-                        </div>
-                        <div class="col-2">{{ item.quantity }}</div>
-                        <div class="col-3">
-                          <div class="total-price">
+                          <div class="col-2 text-center">{{ item.quantity }}</div>
+                          <div class="col-4 text-end fw-bold">
                             {{ formatNumber(calculateTotalItemPrice(item)) }} VNĐ
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
+
+                  <!-- Cột phải: Thanh toán -->
+                  <div class="col-md-5 p-3 border-start">
+                    <!-- Timeline -->
+                    <div v-if="info.payment_info?.length">
+                      <h6 class="fw-bold mb-3"><i class="bi bi-receipt me-2"></i>Lịch sử thanh toán</h6>
+                      <div class="timeline">
+                        <div v-for="p in info.payment_info" :key="p.payment_id" class="timeline-item">
+                          <div class="timeline-dot" :class="{ 'bg-success': p.payment_status === 'Đã thanh toán' }">
+                          </div>
+                          <div class="timeline-content">
+                            <div class="fw-bold">Phương thức thanh toán: {{ p.payment_method }}</div>
+                            <div>Giá tiền: {{ formatNumber(p.amount_paid) }} VNĐ</div>
+                            <div>Thời gian: <small class="text-muted">{{ p.payment_time }}</small></div>
+                            <div>Trạng thái:
+                              <span :class="{ 'text-success': p.payment_status === 'Đã thanh toán' }">
+                                {{ p.payment_status }}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Chọn thanh toán -->
+                    <div class="payment-section mt-4" v-if="info.order_status !== 'Hoàn thành'">
+                      <h6 class="mb-3">Phương thức thanh toán</h6>
+                      <div class="d-flex justify-content-around mb-3 flex-wrap gap-2">
+                        <button class="btn btn-payment" :class="{ active: paymentMethod === 'COD' }"
+                          @click="paymentMethod = 'COD'" :disabled="info.order_status !== 'Khách đã đến'">
+                          <img src="/img/cod.png" class="payment-icon mb-1" /> <br />Tiền mặt
+                        </button>
+                        <button class="btn btn-payment" :class="{ active: paymentMethod === 'VNPAY' }"
+                          @click="paymentMethod = 'VNPAY'" :disabled="info.order_status !== 'Khách đã đến'">
+                          <img src="/img/Logo-VNPAY-QR-1 (1).png" class="payment-icon mb-1" /> <br />QR Code
+                        </button>
+                      </div>
+                      <button class="btn btn-danger w-100 p-2" @click="payMoney"
+                        :disabled="info.order_status !== 'Khách đã đến'">Thanh toán</button>
+                    </div>
+                  </div>
                 </div>
+
+                <!-- Footer Actions -->
                 <div class="popup-actions" v-if="hasPermission('edit_booking') && info.order_status !== 'Hoàn thành'">
-                  <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn
-                    món</router-link>
-                  <router-link :to="`/admin/tables-change/${info.id}`" class="btn edit-button">Chuyển
-                    bàn</router-link>
+                  <router-link :to="`/admin/choose-list-food/${info.id}`" class="btn edit-button">Chọn món</router-link>
+                  <router-link :to="`/admin/tables-change/${info.id}`" class="btn edit-button">Chuyển bàn</router-link>
                   <router-link :to="`/admin/tables-setup/${info.id}`" class="btn edit-button">Xếp bàn</router-link>
-                </div>
-                <hr>
-                <div class="payment-section p-2" v-if="info.order_status !== 'Hoàn thành'">
-                  <h6 class="mb-3">Phương thức thanh toán</h6>
-                  <div class="d-flex justify-content-around mb-4 flex-wrap gap-2">
-                    <button class="btn btn-payment" :class="{ active: paymentMethod === 'COD' }" type="button"
-                      @click="paymentMethod = 'COD'" :disabled="info.order_status !== 'Khách đã đến'">
-                      <img src="/img/cod.png" alt="Credit Card Icon" class="payment-icon mb-1" />
-                      <br />Tiền mặt
-                    </button>
-                    <button class="btn btn-payment" type="button" @click="paymentMethod = 'VNPAY'"
-                      :class="{ active: paymentMethod === 'VNPAY' }" :disabled="info.order_status !== 'Khách đã đến'">
-                      <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
-                      <br />QR code
-                    </button>
-                  </div>
-                  <hr />
-                  <div class="d-flex flex-column flex-sm-row">
-                    <button class="btn btn-outline-danger flex-fill me-sm-2 mb-2 mb-sm-0 p-2" type="submit"
-                      @click="payMoney" :disabled="info.order_status !== 'Khách đã đến'">
-                      Thanh toán
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
           </transition>
+
         </div>
       </div>
     </div>
@@ -348,7 +381,7 @@ const payMoney = async () => {
     }
     if (paymentMethod.value === 'COD') {
       await new Promise((resolve) => setTimeout(resolve, 300))
-      await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
+      await axios.post('http://127.0.0.1:8000/api/admin/payments/cod-payment', {
         order_id: info.value.id,
         amount_paid: info.value.total_price,
       })
@@ -647,11 +680,13 @@ const calendarOptions = ref({
 </script>
 
 <style>
+/* ======================== CARD ITEM ======================== */
 .card-custom {
-  border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
-  padding: 0 20px;
-  margin-top: 5px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 12px;
+  margin-top: 6px;
+  background: #fff;
 }
 
 .item-name {
@@ -659,15 +694,16 @@ const calendarOptions = ref({
   font-size: 14px;
 }
 
-.total-price {
-  font-size: 14px;
-  text-align: right;
-  color: #c92c3c;
+.item-details {
+  font-size: 12px;
+  color: #6c757d;
 }
 
-.item-details {
-  font-size: 11px;
-  color: #6c757d;
+.total-price {
+  text-align: right;
+  font-size: 14px;
+  font-weight: 600;
+  color: #c92c3c;
 }
 
 .ban {
@@ -688,43 +724,109 @@ const calendarOptions = ref({
   font-size: small;
 }
 
+/* ======================== POPUP ======================== */
 .event-detail-popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: rgba(0, 0, 0, 0.4);
   z-index: 1000;
 }
 
 .event-detail-popup {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   width: 90%;
-  max-width: 650px;
+  max-width: 1000px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   font-family: Arial, sans-serif;
-  color: #333;
 }
 
+/* Header */
 .popup-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 20px;
-  background-color: #c92c3c;
-  border-bottom: 1px solid #eee;
+  padding: 12px 20px;
+  background: #c92c3c;
+  color: #fff;
 }
 
 .popup-title {
   font-size: 16px;
   font-weight: 600;
   margin: 0;
-  color: #ffffff;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Body chia 2 cột */
+.popup-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.popup-content {
+  flex: 2;
+  padding: 20px;
+  overflow-y: auto;
+  border-right: 1px solid #eee;
+}
+
+.payment-timeline {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+/* Footer */
+.popup-actions {
+  padding: 12px 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ======================== TIMELINE ======================== */
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+  padding-left: 28px;
+}
+
+.timeline-dot {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  background: #c92c3c;
+  border-radius: 50%;
+}
+
+.timeline-content {
+  font-size: 14px;
+  color: #333;
+}
+
+.timeline-content span {
+  color: #c92c3c;
+  font-weight: 500;
 }
 
 .event-detail-popup.show {
@@ -736,20 +838,9 @@ a {
   text-decoration: none;
 }
 
-.close-button {
-  background: none;
-  border: none;
-  font-size: 1.8em;
-  cursor: pointer;
-  color: #ffffff;
-  padding: 0 5px;
-}
-
-.popup-content {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.info-section {
+  position: relative;
+  left: 10px;
 }
 
 .info-item {
@@ -759,11 +850,13 @@ a {
   /* khoảng cách giữa 2 cột */
   font-size: 0.95em;
   color: #1d1d1d;
+
 }
 
 .info-block {
   align-items: center;
   gap: 8px;
+  padding: 5px;
 }
 
 .info-item i {
@@ -773,23 +866,6 @@ a {
 
 .info-item span {
   flex-grow: 1;
-}
-
-.popup-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-left: 20px;
-}
-
-
-.popup-actions button {
-  padding: 8px 18px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s, color 0.2s;
-  text-decoration: none;
 }
 
 .edit-button {
@@ -1128,5 +1204,21 @@ td,
 .popup-fade-enter-to,
 .popup-fade-leave-from {
   transform: translateY(0px);
+}
+
+/* ======================== RESPONSIVE ======================== */
+@media (max-width: 768px) {
+  .popup-body {
+    flex-direction: column;
+  }
+
+  .popup-content {
+    border-right: none;
+    border-bottom: 1px solid #eee;
+  }
+
+  .payment-timeline {
+    border-top: 1px solid #eee;
+  }
 }
 </style>

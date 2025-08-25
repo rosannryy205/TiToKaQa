@@ -9,11 +9,12 @@ class Order extends Model
 {
     use HasFactory;
     protected $table = "orders";
-    public $timestamps = false; // Bật timestamps
+    public $timestamps = false; 
 
     protected $fillable = [
         'guest_name',
         'guest_phone',
+        'order_code',
         'guest_email',
         'guest_count',
         'note',
@@ -23,6 +24,7 @@ class Order extends Model
         'type_order',
         'tpoint_used',
         'ship_cost',
+        'table_fee',
         'user_id',
         'discount_id',
         'guest_address',
@@ -30,6 +32,8 @@ class Order extends Model
         'order_status',
         'shippingFee',
         'reservation_code',
+        'canceled_at',
+        'canceled_reason',
 
     ];
     public function details()
@@ -48,7 +52,7 @@ class Order extends Model
     }
     public function payment()
     {
-        return $this->hasOne(Payment::class, 'order_id');
+        return $this->hasMany(Payment::class, 'order_id', 'id');
     }
 
 }

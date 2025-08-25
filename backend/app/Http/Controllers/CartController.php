@@ -97,6 +97,15 @@ class CartController extends Controller
                             'reward_id' => $item['reward_id'] ?? null,
 
                         ]);
+                        if (!empty($item['combo_id'])) {
+                            $combo = Combo::find($item['combo_id']);
+                            if ($combo) {
+                                $qty = (int) ($item['quantity'] ?? 1);
+                                $currentSold = (int) ($combo->quantity_sold ?? 0);
+                                $combo->quantity_sold = $currentSold + $qty;
+                                $combo->save();
+                            }
+                        }
 
                         /**check flashsale */
                         if (!empty($item['food_id'])) {
@@ -421,11 +430,11 @@ class CartController extends Controller
                         ];
                     }) ?? [],
                     'payment' => [
-                        'amount_paid' => optional($order->payment)->amount_paid,
-                        'payment_method' => optional($order->payment)->payment_method,
-                        'payment_status' => optional($order->payment)->payment_status,
-                        'payment_time' => optional($order->payment)->payment_time,
-                        'payment_type' => optional($order->payment)->payment_type,
+                        'amount_paid' => optional($order->payment->first())->amount_paid,
+                        'payment_method' => optional($order->payment->first())->payment_method,
+                        'payment_status' => optional($order->payment->first())->payment_status,
+                        'payment_time' => optional($order->payment->first())->payment_time,
+                        'payment_type' => optional($order->payment->first())->payment_type,
                     ],
                 ];
             });
@@ -450,7 +459,7 @@ class CartController extends Controller
             'order_status' => 'required|string|max:255'
         ]);
 
-        $order = Order::with('details', 'payment')->find($id);
+        $order = Order::with('details', 'payment')->where('id', $id)->first();
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
@@ -489,7 +498,7 @@ class CartController extends Controller
             //================================
 
             if ($order->payment) {
-                $payment = $order->payment;
+                $payment = $order->payment->first();
                 if ($newStatus === 'Giao thành công' || $newStatus === 'Hoàn thành') {
 
                     $payment->payment_status = 'Đã thanh toán';

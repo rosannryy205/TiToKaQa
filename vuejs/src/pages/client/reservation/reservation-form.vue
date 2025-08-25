@@ -50,20 +50,28 @@
         <div class="col-lg-6 ffff">
           <div class="section-title1 d-flex justify-between">
             <div>Thanh Toán</div>
-            <div v-if="cart_reservation != null"><router-link :to="`/food/${orderId}`" class="fs-6 text-white pb-2">Thêm
-                món</router-link></div>
-          </div>
-          <div class="border pt-4">
-            <div v-if="!cartItems.length > 0">
-              <router-link :to="`/food/${orderId}`" class="bi bi-plus-circle-fill pb-2"></router-link>
-              <div class="text-center fw-medium fs-6 pb-4">
-                Chọn món trước khi đến nhà hàng
-              </div>
-
+            <!-- <div v-if="cart_reservation != null"><router-link :to="`/food/${orderId}`" class="fs-6 text-white pb-2">Thêm
+                món</router-link></div> -->
+            <div>
+              <router-link :to="`/food/${orderId}`" class="fs-6 text-white pb-2 text-decoration-none">Thêm
+                món</router-link>
             </div>
-
-            <div class="list-product-scroll1 mb-3" v-if="cart_reservation != null">
-              <div v-for="(item, index) in cartItems" :key="index" class="d-flex mb-3">
+          </div>
+          <div class="border pt-1">
+            <div v-if="!cartItems.length > 0">
+              <router-link :to="`/food/${orderId}`" class="bi bi-plus-circle-fill p-3"></router-link>
+              <div class="text-center fw-medium fs-6 pb-4">
+                Có thể chọn món trước khi đến nhà hàng
+              </div>
+            </div>
+            <div class="list-product-scroll1 p-2" v-if="cart_reservation != null">
+              <div v-for="(item, index) in cartItems" :key="index"
+                class="d-flex mb-3 position-relative p-2 border rounded">
+                <button @click="removeItem(index)" class="btn btn-danger btn-sm rounded-circle position-absolute"
+                  style="top: -15px; left: -5px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;"
+                  title="Xóa sản phẩm">
+                  <i class="bi bi-x" style="color: #fff;"></i>
+                </button>
                 <img :src="getImageUrl(item.image)" alt="" class="me-3 rounded" width="80" height="80" />
                 <div class="flex-grow-1">
                   <strong>{{ item.name }}</strong>
@@ -79,54 +87,47 @@
                   <div>Giá: {{ formatNumber(item.price) }} VNĐ</div>
                   <hr />
                 </div>
-                <div class="me-2">
-                  <strong class="me-2">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
+                <div class="ms-2 text-end">
+                  <strong class="me-2 d-block mb-1">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
                   <span class="badge text-bg-secondary" @click="openModalToEditTopping(item, index)"
                     style="cursor: pointer;">Sửa</span>
                 </div>
               </div>
             </div>
           </div>
-          <div class="pt-1" v-if="cart_reservation == null">
-            <button class="btn btn-outline-danger rounded-1 p-2 w-100">Đặt bàn</button>
-          </div>
-          <div class="card-payment1 border shadow-sm bg-white p-4 rounded-bottom" v-if="cart_reservation != null">
-            <div class="d-flex justify-content-between mb-3">
-              <strong class="fs-5">Tổng cộng (VAT)</strong>
-              <strong class="text-danger fs-5">{{ formatNumber(totalPrice) }} VNĐ</strong>
+          <div class="card-payment1 border shadow-sm bg-white p-4 rounded-bottom">
+            <!-- Phí giữ bàn -->
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+              <span class="fw-semibold fs-6">Phí giữ bàn (đã gồm VAT)</span>
+              <span class="fw-bold text-danger fs-5">{{ formatNumber(tableKeeping) }} VNĐ</span>
             </div>
 
+            <!-- Phương thức thanh toán -->
             <div class="mb-3">
-              <label class="form-label fw-bold">Phương thức thanh toán</label>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="payment" id="vnpay" value="VNPAY"
-                  v-model="paymentMethod" />
-                <label class="form-check-label d-flex align-items-center" for="vnpay">
-                  <span class="me-2">Thanh toán qua VNPAY</span>
-                  <img src="/img/Logo-VNPAY-QR-1 (1).png" height="20" width="60" alt="" />
+              <label class="form-label fw-bold mb-2">Phương thức thanh toán</label>
+              <div class="list-group">
+                <label class="list-group-item d-flex align-items-center gap-2">
+                  <input class="form-check-input me-2" type="radio" name="payment" id="vnpay" value="VNPAY"
+                    v-model="paymentMethod" />
+                  <span class="flex-grow-1">Thanh toán qua VNPAY</span>
+                  <img src="/img/Logo-VNPAY-QR-1 (1).png" height="22" width="70" alt="VNPAY" />
+                </label>
+                <label class="list-group-item d-flex align-items-center gap-2">
+                  <input class="form-check-input me-2" type="radio" name="payment" id="momo" value="MOMO"
+                    v-model="paymentMethod" disabled />
+                  <span class="flex-grow-1 text-muted">Thanh toán qua Momo</span>
+                  <span class="badge bg-secondary ms-2">Sắp ra mắt</span>
+                  <img src="/img/momo.png" height="22" width="22" alt="Momo" />
                 </label>
               </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="payment" id="momo" value="MOMO"
-                  v-model="paymentMethod" disabled />
-                <label class="form-check-label d-flex align-items-center" for="momo">
-                  <span class="me-2">Thanh toán qua Momo</span>
-                  <img src="/img/momo.png" height="20" width="20" alt="" />
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="payment" id="momo" value="COD"
-                  v-model="paymentMethod" />
-                <label class="form-check-label d-flex align-items-center" for="momo">
-                  <span class="me-2">Thanh toán qua COD</span>
-                  <img src="/img/cod.png" height="20" width="20" alt="" />
-                </label>
-              </div>
-
             </div>
 
-            <button type="submit" class="btn btn-danger1 w-100 mt-3">Thanh toán</button>
+            <!-- Nút đặt bàn -->
+            <button type="submit" class="btn btn-danger w-100 py-2 fw-semibold rounded-pill">
+              Đặt bàn
+            </button>
           </div>
+
         </div>
       </div>
     </form>
@@ -255,7 +256,7 @@ export default {
     } = FoodList.setup()
 
     const {
-      cartKey, cartItems, totalPriceItem, loadCart, totalPrice
+      cartKey, cartItems, totalPriceItem, loadCart, totalPrice, removeItem
     } = Cart()
 
 
@@ -294,23 +295,24 @@ export default {
       }
     };
 
-    const paymentMethod = ref('')
+    const paymentMethod = ref('VNPAY')
+    const tableKeeping = 50000;
     const check_payment = async (orderId) => {
       isLoading.value = true
 
       try {
-        if (!cart_reservation || cart_reservation.length === 0) {
-          Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'info',
-            title: 'Vui lòng chọn món!',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true
-          });
-          return
-        }
+        // if (!cart_reservation || cart_reservation.length === 0) {
+        //   Swal.fire({
+        //     toast: true,
+        //     position: 'top-end',
+        //     icon: 'info',
+        //     title: 'Vui lòng chọn món!',
+        //     showConfirmButton: false,
+        //     timer: 2000,
+        //     timerProgressBar: true
+        //   });
+        //   return
+        // }
         if (!paymentMethod.value) {
           Swal.fire({
             toast: true,
@@ -329,7 +331,8 @@ export default {
           guest_phone: form.phone,
           guest_email: form.email,
           note: form.note || "",
-          total_price: totalPrice.value,
+          // total_price: totalPrice.value + tableKeeping,
+          table_fee: tableKeeping,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.id,
             combo_id: null,
@@ -356,7 +359,7 @@ export default {
         localStorage.removeItem(cartKey);
 
         if (paymentMethod.value === 'VNPAY') {
-          if (!orderId || totalPrice.value <= 0) {
+          if (!orderId || tableKeeping <= 0) {
             Swal.fire({
               toast: true,
               position: 'top-end',
@@ -370,7 +373,7 @@ export default {
           }
           const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
             order_id: orderId,
-            amount: totalPrice.value,
+            amount: tableKeeping,
           })
           if (paymentRes.data && paymentRes.data.payment_url) {
             localStorage.setItem('order_id', orderId)
@@ -405,32 +408,6 @@ export default {
           localStorage.removeItem(cartKey);
           // router.push('/payment-result');
           return
-        }
-        if (paymentMethod.value === 'COD') {
-          await new Promise((resolve) => setTimeout(resolve, 300))
-          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
-            order_id: orderId,
-            amount_paid: totalPrice.value,
-          })
-          localStorage.setItem('order_id', orderId)
-          localStorage.setItem('payment_method', paymentMethod.value)
-          localStorage.removeItem(cartKey)
-          Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: 'Đặt hàng và thanh toán bằng tiền mặt thành công!',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true
-          });
-          router.push({
-            name: 'payment-result',
-            query: {
-              type: 'order_id',
-              value: orderId
-            }
-          });
         }
       } catch (error) {
         console.error(error)
@@ -661,6 +638,7 @@ export default {
       loadCart,
       totalPriceItem,
       totalPrice,
+      removeItem,
       reservation,
       updateCountdown,
       countdownInterval,
@@ -684,7 +662,7 @@ export default {
       openModal,
       increaseQuantity,
       decreaseQuantity,
-
+      tableKeeping
     };
   },
 };
@@ -711,7 +689,7 @@ export default {
 }
 
 .list-product-scroll1 {
-  max-height: 135px;
+  max-height: 220px;
   overflow-y: auto;
 }
 

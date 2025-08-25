@@ -31,6 +31,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\LuckyWheelController;
+use App\Http\Controllers\MessengerWebhookController;
 use App\Models\LuckyWheelPrize;
 use Google\Cloud\Dialogflow\V2\MessageEntry\Role;
 use Illuminate\Http\Request;
@@ -77,6 +78,7 @@ Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']
 Route::get('/load-order-detail/{order_id}', [OrderController::class, 'showOrderDetail']);
 Route::put('/update-order-detail/{order_id}', [OrderController::class, 'updateOrderDetails']);
 Route::get('/admin/payments/vnpay-return', [PaymentController::class, 'vnpayReturnAdmin']);
+Route::post('/admin/payments/cod-payment', [PaymentController::class, 'handleCodPayAdmin']);
 
 
 
@@ -120,6 +122,14 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
+//huy cho guess
+Route::prefix('orders')->controller(OrderController::class)->group(function () {
+    Route::get('lookup', 'lookup')->name('orders.lookup')->middleware('throttle:30,1');
+    Route::get('{code}', 'show')->name('orders.show')->where('code', '[A-Za-z0-9\-._]+')->middleware('throttle:60,1');
+});
+Route::post('orders/{code}/cancel', [OrderController::class, 'cancelByConfirm'])
+    ->where('code', '[A-Za-z0-9\-\._]+')
+    ->middleware('throttle:15,1'); 
 
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
@@ -234,19 +244,25 @@ Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update'])
 Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
 Route::post('/admin/categories/delete-multiple', [AdminCategoryController::class, 'deleteMultiple']);
 
-// Thống kê doanh thu
+//  ------- Thống kê admin --------
 Route::get('/admin/revenue-by-month', [DashboardController::class, 'revenueByMonth']);
 Route::get('/admin/get-dashboard-stats', [DashboardController::class, 'getDashboardStats']);
+// người dùng
+Route::get('/admin/get-total-users', [DashboardController::class, 'getTotalUser']);
+Route::get('/admin/stats-user-by-time', [DashboardController::class, 'statsUserByTime']);
+// Đặt bàn
+Route::get('/admin/get-total-res', [DashboardController::class, 'getTotalRes']);
+Route::get('/admin/stats-res-by-time', [DashboardController::class, 'statsResByTime']);
+// Đơn hàng
+Route::get('/admin/get-total-order', [DashboardController::class, 'getTotalOrder']);
+Route::get('/admin/stats-order-by-time', [DashboardController::class, 'statsOrderByTime']);
+// --------------------------------
 
 
 
 
 //adminfood
 Route::get('/admin/foods', [AdminFoodController::class, 'getAllFood']);
-
-//admin combo
-Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
-
 
 //paymentMethod
 Route::get('/payments/info/{id}', [PaymentController::class, 'show']);
