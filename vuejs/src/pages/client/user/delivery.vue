@@ -26,7 +26,8 @@ import { useRoute } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { toast } from 'vue3-toastify'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 // Firebase
 import { ref as dbRef, onValue } from 'firebase/database'
 import { database } from '@/stores/firebase'

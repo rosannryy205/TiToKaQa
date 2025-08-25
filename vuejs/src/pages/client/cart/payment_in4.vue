@@ -382,7 +382,8 @@ import { useShippingStore } from '@/stores/shippingStore'
 import { useUserStore } from '@/stores/userAuth'
 import Swal from 'sweetalert2'
 import { storeToRefs } from 'pinia'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 const shippingStore = useShippingStore()
 const { shippingFee } = storeToRefs(shippingStore)
 
@@ -395,7 +396,7 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `/img/food/${image}`
+      return `${STORAGE_URL}/img/food/${image}`
     },
   },
   setup() {
@@ -806,7 +807,7 @@ export default {
     const fetchShippingServices = async () => {
       if (!selectedDistrict.value) return
       try {
-        const res = await axios.post('http://localhost:8000/api/ghn/service', {
+        const res = await axios.post(`${API_URL}/ghn/service`, {
           to_district_id: selectedDistrict.value,
         })
         shippingServices.value = res.data || []

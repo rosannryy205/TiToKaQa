@@ -264,7 +264,8 @@ import numeral from 'numeral'
 import { computed } from 'vue'
 import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 import { onBeforeRouteLeave } from 'vue-router'
 import { nextTick } from 'vue'
 import axios from 'axios'
@@ -275,7 +276,7 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `/img/food/${image}`
+      return `${STORAGE_URL}/img/food/${image}`
     },
   },
 
