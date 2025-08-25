@@ -72,7 +72,8 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 export default {
   name: 'ForgotPasswordForm',
   data() {
@@ -130,7 +131,7 @@ export default {
 
       this.isLoading = true;
       try {
-        await axios.post('http://127.0.0.1:8000/api/forgot', { email: this.email });
+        await axios.post(`${API_URL}/forgot`, { email: this.email });
 
         this.step = 2;
         this.codeDigits = ['', '', '', '', '', ''];
@@ -187,7 +188,7 @@ export default {
 
       this.isLoading = true;
       try {
-        await axios.post('http://127.0.0.1:8000/api/verify-code', {
+        await axios.post(`${API_URL}/verify-code`, {
           email: this.email,
           code: this.code
         });
@@ -224,7 +225,7 @@ export default {
     async handleResetPassword() {
       this.isLoading = true;
       try {
-        await axios.post('http://127.0.0.1:8000/api/reset-password', {
+        await axios.post(`${API_URL}/reset-password`, {
           email: this.email,
           password: this.newPassword,
           password_confirmation: this.confirmPassword
