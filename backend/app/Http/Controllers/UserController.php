@@ -133,18 +133,22 @@ class UserController extends Controller
         $token = $user->createToken('auth')->plainTextToken;
 
         /**xuly tang dc cho nguoi moi */
-        $newUserDiscounts = Discount::where('user_level', 'new')->get();
+        $newUserDiscounts = Discount::where('user_level', 'new')
+        ->where('status', 'active')
+        ->where('source', 'for_users')
+        ->get();
         $data = [];
-        $now = now();
+        $issuedAt  = now();
+        $expiryAt  = now()->addDays(7);
         foreach ($newUserDiscounts as $discount) {
             $data[$discount->id] = [
                 'point_used' => 0,
-                'exchanged_at' => $now,
-                'expiry_at' => $now->addDays(7),
+                'exchanged_at' => $issuedAt,
+                'expiry_at' => $expiryAt,
                 'used_at' => null,
-                'source' => 'rank_reward',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'source' => 'register_reward',
+                'created_at' => $issuedAt,
+                'updated_at' => $issuedAt,
             ];
         }
         $user->discounts()->attach($data);

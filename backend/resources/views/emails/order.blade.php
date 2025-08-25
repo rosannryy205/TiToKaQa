@@ -103,6 +103,8 @@
                         <p style="margin: 0;"><strong>Tên khách:</strong> {{ $mailData['guest_name'] }}</p>
                         <p style="margin: 5px 0 0 0;"><strong>Số điện thoại:</strong> {{ $mailData['guest_phone'] }}
                         </p>
+                        <p style="margin: 5px 0 0 0;"><strong>Mã đơn hàng dành cho khách không tài khoản:</strong> {{ $mailData['order_code'] }}
+                        </p>
                         <p style="margin: 5px 0 0 0;"><strong>Địa chỉ:</strong> {{ $mailData['guest_address'] }}
                         </p>
                         <p style="margin: 5px 0 0 0; color: #333333"><strong>Trạng thái đơn:</strong>

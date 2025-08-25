@@ -188,15 +188,17 @@ import axios from 'axios'
 import numeral from 'numeral'
 import { FoodList } from '@/stores/food.js'
 import { Modal } from 'bootstrap'
-import { toast } from 'vue3-toastify'
 import { Permission } from '@/stores/permission'
+const router = useRouter()
 import Swal from 'sweetalert2'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
+import { useRouter } from 'vue-router'
 const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
 
 const formatNumber = (value) => numeral(value).format('0,0')
 const getImageUrl = (image) => {
-  return `http://127.0.0.1:8000/storage/img/food/${image}`
+  return `${STORAGE_URL}/img/food/${image}`
 }
 // ============================
 // USER PERMISSION
@@ -219,7 +221,7 @@ const allCatesForAdmin = ref([])
 
 const fetchAllFoodsForCombo = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/foods')
+    const res = await axios.get(`${API_URL}/admin/foods`)
     allFoodsForAdmin.value = res.data || []
   } catch (error) {
     console.error('Lỗi khi lấy dữ liệu thức ăn:', error)
@@ -228,7 +230,7 @@ const fetchAllFoodsForCombo = async () => {
 
 const fetchAllCatesForCombo = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/categories')
+    const res = await axios.get(`${API_URL}/admin/categories`)
     const data = res.data || []
     data.shift()
     allCatesForAdmin.value = data
@@ -423,7 +425,7 @@ const createCombosByAdmin = async () => {
     })
 
     const res = await axios.post(
-      'http://127.0.0.1:8000/api/admin/combos/create',
+      `${API_URL}/admin/combos/create`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )
@@ -439,6 +441,7 @@ const createCombosByAdmin = async () => {
     })
 
     resetForm()
+    router.push('/admin/discounts')
   } catch (error) {
     if (error.response?.status === 422 && error.response.data.errors) {
       const messages = Object.values(error.response.data.errors).flat().join('<br>')

@@ -278,13 +278,14 @@
   </div>
 </template>
 <script>
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import axios from 'axios'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { useRoute } from 'vue-router'
-import Swal from 'sweetalert2';
-import { computed } from 'vue'
+import Swal from 'sweetalert2'
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 
 export default {
   name: 'HomePage',
@@ -307,10 +308,10 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `/img/food/${image}`
+      return `${STORAGE_URL}/img/food/${image}`
     },
     getImageMenuUrl(image) {
-      return `/img/food/imgmenu/${image}`
+      return `${STORAGE_URL}/img/food/imgmenu/${image}`
     },
   },
   setup() {
@@ -424,7 +425,7 @@ export default {
 
         if (categoryId === 14) {
           const comboRes = await axios.get(`${API_URL}/home/combos`)
-          const combosWithType = comboRes.data.map((item) => ({ ...item, type: 'combo' }))
+          const combosWithType = comboRes.data.all.map((item) => ({ ...item, type: 'combo' }))
           allFoods = [...allFoods, ...combosWithType]
         }
 
@@ -598,7 +599,7 @@ export default {
       isLoading.value = true
 
       try {
-        const res = await axios.get('${API_URL}/home/api/foods')
+        const res = await axios.get(`${API_URL}/home/api/foods`)
         foods.value = res.data
         await new Promise((resolve) => setTimeout(resolve, 5000))
       } catch (e) {
@@ -640,6 +641,7 @@ export default {
   },
 }
 </script>
+
 <style scoped>
 .fixed-element {
   position: fixed;

@@ -53,16 +53,18 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { useRoute } from 'vue-router'
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 const flashsaleFoods = ref([])
 const countdown = ref({ h: '00', m: '00', s: '00' })
 let intervalId = null
 
-const getImageUrl = (image) => `http://127.0.0.1:8000/storage/img/food/${image}`
+const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
 const formatCurrency = (value) => Number(value).toLocaleString('vi-VN') + 'đ'
 
 const getFlashSaleFoods = async () => {
   try {
-    const res = await axios.get(`http://127.0.0.1:8000/api/flash-sale/foods`)
+    const res = await axios.get(`${API_URL}/flash-sale/foods`)
     const foods = (res.data.data || []).map(item => ({
       ...item,
       type: 'food'

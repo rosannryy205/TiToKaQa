@@ -44,6 +44,11 @@
     border: 0;
     text-decoration: none;
 
+    span {
+      position: relative;
+      top: -4px;
+    }
+
     &.active,
     &:active {
       color: inherit;

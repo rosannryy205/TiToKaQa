@@ -2,7 +2,7 @@ import axios from 'axios'
 import { ref, onMounted, computed, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
-
+import { API_URL } from '@/config'
 export function Cart() {
   const cartItems = ref([])
   const user = JSON.parse(localStorage.getItem('user')) || {}
@@ -121,7 +121,6 @@ export function Cart() {
 
   const removeItem = (index) => {
     Swal.fire({
-      title: 'Bạn có chắc chắn?',
       text: 'Xoá món này khỏi giỏ hàng?',
       icon: 'warning',
       showCancelButton: true,

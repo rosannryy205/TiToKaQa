@@ -103,7 +103,7 @@
   import { Discounts } from '@/stores/discount'
   import { FoodList } from '@/stores/food'
   import { Permission } from '@/stores/permission'
-  
+  import { API_URL } from '@/config'
   
   const userId = ref(null)
   const { hasPermission } = Permission(userId)
@@ -159,7 +159,7 @@
     error.value = null
     isBootstrapping.value = true
     try {
-      const res  = await axios.get(`http://127.0.0.1:8000/api/admin/luckyprizes/${luckyPrizeId.value}`)
+      const res  = await axios.get(`${API_URL}/admin/luckyprizes/${luckyPrizeId.value}`)
       const data = res.data?.data ?? res.data
       const type = String(data?.type ?? '').toLowerCase()
       const raw  = safeParse(data?.data ?? {})
@@ -233,7 +233,7 @@ async function updatePrize() {
       data: dataField,                                    
     }
 
-    await axios.put(`http://127.0.0.1:8000/api/admin/luckyprize/update/${luckyPrizeId.value}`, payload)
+    await axios.put(`${API_URL}/admin/luckyprize/update/${luckyPrizeId.value}`, payload)
 
     await Swal.fire({
       toast: true, position: 'top-end', icon: 'success',

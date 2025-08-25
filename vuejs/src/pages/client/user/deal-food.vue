@@ -1,6 +1,6 @@
 <template>
   <div class="container py-3 position-relative col-12 col-md-8 col-lg-9">
-    <h4 class="fw-bold mb-3 text-danger">Deal Món Đã Nhận</h4>
+    <h4 class="fw-bold mb-3">Deal món đã nhận</h4>
     <div class="d-flex border-bottom mb-3" style="gap: 20px; font-size: 14px">
       <div
         v-for="(tab, index) in tabs"
@@ -28,7 +28,7 @@
         <div class="deal-card d-flex align-items-center rounded p-3 w-100 shadow-sm">
           <div class="me-3 d-flex align-items-center justify-content-center" style="width: 60px">
             <img
-              :src="`/public/img/food/${deal.food_snapshot?.image}`"
+               :src="getImageUrl(deal.food_snapshot?.image)"
               alt="food"
               class="rounded"
               style="width: 50px; height: 50px; object-fit: cover"
@@ -67,19 +67,20 @@ import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userAuth'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 const dealsFood = ref([])
 const activeTab = ref(0)
 const router = useRouter()
 const userStore = useUserStore()
-
+const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
 const tabs = ref([
   { label: 'Tất cả', count: 0 },
   { label: 'Deal hết hạn', count: 0 }
 ])
 
 const getDealsFood = async () => {
-  const res = await axios.get('http://localhost:8000/api/deals-food', {
+  const res = await axios.get(`${API_URL}/deals-food`, {
     headers: { Authorization: `Bearer ${userStore.token}` },
   })
 
@@ -92,6 +93,7 @@ const getDealsFood = async () => {
     tabs.value[1].count = expiredCount
   }
 }
+
 const formatDate = (dateStr) => {
   if (!dateStr) return null
   const date = new Date(dateStr)
@@ -103,6 +105,7 @@ const formatDate = (dateStr) => {
     year: 'numeric',
   })
 }
+
 const isExpired = (expired_at) => {
   if (!expired_at) return false
   return new Date(expired_at) < new Date()
@@ -114,6 +117,7 @@ const filteredDealsFood = computed(() => {
   }
   return dealsFood.value
 })
+
 const useDealNow = (deal) => {
   const userId = userStore.user.id
   const cartKey = `cart_${userId}`

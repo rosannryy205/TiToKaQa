@@ -103,7 +103,7 @@ import { Discounts } from '@/stores/discount'
 import { FoodList } from '@/stores/food'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
-
+import { API_URL } from '@/config'
 const router = useRouter()
 const submitting = ref(false)
 const { discounts, getAllDiscount } = Discounts()
@@ -163,7 +163,7 @@ async function submitPrize() {
 
     payload.data = JSON.stringify(payload.data)
 
-    await axios.post('http://localhost:8000/api/admin/luckyprize/create', payload)
+    await axios.post(`${API_URL}/admin/luckyprize/create`, payload)
 
     resetForm()
     await Swal.fire({

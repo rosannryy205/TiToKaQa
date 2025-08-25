@@ -245,10 +245,10 @@ export default {
     }
 
     onMounted(() => {
-      for (let hour = 8; hour <= 21; hour++) {
+      for (let hour = 8; hour <= 20; hour++) {
         let hourStr = hour < 10 ? '0' + hour : '' + hour
         timeOptions.value.push(hourStr + ':00')
-        if (hour !== 20) {
+        if (hour < 21) {
           timeOptions.value.push(hourStr + ':30')
         }
       }

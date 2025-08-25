@@ -18,7 +18,8 @@
       <!-- Danh sách sản phẩm -->
       <div class="col-12 col-lg-8 mb-4">
         <!-- Sản phẩm -->
-        <div class="card mb-3" v-for="(item, index) in cartItems" :key="index">
+        <div class="card mb-3" v-for="(item, index) in cartItems" :key="index"
+        @click="openModalToEditTopping(item, index)">
           <div class="card-body d-flex align-items-center flex-wrap">
             <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
             <img :src="getImageUrl(item.image)" class="cart-img me-3 mb-2" alt="Mì kim chi Nha Trang" />
@@ -27,9 +28,16 @@
               <h5 class="mb-1 product-title">
                 <strong>{{ item.name }}</strong>
               </h5>
-              <h5 v-if="item.is_flash_sale" class="mb-1 product-title">
+              <template v-if="item.is_flash_sale">
+                <h5 class="mb-1 product-title">
                 <strong>Flashsale</strong>
               </h5>
+              </template>
+              <template v-else-if="item.is_deal">
+                <h5 class="mb-1 product-title">
+                <strong>Deal</strong>
+              </h5>
+              </template>
               <p class="text-muted mb-2">{{ item.spicyLevel }}</p>
 
               <p class="text-muted mb-2">
@@ -58,15 +66,6 @@
             <div class="mb-2 price text-end fixed-price-width">
               <strong class="price-text">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
             </div>
-            <!-- Nút chọn topping góc dưới bên phải -->
-            <button
-              v-if="!item.is_flash_sale"
-              class="btn btn-outline-primary btn-sm position-absolute m-2"
-              style="bottom: 0; right: 0"
-              @click="openModalToEditTopping(item, index)"
-            >
-              Topping
-            </button>
           </div>
         </div>
       </div>

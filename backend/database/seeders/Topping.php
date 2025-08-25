@@ -70,6 +70,11 @@ class Topping extends Seeder
                 'category_id' => 16
             ],
             [
+                'name' => 'Cấp 0', // id 12
+                'price' => null,
+                'category_id' => 15
+            ],
+            [
                 'name' => 'Cấp 1', // id 12
                 'price' => null,
                 'category_id' => 15
