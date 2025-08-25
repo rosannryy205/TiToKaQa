@@ -4,11 +4,7 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-4 mb-4 text-start">
-<<<<<<< HEAD
             <img src="/img/logonew.png" alt="logo-footer" width="100px" />
-=======
-            <img src="/img/logonew.png" alt="logo-footer" width="150px" />
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             <p class="text-start">
               Mỳ Cay TITOKAQA chuyên phục vụ các món mì cay chuẩn vị Hàn Quốc, kết hợp nguyên liệu
               tươi ngon và công thức đặc biệt.
@@ -41,17 +37,11 @@
             <h5 class="fw-bold" style="color: #c92c3c">Đăng Ký Nhận Tin</h5>
             <p>Nhận thông tin khuyến mãi và món mới từ Mỳ Cay TITOKAQA.</p>
             <div class="input-group">
-<<<<<<< HEAD
               <input type="email" class="form-control" placeholder="Nhập email của bạn" v-model="quickEmail" />
 
               <button class="btn btn-danger-customer" :disabled="loading" @click="handleQuickRegister"
                 style="background-color: rgb(199, 11, 11)">
                 {{ loading ? 'Đang gửi...' : 'Đăng Ký' }}
-=======
-              <input type="email" class="form-control" placeholder="Nhập email của bạn" />
-              <button style="background-color: rgb(199, 11, 11)" class="btn btn-danger-customer">
-                Đăng Ký
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
               </button>
             </div>
           </div>
@@ -73,7 +63,6 @@
 </template>
 
 <script>
-<<<<<<< HEAD
 import axios from 'axios';
 import { API_URL } from '@/config';
 import { ref } from 'vue';
@@ -144,8 +133,3 @@ export default {
 
 
 </script>
-=======
-
-</script>
-
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
