@@ -34,4 +34,8 @@ class Kernel extends ConsoleKernel
        Commands\CleanUpFlashSale::class,
     
     ];
+    protected function scheduleTimezone()
+{
+    return 'Asia/Ho_Chi_Minh';
+}
 }
