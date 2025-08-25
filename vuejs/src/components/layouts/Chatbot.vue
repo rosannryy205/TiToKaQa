@@ -3,14 +3,11 @@
     <div class="chat-toggle-btn" @click="toggleChat">
       <span v-if="!showChat"><i class="bi bi-chat-dots"></i></span>
       <span v-else class="icon-x"><i class="bi bi-x"></i></span>
-<<<<<<< HEAD
-=======
 
       <!-- Vòng tỏa sáng -->
       <span class="ripple ripple1"></span>
       <span class="ripple ripple2"></span>
       <span class="ripple ripple3"></span>
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     </div>
 
     <div v-if="showChat" class="chat-wrapper">
@@ -987,8 +984,6 @@ export default {
 }
 </script>
 <style scoped>
-<<<<<<< HEAD
-=======
 .chat-toggle-btn {
     position: fixed;
     bottom: 20px;
@@ -1053,7 +1048,6 @@ export default {
     }
 }
 
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 .icon-x {
   color: #ffffff;
 }
