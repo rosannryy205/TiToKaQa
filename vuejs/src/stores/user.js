@@ -3,7 +3,6 @@ import axios from 'axios'
 import { form } from '@/stores/userForm'
 import Swal from 'sweetalert2'
 import { API_URL } from '@/config'
-import { STORAGE_URL } from '@/config'
 export const User = {
   setup() {
     const user = ref(null)
@@ -47,7 +46,7 @@ export const User = {
       if (form.avatar.startsWith('http://') || form.avatar.startsWith('https://')) {
         return form.avatar;
       }
-      return `${STORAGE_URL}/${form.avatar}`;
+      return `http://127.0.0.1:8000/storage/${form.avatar}`;
     });
     const handleImageUpload = async (event) => {
       const file = event.target.files[0];
