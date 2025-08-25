@@ -9,12 +9,9 @@ return new class extends Migration {
     {
         Schema::create('food_posts', function (Blueprint $table) {
             $table->id();
-<<<<<<< HEAD
-=======
             $table->foreignId('user_id')
                   ->constrained('users')
                   ->onDelete('cascade');
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             $table->enum('category', ['Ẩm thực', 'Khuyến mãi', 'Tin tức']);
             $table->string('title');
             $table->longText('content'); // Nội dung bài viết dài
@@ -31,7 +28,3 @@ return new class extends Migration {
         Schema::dropIfExists('food_posts');
     }
 };
-<<<<<<< HEAD
-
-=======
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f

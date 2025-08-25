@@ -297,7 +297,7 @@ import { FoodList } from '@/stores/food'
 import { useRouter } from 'vue-router'
 import { Permission } from '@/stores/permission'
 import Swal from 'sweetalert2';
-
+import { API_URL } from '@/config'
 
 export default {
   components: {
@@ -333,11 +333,7 @@ export default {
       spicyLevel,
       toppingList,
     } = FoodList.setup()
-<<<<<<< HEAD
-
-=======
-    const API_URL = "http://127.0.0.1:8000/api"
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
+    const API_FE = 'http://titokaqarestaurant.online'
     const router = useRouter()
     const isLoading = ref(false)
     const selectfood = ref(null)
@@ -377,11 +373,7 @@ export default {
 
     const getAllUser = async () => {
       try {
-<<<<<<< HEAD
-        const res = await axios.get('http://127.0.0.1:8000/api/user')
-=======
         const res = await axios.get(`${API_URL}/user`)
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
         const guestDefaultOption = {
           id: 'guest',
@@ -477,11 +469,7 @@ export default {
           type_order: 'takeaway',
         }
 
-<<<<<<< HEAD
-        const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/ordertakecaway', orderData)
-=======
         const orderCreationResponse = await axios.post(`${API_URL}/ordertakecaway`, orderData)
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         if (orderCreationResponse.data && orderCreationResponse.data.order_id) {
           current_order_id.value = orderCreationResponse.data.order_id
           Swal.fire({
@@ -507,14 +495,10 @@ export default {
           return
         }
         if (paymentMethod.value === 'VNPAY') {
-<<<<<<< HEAD
-          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
-=======
           const paymentRes = await axios.post(`${API_URL}/payments/vnpay-init`, {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             order_id: current_order_id.value,
             amount: totalPrice.value,
-            return_url: 'http://localhost:5173/admin/tables/current-order',
+            return_url: `${API_FE}/admin/tables/current-order`,
           })
           if (paymentRes.data.payment_url) {
             localStorage.setItem('payment_method', paymentMethod.value)
@@ -563,11 +547,7 @@ export default {
         }
         if (paymentMethod.value === 'COD') {
           await new Promise((resolve) => setTimeout(resolve, 300))
-<<<<<<< HEAD
-          await axios.post('http://127.0.0.1:8000/api/payments/cod-payment', {
-=======
           await axios.post(`${API_URL}/payments/cod-payment`, {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             order_id: current_order_id.value,
             amount_paid: totalPrice.value,
             payment_type: 'Thanh toán toàn bộ',

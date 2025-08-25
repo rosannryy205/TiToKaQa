@@ -38,12 +38,8 @@ import { Info } from "@/stores/info-order-reservation";
 import { ref, onMounted, computed } from "vue";
 import axios from 'axios';
 import OrderSummary from "./OrderSummary.vue";
-<<<<<<< HEAD
 import { API_URL } from '@/config'
 import { STORAGE_URL } from '@/config'
-=======
-
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 export default {
   components: { OrderSummary },
   setup() {
@@ -57,11 +53,7 @@ export default {
 
     const getOrder = async (orderId) => {
       try {
-<<<<<<< HEAD
         const res = await axios.get(`${API_URL}/get-order-reservation-info`, {
-=======
-        const res = await axios.get('http://127.0.0.1:8000/api/get-order-reservation-info', {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           params: { type: 'order_id', value: orderId }
         });
         orders.value = res.data.orders || [];
@@ -98,15 +90,9 @@ export default {
         let response;
 
         if (selectedMethod.value === "VNPAY") {
-<<<<<<< HEAD
           response = await axios.get(`${API_URL}/payments/vnpay-return`, { params });
         } else if (selectedMethod.value === "MOMO") {
           response = await axios.get(`${API_URL}/payments/momo-return`, { params });
-=======
-          response = await axios.get("http://127.0.0.1:8000/api/payments/vnpay-return", { params });
-        } else if (selectedMethod.value === "MOMO") {
-          response = await axios.get("http://127.0.0.1:8000/api/payments/momo-return", { params });
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         } else {
           isPaidSuccess.value = true;
           paymentMessage.value = 'Thanh toán bằng tiền mặt (COD) không cần xác minh.';

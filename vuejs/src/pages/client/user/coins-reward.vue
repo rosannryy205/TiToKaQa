@@ -34,11 +34,7 @@
           ]"
         >
           <img
-<<<<<<< HEAD
                :src="getImageUrl(category.images)"
-=======
-            :src="`/img/food/imgmenu/${category.images}`"
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             class="category-icon me-2"
             :alt="category.name"
           />
@@ -192,11 +188,7 @@ import { useUserStore } from '@/stores/userAuth'
 import { FoodList } from '@/stores/food'
 import { Discounts } from '@/stores/discount'
 import { API_URL } from '@/config'
-<<<<<<< HEAD
 import { STORAGE_URL } from '@/config'
-=======
-
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const userStore = useUserStore()
 const { getCategory, categories } = FoodList.setup()
 const { getImageByType, formatCurrency, fetchUserDiscounts, userDiscounts } = Discounts()
@@ -211,11 +203,7 @@ const conditionModalRef = ref(null)
 let conditionModalInstance = null
 const selectedVoucherCondition = ref('')
 const selectedVoucherName = ref('')
-<<<<<<< HEAD
 const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
-=======
-
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const getPointExchangeDiscounts = async () => {
   try {
     const response = await axios.get(`${API_URL}/discounts`, {

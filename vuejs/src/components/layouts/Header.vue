@@ -58,7 +58,7 @@
                 <ul v-if="suggestions.length && showSuggestions" class="suggestion-dropdown"
                   @scroll.passive="handleScroll">
                   <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
-                    <img style="width: 50px;" :src="'http://127.0.0.1:8000/storage/img/food/' + item.image"
+                    <img style="width: 50px;"   :src="getImageUrl(item.image)"
                       :alt="item.name" class="me-2  img-search" />
                     <div class="info-search">
                       <div class="name-search">{{ item.name }}</div>
@@ -116,19 +116,12 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav offcanvas-nav-links mb-4">
           <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-<<<<<<< HEAD
               <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
         </ul>
-=======
-          <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
-        </ul>
-
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         <div class="mobile-actions">
           <div class="input-wrapper position-relative mb-3">
             <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24"
@@ -186,7 +179,7 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name"
+                <img :src="getImageUrl(foodDetail.image)"
                   class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
@@ -293,12 +286,13 @@ import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick } from 'vue'
 import { toast } from 'vue3-toastify';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 // const { formattedTime, isCounting, startCountdown } = useCountdown(60);
 const auth = useAuthStore();
 //Google
 const loginWithGoogle = () => {
-  window.location.href = 'http://localhost:8000/api/auth/google/redirect';
+  window.location.href = `${API_URL}/auth/google/redirect`;
 };
 
 const router = useRouter();
@@ -323,7 +317,7 @@ const handleLogout = async () => {
   }
 
   try {
-    await axios.post('http://127.0.0.1:8000/api/logout', {}, {
+    await axios.post(`${API_URL}/logout`, {}, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -384,7 +378,7 @@ const order_id = parseInt(localStorage.getItem('order_id'))
 
 
 const formatNumber = (num) => new Intl.NumberFormat().format(num);
-const getImageUrl = (img) => `http://127.0.0.1:8000/storage/img/food/${img}`;
+const getImageUrl = (img) => `${STORAGE_URL}/img/food/${img}`;
 
 // Hàm lấy dữ liệu từ API
 const fetchSuggestions = async () => {
@@ -392,7 +386,7 @@ const fetchSuggestions = async () => {
 
   loading.value = true;
   try {
-    const res = await axios.get('http://localhost:8000/api/search', {
+    const res = await axios.get(`${API_URL}/search`, {
       params: {
         search: searchQuery.value,
         offset: offset.value,
@@ -470,10 +464,10 @@ const openModal = async (item) => {
   quantity.value = 1
   try {
     if (item.type === 'food') {
-      const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+      const res = await axios.get(`${API_URL}/home/food/${item.id}`)
       foodDetail.value = { ...res.data, type: 'Food' }
 
-      const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+      const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
       toppings.value = res1.data
 
       spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
@@ -482,7 +476,7 @@ const openModal = async (item) => {
         item.price = item.price || 0
       })
     } else if (item.type === 'combo') {
-      const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+      const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
       foodDetail.value = { ...res.data, type: 'Combo' }
     }
 
@@ -683,7 +677,7 @@ const makeReservationQuickly = async () => {
     const reserved_from = formatDateTime(reservedFrom)
     const reserved_to = formatDateTime(reservedTo)
 
-    const res = await axios.post('http://127.0.0.1:8000/api/make-reservation-quickly', {
+    const res = await axios.post(`${API_URL}/make-reservation-quickly`, {
       reserved_from,
       reserved_to,
       number_of_guests: guest_count.value,
@@ -764,22 +758,14 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-<<<<<<< HEAD
   padding: 7px;
   height: 38px;
   width: 187px;
-=======
-  padding: 9px 12px;
-  gap: 8px;
-  height: 40px;
-  width: 201px;
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
   border: none;
   background: #FF342B;
   border-radius: 20px;
   cursor: pointer;
 }
-<<<<<<< HEAD
 @media (max-width: 991.98px) {
   .button {
   height: 35px;
@@ -790,8 +776,6 @@ onBeforeUnmount(() => {
   height: 22px;
 }
 }
-=======
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
 .lable {
   line-height: 22px;

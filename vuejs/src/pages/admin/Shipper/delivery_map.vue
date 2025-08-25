@@ -27,13 +27,10 @@
                   {{ order?.data?.guest_phone }}
                 </span>
               </p>
-<<<<<<< HEAD
-=======
               <p class="mb-1">
                 <strong>📝 Ghi chú:</strong>
                 {{ order?.data?.note ? order.data.note : 'Không có' }}
               </p>
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             </div>
 
             <!-- Bản đồ giao hàng -->
@@ -85,11 +82,7 @@ import Swal from 'sweetalert2'
 import { set, ref as dbRef } from 'firebase/database'
 import { database } from '@/stores/firebase'
 import { remove } from 'firebase/database'
-<<<<<<< HEAD
-
-=======
-const API_URL = "http://127.0.0.1:8000/api"
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
+import { API_URL } from '@/config'
 const goBack = () => window.history.back()
 const route = useRoute()
 const order_id = route.params.id
@@ -235,11 +228,7 @@ const updateMap = async () => {
 
 const changeStatus = async (newStatus) => {
   try {
-<<<<<<< HEAD
-    const response = await axios.put(`http://127.0.0.1:8000/api/update/${order_id}/status`, {
-=======
     const response = await axios.put(`${API_URL}/update/${order_id}/status`, {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
       order_status: newStatus
     })
 
@@ -256,20 +245,12 @@ const changeStatus = async (newStatus) => {
 
       if (newStatus === 'Giao thành công' || newStatus === 'Giao thất bại') {
         const shipperId = JSON.parse(localStorage.getItem('user'))?.id
-<<<<<<< HEAD
-        const res = await axios.get(`http://127.0.0.1:8000/api/shipper/${shipperId}/active-orders`)
-=======
         const res = await axios.get(`${API_URL}/shipper/${shipperId}/active-orders`)
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         const remainingOrders = res.data.orders || []
 
         const newPos = remainingOrders.length < 1 ? restaurant.value : customer.value
 
-<<<<<<< HEAD
-        await axios.post('http://127.0.0.1:8000/api/shipper/update-location', {
-=======
         await axios.post(`${API_URL}/shipper/update-location`, {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           shipper_id: shipperId,
           lat: newPos.lat,
           lng: newPos.lng,
@@ -319,11 +300,7 @@ const changeStatus = async (newStatus) => {
 }
 
 const fetchOrder = async () => {
-<<<<<<< HEAD
-  const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${order_id}`)
-=======
   const res = await axios.get(`${API_URL}/delivery/${order_id}`)
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
   order.value = res.data
 }
 
