@@ -108,8 +108,7 @@ import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import axios from "axios";
 import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router';
-import { API_URL } from '@/config'
-import { STORAGE_URL } from '@/config'
+
 export default {
   setup() {
     const userData = localStorage.getItem("user");
@@ -149,7 +148,7 @@ export default {
       console.log("Đang gọi API lấy lịch sử đơn hàng...");
       try {
         const res = await axios.get(
-          `${API_URL}/order-history-info`, {
+          `http://127.0.0.1:8000/api/order-history-info`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -200,7 +199,7 @@ export default {
       isLoading.value = true;
 
       try {
-        const res = await axios.post(`${API_URL}/reorder/${orderId}`, {}, {
+        const res = await axios.post(`http://127.0.0.1:8000/api/reorder/${orderId}`, {}, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           }

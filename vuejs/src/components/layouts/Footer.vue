@@ -4,7 +4,7 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-4 mb-4 text-start">
-            <img src="/img/logonew.png" alt="logo-footer" width="100px" />
+            <img src="/img/logonew.png" alt="logo-footer" width="150px" />
             <p class="text-start">
               Mỳ Cay TITOKAQA chuyên phục vụ các món mì cay chuẩn vị Hàn Quốc, kết hợp nguyên liệu
               tươi ngon và công thức đặc biệt.

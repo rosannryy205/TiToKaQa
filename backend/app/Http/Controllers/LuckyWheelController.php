@@ -51,13 +51,13 @@ class LuckyWheelController extends Controller
     {
         $user = auth()->user();
 
-        $alreadySpun = LuckyWheelSpin::where('user_id', $user->id)
-            ->whereDate('spun_at', today())
-            ->exists();
+        // $alreadySpun = LuckyWheelSpin::where('user_id', $user->id)
+        //     ->whereDate('spun_at', today())
+        //     ->exists();
 
-        if ($alreadySpun) {
-            return response()->json(['message' => 'Bạn đã quay hôm nay rồi.'], 403);
-        }
+        // if ($alreadySpun) {
+        //     return response()->json(['message' => 'Bạn đã quay hôm nay rồi.'], 403);
+        // }
 
         $prizes = LuckyWheelPrize::all();
         $weighted = [];
