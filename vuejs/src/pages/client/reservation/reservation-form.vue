@@ -224,17 +224,16 @@ import Swal from 'sweetalert2'
 import { Info } from '@/stores/info-order-reservation'
 import { FoodList } from '@/stores/food'
 import { nextTick } from 'vue'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 export default {
   methods: {
     formatNumber(value) {
       return numeral(value).format("0,0");
     },
-    getImageUrl(image) {
-      return `/img/food/${image}`;
-    },
   },
   setup() {
+    const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
     const note = ref("");
     const isLoading = ref(false);
     const route = useRoute();
@@ -271,7 +270,7 @@ export default {
           minutes.value = 0;
           seconds.value = 0;
           await axios.put(
-            `http://127.0.0.1:8000/api/order-history-info/cancel/${orderId}`
+            `${API_URL}/order-history-info/cancel/${orderId}`
           );
           localStorage.removeItem(`cart_${userId}_reservation_${orderId}`)
           Swal.fire({
@@ -346,10 +345,10 @@ export default {
           })),
         };
 
-        await axios.post("http://127.0.0.1:8000/api/reservation", orderData);
+        await axios.post(`${API_URL}/reservation`, orderData);
 
         if (orderData.discount_id) {
-          await axios.post("http://localhost:8000/api/discounts/use", {
+          await axios.post(`${API_URL}/discounts/use`, {
             discount_id: orderData.discount_id,
             order_id: orderId,
           });
@@ -371,7 +370,7 @@ export default {
             });
             return;
           }
-          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+          const paymentRes = await axios.post(`${API_URL}/payments/vnpay-init`, {
             order_id: orderId,
             amount: tableKeeping,
           })
@@ -631,6 +630,7 @@ export default {
     return {
       orderId,
       form,
+      getImageUrl,
       user,
       user1,
       note,
