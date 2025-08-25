@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('image');
             $table->enum('status', ['active', 'inactive']);
             $table->string('description');
+            $table->unsignedInteger('quantity_sold')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

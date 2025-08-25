@@ -190,7 +190,8 @@ import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 
 
 // ================== BIẾN & ROUTE ==================
@@ -203,7 +204,7 @@ const imagePreview = ref('')
 const selectedFoods = ref([])
 
 const getImageUrl = (image) => {
-  return `http://127.0.0.1:8000/storage/img/food/${image}`
+  return `${STORAGE_URL}/img/food/${image}`
 }
 // ================== STORE GỌI TỪ PINIA ==================
 const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
@@ -236,7 +237,7 @@ const recalculateComboPrice = () => {
 // ================== HÀM LẤY DỮ LIỆU BAN ĐẦU ==================
 async function fetchComboById() {
   try {
-    const res = await axios.get(`http://127.0.0.1:8000/api/admin/combos/${comboId}`)
+    const res = await axios.get(`${API_URL}/admin/combos/${comboId}`)
     const combo = res.data
 
     selectedCombo.value = {
@@ -253,7 +254,7 @@ async function fetchComboById() {
       }))
     }
 
-    imagePreview.value = `http://127.0.0.1:8000/storage/img/food/${combo.image}`
+    imagePreview.value = `${STORAGE_URL}/img/food/${combo.image}`
   } catch (error) {
     console.error(error)
     toast.error('Lỗi khi tải combo!')
@@ -344,7 +345,7 @@ async function updateCombo() {
     formData.append('name', selectedCombo.value.name)
     formData.append('price', selectedCombo.value.price)
     formData.append('description', selectedCombo.value.description || '')
-    formData.append('status', selectedCombo.value.status || 'active')
+    formData.append('status', selectedCombo.value.status)
 
     if (imageFile.value) {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
@@ -378,7 +379,7 @@ async function updateCombo() {
     formData.append('foods', JSON.stringify(foods))
 
     await axios.post(
-      `http://127.0.0.1:8000/api/admin/combos/update/${comboId}`,
+      `${API_URL}/admin/combos/update/${comboId}`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )
@@ -408,7 +409,6 @@ setTimeout(() => {
     })
   }
 }
-// ================== KHỞI TẠO ==================Add commentMore actions
 onMounted(() => {
   fetchComboById()
 })

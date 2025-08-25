@@ -2,7 +2,8 @@ import axios from 'axios'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import numeral from 'numeral'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 export const Info = {
   setup() {
     const info = ref({});
@@ -12,7 +13,7 @@ export const Info = {
 
     const getInfo = async (type, orderId) => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/order-reservation-info', {
+        const res = await axios.get(`${API_URL}/order-reservation-info`, {
           params: {
             value: orderId,
             type: type
@@ -30,7 +31,7 @@ export const Info = {
     }
 
     const getImageUrl = (image) => {
-      return `/img/food/${image}`
+      return `${STORAGE_URL}/img/food/${image}`
     }
     const formatDate = (dateStr) => {
       if (!dateStr) return '';

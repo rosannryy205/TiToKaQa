@@ -8,25 +8,23 @@
           <div class="countdown">
             <span class="countdown-label">Kết thúc trong</span>
             <div class="countdown-timer">
-              <span class="timer-box">{{ countdown.h }}</span
-              >: <span class="timer-box">{{ countdown.m }}</span
-              >:
+              <span class="timer-box">{{ countdown.h }}</span>: <span class="timer-box">{{ countdown.m }}</span>:
               <span class="timer-box">{{ countdown.s }}</span>
             </div>
           </div>
         </div>
         <a href="#" class="view-all-btn">Xem tất cả ></a>
       </div>
-
       <!-- Product List -->
       <div class="product-list">
         <div class="product-card" v-for="(food, index) in flashsaleFoods" :key="index"
-        :class="{ 'sold-out': food.is_sold_out }">
+          :class="{ 'sold-out': food.is_sold_out }">
           <div class="product-image-wrapper">
             <img :src="getImageUrl(food.image)" :alt="food.name" />
             <button class="cart-icon-btn" @click="addToCartFlashSale(food)">
               <i class="bi bi-cart"></i>
             </button>
+
           </div>
           <div class="product-info">
             <h3 class="product-name text-center">{{ food.name }}</h3>
@@ -37,7 +35,6 @@
                 <span class="product-badge-inline">-{{ food.discount_percent }}%</span>
               </div>
             </div>
-
             <div class="progress-bar">
               <span class="progress-bar-sold">{{ food.progress_label }}</span>
             </div>
@@ -53,19 +50,21 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { useRoute } from 'vue-router'
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 const flashsaleFoods = ref([])
 const countdown = ref({ h: '00', m: '00', s: '00' })
 let intervalId = null
 
-const getImageUrl = (image) => `/img/food/${image}`
+const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
 const formatCurrency = (value) => Number(value).toLocaleString('vi-VN') + 'đ'
 
 const getFlashSaleFoods = async () => {
   try {
-    const res = await axios.get(`http://127.0.0.1:8000/api/flash-sale/foods`)
+    const res = await axios.get(`${API_URL}/flash-sale/foods`)
     const foods = (res.data.data || []).map(item => ({
       ...item,
-      type: 'Food'
+      type: 'food'
     }))
 
     flashsaleFoods.value = foods.map((item) => {
@@ -273,14 +272,17 @@ onUnmounted(() => {
   font-weight: 500;
   white-space: nowrap;
 }
+
 .time-slots-wrapper {
   overflow-x: auto;
   padding-bottom: 10px;
   margin-bottom: 16px;
 }
+
 .time-slots-wrapper::-webkit-scrollbar {
   display: none;
 }
+
 .time-slots-wrapper {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -321,10 +323,12 @@ onUnmounted(() => {
   font-size: 12px;
   color: var(--text-secondary);
 }
+
 .slot.active .slot-status {
   color: var(--primary-color);
   font-weight: 500;
 }
+
 .product-list {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -343,6 +347,7 @@ onUnmounted(() => {
     gap: 8px;
   }
 }
+
 .product-card {
   background: var(--card-background);
   border-radius: 8px;
@@ -443,35 +448,43 @@ onUnmounted(() => {
   line-height: 18px;
   text-transform: uppercase;
 }
+
 @media (max-width: 768px) {
   .title {
     font-size: 20px;
   }
+
   .header-left {
     gap: 8px;
     flex-direction: column;
     align-items: flex-start;
   }
 }
+
 @media (max-width: 480px) {
   .product-list {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
+
   .product-info {
     padding: 8px;
   }
+
   .product-name {
     font-size: 13px;
     height: 36.4px;
   }
+
   .price strong {
     font-size: 16px;
   }
 }
+
 del {
   text-decoration: line-through;
 }
+
 .cart-icon-btn {
   position: absolute;
   top: 0px;
@@ -498,6 +511,7 @@ del {
 .product-image-wrapper {
   position: relative;
 }
+
 /**disable card */
 .product-card.sold-out {
   opacity: 0.6;
@@ -517,5 +531,4 @@ del {
   font-size: 16px;
   border-radius: 4px;
 }
-
 </style>

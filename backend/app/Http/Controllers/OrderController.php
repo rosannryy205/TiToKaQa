@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\OrderResource;
 use App\Jobs\SendReservationMail;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Mail\ReservationMail;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Models\Food;
 use App\Models\Food_topping;
+use App\Models\Payment;
 use App\Models\Reservation_table;
 use App\Models\Table;
 use App\Models\User;
@@ -21,6 +23,7 @@ use Carbon\Carbon;
 use DateTime;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 
 Carbon::setLocale('vi');
 date_default_timezone_set('Asia/Ho_Chi_Minh');
@@ -258,9 +261,9 @@ class OrderController extends Controller
                     'note' => $request->note ?? null,
                     'total_price' => $request->total_price ?? null,
                     'money_reduce' => $request->money_reduce ?? null,
+                    'table_fee' => $request->table_fee,
                     'order_status' => 'Đã xác nhận',
                     'reservation_code' => $this->generateReservationCode(),
-
                 ]);
             } else {
                 $orderTime = Carbon::now();
@@ -276,6 +279,7 @@ class OrderController extends Controller
                     'note' => $request->note ?? null,
                     'total_price' => $request->total_price ?? null,
                     'money_reduce' => $request->money_reduce ?? null,
+                    'table_fee' => $request->table_fee ?? 0,
                     'order_status' => 'Đã xác nhận',
                     'reservation_code' => $this->generateReservationCode(),
                 ]);
@@ -330,7 +334,7 @@ class OrderController extends Controller
                         }
                     }
                 }
-                }
+            }
 
             //     foreach ($request->order_detail as $item) {
             //         $name = null;
@@ -748,7 +752,15 @@ class OrderController extends Controller
                 'reservation_status' => $table->pivot->reservation_status,
             ];
         });
-        $paymentInfo  = optional($reservation->payment);
+        $paymentInfo = $reservation->payment->map(function ($p) {
+            return [
+                'payment_id' => $p->id,
+                'payment_method' => $p->payment_method,
+                'payment_status' => $p->payment_status,
+                'amount_paid' => $p->amount_paid,
+                'payment_time' => $p->payment_time,
+            ];
+        });
 
         return response()->json([
             'status' => true,
@@ -763,6 +775,7 @@ class OrderController extends Controller
                 'total_price' => $reservation->total_price,
                 'tpoint_used' => $reservation->tpoint_used,
                 'ship_cost' => $reservation->ship_cost,
+                'table_fee' => $reservation->table_fee,
                 'comment' => $reservation->comment,
                 'review_time' => $reservation->review_time,
                 'rating' => $reservation->rating,
@@ -778,12 +791,8 @@ class OrderController extends Controller
                 'expiration_time' => $reservation->expiration_time,
                 'details' => $details,
                 'tables' => $tables,
-                'payment_info' => [
-                    'payment_id' => $paymentInfo->id,
-                    'payment_method' => $paymentInfo->payment_method,
-                    'payment_status' => $paymentInfo->payment_status,
-                ],
-
+                'payment_info' => $paymentInfo,
+                'total_paid' => $reservation->payment->sum('amount_paid'),
             ]
         ], 200);
     }
@@ -818,6 +827,136 @@ class OrderController extends Controller
         ]);
     }
 
+    /**huy don cho guess */
+    public function lookup(Request $request)
+    {
+        $request->validate([
+            'phone' => ['nullable','string','min:4','max:20'],
+            'code'  => ['nullable','string','max:64'],
+            'limit' => ['nullable','integer','min:1','max:5'],
+        ]);
+    
+        if (!$request->filled('phone') && !$request->filled('code')) {
+            return response()->json(['message' => 'Vui lòng nhập SĐT hoặc mã đơn.'], 422);
+        }
+    
+        $q = Order::query()->select(['id','order_code','order_status','ship_cost','total_price', 'order_time'])
+        ->orderByDesc('order_time');
+    
+        if ($request->filled('phone')) {
+            $q->where('guest_phone', 'like', '%'.$request->input('phone').'%');
+        }
+        if ($request->filled('code')) {
+            $q->where('order_code', $request->input('code'));
+            $q->with([
+                'details:id,order_id,food_id,combo_id,quantity,price,is_flash_sale',
+                'details.foods:id,name,image',
+                'details.combos:id,name,image',
+            ]);
+        } else {
+            $q->limit($request->integer('limit', 5));
+        }
+    
+        return OrderResource::collection($q->get());
+    }
+    
+    public function show(Request $request, string $code)
+    {
+        $q = Order::query()
+          ->select(['id','order_code','order_status','ship_cost','total_price','order_time'])
+          ->where('order_code', $code)
+          ->orderByDesc('order_time');
+    
+        if ($request->filled('phone')) {
+            $q->where('guest_phone', 'like', '%'.$request->input('phone').'%');
+        }
+    
+        $q->with([
+            'details:id,order_id,food_id,combo_id,quantity,price,is_flash_sale',
+            'details.foods:id,name,image',
+            'details.combos:id,name,image',
+        ]);
+    
+        $order = $q->first();
+    
+        if (!$order) {
+            return response()->json(['message' => 'Không tìm thấy đơn.'], 404);
+        }
+    
+        return new OrderResource($order);
+    }
+    
+    public function cancelByConfirm(Request $request, string $code)
+    {
+        $data = $request->validate([
+            'confirm' => ['required','string','max:32'],
+            'reason'  => ['nullable','string','max:255'],
+        ]);
+    
+        $confirm = mb_strtolower(trim($data['confirm']));
+        if ($confirm !== 'xacnhan') {
+            return response()->json(['message' => 'Vui lòng gõ đúng "xacnhan" để huỷ đơn.'], 422);
+        }
+        $order = Order::query()
+            ->where('order_code', $code)
+            ->with([
+                'details:id,order_id,food_id,combo_id,quantity,price,is_flash_sale',
+                'details.foods:id', 
+            ])
+            ->first();
+    
+        if (!$order) {
+            return response()->json(['message' => 'Không tìm thấy đơn.'], 404);
+        }
+    
+        $status = trim((string) $order->order_status);
+        $cancellable = ['Chờ xác nhận', 'Đã xác nhận'];
+        if (!in_array($status, $cancellable, true)) {
+            return response()->json(['message' => 'Đơn không thể huỷ ở trạng thái hiện tại.'], 400);
+        }
+    
+        DB::transaction(function () use ($order, $data) {
+            $order = Order::whereKey($order->id)->lockForUpdate()->first();
+
+            foreach ($order->details as $detail) {
+                if ($detail->food_id) {
+                    $food = Food::whereKey($detail->food_id)->lockForUpdate()->first();
+                    if ($food) {
+                        $qty = (int) $detail->quantity;
+    
+                        if ((bool) $detail->is_flash_sale) {
+                            $food->flash_sale_quantity = (int) $food->flash_sale_quantity + $qty;
+                            $newSold = (int) $food->flash_sale_sold - $qty;
+                            $food->flash_sale_sold = $newSold > 0 ? $newSold : 0;
+                        } else {
+                            $food->stock = (int) $food->stock + $qty;
+                            $newSold = (int) $food->quantity_sold - $qty;
+                            $food->quantity_sold = $newSold > 0 ? $newSold : 0;
+                        }
+
+                        $food->save();
+                    }
+                }
+            }
+            $order->order_status = 'Đã huỷ';
+            if (Schema::hasColumn($order->getTable(), 'canceled_at')) {
+                $order->canceled_at = now();
+            }
+            if (Schema::hasColumn($order->getTable(), 'cancel_reason')) {
+                $order->cancel_reason = $data['reason'] ?? 'Khách gõ "xacnhan" huỷ';
+            }
+    
+            $order->save();
+        });
+        $order->load([
+            'details:id,order_id,food_id,combo_id,quantity,price,is_flash_sale',
+            'details.foods:id,name,image',
+            'details.combos:id,name,image',
+        ]);
+    
+        return new OrderResource($order);
+    }
+
     //huỷ đơn
     public function cancelOrder(Request $request)
     {
@@ -827,7 +966,6 @@ class OrderController extends Controller
             return response()->json(['message' => 'Không tìm thấy đơn hàng.'], 404);
         }
 
-        // Chỉ cho phép hủy nếu đang ở trạng thái Chờ xác nhận hoặc Đã xác nhận
         if (!in_array($order->order_status, ['Chờ xác nhận', 'Đã xác nhận'])) {
             return response()->json(['message' => 'Chỉ có thể hủy đơn khi đang ở trạng thái chờ xác nhận hoặc đã xác nhận.'], 400);
         }
@@ -860,7 +998,6 @@ class OrderController extends Controller
             $order->order_status = 'Đã hủy';
             $order->save();
 
-            // Cập nhật trạng thái thanh toán nếu có
             if ($order->payment) {
                 if (in_array($order->payment->payment_method, ['VNPAY', 'MOMO'])) {
                     $order->payment->payment_status = 'Đã hoàn tiền';
@@ -1181,15 +1318,24 @@ class OrderController extends Controller
             $order->check_in_time = Carbon::now();
         }
 
-        if ($request->order_status === 'Hoàn thành' && $reservation) {
-            $reservation->reserved_to = Carbon::now();
-            $reservation->save(); // Nhớ lưu thay đổi
+        if ($request->order_status === 'Hoàn thành') {
+            $payment = Payment::where('order_id', $order->id)->first();
+            if ($payment) {
+                $payment->payment_status = 'Đã thanh toán';
+                $payment->save();
+            }
+
+            if ($reservation) {
+                $reservation->reserved_to = Carbon::now();
+                $reservation->save();
+            }
         }
 
         $order->save();
 
         return response()->json([
             'status' => $request->order_status,
+            'payment_status' => $order->payment_status,
             'message' => 'Đơn hàng đã được cập nhật thành công.'
         ]);
     }

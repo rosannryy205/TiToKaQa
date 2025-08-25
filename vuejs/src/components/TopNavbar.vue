@@ -15,11 +15,6 @@
     </button>
 
     <template #navbar-menu slot="navbar-menu">
-      <a-space :size="16">
-        <a-tooltip title="Tìm kiếm">
-          <a-button type="text" shape="circle" :icon="h(SearchOutlined)" />
-        </a-tooltip>
-      </a-space>
       <ul class="navbar-nav">
         <li class="nav-item">
           <a-dropdown :trigger="['click']">

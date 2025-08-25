@@ -370,67 +370,6 @@
   &[data-color="grey"] {
     @include vendor.sidebar-color(vars.$grey-color);
   }
-
-  .user {
-    padding-bottom: 20px;
-    margin: 20px auto 0;
-    position: relative;
-
-    &:after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      right: 15px;
-      height: 1px;
-      width: calc(100% - 30px);
-      background-color: vars.$opacity-5;
-    }
-
-    .photo {
-      width: 34px;
-      height: 34px;
-      overflow: hidden;
-      float: left;
-      z-index: 5;
-      margin-right: 10px;
-      border-radius: 50%;
-      margin-left: 23px;
-      box-shadow: vars.$box-shadow-raised;
-      @extend .animation-transition-general;
-
-      img {
-        width: 100%;
-      }
-    }
-
-    a {
-      color: vars.$white-color;
-      text-decoration: none;
-      padding: vars.$padding-base-vertical 15px;
-      white-space: nowrap;
-      @extend .animation-transition-general;
-    }
-
-    .info {
-      >a {
-        display: block;
-        line-height: 18px;
-
-        >span {
-          @extend .animation-transition-general;
-          display: block;
-          position: relative;
-          opacity: 1;
-        }
-      }
-
-      .caret {
-        position: absolute;
-        top: 8px;
-        right: 21px;
-      }
-    }
-  }
 }
 
 .visible-on-sidebar-regular {
@@ -459,9 +398,9 @@
   position: relative;
   float: right;
   width: vars.$sidebar-width;
-  width: 100%;
-  // background-color: vars.$light-gray;
-  // background-color: #ebecf1;
+  // width: 100%;
+  background-color: vars.$light-gray;
+  background-color: #ebecf1;
 
   @include vendor.transition (0.50s, cubic-bezier(0.685, 0.0473, 0.346, 1));
 
@@ -591,14 +530,14 @@
 }
 
 .panel-header {
-  height: 260px;
+  // height: 260px;
   padding-top: 80px;
   padding-bottom: 45px;
-  background: #c92c3c;
+  // background: #c92c3c;
   /* fallback for old browsers */
-  // background: -webkit-gradient(linear, left top, right top, from(#0c2646), color-stop(60%, #204065), to(#2a5788));
-  // background: linear-gradient(to right, #0c2646 0%, #204065 60%, #2a5788 100%);
-  background: linear-gradient(to right, #c92c3c 0%, #dc4754 60%, #e56a73 100%);
+  background: -webkit-gradient(linear, left top, right top, from(#c92c3c), color-stop(60%, #dc4754), to(#e56a73));
+  // background: linear-gradient(to right, #c92c3c 0%, #dc4754 60%, #e56a73 100%);
+  background: linear-gradient(to right, #c92c3c 0%, #d63c49 40%, #dc4754 70%, #e56a73 100%);
   position: relative;
   overflow: hidden;
 

@@ -4,7 +4,7 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-4 mb-4 text-start">
-            <img src="/img/logonew.png" alt="logo-footer" width="150px" />
+            <img src="/img/logonew.png" alt="logo-footer" width="100px" />
             <p class="text-start">
               Mỳ Cay TITOKAQA chuyên phục vụ các món mì cay chuẩn vị Hàn Quốc, kết hợp nguyên liệu
               tươi ngon và công thức đặc biệt.
@@ -37,9 +37,11 @@
             <h5 class="fw-bold" style="color: #c92c3c">Đăng Ký Nhận Tin</h5>
             <p>Nhận thông tin khuyến mãi và món mới từ Mỳ Cay TITOKAQA.</p>
             <div class="input-group">
-              <input type="email" class="form-control" placeholder="Nhập email của bạn" />
-              <button style="background-color: rgb(199, 11, 11)" class="btn btn-danger-customer">
-                Đăng Ký
+              <input type="email" class="form-control" placeholder="Nhập email của bạn" v-model="quickEmail" />
+
+              <button class="btn btn-danger-customer" :disabled="loading" @click="handleQuickRegister"
+                style="background-color: rgb(199, 11, 11)">
+                {{ loading ? 'Đang gửi...' : 'Đăng Ký' }}
               </button>
             </div>
           </div>
@@ -61,6 +63,73 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { API_URL } from '@/config';
+import { ref } from 'vue';
+import Swal from 'sweetalert2';
+
+export default {
+  setup() {
+    const quickEmail = ref('');
+    const loading = ref(false);
+
+    // cấu hình toast chung
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',   // góc phải trên
+      showConfirmButton: false,
+      timer: 3000,            // tự đóng sau 3s
+      timerProgressBar: true,
+    });
+
+    const handleQuickRegister = async () => {
+      if (!quickEmail.value) {
+        Toast.fire({
+          icon: 'warning',
+          title: 'Vui lòng nhập email',
+        });
+        return;
+      }
+
+      loading.value = true;
+
+      try {
+        const res = await axios.post(`${API_URL}/quickRegister`, {
+          email: quickEmail.value,
+        });
+
+        if (res.data.status === 'success') {
+          Toast.fire({
+            icon: 'success',
+            title: res.data.message,
+          });
+          quickEmail.value = '';
+        } else if (res.data.status === 'warning') {
+          Toast.fire({
+            icon: 'warning',
+            title: res.data.message,
+          });
+        }
+      } catch (err) {
+        Toast.fire({
+          icon: 'error',
+          title: err.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.',
+        });
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    return {
+      quickEmail,
+      loading,
+      handleQuickRegister,
+    };
+  },
+};
+
+
+
+
 
 </script>
-

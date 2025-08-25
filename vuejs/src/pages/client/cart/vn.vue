@@ -162,14 +162,15 @@ import { Discounts } from '@/stores/discount'
 import { onMounted } from 'vue'
 import numeral from 'numeral'
 import { useRouter } from 'vue-router'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 export default {
   methods: {
     formatNumber(value) {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `/img/food/${image}`
+      return `${STORAGE_URL}/img/food/${image}`
     },
   },
   setup() {

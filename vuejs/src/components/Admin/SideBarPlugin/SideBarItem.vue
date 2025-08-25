@@ -1,14 +1,15 @@
 <template>
   <li :class="{ active: isActive }">
     <!-- Menu item có con -->
-    <a v-if="isMenu" href="#" class="nav-link-admin sidebar-menu-item" :aria-expanded="!collapsed" data-toggle="collapse"
-      @click.prevent="collapseMenu">
+    <a v-if="isMenu" href="#" class="nav-link-admin sidebar-menu-item" :aria-expanded="!collapsed"
+      data-toggle="collapse" @click.prevent="collapseMenu">
       <component v-if="isComponentIcon" :is="link.icon" />
       <i v-else :class="link.icon" />
       <p>{{ link.label }} <b class="caret"></b></p>
     </a>
 
-    <Transition name="collapse">
+    <Transition @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter" @before-leave="beforeLeave"
+      @leave="leave" @after-leave="afterLeave">
       <div v-if="$slots.default || isMenu" v-show="!collapsed">
         <ul class="nav links__nav">
           <slot />
@@ -16,8 +17,8 @@
       </div>
     </Transition>
 
-    <component v-if="!isMenu && link.to" :is="elementType(link, false)" :to="link.to" :href="link.to" class="nav-link nav-link-admin"
-      :target="link.target" :class="{ active: isActive }" @click="linkClick">
+    <component v-if="!isMenu && link.to" :is="elementType(link, false)" :to="link.to" :href="link.to"
+      class="nav-link nav-link-admin" :target="link.target" :class="{ active: isActive }" @click="linkClick">
       <template v-if="isComponentIcon">
         <component :is="link.icon" class="sidebar-mini-icon" />
       </template>
@@ -108,6 +109,52 @@ onMounted(() => {
   }
 })
 
+const beforeEnter = (el) => {
+  el.dataset.oldPaddingTop = el.style.paddingTop
+  el.dataset.oldPaddingBottom = el.style.paddingBottom
+  el.dataset.oldOverflow = el.style.overflow
+
+  el.style.height = '0'
+  el.style.paddingTop = '0'
+  el.style.paddingBottom = '0'
+  el.style.overflow = 'hidden'
+}
+
+const enter = (el) => {
+  el.style.transition = 'height 0.3s ease-out, padding 0.3s ease-out'
+  el.style.height = el.scrollHeight + 'px'
+  el.style.paddingTop = el.dataset.oldPaddingTop
+  el.style.paddingBottom = el.dataset.oldPaddingBottom
+}
+
+const afterEnter = (el) => {
+  el.style.height = ''
+  el.style.overflow = el.dataset.oldOverflow
+}
+
+const beforeLeave = (el) => {
+  el.dataset.oldPaddingTop = el.style.paddingTop
+  el.dataset.oldPaddingBottom = el.style.paddingBottom
+  el.dataset.oldOverflow = el.style.overflow
+
+  el.style.height = el.scrollHeight + 'px'
+  el.style.overflow = 'hidden'
+}
+
+const leave = (el) => {
+  el.style.transition = 'height 0.3s ease-out, padding 0.3s ease-out'
+  el.style.height = '0'
+  el.style.paddingTop = '0'
+  el.style.paddingBottom = '0'
+}
+
+const afterLeave = (el) => {
+  el.style.height = ''
+  el.style.overflow = el.dataset.oldOverflow
+  el.style.paddingTop = el.dataset.oldPaddingTop
+  el.style.paddingBottom = el.dataset.oldPaddingBottom
+}
+
 onBeforeUnmount(() => {
   if (removeLink) removeLink({ link: props.link })
 })
@@ -123,15 +170,16 @@ onBeforeUnmount(() => {
   padding-top: 10px;
 }
 
-.collapse-enter-active,
-.collapse-leave-active {
-  transition: all 0.3s ease;
+.v-enter-active,
+.v-leave-active {
+  animation-fill-mode: both;
 }
 
-.collapse-enter-from,
-.collapse-leave-to {
-  opacity: 0;
-  height: 0;
-  overflow: hidden;
+.v-enter-active {
+  animation-timing-function: ease-out;
+}
+
+.v-leave-active {
+  animation-timing-function: ease-in;
 }
 </style>

@@ -34,7 +34,7 @@
             <div class="col-6 text-end">{{ info.payment_info?.payment_method || '---' }}</div>
 
             <div class="col-6">Trạng thái thanh toán:</div>
-            <div class="col-6 text-end">{{ info.payment_info?.payment_status || '---'  }}</div>
+            <div class="col-6 text-end">{{ info.payment_info?.payment_status || '---' }}</div>
 
             <div class="col-6">Trạng thái đơn:</div>
             <div class="col-6 text-end">
@@ -73,34 +73,36 @@
     <!-- Chi tiết hóa đơn -->
     <div class="card p-3 mt-3">
       <h5 class="border-bottom pb-2">Chi tiết hóa đơn</h5>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>STT</th>
-            <th>Mặt hàng</th>
-            <th>Giá bán</th>
-            <th>Số lượng</th>
-            <th>Thành tiền</th>
-          </tr>
-        </thead>
-        <tbody v-if="info.details && info.details.length">
-          <tr v-for="item in info.details" :key="item.id">
-            <td>{{ item.item_id }}</td>
-            <td>
-              <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
-              {{ item.food_name || item.combo_name }}
-              <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3 ">
-                <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
-                  + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }} đ)
-                </li>
-              </ul>
-            </td>
-            <td>{{ formatNumber(item.price) }} VNĐ</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ formatNumber(item.price * item.quantity) }} VNĐ</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-scroll">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Mặt hàng</th>
+              <th>Giá bán</th>
+              <th>Số lượng</th>
+              <th>Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody v-if="info.details && info.details.length">
+            <tr v-for="item in info.details" :key="item.id">
+              <td>{{ item.item_id }}</td>
+              <td>
+                <img :src="getImageUrl(item.image)" class="me-2" alt="img" width="80px" height="80px">
+                {{ item.food_name || item.combo_name }}
+                <ul v-if="item.toppings && item.toppings.length" class="mb-0 ps-3 ">
+                  <li v-for="topping in item.toppings" :key="topping.food_toppings_id">
+                    + {{ topping.topping_name }} ({{ Number(topping.price).toLocaleString() }} đ)
+                  </li>
+                </ul>
+              </td>
+              <td>{{ formatNumber(item.price) }} VNĐ</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ formatNumber(item.price * item.quantity) }} VNĐ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div class="text-end">
         <p>Phí ship: {{ formatNumber(info.ship_cost) }} VNĐ</p>
         <p>Khuyến mãi: -{{ formatNumber(info.money_reduce) }} VNĐ</p>
@@ -173,6 +175,8 @@ import axios from 'axios';
 import { ref } from 'vue';
 import { computed } from 'vue';
 import Swal from 'sweetalert2';
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 export default {
   methods: {
     goBack() {
@@ -208,7 +212,7 @@ export default {
       if (result.isConfirmed) {
         try {
           isLoading.value = true;
-          const status = await axios.put(`http://127.0.0.1:8000/api/order-history-info/cancle/${id}`)
+          const status = await axios.put(`${API_URL}/order-history-info/cancle/${id}`)
           if (status) {
             Swal.fire({
               toast: true,
@@ -251,7 +255,7 @@ export default {
         try {
           isLoading.value = true;
           const status = await axios.put(
-            `http://127.0.0.1:8000/api/order-history-info/update-address/${id}`,
+            `${API_URL}/order-history-info/update-address/${id}`,
             {
               guest_address: address.value,
             }
@@ -387,5 +391,29 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Ẩn trên Firefox */
+}
+
+.table-scroll::-webkit-scrollbar {
+  display: none;
+  /* Ẩn trên Chrome, Safari */
+}
+
+@media (max-width: 768px) {
+  .table-scroll {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .table-scroll table {
+    min-width: 600px;
+    /* đảm bảo có thể cuộn */
+  }
 }
 </style>

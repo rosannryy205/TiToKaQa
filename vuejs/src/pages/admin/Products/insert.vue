@@ -113,6 +113,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2';
 import { Permission } from '@/stores/permission'
+import { API_URL } from '@/config'
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -148,7 +149,7 @@ const errorAdd = ref({})
 // Load danh mục
 const fetchCategories = async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/admin/categories', {
+    const response = await axios.get(`${API_URL}/admin/categories`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -199,7 +200,7 @@ const addFood = async () => {
 
     errorAdd.value = {}
 
-    await axios.post('http://127.0.0.1:8000/api/admin/foods', formData, {
+    await axios.post(`${API_URL}/admin/foods`, formData, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'multipart/form-data'

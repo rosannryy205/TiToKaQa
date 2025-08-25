@@ -94,6 +94,8 @@ import { reactive } from 'vue'
 import Swal from 'sweetalert2';
 import { Info } from '@/stores/info-order-reservation'
 import { onMounted } from 'vue'
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 export default {
   setup() {
     const isLoading = ref(false)
@@ -134,7 +136,7 @@ export default {
         const reserved_from = formatDateTime(reservedFrom)
         const reserved_to = formatDateTime(reservedTo)
 
-        const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
+        const res = await axios.post(`${API_URL}/available-tables`, {
           reserved_from,
           reserved_to,
           number_of_guests: guest_count.value,
@@ -208,7 +210,7 @@ export default {
         try {
           const reservations_time = `${date.value} ${time.value}`
 
-          const res = await axios.post('http://127.0.0.1:8000/api/choose-table', {
+          const res = await axios.post(`${API_URL}/choose-table`, {
             user_id: user.value?.id,
             table_id: table_id,
             reserved_from: reservations_time,
@@ -245,10 +247,10 @@ export default {
     }
 
     onMounted(() => {
-      for (let hour = 8; hour <= 21; hour++) {
+      for (let hour = 8; hour <= 20; hour++) {
         let hourStr = hour < 10 ? '0' + hour : '' + hour
         timeOptions.value.push(hourStr + ':00')
-        if (hour !== 20) {
+        if (hour < 21) {
           timeOptions.value.push(hourStr + ':30')
         }
       }

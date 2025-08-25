@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class LuckyWheelPrize extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'type', 'data', 'probability'];
+    protected $fillable = ['name', 'type', 'data', 'probability', 'status'];
 
     protected $casts = [
         'data' => 'array',

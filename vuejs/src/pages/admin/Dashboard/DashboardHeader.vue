@@ -1,11 +1,12 @@
 <template>
   <!-- <div class="panel-header "> -->
-    <canvas ref="canvasRef" :height="255"></canvas>
+  <canvas ref="canvasRef" :height="255"></canvas>
   <!-- </div> -->
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
 import {
   Chart as ChartJS,
@@ -32,40 +33,40 @@ ChartJS.register(
   Title,
   Filler,
 )
-
-// Chart data
-const chartData = [
-  50, 150, 100, 190, 130, 90,
-  150, 160, 120, 140, 190, 95
-]
-
-const chartLabels = [
-  'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-  'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
-]
-
 const canvasRef = ref(null)
+const chartInstance = ref(null)
+const chartLabels = ref([])
+const chartData = ref([])
 
-onMounted(() => {
+
+const fetchRevenue = async () => {
+  try {
+    const res = await axios.get('http://127.0.0.1:8000/api/admin/revenue-by-month')
+    chartLabels.value = res.data.labels
+    chartData.value = res.data.data
+    renderChart()
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const renderChart = () => {
   const ctx = canvasRef.value.getContext('2d')
   const chartColor = '#FFFFFF'
-
-  const gradientStroke = ctx.createLinearGradient(500, 0, 100, 0)
-  gradientStroke.addColorStop(0, '#80b6f4')
-  gradientStroke.addColorStop(1, chartColor)
-
   const gradientFill = ctx.createLinearGradient(0, 200, 0, 50)
   gradientFill.addColorStop(0, 'rgba(128, 182, 244, 0)')
-  gradientFill.addColorStop(1, 'rgba(255, 255, 255, 0.24)')
+  gradientFill.addColorStop(1, 'rgba(255, 255, 255, 0.3)')
 
-  new ChartJS(ctx, {
+  if (chartInstance.value) chartInstance.value.destroy()
+
+  chartInstance.value = new ChartJS(ctx, {
     type: 'line',
     data: {
-      labels: chartLabels,
+      labels: chartLabels.value,
       datasets: [
         {
-          label: 'Data',
-          data: chartData,
+          label: 'Doanh thu',
+          data: chartData.value,
           borderColor: chartColor,
           backgroundColor: gradientFill,
           pointBorderColor: chartColor,
@@ -94,11 +95,11 @@ onMounted(() => {
       maintainAspectRatio: false,
       plugins: {
         tooltip: {
-          backgroundColor: '#fff',
-          titleColor: '#333',
-          bodyColor: '#666',
+          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+          titleColor: '#000',
+          bodyColor: '#333',
           bodySpacing: 4,
-          padding: 12
+          padding: 12,
         },
         legend: {
           display: false
@@ -107,37 +108,42 @@ onMounted(() => {
       scales: {
         y: {
           ticks: {
-            color: 'rgba(255,255,255,0.4)',
+            color: 'rgba(255, 255, 255, 0.75)',
             font: {
               weight: 'bold'
             },
             beginAtZero: true,
-            maxTicksLimit: 5,
+            maxTicksLimit: 6,
             padding: 10
           },
           grid: {
             drawTicks: true,
             drawBorder: false,
-            color: 'rgba(255,255,255,0.1)',
+            color: 'rgba( 255, 255, 255, 0.25)',
             zeroLineColor: 'transparent'
           }
         },
         x: {
           ticks: {
             padding: 10,
-            color: 'rgba(255,255,255,0.4)',
+            color: 'rgba( 255, 255, 255, 0.6)',
             font: {
               weight: 'bold'
             }
           },
           grid: {
-            display: false
+            display: false,          // tắt grid lines
+            drawTicks: false,        // tắt tick nhỏ
+            drawOnChartArea: false,  // không vẽ trên vùng chart
+            drawBorder: false,
+            color: 'transparent'
           }
         }
       }
     }
   })
+}
 
-})
+onMounted(fetchRevenue)
 
 </script>

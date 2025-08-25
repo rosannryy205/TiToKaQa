@@ -50,7 +50,6 @@ return [
         'project_id' => env('DIALOGFLOW_PROJECT_ID'),
     ],
 
-
 ];
 
 

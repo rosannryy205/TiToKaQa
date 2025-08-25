@@ -24,12 +24,16 @@ return new class extends Migration
             $table->string('type_order')->nullable();
             $table->unsignedInteger('tpoint_used')->nullable();
             $table->unsignedInteger('ship_cost')->nullable();
+            $table->unsignedInteger('table_fee')->default(0)->comment('Phí giữ bàn (VNĐ)');
             $table->boolean('points_awarded')->default(false);
             $table->string('guest_name')->nullable();
             $table->string('guest_phone')->nullable();
             $table->string('guest_email')->nullable();
             $table->string('guest_address')->nullable();
             $table->integer('guest_count')->nullable();
+            $table->string('order_code')->unique()->nullable();
+            $table->timestamp('canceled_at')->nullable();
+            $table->string('canceled_reason')->nullable();
             $table->string('note')->nullable();
             $table->timestamp('check_in_time')->nullable();
             $table->timestamp('expiration_time')->nullable();

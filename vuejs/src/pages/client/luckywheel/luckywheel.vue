@@ -81,16 +81,10 @@
 </template>
 
 <script setup lang="ts">
+/* External libs */
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
-import router from '@/router'
-
-import FortuneWheel from '@/components/fortuneWheel/index.vue'
-import { PrizeConfig } from '@/components/fortuneWheel/types'
-import { useUserStore } from '@/stores/userAuth'
-import { Rewards } from '@/stores/rewards'
-
 import {
   WarningOutlined,
   ClockCircleOutlined,
@@ -100,7 +94,13 @@ import {
   SmileOutlined
 } from '@ant-design/icons-vue'
 
-// Store và state
+import router from '@/router'
+import FortuneWheel from '@/components/fortuneWheel/index.vue'
+import { PrizeConfig } from '@/components/fortuneWheel/types'
+import { useUserStore } from '@/stores/userAuth'
+import { Rewards } from '@/stores/rewards'
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 const userStore = useUserStore()
 const isAuthenticated = computed(() => !!userStore.token)
 const { userRewards, getUserRewards } = Rewards()
@@ -111,7 +111,6 @@ const isLoading = ref(true)
 const spinStatus = ref({ has_spun_today: false, remaining_spin: 1, max_spin: 1 })
 const latestPrize = ref<null | { name: string; expired_at: string; claimed: boolean }>(null)
 
-// Cấu hình vòng quay
 const canvasOptions = {
   btnWidth: 120,
   borderColor: '#ff1816',
@@ -121,9 +120,10 @@ const canvasOptions = {
   textLength: 10,
   btnImage: '/src/assets/btn-removebg-preview.png'
 }
+
 async function fetchPrizes() {
   try {
-    const res = await axios.get('http://localhost:8000/api/lucky-wheel/prizes')
+    const res = await axios.get(`${API_URL}/lucky-wheel/prizes`)
     const allPrizes = res.data
     prizes.value = normalizeProbabilities(
       allPrizes.map((item, index) => ({
@@ -144,7 +144,8 @@ async function fetchPrizes() {
     isLoading.value = false
   }
 }
-function normalizeProbabilities(prizesRaw) {
+
+function normalizeProbabilities(prizesRaw: any[]) {
   const total = prizesRaw.reduce((sum, prize) => sum + (prize.probability || 0), 0)
   if (total === 0) return prizesRaw
   return prizesRaw.map((prize) => ({
@@ -160,7 +161,7 @@ function getImageByType(type: string) {
 async function onCanvasRotateStart() {
   try {
     const res = await axios.post(
-      'http://localhost:8000/api/spin',
+      `${API_URL}/spin`,
       {},
       { headers: { Authorization: `Bearer ${userStore.token}` } }
     )
@@ -190,7 +191,7 @@ async function onCanvasRotateStart() {
     }
 
     fortuneRef.value?.startRotate(prize)
-  } catch (err) {
+  } catch (err: any) {
     const message = err?.response?.data?.message || 'Lỗi không xác định khi quay'
     if (message.includes('hôm nay')) {
       await Swal.fire('Bạn đã quay hôm nay!', 'Thử lại vào ngày mai nhé 🎯', 'info')
@@ -199,6 +200,7 @@ async function onCanvasRotateStart() {
     }
   }
 }
+
 const spinId = ref<number | null>(null)
 async function onRotateEnd(prize: PrizeConfig) {
   const expiredAt = new Date()
@@ -235,7 +237,8 @@ async function onRotateEnd(prize: PrizeConfig) {
   await getUserRewards()
   await fetchSpinStatus()
 }
-async function claimReward(rewardId) {
+
+async function claimReward(rewardId: number) {
   const confirm = await Swal.fire({
     title: 'Xác nhận lưu?',
     text: 'Bạn có chắc chắn muốn lưu phần thưởng này vào kho?',
@@ -244,12 +247,11 @@ async function claimReward(rewardId) {
     confirmButtonText: 'Lưu ngay',
     cancelButtonText: 'Hủy'
   })
-
   if (!confirm.isConfirmed) return
 
   try {
     await axios.post(
-      'http://localhost:8000/api/claim-reward',
+      `${API_URL}/claim-reward`,
       { spin_id: rewardId },
       { headers: { Authorization: `Bearer ${userStore.token}` } }
     )
@@ -262,13 +264,13 @@ async function claimReward(rewardId) {
       timerProgressBar: true,
       showConfirmButton: false
     })
-
     await getUserRewards()
-  } catch (error) {
+  } catch (error: any) {
     const msg = error?.response?.data?.message || 'Có lỗi xảy ra khi lưu quà'
     await Swal.fire('Lỗi!', msg, 'error')
   }
 }
+
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('vi-VN', {
     day: '2-digit',
@@ -279,7 +281,7 @@ function formatDate(dateStr: string) {
 
 async function fetchSpinStatus() {
   try {
-    const res = await axios.get('http://localhost:8000/api/spin-status', {
+    const res = await axios.get(`${API_URL}/spin-status`, {
       headers: { Authorization: `Bearer ${userStore.token}` }
     })
     spinStatus.value = res.data
@@ -287,6 +289,7 @@ async function fetchSpinStatus() {
     console.error('Lỗi lấy trạng thái lượt quay', e)
   }
 }
+
 function redirectToLogin() {
   Swal.fire({
     icon: 'info',
@@ -300,7 +303,7 @@ function redirectToLogin() {
   })
 }
 
-// Mount
+/* Mount */
 onMounted(() => {
   fetchPrizes()
   if (isAuthenticated.value) {
@@ -308,11 +311,12 @@ onMounted(() => {
     fetchSpinStatus()
   }
 })
+
 const filteredRewards = computed(() => userRewards.value)
 </script>
 
+
 <style scoped>
-/* ---- BACKGROUND ANIMATION ---- */
 @keyframes gradient-animation {
   0% {
     background-position: 0% 50%;
@@ -324,19 +328,16 @@ const filteredRewards = computed(() => userRewards.value)
     background-position: 0% 50%;
   }
 }
-
-/* ---- MAIN WRAPPER LAYOUT ---- */
 .lucky-wrapper {
   width: 100%;
   min-height: 80vh;
   padding: 2rem;
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  background-size: 400% 400%;
-  animation: gradient-animation 15s ease infinite;
-  
-  /* Flexbox settings for centering and wrapping */
+
+  background: url('@/assets/bg.png') no-repeat center center;
+  background-size: cover;
+
   display: flex;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
   gap: 2rem;
