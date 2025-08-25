@@ -48,7 +48,6 @@
                       <table class="table table-bordered">
                         <thead class="table-light">
                           <tr>
-                            <th>Chọn</th>
                             <th>Món ăn</th>
                             <th>Giá bán</th>
                             <th>Số lượng</th>
@@ -57,9 +56,8 @@
                         </thead>
                         <tbody>
                           <tr v-for="food in selectedCombo.foods" :key="food.id">
-                            <td><input type="checkbox" v-model="food.checked" /></td>
                             <td>
-                              <img :src="`/img/food/${food.image}`" :alt="food.name" class="me-2 img_thumbnail" />
+                              <img :src="getImageUrl(food.image)" :alt="food.name" class="me-2 img_thumbnail" />
                               {{ food.name }}
                             </td>
                             <td>{{ formatNumber(food.price) }} VNĐ</td>
@@ -98,7 +96,7 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col mb-3">
-                      <p>Giá combo (ưu đãi) hiện tại: {{ numeral(selectedCombo.price).format('0,0') }} VNĐ</p>
+                      <p>Giá combo (ưu đãi) hiện tại: {{ formatNumber(selectedCombo.price) }} VNĐ</p>
                       <input v-model="selectedCombo.price" type="number" class="form-control rounded-0 mt-1" id="price"
                         min="0" required />
 
@@ -190,20 +188,33 @@ import { toast } from 'vue3-toastify'
 import { FoodList } from '@/stores/food.js'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
+import Swal from 'sweetalert2'
+import { useRouter } from 'vue-router'
+
+
 
 // ================== BIẾN & ROUTE ==================
 const route = useRoute()
+const router = useRouter()
 const comboId = route.params.id
 const selectedCombo = ref(null)
 const imageFile = ref(null)
 const imagePreview = ref('')
 const selectedFoods = ref([])
 
+const getImageUrl = (image) => {
+  return `http://127.0.0.1:8000/storage/img/food/${image}`
+}
 // ================== STORE GỌI TỪ PINIA ==================
 const { getFoodByCategory, flatCategoryList, foods } = FoodList.setup()
 
 // ================== HÀM XỬ LÝ CHUNG ==================
-const formatNumber = (n) => new Intl.NumberFormat().format(n)
+const formatNumber = (n) => {
+  const number = Number(n)
+  if (isNaN(number)) return '0'
+  return new Intl.NumberFormat('vi-VN').format(number)
+}
+
 
 const originalTotalPrice = computed(() => {
   return selectedCombo.value.foods.reduce((sum, food) => {
@@ -226,18 +237,29 @@ const recalculateComboPrice = () => {
 async function fetchComboById() {
   try {
     const res = await axios.get(`http://127.0.0.1:8000/api/admin/combos/${comboId}`)
-    selectedCombo.value = res.data
-    selectedCombo.value.foods = res.data.foods.map(food => ({
-      ...food,
-      checked: true,
-      quantity: food.pivot.quantity,
-    }))
-    imagePreview.value = `/img/food/${res.data.image}`
+    const combo = res.data
+
+    selectedCombo.value = {
+      id: combo.id,
+      name: combo.name,
+      description: combo.description,
+      price: Number(combo.price),
+      status: combo.status,
+      image: combo.image,
+      foods: combo.foods.map(food => ({
+        ...food,
+        checked: true,
+        quantity: food.pivot?.quantity || 1,
+      }))
+    }
+
+    imagePreview.value = `http://127.0.0.1:8000/storage/img/food/${combo.image}`
   } catch (error) {
     console.error(error)
     toast.error('Lỗi khi tải combo!')
   }
 }
+
 
 // ================== XỬ LÝ TĂNG / GIẢM / XOÁ ==================
 const increaseQuantity = (food) => {
@@ -325,6 +347,27 @@ async function updateCombo() {
     formData.append('status', selectedCombo.value.status || 'active')
 
     if (imageFile.value) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+      const maxSizeMB = 2
+
+      if (!allowedTypes.includes(imageFile.value.type)) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Định dạng ảnh không hợp lệ',
+          text: 'Chỉ chấp nhận ảnh JPG, PNG, hoặc WEBP',
+        })
+        return
+      }
+
+      if (imageFile.value.size > maxSizeMB * 1024 * 1024) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Ảnh quá lớn',
+          text: 'Kích thước tối đa là 2MB',
+        })
+        return
+      }
+
       formData.append('image', imageFile.value)
     }
 
@@ -333,22 +376,36 @@ async function updateCombo() {
       quantity: food.quantity,
     }))
     formData.append('foods', JSON.stringify(foods))
-    for (let [key, value] of formData.entries()) {
-      if (key === 'image' && value instanceof File) {
-        console.log(`${key}: [File] name=${value.name}, size=${value.size}B, type=${value.type}`)
-      } else {
-        console.log(`${key}: ${value}`)
-      }
-    } await axios.post(
+
+    await axios.post(
       `http://127.0.0.1:8000/api/admin/combos/update/${comboId}`,
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     )
 
-    toast.success('Cập nhật combo thành công!')
+    Swal.fire({
+  icon: 'success',
+  text: 'Cập nhật combo thành công!',
+  timer: 1500,
+  showConfirmButton: false,
+  toast: true,
+  position: 'top-end'
+})
+setTimeout(() => {
+  router.push('/admin/products/combo')
+}, 1600)
   } catch (error) {
     console.error(error)
-    toast.error('Cập nhật combo thất bại!')
+
+    const message =
+      error.response?.data?.message ||
+      'Có lỗi xảy ra trong quá trình cập nhật combo.'
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Cập nhật thất bại',
+      text: message,
+    })
   }
 }
 // ================== KHỞI TẠO ==================Add commentMore actions

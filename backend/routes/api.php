@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminCategoryToppingController;
 use App\Http\Controllers\AdminFoodController;
+use App\Http\Controllers\AdminPaymentController;
 use App\Http\Controllers\AdminToppingController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\LuckyWheelController;
+use Google\Cloud\Dialogflow\V2\MessageEntry\Role;
 use Illuminate\Http\Request;
 
 Route::post('/chatbot', [ChatbotController::class, 'chat']);
@@ -57,7 +59,6 @@ Route::post('/make-reservation-quickly', [OrderController::class, 'makeReservati
 Route::post('/reservation-by-chatbot', [ChatbotController::class, 'combine']);
 Route::get('/order-reservation-info', [OrderController::class, 'getInfoReservation']);
 Route::post('/choose-table', [OrderController::class, 'chooseTable']);
-
 
 //reservation-admin
 Route::get('/order-tables', [OrderController::class, 'getOrderOfTable']);
@@ -111,7 +112,7 @@ Route::get('/invoice/{id}', [OrderController::class, 'generateInvoice']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/order-history-info', [OrderController::class, 'getInfoOrderByUser']);
 });
-Route::put('/order-history-info/cancle/{id}', [OrderController::class, 'cancelOrder']);
+Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
 
 // Route::resource('user', UserController::class);
@@ -183,8 +184,6 @@ Route::post('/shipper/update-location', [UserController::class, 'updateLocation'
 Route::get('/shipper/{id}/last-location', [UserController::class, 'getLastLocation']);
 
 
-
-
 //discount
 Route::get('/discounts', [DiscountController::class, 'getAllDiscounts']);
 Route::post('/discounts/use', [DiscountController::class, 'used']);
@@ -246,11 +245,12 @@ Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
 
 
 //paymentMethod
+Route::get('/payments/info/{id}', [PaymentController::class, 'show']);
 Route::post('/payments/vnpay-init', [PaymentController::class, 'store']);
 Route::get('/payments/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 Route::post('/payments/cod-payment', [PaymentController::class, 'handleCodPayment']);
 Route::get('/get-order-reservation-info', [OrderController::class, 'getOrderReservationInfo']);
-
+Route::resource('test', PaymentController::class);
 
 /**client vong quay*/
 Route::get('/lucky-wheel/prizes', [LuckyWheelController::class, 'getPrizes']);
@@ -280,3 +280,5 @@ Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombo
 Route::apiResource('ingredients', IngredientController::class);
 Route::put('/admin/combos/{id}/toggle-status', [ComboController::class, 'toggleStatusComboForAdmin']);
 
+/** crud discounts mqua*/
+Route::get('/admin-categories', [CategoryController::class, 'getAllCategoriesForAdmin']);

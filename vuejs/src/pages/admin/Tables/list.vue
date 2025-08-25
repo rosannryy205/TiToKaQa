@@ -641,7 +641,7 @@
 <script>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2'
 import draggable from 'vuedraggable'
 import { Permission } from '@/stores/permission'
 import { Info } from '@/stores/info-order-reservation'
@@ -759,7 +759,14 @@ export default {
         currentPage.value.tables = 1
       } catch (error) {
         console.error('Lỗi khi tải danh sách bàn:', error)
-        toast.error('Lỗi khi tải danh sách bàn.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Lỗi khi tải danh sách bàn.',
+          showConfirmButton: false,
+          timer: 2000,
+        })
       } finally {
         isLoading.value = false;
       }
@@ -779,7 +786,14 @@ export default {
 
     const toggleSidebar = () => {
       if (!isSidebarOpen.value && !(hasPermission('create_table') || hasPermission('edit_table'))) {
-        toast.warn('Bạn không có quyền thêm hoặc sửa bàn.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Bạn không có quyền thêm hoặc sửa bàn.',
+          showConfirmButton: false,
+          timer: 2000,
+        })
         return
       }
       isSidebarOpen.value = !isSidebarOpen.value
@@ -791,16 +805,37 @@ export default {
 
     const addNewTable = async (table_id) => {
       if (!table_id && !hasPermission('create_table')) {
-        toast.error('Bạn không có quyền thêm bàn mới.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Bạn không có quyền thêm bàn mới.',
+          showConfirmButton: false,
+          timer: 2000,
+        })
         return
       }
       if (table_id && !hasPermission('edit_table')) {
-        toast.error('Bạn không có quyền sửa bàn này.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Bạn không có quyền sửa bàn này.',
+          showConfirmButton: false,
+          timer: 2000,
+        })
         return
       }
 
       if (!table_number.value || !capacity.value || capacity.value <= 0) {
-        toast.error('Vui lòng nhập đủ Số bàn và Số ghế hợp lệ.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'info',
+          title: 'Vui lòng nhập đủ Số bàn và Số ghế hợp lệ.',
+          showConfirmButton: false,
+          timer: 2000,
+        })
         return
       }
 
@@ -811,13 +846,27 @@ export default {
             table_number: table_number.value,
             capacity: capacity.value,
           })
-          toast.success(`Thêm bàn thành công!`)
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Thêm bàn thành công!',
+            showConfirmButton: false,
+            timer: 2000,
+          })
         } else {
           await axios.put(`http://127.0.0.1:8000/api/tables/${table_id}`, {
             table_number: table_number.value,
             capacity: capacity.value,
           })
-          toast.success(`Sửa bàn thành công!`)
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Sửa bàn thành công!',
+            showConfirmButton: false,
+            timer: 2000,
+          })
         }
         await getTable()
         resetNewTableForm()
@@ -830,9 +879,23 @@ export default {
           for (const field in error.response.data.errors) {
             validationErrors += error.response.data.errors[field].join(' ') + ' '
           }
-          toast.error(`${validationErrors.trim()}`)
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: validationErrors.trim(),
+            showConfirmButton: false,
+            timer: 2000,
+          })
         } else {
-          toast.error('Có lỗi xảy ra trong quá trình thêm/sửa bàn.')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Có lỗi xảy ra trong quá trình thêm/sửa bàn.',
+            showConfirmButton: false,
+            timer: 2000,
+          })
         }
       } finally {
         isLoading.value = false
@@ -841,7 +904,14 @@ export default {
 
     const onNewTableDragEnd = async (event) => {
       if (!hasPermission('create_table')) {
-        toast.error('Bạn không có quyền thêm bàn mới bằng cách kéo thả.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Bạn không có quyền thêm bàn mới bằng cách kéo thả.',
+          showConfirmButton: false,
+          timer: 2000,
+        })
         return
       }
 
@@ -854,14 +924,30 @@ export default {
 
     const onTableAddedFromSidebar = async (event) => {
       if (!hasPermission('create_table')) {
-        toast.error('Bạn không có quyền thêm bàn mới.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Bạn không có quyền thêm bàn mới.',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
         allTables.value.splice(event.newIndex, 1)
         return
       }
 
       const addedTableData = allTables.value[event.newIndex]
       if (!addedTableData || !addedTableData.table_number || !addedTableData.capacity) {
-        toast.error('Vui lòng nhập số bàn và số ghế trước khi thêm bàn.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Vui lòng nhập số bàn và số ghế trước khi thêm bàn.',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
         allTables.value.splice(event.newIndex, 1)
         return
       }
@@ -872,8 +958,15 @@ export default {
           table_number: addedTableData.table_number,
           capacity: addedTableData.capacity,
         })
-
-        toast.success(`Đã thêm bàn thành công!`)
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Đã thêm bàn thành công!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
         if (response.data && response.data.id) {
           addedTableData.id = response.data.id
         }
@@ -887,9 +980,25 @@ export default {
           for (const field in error.response.data.errors) {
             validationErrors += error.response.data.errors[field].join(' ') + ' '
           }
-          toast.error(`Lỗi dữ liệu: ${validationErrors.trim()}`)
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: validationErrors.trim(),
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          })
         } else {
-          toast.error('Có lỗi xảy ra khi thêm bàn.')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Có lỗi xảy ra khi thêm bàn.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          })
         }
         allTables.value.splice(event.newIndex, 1)
       } finally {
@@ -899,7 +1008,15 @@ export default {
 
     const deleteTable = async (table_id) => {
       if (!hasPermission('delete_table')) {
-        toast.error('Bạn không có quyền xóa bàn.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Bạn không có quyền xóa bàn.',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
         return
       }
 
@@ -907,10 +1024,26 @@ export default {
         isLoading.value = true
         await axios.delete(`http://127.0.0.1:8000/api/tables/${table_id}`)
         await getTable()
-        toast.success('Xoá bàn thành công')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Xoá bàn thành công',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
       } catch (error) {
         console.log('Lỗi ' + error)
-        toast.error('Xoá bàn không thành công')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Xoá bàn không thành công',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
       } finally {
         isLoading.value = false
       }
@@ -922,7 +1055,15 @@ export default {
         if (!selected) return;
 
         if (selected.current_day_status !== 'Bàn trống') {
-          toast.warn('Chỉ có thể chọn bàn trống để xếp bàn.');
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'warning',
+            title: 'Chỉ có thể chọn bàn trống để xếp bàn.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          })
           return;
         }
 
@@ -938,47 +1079,86 @@ export default {
 
             for (let i = 1; i < allNumbers.length; i++) {
               if (allNumbers[i] !== allNumbers[i - 1] + 1) {
-                toast.warn('Chỉ có thể chọn các bàn có số liền kề nhau.');
+                Swal.fire({
+                  toast: true,
+                  position: 'top-end',
+                  icon: 'warning',
+                  title: 'Chỉ có thể chọn các bàn có số liền kề nhau.',
+                  showConfirmButton: false,
+                  timer: 2000,
+                  timerProgressBar: true
+                })
                 return;
               }
             }
           }
-
           selectedTablesForOrder.value.push(selected);
         }
-
         return;
       }
       if (isChange.value) {
         const selected = allTables.value.find((t) => t.id === id)
         if (selected && selected.current_day_status === 'Bàn trống') {
-          if (
-            confirm(
-              `Bạn có chắc chắn muốn chuyển đơn hàng #${orderId} sang bàn B${selected.table_number}?`,
-            )
-          ) {
+          const result = await Swal.fire({
+            title: `Bạn có chắc chắn muốn chuyển đơn hàng #${orderId} sang bàn B${selected.table_number}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy',
+          })
+          if (result.isConfirmed) {
             try {
               isLoading.value = true
               await axios.put('http://127.0.0.1:8000/api/change-table', {
                 id: orderId,
                 table_id: id,
               })
-              toast.success('Chuyển bàn thành công!')
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Chuyển bàn thành công!',
+                showConfirmButton: false,
+                timer: 2000,
+              })
               await getTable()
             } catch (error) {
               console.error('Lỗi khi chuyển bàn:', error)
-              toast.error('Có lỗi xảy ra khi chuyển bàn.')
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'Có lỗi xảy ra khi chuyển bàn.',
+                showConfirmButton: false,
+                timer: 2000,
+              })
             } finally {
               isLoading.value = false
             }
           }
         } else {
-          toast.warn('Không thể chuyển đến bàn này. Vui lòng chọn một bàn trống.')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'warning',
+            title: 'Không thể chuyển đến bàn này. Vui lòng chọn một bàn trống.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          })
         }
         return
       }
       if (!hasPermission('edit_table')) {
-        toast.error('Bạn không có quyền sửa bàn.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Bạn không có quyền sửa bàn.',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
         return
       }
       if (selectedTableId.value === id && isSidebarOpen.value) {
@@ -1001,7 +1181,15 @@ export default {
             tableOrder.value = res.data.data.reserversations
           } catch (error) {
             console.error('Lỗi khi lấy thông tin đặt bàn:', error)
-            toast.error('Không thể tải thông tin đặt bàn.')
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'warning',
+              title: 'Không thể tải thông tin đặt bàn.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            })
             tableOrder.value = []
           }
 
@@ -1020,7 +1208,15 @@ export default {
 
     const setUpTablesForOrder = async () => {
       if (!orderId || selectedTablesForOrder.value.length === 0) {
-        toast.warn('Vui lòng chọn ít nhất 1 bàn và thời gian bắt đầu.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Vui lòng chọn ít nhất 1 bàn và thời gian bắt đầu.',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
         return
       }
 
@@ -1033,13 +1229,28 @@ export default {
           table_ids: tableIds,
           reserved_from: reserved_from,
         })
-
-        toast.success('Xếp bàn thành công!')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Xếp bàn thành công!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
         selectedTablesForOrder.value = []
         await getTable()
       } catch (err) {
         console.error(err)
-        toast.error('Lỗi khi xếp bàn.')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Lỗi khi xếp bàn.',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
       } finally {
         isLoading.value = false
       }
@@ -1081,17 +1292,40 @@ export default {
 
     const updateStatus = async (id, status) => {
       try {
-        if (confirm(`Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}`)) {
+        const result = await Swal.fire({
+          title: `Bạn có chắc chắn muốn cập nhật sang trạng thái ${status}?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Xác nhận',
+          cancelButtonText: 'Hủy',
+        })
+        if (result.isConfirmed) {
           await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
             id: id,
             order_status: status,
           })
           closeDetailPopup()
           await getTable()
-          toast.success('Cập nhật thành công')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Cập nhật thành công.',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          })
         }
       } catch (error) {
-        toast.error('Có lỗi xảy ra')
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: 'Có lỗi xảy ra.',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true
+        })
         console.log(error)
       }
     }

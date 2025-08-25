@@ -98,8 +98,9 @@
 
             <div class="col-lg-9 align-items-center text-center">
               <div class="title-food-menu text-center d-flex">
-                <span class="title-food-menu fw-bold">{{ selectedCategoryName || 'Món Ăn' }}</span>
-              </div>
+  <span class="title-food-menu fw-bold">{{ selectedCategoryName || 'Món Ăn' }}</span>
+</div>
+
               <section v-if="isLoading">
                 <div v-for="n in 4" :key="n" class="foods-homepages">
                   <!-- Giống item.id % 2 !== 0 -->
@@ -181,7 +182,7 @@
           </div>
         </template>
 
-        <template v-else>
+        <!-- <template v-else>
           <div class="row d-flex">
             <div v-for="combo in combos" :key="combo.id" class="col-12 col-md-4 mb-4 text-center">
               <img :src="getImageUrl(combo.image)" class="img-fluid mb-2" />
@@ -190,7 +191,7 @@
               </div>
             </div>
           </div>
-        </template>
+        </template> -->
       </div>
     </section>
 

@@ -1,7 +1,7 @@
 // src/stores/discount.js
 import axios from 'axios'
 import { ref, onMounted, computed, watch, watchEffect } from 'vue'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2'
 import { useShippingStore } from './shippingStore'
 import { Cart } from '@/stores/cart'
 import { FoodList } from './food'
@@ -82,10 +82,22 @@ export function Discounts() {
     }
   }
 
+  const showToast = (message, icon = 'success') => {
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: icon,
+      title: message,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+    })
+  }
+
   const applyDiscountCode = (code) => {
     const selected = allDiscounts.value.find((d) => d.code === code)
     if (!selected) {
-      alert('Mã giảm giá không hợp lệ')
+      showToast('Không tìm thấy mã giảm giá','warning')
       return
     }
     selectedDiscount.value = code
@@ -97,21 +109,19 @@ export function Discounts() {
     const discount = allDiscounts.value.find((d) => d.code === code)
 
     if (!discount) {
-      toast.error('❌ Mã giảm giá không hợp lệ')
+      showToast('Mã giảm giá không hợp lệ','error')
       return
     }
 
     if (totalPrice.value < discount.min_order_value) {
-      toast.warning(
-        `⚠️ Đơn hàng cần tối thiểu ${discount.min_order_value.toLocaleString()}đ để dùng mã ${code}`
-      )
+      showToast(`Đơn hàng cần tối thiểu ${discount.min_order_value.toLocaleString()}đ để dùng mã ${code}`,'warning')
       return
     }
 
     discountInputId.value = discount.id
     applyDiscountCode(code)
     discountInput.value = ''
-    toast.success(`✅ Mã ${code} đã được áp dụng!`)
+    showToast(`Mã ${code} đã được áp dụng!`,'success')
   }
 
   watchEffect(() => {
