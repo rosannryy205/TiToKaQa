@@ -3,6 +3,11 @@
     <div class="chat-toggle-btn" @click="toggleChat">
       <span v-if="!showChat"><i class="bi bi-chat-dots"></i></span>
       <span v-else class="icon-x"><i class="bi bi-x"></i></span>
+
+      <!-- Vòng tỏa sáng -->
+      <span class="ripple ripple1"></span>
+      <span class="ripple ripple2"></span>
+      <span class="ripple ripple3"></span>
     </div>
 
     <div v-if="showChat" class="chat-wrapper">
@@ -979,6 +984,70 @@ export default {
 }
 </script>
 <style scoped>
+.chat-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 60px;
+    height: 60px;
+    background-color: #e43d4c; /* Màu đỏ của nút */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    overflow: visible; /* Cho phép các vòng tròn tỏa ra ngoài */
+}
+
+/* Biểu tượng chat hoặc đóng */
+.chat-toggle-btn i {
+    position: relative;
+    z-index: 2; /* Đảm bảo icon nằm trên cùng */
+    font-size: 24px;
+}
+
+/* Các vòng tròn tỏa sáng (đặc) */
+.ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background-color: rgba(228, 61, 76, 0.7); /* Sử dụng màu đỏ mờ để tạo bóng */
+    animation: ripple-animation 2s infinite;
+    z-index: 1; /* Nằm dưới icon chính */
+    width: 60px; /* Kích thước ban đầu bằng nút */
+    height: 60px;
+}
+
+/* Điều chỉnh độ trễ của từng vòng */
+.ripple1 {
+    animation-delay: 0s;
+}
+
+.ripple2 {
+    animation-delay: 0.5s;
+}
+
+.ripple3 {
+    animation-delay: 1s;
+}
+
+/* Keyframes cho hiệu ứng tỏa ra và biến mất */
+@keyframes ripple-animation {
+    0% {
+        transform: translate(-50%, -50%) scale(0.9); /* Bắt đầu nhỏ hơn một chút */
+        opacity: 0.7; /* Đậm hơn ở thời điểm ban đầu */
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5); /* Kích thước tối đa nhỏ hơn */
+        opacity: 0;
+    }
+}
+
 .icon-x {
   color: #ffffff;
 }
