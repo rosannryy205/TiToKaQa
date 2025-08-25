@@ -100,7 +100,7 @@ import { PrizeConfig } from '@/components/fortuneWheel/types'
 import { useUserStore } from '@/stores/userAuth'
 import { Rewards } from '@/stores/rewards'
 import { API_URL } from '@/config'
-
+import { STORAGE_URL } from '@/config'
 const userStore = useUserStore()
 const isAuthenticated = computed(() => !!userStore.token)
 const { userRewards, getUserRewards } = Rewards()
