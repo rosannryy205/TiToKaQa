@@ -16,7 +16,10 @@ export function Permission(useridRef) {
         if (useridRef.value) {
           const response = await axios.get(`${API_URL}/role-permission-user/${useridRef.value}`);
             _permissions.value = response.data.permissions;
+<<<<<<< HEAD
             // console.log("Quyền người dùng đã được tải từ API:", _permissions.value);
+=======
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         } else {
           console.warn("Không có User ID được cung cấp để tải quyền.");
           _permissions.value = [];

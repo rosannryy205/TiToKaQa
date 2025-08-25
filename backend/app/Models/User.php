@@ -68,6 +68,7 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
     public function discounts()
+<<<<<<< HEAD
 {
     return $this->belongsToMany(Discount::class, 'discount_user', 'user_id', 'discount_id')
         ->withPivot(['point_used', 'exchanged_at', 'expiry_at', 'source'])
@@ -79,4 +80,16 @@ class User extends Authenticatable
 
 
 
+=======
+    {
+        return $this->belongsToMany(Discount::class, 'discount_user', 'user_id', 'discount_id')
+            ->withPivot(['point_used', 'exchanged_at', 'expiry_at', 'source'])
+            ->withTimestamps();
+    }
+
+    public function foodPosts()
+    {
+        return $this->hasMany(FoodPost::class, 'user_id');
+    }
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 }

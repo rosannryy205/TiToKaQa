@@ -315,6 +315,7 @@ export default {
     },
   },
   setup() {
+    const API_URL = "http://127.0.0.1:8000/api"
     const foods = ref([])
     const categories = ref([])
     const foodDetail = ref([])

@@ -264,8 +264,12 @@ import numeral from 'numeral'
 import { computed } from 'vue'
 import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
+<<<<<<< HEAD
 import { API_URL } from '@/config'
 import { STORAGE_URL } from '@/config'
+=======
+
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 import { onBeforeRouteLeave } from 'vue-router'
 import { nextTick } from 'vue'
 import axios from 'axios'
@@ -466,6 +470,10 @@ export default {
     const toppingList = ref([])
     const spicyLevel = ref([])
     const quantity = ref(1)
+<<<<<<< HEAD
+=======
+    const API_URL = "http://127.0.0.1:8000/api"
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
     const openModal = async (item) => {
       foodDetail.value = {}
@@ -475,10 +483,17 @@ export default {
       quantity.value = 1
       try {
         if (item.type === 'food') {
+<<<<<<< HEAD
           const res = await axios.get(`${API_URL}/home/food/${item.id}`)
           foodDetail.value = { ...res.data, type: 'food' }
           console.log(foodDetail.value);
           const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
+=======
+          const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+          foodDetail.value = { ...res.data, type: 'food' }
+          console.log(foodDetail.value);
+          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           toppings.value = res1.data
           console.log(toppings.value)
           spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
@@ -487,7 +502,11 @@ export default {
             item.price = item.price || 0
           })
         } else if (item.type === 'combo') {
+<<<<<<< HEAD
           const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
+=======
+          const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           foodDetail.value = { ...res.data, type: 'combo' }
         }
 
@@ -510,10 +529,17 @@ export default {
         // Gọi API để lấy lại thông tin món (food hoặc combo)
         let res;
         if (item.type === 'food') {
+<<<<<<< HEAD
           res = await axios.get(`${API_URL}/home/food/${item.id}`);
           foodDetail.value = { ...res.data, type: 'food' };
 
           const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
+=======
+          res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`);
+          foodDetail.value = { ...res.data, type: 'food' };
+
+          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           toppings.value = res1.data
 
           spicyLevel.value = toppings.value.filter((i) => i.category_id == 15)
@@ -522,7 +548,11 @@ export default {
             i.price = i.price || 0;
           });
         } else if (item.type === 'combo') {
+<<<<<<< HEAD
           res = await axios.get(`${API_URL}/home/combo/${item.id}`);
+=======
+          res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`);
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           foodDetail.value = { ...res.data, type: 'combo' };
         }
 

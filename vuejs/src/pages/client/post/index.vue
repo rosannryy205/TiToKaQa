@@ -86,7 +86,11 @@
             <div class="position-relative">
               <a :href="postUrl(post)" class="text-decoration-none">
                 <div class="ratio ratio-16x9 bg-light">
+<<<<<<< HEAD
                   <img v-if="post.image" :src="getImageUrl(post.image)" :alt="post.title"
+=======
+                  <img v-if="post.image" :src="`http://127.0.0.1:8000/storage/img/post/${post.image}`" :alt="post.title"
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                     class="img-fluid object-fit-cover rounded-top" loading="lazy" />
                   <div v-else class="d-flex align-items-center justify-content-center bg-light rounded-top">
                     <i class="bi bi-image text-secondary"></i>
@@ -136,11 +140,15 @@
 <script setup>
 import axios from "axios";
 import { ref, computed, onMounted } from "vue";
+<<<<<<< HEAD
 import { API_URL } from '@/config'
 import { STORAGE_URL } from '@/config'
 
 
 const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
+=======
+
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 // Filters
 const filters = ref({
   search: "",
@@ -180,7 +188,11 @@ const fetchPosts = async () => {
   loading.value = true;
   error.value = "";
   try {
+<<<<<<< HEAD
     const res = await axios.get(`${API_URL}/get_all_post`);
+=======
+    const res = await axios.get(`http://127.0.0.1:8000/api/get_all_post`);
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     let posts = [];
     if (Array.isArray(res.data.result)) {
       posts = res.data.result;

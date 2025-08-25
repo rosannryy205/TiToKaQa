@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App;
+<<<<<<< HEAD
 use App\Mail\QuickRegisterMail;
+=======
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 use App\Models\Discount;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -136,9 +139,15 @@ class UserController extends Controller
 
         /**xuly tang dc cho nguoi moi */
         $newUserDiscounts = Discount::where('user_level', 'new')
+<<<<<<< HEAD
             ->where('status', 'active')
             ->where('source', 'for_users')
             ->get();
+=======
+        ->where('status', 'active')
+        ->where('source', 'for_users')
+        ->get();
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         $data = [];
         $issuedAt  = now();
         $expiryAt  = now()->addDays(7);
@@ -395,6 +404,7 @@ class UserController extends Controller
     }
 
 
+<<<<<<< HEAD
     public function quickRegister(Request $request)
     {
         $request->validate([
@@ -472,6 +482,8 @@ class UserController extends Controller
 
 
 
+=======
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     /**
      * Show the form for creating a new resource.
      */

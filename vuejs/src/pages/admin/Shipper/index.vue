@@ -11,7 +11,11 @@
           <div class="container py-4">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
               <h2 class="fw-bold fs-4 mb-0 text-primary d-flex align-items-center">
+<<<<<<< HEAD
                 <i class="bi bi-truck-front-fill me-2"></i>Đơn hàng đang giao
+=======
+                Đơn hàng đang giao
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
               </h2>
               <router-link to="/admin/select_order" class="ms-auto">
                 <button class="btn btn-ship fw-semibold">
@@ -48,9 +52,18 @@
                           <strong>Địa chỉ:</strong> {{ order.guest_address }}
                         </div>
                       </li>
+<<<<<<< HEAD
 
                       <li><i class="bi bi-clock-fill me-2 text-secondary"></i><strong>Thời gian:</strong> {{ order.order_time
                         }}</li>
+=======
+                      <li>
+                        <i class="bi bi-clock-fill me-2 text-secondary"></i><strong>Thời gian:</strong> {{ order.order_time}}
+                      </li>
+                      <li>
+                      <i class="bi bi-chat-left-text-fill me-2"></i><strong>Ghi chú:</strong> {{ order.note || 'Không có' }}
+                      </li>
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                     </ul>
 
                     <!-- Order Items -->
@@ -95,10 +108,14 @@
                     </div>
 
 
+<<<<<<< HEAD
                     <!-- Note -->
                     <p class="card-text text-secondary">
                       <i class="bi bi-chat-left-text-fill me-2"></i><strong>Ghi chú:</strong> {{ order.note || 'Không có' }}
                     </p>
+=======
+
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
                     <button class="btn btn-outline-danger-custom mt-3" @click="goToTracking(order.id)">
                       Xem hành trình giao hàng
@@ -126,7 +143,11 @@ import { formatDate } from '@fullcalendar/core'
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+<<<<<<< HEAD
 
+=======
+const API_URL = "http://127.0.0.1:8000/api"
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const router = useRouter()
 const goToTracking = (orderId) => {
   router.push(`/admin/delivery_map/${orderId}`)
@@ -138,7 +159,11 @@ const orders = ref([])
 const getAllOrderByUser = async () => {
   isLoading.value = true
   try {
+<<<<<<< HEAD
     const response = await axios.get('http://127.0.0.1:8000/api/shipper/orders', {
+=======
+    const response = await axios.get(`${API_URL}/shipper/orders`, {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }

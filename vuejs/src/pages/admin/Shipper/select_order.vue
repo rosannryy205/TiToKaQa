@@ -6,7 +6,11 @@
           <div class="container py-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
               <h3 class="fw-bold mb-0 text-primary">
+<<<<<<< HEAD
                 <i class="bi bi-truck me-2"></i>Chọn đơn hàng
+=======
+                Chọn đơn hàng
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
               </h3>
               <span class="badge bg-secondary">
                 Đã chọn: {{ selectedIds.length }}/3
@@ -39,7 +43,11 @@
                       <p class="mb-1 text-dark"><i class="bi bi-person me-1 text-secondary"></i> {{ order.guest_name }}
                       </p>
                       <p class="mb-1 text-dark"><i class="bi bi-telephone me-1 text-secondary"></i> {{ order.guest_phone
+<<<<<<< HEAD
                       }}
+=======
+                        }}
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                       </p>
                       <p class="mb-2 small text-muted">
                         <i class="bi bi-geo-alt me-1"></i> {{ order.guest_address }}
@@ -48,6 +56,7 @@
                         <i class="bi bi-chat-left-text-fill me-2"></i>
                         <strong>Ghi chú:</strong> {{ order.note }}
                       </p>
+<<<<<<< HEAD
                       <strong class="text-dark"><i class="bi bi-list-ul me-1"></i>Chi tiết món:</strong>
 
                       <!-- Chi tiết đơn hàng -->
@@ -66,6 +75,38 @@
                             </ul>
                           </li>
                         </ul>
+=======
+                      <!-- Order Items -->
+                      <div class="mb-3 flex-grow-1 d-flex flex-column w-100">
+                        <strong class="text-dark"><i class="bi bi-list-ul me-2"></i>Chi tiết đơn hàng:</strong>
+
+                        <div class="order-items-scroll mt-2 flex-grow-1 w-100">
+                          <ul class="list-group list-group-flush small w-100"
+                            v-if="order.details && order.details.length > 0">
+                            <li class="list-group-item px-0" v-for="food in order.details" :key="food.id">
+                              <div class="d-flex justify-content-between">
+                                <div>
+                                  <div>🍽️ {{ food.food_name }}</div>
+                                  <div class="text-muted small">Số lượng: {{ food.quantity }}</div>
+                                </div>
+                                <span class="fw-semibold">{{ formatCurrency(food.price) }}</span>
+                              </div>
+                              <ul v-if="food.toppings && food.toppings.length > 0" class="ps-4 mt-1 mb-0">
+                                <li v-for="(topping, tIndex) in food.toppings" :key="tIndex"
+                                  class="text-muted d-flex justify-content-between">
+                                  <span><i class="bi bi-plus-circle me-1 text-success"></i>{{ topping.topping_name
+                                    }}</span>
+                                  <span class="text-success">{{ formatCurrency(topping.price || 0) }}</span>
+                                </li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div class="text-end fw-bold mt-2 text-primary w-100">
+                          Tổng: {{ formatCurrency(order.total_price) }}
+                        </div>
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                       </div>
 
                       <!-- Tổng tiền & nút -->
@@ -114,7 +155,11 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
+<<<<<<< HEAD
 
+=======
+const API_URL = "http://127.0.0.1:8000/api"
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const router = useRouter()
 
 const goBack = () => {
@@ -129,7 +174,11 @@ const shipperId = JSON.parse(localStorage.getItem('user'))?.id
 const getOrders = async () => {
   isLoading.value = true
   try {
+<<<<<<< HEAD
     const res = await axios.get('http://127.0.0.1:8000/api/get_all_orders')
+=======
+    const res = await axios.get(`${API_URL}/get_all_orders`)
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     orders.value = res.data.orders.filter(order => order.order_status === 'Bắt đầu giao' && order.shipper_id === null)
   } catch (e) {
     Swal.fire({
@@ -168,7 +217,11 @@ const toggleSelect = (id) => {
 
 const assignOrders = async () => {
   try {
+<<<<<<< HEAD
     const response = await axios.post('http://127.0.0.1:8000/api/selected_orders', {
+=======
+    const response = await axios.post(`${API_URL}/selected_orders`, {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
       order_ids: selectedIds.value,
       shipper_id: shipperId
     })

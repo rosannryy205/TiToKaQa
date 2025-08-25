@@ -74,7 +74,11 @@ import { ref } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 
+<<<<<<< HEAD
 
+=======
+const API_URL = "http://127.0.0.1:8000/api"
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const title = ref('')
 const content = ref('')
 const selectedCategory = ref('') // Danh mục được chọn
@@ -93,6 +97,7 @@ const handleImageUpload = (event) => {
 }
 
 const savePost = async () => {
+<<<<<<< HEAD
   if (!selectedCategory.value) {
     Swal.fire({
       toast: true,
@@ -141,10 +146,39 @@ const savePost = async () => {
 
     await axios.post('http://127.0.0.1:8000/api/insert_post', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
+=======
+  try {
+    const formData = new FormData()
+    formData.append("title", title.value)
+    formData.append("content", content.value)
+    formData.append("category", selectedCategory.value)
+
+    if (imageFile.value) {
+      formData.append("image", imageFile.value)
+    }
+
+    // ✅ Lấy user object từ localStorage
+    const user = JSON.parse(localStorage.getItem("user"))
+    if (!user || !user.id) {
+      Swal.fire({
+        icon: "error",
+        title: "Không tìm thấy thông tin user",
+        text: "Vui lòng đăng nhập lại!",
+      })
+      return
+    }
+
+    // ✅ Lấy id gắn vào formData
+    formData.append("user_id", user.id)
+
+    await axios.post(`${API_URL}/insert_post`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     })
 
     Swal.fire({
       toast: true,
+<<<<<<< HEAD
       position: 'top-end',
       icon: 'success',
       title: 'Thêm bài viết thành công',
@@ -158,10 +192,30 @@ const savePost = async () => {
     Swal.fire({
       icon: 'error',
       title: 'Lỗi khi thêm bài viết'
+=======
+      position: "top-end",
+      icon: "success",
+      title: "Thêm bài viết thành công",
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+    })
+
+    goBack()
+  } catch (error) {
+    console.error(error)
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi khi thêm bài viết",
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     })
   }
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const generateWithAI = async () => {
   if (!title.value) {
     Swal.fire({
@@ -177,7 +231,11 @@ const generateWithAI = async () => {
   }
 
   try {
+<<<<<<< HEAD
     const res = await axios.post('http://127.0.0.1:8000/api/generate/post', {
+=======
+    const res = await axios.post(`${API_URL}/generate/post`, {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
       title: title.value
     })
 
@@ -222,7 +280,11 @@ const checkSEO = async () => {
   }
 
   try {
+<<<<<<< HEAD
     const res = await axios.post('http://127.0.0.1:8000/api/check-seo', {
+=======
+    const res = await axios.post(`${API_URL}/check-seo`, {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
       title: title.value,
       content: content.value
     })
