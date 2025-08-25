@@ -26,8 +26,7 @@ import { useRoute } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { toast } from 'vue3-toastify'
-import { API_URL } from '@/config'
-import { STORAGE_URL } from '@/config'
+
 // Firebase
 import { ref as dbRef, onValue } from 'firebase/database'
 import { database } from '@/stores/firebase'
@@ -172,11 +171,11 @@ onMounted(async () => {
   }
   isLoading.value = true
   try {
-    const res = await axios.get(`${API_URL}/delivery/${order_id}`)
+    const res = await axios.get(`http://127.0.0.1:8000/api/delivery/${order_id}`)
     const order = res.data
     const shipperId = order.data.shipper_id
 
-    const res2 = await axios.get(`${API_URL}/shipper/${shipperId}/last-location`)
+    const res2 = await axios.get(`http://127.0.0.1:8000/api/shipper/${shipperId}/last-location`)
     shipper.value = {
       lat: res2.data.lat,
       lng: res2.data.lng
