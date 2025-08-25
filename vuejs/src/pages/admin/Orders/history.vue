@@ -142,12 +142,8 @@ import { onMounted } from 'vue';
 import Swal from 'sweetalert2';
 // Import các icon nếu cần cho nút hoặc các phần khác
 // import { EyeOutlined, PrinterOutlined } from '@ant-design/icons-vue';
-
+import { API_URL } from '@/config'
 import { Permission } from '@/stores/permission'
-<<<<<<< HEAD
-=======
-const API_URL = "http://127.0.0.1:8000/api"
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -164,11 +160,7 @@ const ordersRaw = ref([]);
 
 const fetchOrders = async () => {
   try {
-<<<<<<< HEAD
-    const response = await axios.get(`http://127.0.0.1:8000/api/get_all_orders`);
-=======
     const response = await axios.get(`${API_URL}/get_all_orders`);
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     const apiOrders = response.data.orders;
 
     const fillterOrder = apiOrders.filter(order =>
@@ -279,11 +271,7 @@ const handleStatusChange = async (orderId, newStatus) => {
   }
 
   try {
-<<<<<<< HEAD
-    const response = await axios.put(`http://127.0.0.1:8000/api/update/${orderId}/status`, {
-=======
     const response = await axios.put(`${API_URL}/update/${orderId}/status`, {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
       order_status: newStatus,
     });
 
@@ -501,11 +489,7 @@ const viewOrderDetails = (record) => {
 };
 
 const printInvoice = (record) => {
-<<<<<<< HEAD
-  axios.get(`http://127.0.0.1:8000/api/invoice/${record}`, {
-=======
   axios.get(`${API_URL}/invoice/${record}`, {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     responseType: 'blob'
   })
     .then(response => {

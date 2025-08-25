@@ -71,26 +71,18 @@ import axios from 'axios'
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css';
 import { Permission } from '@/stores/permission'
-
+import { API_URL } from '@/config'
 export default {
   components: {
     'v-select': vSelect,
   },
   setup() {
-<<<<<<< HEAD
-=======
-    const API_URL = "http://127.0.0.1:8000/api"
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     const role = ref([])
     const selectrole = ref(null)
 
     const getAllRole = async () => {
       try {
-<<<<<<< HEAD
-        const res = await axios.get('http://127.0.0.1:8000/api/role')
-=======
         const res = await axios.get(`${API_URL}/role`)
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         role.value = res.data
       } catch (error) {
         console.log(error);

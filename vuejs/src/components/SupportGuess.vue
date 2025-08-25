@@ -5,12 +5,11 @@
         <button class="popup-close" @click="closePopup">×</button>
 
         <a class="plain-btn" @click="openModal">
-          <img src="/img/search.png" alt="Support" class="wiggle-image" />
+          <img  src="/img/search.png"  alt="Support" class="wiggle-image" />
         </a>
         <a class="popup-button" @click="openModal">TRA CỨU ĐƠN</a>
       </div>
     </div>
-
     <div v-if="isModalOpen" class="modal-overlay" @click.self="handleModalClose">
       <div class="modal-card">
         <div class="modal-header">
@@ -143,8 +142,8 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
-const ASSET_BASE = import.meta.env.VITE_ASSET_BASE || 'http://127.0.0.1:8000'
+import { STORAGE_URL } from '@/config'
+import { API_URL } from '@/config'
 const CANCELLABLE = ['Chờ xác nhận', 'Đã xác nhận']
 
 // UI & state
@@ -195,7 +194,7 @@ function formatDate(iso) {
   const d = new Date(iso)
   return isNaN(d) ? '' : d.toLocaleString('vi-VN')
 }
-const getImageUrl = (image) => (image ? `${ASSET_BASE}/storage/img/food/${image}` : null)
+const getImageUrl = (image) => (image ? `${STORAGE_URL}/img/food/${image}` : null)
 function getItemImage(d) {
   const img = d?.food?.image || d?.foods?.image || d?.combo?.image || d?.combos?.image || d?.image
   return getImageUrl(img)

@@ -129,11 +129,7 @@ Route::prefix('orders')->controller(OrderController::class)->group(function () {
 });
 Route::post('orders/{code}/cancel', [OrderController::class, 'cancelByConfirm'])
     ->where('code', '[A-Za-z0-9\-\._]+')
-<<<<<<< HEAD
     ->middleware('throttle:15,1');
-=======
-    ->middleware('throttle:15,1'); 
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
@@ -203,11 +199,6 @@ Route::post('/selected_orders', [OrderController::class, 'assignShipper']);
 Route::get('/shipper/{id}/active-orders', [OrderController::class, 'getShipperOrders']);
 Route::post('/shipper/update-location', [UserController::class, 'updateLocation']);
 Route::get('/shipper/{id}/last-location', [UserController::class, 'getLastLocation']);
-<<<<<<< HEAD
-=======
-
-
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
 
 //discount
@@ -225,13 +216,8 @@ Route::get('/auth/{provider}/callback', ProviderCallbackController::class)->name
 Route::get('/admin/manage/foods', [AdminFoodController::class, 'index']);
 Route::post('/admin/foods', [AdminFoodController::class, 'store']);
 Route::get('/admin/foods/search', [FoodController::class, 'search']);
-<<<<<<< HEAD
-// Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
-// Route::post('/admin/foods/delete-multiple', [AdminFoodController::class, 'deleteMultiple']);
-=======
 Route::delete('/admin/food/{id}', [AdminFoodController::class, 'destroy']);
 Route::post('/admin/foods/delete-multiple', [AdminFoodController::class, 'deleteMultiple']);
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 Route::put('/admin/food/{id}/status', [AdminFoodController::class, 'updateStatus']);
 Route::get('/admin/food/{id}', [AdminFoodController::class, 'getFoodById']);
 Route::post('/admin/update-food/{id}', [AdminFoodController::class, 'update']);
@@ -254,14 +240,8 @@ Route::get('/admin/categories/list', [AdminCategoryController::class, 'index']);
 Route::get('/admin/categories/{id}', [AdminCategoryController::class, 'show']);
 Route::post('/admin/categories', [AdminCategoryController::class, 'store']);
 Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update']);
-<<<<<<< HEAD
-// Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
-// Route::post('/admin/categories/delete-multiple',
-// [AdminCategoryController::class, 'deleteMultiple']);
-=======
 Route::delete('/admin/categories/{id}', [AdminCategoryController::class, 'destroy']);
 Route::post('/admin/categories/delete-multiple', [AdminCategoryController::class, 'deleteMultiple']);
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
 //  ------- Thống kê admin --------
 Route::get('/admin/revenue-by-month', [DashboardController::class, 'revenueByMonth']);

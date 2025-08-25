@@ -13,7 +13,6 @@
 }
 
 body {
-  background: url('../img/Background.png') no-repeat center center;
   background-size: cover;
   font-family: 'Barlow', sans-serif;
 }
@@ -131,11 +130,7 @@ body {
 .input-wrapper .icon-search-submit:focus-within ~ .input-search,
 .input-wrapper .input-search:focus {
   box-shadow: none;
-<<<<<<< HEAD
-  width: 115px;
-=======
   width: 130px;
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
   border-radius: 0px;
   background-color: transparent;
   border-bottom: 3px solid #c92c3c;
