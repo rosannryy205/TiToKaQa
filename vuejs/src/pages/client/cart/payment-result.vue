@@ -38,8 +38,7 @@ import { Info } from "@/stores/info-order-reservation";
 import { ref, onMounted, computed } from "vue";
 import axios from 'axios';
 import OrderSummary from "./OrderSummary.vue";
-import { API_URL } from '@/config'
-import { STORAGE_URL } from '@/config'
+
 export default {
   components: { OrderSummary },
   setup() {
@@ -53,7 +52,7 @@ export default {
 
     const getOrder = async (orderId) => {
       try {
-        const res = await axios.get(`${API_URL}/get-order-reservation-info`, {
+        const res = await axios.get('http://127.0.0.1:8000/api/get-order-reservation-info', {
           params: { type: 'order_id', value: orderId }
         });
         orders.value = res.data.orders || [];
@@ -90,9 +89,9 @@ export default {
         let response;
 
         if (selectedMethod.value === "VNPAY") {
-          response = await axios.get(`${API_URL}/payments/vnpay-return`, { params });
+          response = await axios.get("http://127.0.0.1:8000/api/payments/vnpay-return", { params });
         } else if (selectedMethod.value === "MOMO") {
-          response = await axios.get(`${API_URL}/payments/momo-return`, { params });
+          response = await axios.get("http://127.0.0.1:8000/api/payments/momo-return", { params });
         } else {
           isPaidSuccess.value = true;
           paymentMessage.value = 'Thanh toán bằng tiền mặt (COD) không cần xác minh.';

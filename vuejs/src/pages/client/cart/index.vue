@@ -264,8 +264,7 @@ import numeral from 'numeral'
 import { computed } from 'vue'
 import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
-import { API_URL } from '@/config'
-import { STORAGE_URL } from '@/config'
+
 import { onBeforeRouteLeave } from 'vue-router'
 import { nextTick } from 'vue'
 import axios from 'axios'
@@ -276,7 +275,7 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `${STORAGE_URL}/img/food/${image}`
+      return `/img/food/${image}`
     },
   },
 
@@ -476,10 +475,10 @@ export default {
       quantity.value = 1
       try {
         if (item.type === 'food') {
-          const res = await axios.get(`${API_URL}/home/food/${item.id}`)
+          const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
           foodDetail.value = { ...res.data, type: 'food' }
           console.log(foodDetail.value);
-          const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
+          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
           console.log(toppings.value)
           spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
@@ -488,7 +487,7 @@ export default {
             item.price = item.price || 0
           })
         } else if (item.type === 'combo') {
-          const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
+          const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
           foodDetail.value = { ...res.data, type: 'combo' }
         }
 
@@ -511,10 +510,10 @@ export default {
         // Gọi API để lấy lại thông tin món (food hoặc combo)
         let res;
         if (item.type === 'food') {
-          res = await axios.get(`${API_URL}/home/food/${item.id}`);
+          res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`);
           foodDetail.value = { ...res.data, type: 'food' };
 
-          const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
+          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
           toppings.value = res1.data
 
           spicyLevel.value = toppings.value.filter((i) => i.category_id == 15)
@@ -523,7 +522,7 @@ export default {
             i.price = i.price || 0;
           });
         } else if (item.type === 'combo') {
-          res = await axios.get(`${API_URL}/home/combo/${item.id}`);
+          res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`);
           foodDetail.value = { ...res.data, type: 'combo' };
         }
 

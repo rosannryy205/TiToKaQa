@@ -52,8 +52,7 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userAuth';
 import Swal from 'sweetalert2';
-import { API_URL } from '@/config'
-import { STORAGE_URL } from '@/config'
+
 export default {
   name: 'LoginForm',
 
@@ -70,13 +69,13 @@ export default {
 
   setup() {
     const router = useRouter();
-    const userStore = useUserStore(); 
+    const userStore = useUserStore();  // Khởi tạo store ở setup
     return { router, userStore };
   },
 
   methods: {
     async loginWithGoogle() {
-      window.location.href = `${API_URL}/auth/google/redirect`;
+      window.location.href = 'http://127.0.0.1:8000/api/auth/google/redirect';
     },
 
     async handleLogin() {
@@ -84,7 +83,7 @@ export default {
       this.loading = true;
 
       try {
-        const response = await axios.post(`${API_URL}/login`, this.loginData);
+        const response = await axios.post('http://127.0.0.1:8000/api/login', this.loginData);
 
         // Lưu user và token vào store
         this.userStore.setUser(response.data.user, response.data.token);

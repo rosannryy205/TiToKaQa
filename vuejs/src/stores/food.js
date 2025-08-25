@@ -4,7 +4,6 @@ import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { computed } from 'vue'
 import { API_URL } from '@/config'
-import { STORAGE_URL } from '@/config'
 export const FoodList = {
   setup() {
     const foods = ref([])
@@ -29,10 +28,10 @@ export const FoodList = {
     }
 
     const getImageUrl = (image) => {
-      return `${STORAGE_URL}/img/food/${image}`
+      return `/img/food/${image}`
     }
     const getImageMenuUrl = (image) => {
-      return `${STORAGE_URL}/img/food/imgmenu/${image}`
+      return `/img/food/imgmenu/${image}`
     }
 
     const getCategory = async () => {
