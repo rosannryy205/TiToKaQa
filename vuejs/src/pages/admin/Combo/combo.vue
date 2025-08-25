@@ -16,7 +16,27 @@
 
             <input v-model="searchQuery" type="text" class="clean-input" placeholder="Tìm kiếm" />
           </div>
-
+          <div class="d-flex border-bottom mb-3" style="gap: 20px; font-size: 14px">
+            <div
+              v-for="(tab, index) in tabs"
+              :key="index"
+              @click="activeTab = index"
+              class="pb-2 position-relative"
+              :class="{
+                'fw-bold text-danger': activeTab === index,
+                'text-muted': activeTab !== index,
+              }"
+              style="cursor: pointer"
+            >
+              {{ tab.label }}
+              <span v-if="tab.count" class="text-secondary">({{ tab.count }})</span>
+              <span
+                v-if="activeTab === index"
+                class="position-absolute start-0 bottom-0 w-100"
+                style="height: 2px; background-color: #d9363e"
+              ></span>
+            </div>
+          </div>
           <div class="table-responsive">
             <table class="table table-bordered">
               <thead class="table-light">
@@ -27,14 +47,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="(item, index) in filteredCombos"
-                  :key="index"
-                  :class="{ 'table-secondary opacity-50': item.status === 'inactive' }"
-                >
+                <tr v-for="(item, index) in filteredList" :key="index">
                   <td>
                     <img
-                     :src="getImageUrl(item.image)"
+                      :src="getImageUrl(item.image)"
                       :alt="item.name"
                       class="me-2 img_thumbnail"
                     />
@@ -43,14 +59,14 @@
                       <button
                         type="button"
                         class="btn btn-outline btn-sm"
-                        v-if="hasPermission('edit_combo') && item.status === 'active'"
+                        v-if="hasPermission('edit_combo')"
                       >
                         Sửa
                       </button>
                       <button
                         class="btn btn-outline btn-sm"
-                        v-if="hasPermission('delete_combo')"
                         @click="toggleComboStatus(item.id)"
+                        v-if="hasPermission('hidden_combo')"
                       >
                         {{ item.status === 'inactive' ? 'Hiện' : 'Ẩn' }}
                       </button>
@@ -75,7 +91,7 @@
                         Sửa
                       </router-link>
                       <button
-                        v-if="hasPermission('delete_combo')"
+                        v-if="hasPermission('hidden_combo')"
                         class="btn btn-outline btn-sm"
                         :class="item.status === 'inactive' ? 'btn-secondary' : 'btn-warning'"
                         @click="toggleComboStatus(item.id)"
@@ -93,21 +109,29 @@
                     </div>
                   </td>
                 </tr>
+                <tr v-if="!filteredList.length">
+                  <td colspan="3" class="text-center text-muted py-4">Không có combo nào.</td>
+                </tr>
               </tbody>
             </table>
             <nav class="mt-3">
-            <ul class="pagination">
-              <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                <a class="page-link" href="#" @click="changePage(currentPage - 1)">«</a>
-              </li>
-              <li class="page-item" v-for="page in totalPages" :key="page" :class="{ active: page === currentPage }">
-                <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
-              </li>
-              <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                <a class="page-link" href="#" @click="changePage(currentPage + 1)">»</a>
-              </li>
-            </ul>
-          </nav>
+              <ul class="pagination">
+                <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                  <a class="page-link" href="#" @click="changePage(currentPage - 1)">«</a>
+                </li>
+                <li
+                  class="page-item"
+                  v-for="page in totalPages"
+                  :key="page"
+                  :class="{ active: page === currentPage }"
+                >
+                  <a class="page-link" href="#" @click="changePage(page)">{{ page }}</a>
+                </li>
+                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                  <a class="page-link" href="#" @click="changePage(currentPage + 1)">»</a>
+                </li>
+              </ul>
+            </nav>
           </div>
           <!--modal-->
           <div
@@ -195,97 +219,174 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import axios from 'axios'
 import numeral from 'numeral'
-import { toast } from 'vue3-toastify'
 import { Permission } from '@/stores/permission'
-
+import { API_URL } from '@/config'
+import Swal from 'sweetalert2'
+import { STORAGE_URL } from '@/config'
+// ====== state ======
 const combo = ref([])
+const comboInactive = ref([])
 const currentPage = ref(1)
 const totalPages = ref(1)
 const searchQuery = ref('')
 const selectedCombo = ref(null)
-const getImageUrl = (image) => {
-  return `http://127.0.0.1:8000/storage/img/food/${image}`
-}
+const activeTab = ref(0)
+const tabs = [
+  { label: 'Tất cả', count: 0 },
+  { label: 'Combo đã ẩn', count: 0 },
+]
 
+// ====== utils ======
+const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
 function formatNumber(value) {
   return numeral(value).format('0,0')
 }
 
+// ====== permission ======
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
   const user = JSON.parse(userString)
-  if (user && user.id !== undefined) {
-    userId.value = user.id
-  }
+  if (user && user.id !== undefined) userId.value = user.id
 }
 const { hasPermission } = Permission(userId)
 
+// ====== detail modal ======
 function showComboDetail(item) {
   selectedCombo.value = {
     ...item,
     foods: Array.isArray(item.foods) ? item.foods : [],
   }
 }
-
 const comboTotal = computed(() => {
   if (!selectedCombo.value || !Array.isArray(selectedCombo.value.foods)) return 0
   return selectedCombo.value.foods.reduce(
-    (total, food) => total + food.price * food.pivot.quantity,
+    (total, food) => total + (Number(food.price) || 0) * (Number(food.pivot?.quantity) || 0),
     0,
   )
 })
-const filteredCombos = computed(() => {
-  return combo.value
+
+// ====== filters / views ======
+const filteredList = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  const base = activeTab.value === 1 ? comboInactive.value || [] : combo.value || []
+  if (!query) return base
+  return base.filter((item) => (item.name || '').toLowerCase().includes(query))
 })
+
+// ====== API calls ======
 async function fetchCombos(page = 1) {
   try {
-    const params = {
-      page: page,
-      search: searchQuery.value.trim(),
-    }
-
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/combos', { params })
-
+    const params = { page, search: searchQuery.value.trim(), status: 'active' }
+    const res = await axios.get(`${API_URL}/admin/combos`, { params })
     combo.value = res.data.data
     currentPage.value = res.data.current_page
     totalPages.value = res.data.last_page
+    tabs[0].count = Number(res.data.total ?? combo.value.length)
   } catch (error) {
     console.error(error)
-    toast.error('Lỗi khi tải dữ liệu combo.')
+    await Swal.fire({
+      icon: 'error',
+      title: 'Lỗi khi tải dữ liệu combo',
+      text: error?.response?.data?.message || error.message || 'Vui lòng thử lại.',
+      confirmButtonColor: '#d9363e',
+    })
   }
 }
-watch(searchQuery, () => {
-  fetchCombos(1)
-})
 
+async function fetchCombosInactive(page = 1) {
+  try {
+    const params = { page, search: searchQuery.value.trim(), status: 'inactive' }
+    const res = await axios.get(`${API_URL}/admin/combos`, { params })
+    comboInactive.value = res.data.data
+    currentPage.value = res.data.current_page
+    totalPages.value = res.data.last_page
+    tabs[1].count = Number(res.data.total ?? comboInactive.value.length)
+  } catch (error) {
+    console.error(error)
+    await Swal.fire({
+      icon: 'error',
+      title: 'Lỗi khi tải combo đã ẩn',
+      text: error?.response?.data?.message || error.message || 'Vui lòng thử lại.',
+      confirmButtonColor: '#d9363e',
+    })
+  }
+}
+
+// ====== paging ======
 function changePage(page) {
-  if (page >= 1 && page <= totalPages.value) {
+  if (page < 1 || page > totalPages.value) return
+  if (activeTab.value === 1) {
+    fetchCombosInactive(page)
+  } else {
     fetchCombos(page)
   }
 }
 
+// ====== actions ======
 async function toggleComboStatus(comboId) {
   try {
-    if (!confirm('Bạn có chắc muốn ẩn/hiện combo này?')) return
+    const confirmRes = await Swal.fire({
+      icon: 'question',
+      title: 'Ẩn/hiện combo?',
+      text: 'Bạn có chắc muốn thay đổi trạng thái combo này?',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Huỷ',
+      confirmButtonColor: '#d9363e',
+    })
+    if (!confirmRes.isConfirmed) return
 
-    const res = await axios.put(`http://127.0.0.1:8000/api/admin/combos/${comboId}/toggle-status`)
-    toast.success(res.data.message)
+    const res = await axios.put(`${API_URL}/admin/combos/${comboId}/toggle-status`)
 
-    const index = combo.value.findIndex((c) => c.id === comboId)
-    if (index !== -1) {
-      combo.value[index].status = res.data.status
-    }
+    await Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'success',
+      title: res.data.message || 'Đã cập nhật trạng thái',
+      showConfirmButton: false,
+      timer: 1500,
+      timerProgressBar: true,
+    })
+
+    // refresh cả hai tab để đồng bộ số lượng & phân trang
+    await Promise.all([fetchCombosInactive(currentPage.value), fetchCombos(currentPage.value)])
   } catch (error) {
     console.error(error)
-    toast.error('Lỗi khi cập nhật trạng thái combo.')
+    await Swal.fire({
+      icon: 'error',
+      title: 'Có lỗi',
+      text: 'Lỗi khi cập nhật trạng thái combo.',
+      confirmButtonColor: '#d9363e',
+    })
   }
 }
 
-onMounted(() => {
-  fetchCombos()
+// ====== watchers ======
+watch(activeTab, async () => {
+  currentPage.value = 1
+  if (activeTab.value === 1) {
+    await fetchCombosInactive(1)
+  } else {
+    await fetchCombos(1)
+  }
+})
+
+watch(searchQuery, () => {
+  currentPage.value = 1
+  if (activeTab.value === 1) {
+    fetchCombosInactive(1)
+  } else {
+    fetchCombos(1)
+  }
+})
+
+// ====== init ======
+onMounted(async () => {
+  await Promise.all([fetchCombos(1), fetchCombosInactive(1)])
 })
 </script>
+
 
 <style scoped>
 .title {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App;
+use App\Mail\QuickRegisterMail;
 use App\Models\Discount;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -41,7 +42,7 @@ class UserController extends Controller
     public function sendRegisterCode(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required|max:20|alpha_num',
+            'username' => 'required|max:20|alpha_num|unique:users',
 
             'email' => [
                 'required',
@@ -61,6 +62,7 @@ class UserController extends Controller
             'username.required' => 'Vui lòng nhập tên đăng nhập.',
             'username.max' => 'Tên đăng nhập không được vượt quá 20 ký tự.',
             'username.alpha_num' => 'Tên đăng nhập chỉ có thể chứa chữ cái và số.',
+            'username.unique' => 'Tên đăng nhập đã được sử dụng.',
 
             'email.required' => 'Vui lòng nhập email.',
             'email.email' => 'Email không đúng định dạng.',
@@ -133,24 +135,28 @@ class UserController extends Controller
         $token = $user->createToken('auth')->plainTextToken;
 
         /**xuly tang dc cho nguoi moi */
-        $newUserDiscounts = Discount::where('user_level', 'new')->get();
+        $newUserDiscounts = Discount::where('user_level', 'new')
+            ->where('status', 'active')
+            ->where('source', 'for_users')
+            ->get();
         $data = [];
-        $now = now();
+        $issuedAt  = now();
+        $expiryAt  = now()->addDays(7);
         foreach ($newUserDiscounts as $discount) {
             $data[$discount->id] = [
                 'point_used' => 0,
-                'exchanged_at' => $now,
-                'expiry_at' => $now->addDays(7),
+                'exchanged_at' => $issuedAt,
+                'expiry_at' => $expiryAt,
                 'used_at' => null,
-                'source' => 'rank_reward',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'source' => 'register_reward',
+                'created_at' => $issuedAt,
+                'updated_at' => $issuedAt,
             ];
         }
         $user->discounts()->attach($data);
 
         // Gửi mail chào mừng
-        // Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
+        Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
 
         Cache::forget('register_' . $request->email);
 
@@ -387,6 +393,83 @@ class UserController extends Controller
         $user->save();
         return response()->json(['message' => 'Đặt lại mật khẩu thành công']);
     }
+
+
+    public function quickRegister(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|unique:users,email',
+        ], [
+            'email.required' => 'Vui lòng nhập email',
+            'email.email' => 'Email không đúng định dạng',
+            'email.unique' => 'Email đã được sử dụng',
+        ]);
+
+        try {
+            // tạo mật khẩu mạnh
+            $password = $this->generateStrongPassword(8);
+
+            // lấy name từ email
+            $nameFromEmail = explode('@', $request->email)[0];
+            $name = ucfirst(substr($nameFromEmail, 0, 10));
+
+            // tạo user
+            $user = User::create([
+                'username' => $name,
+                'email' => $request->email,
+                'password' => bcrypt($password),
+            ]);
+
+            try {
+                // gửi mail
+                Mail::to($user->email)->send(new QuickRegisterMail($user->username, $user->email, $password));
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Đăng ký thành công. Vui lòng kiểm tra email để lấy thông tin đăng nhập.',
+                ]);
+            } catch (\Exception $e) {
+                // gửi mail lỗi nhưng user đã tạo
+                return response()->json([
+                    'status' => 'warning',
+                    'message' => 'Tài khoản đã được tạo nhưng gửi email thất bại.',
+                    'error' => $e->getMessage() // thêm thông tin lỗi chi tiết
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Đăng ký thất bại. Vui lòng thử lại sau.',
+                'error' => $e->getMessage() // thêm thông tin lỗi chi tiết
+            ], 500);
+        }
+    }
+
+
+
+    private function generateStrongPassword($length = 8)
+    {
+        $lower = 'abcdefghijklmnopqrstuvwxyz';
+        $upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $numbers = '0123456789';
+        $special = '@$!%*?&';
+
+        // đảm bảo có ít nhất 1 ký tự thuộc mỗi nhóm
+        $all = $lower . $upper . $numbers . $special;
+        $password = $lower[rand(0, strlen($lower) - 1)]
+            . $upper[rand(0, strlen($upper) - 1)]
+            . $numbers[rand(0, strlen($numbers) - 1)]
+            . $special[rand(0, strlen($special) - 1)];
+
+        // thêm các ký tự còn lại ngẫu nhiên
+        for ($i = 4; $i < $length; $i++) {
+            $password .= $all[rand(0, strlen($all) - 1)];
+        }
+
+        // xáo trộn chuỗi để random hơn
+        return str_shuffle($password);
+    }
+
 
 
     /**

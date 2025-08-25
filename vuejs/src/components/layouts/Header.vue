@@ -21,6 +21,7 @@
               <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
             </ul>
           </div>
           <div class="me-2">
@@ -115,10 +116,12 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav offcanvas-nav-links mb-4">
           <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
+              <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
         </ul>
-
         <div class="mobile-actions">
           <div class="input-wrapper position-relative mb-3">
             <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24"
@@ -238,7 +241,7 @@
   <!-- reservation -->
   <div class="container">
     <transition name="slide-fade">
-      <div v-if="isBookingFormVisible" ref="bookingForm" class="booking-form-container position-relative">
+      <div v-if="isBookingFormVisible" ref="bookingForm" class="booking-form-container position-relative mb-2">
         <button @click="closeForm" class="btn-close position-absolute" style="top: 5px; right: 5px;"
           aria-label="Close"></button>
 
@@ -721,203 +724,7 @@ onBeforeUnmount(() => {
 
 </script>
 
-
 <style scoped>
-.text-primary-red {
-  color: #ca111f;
-}
-
-.hover-scale {
-  transition: transform 0.2s ease;
-}
-
-.hover-scale:hover {
-  transform: scale(1.1);
-}
-
-.suggestion-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  max-height: 300px;
-  max-height: 270px;
-  overflow-y: auto;
-  background: #fff;
-  border: 1px solid #ddd;
-  z-index: 999;
-  list-style: none;
-  margin: 0;
-  padding: 5px 0;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.suggestion-dropdown li {
-  display: flex;
-  align-items: flex-start;
-  padding: 8px 12px;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.suggestion-dropdown li:hover {
-  background-color: #f6f6f6;
-}
-
-.img-search {
-  width: 50px;
-  object-fit: cover;
-  border-radius: 5px;
-}
-
-.info-search {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
-}
-
-.name-search {
-  font-size: 16px;
-  font-weight: 500;
-  color: #333;
-}
-
-.price-search {
-  font-size: 14px;
-  color: red;
-}
-
-.text-primary-black {
-  color: black;
-}
-
-.loading,
-.no-more {
-  padding: 10px;
-  text-align: center;
-  color: #888;
-}
-
-.loader {
-  width: fit-content;
-  height: fit-content;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.truckWrapper {
-  margin-right: 16px;
-  width: 38px;
-  height: 22px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  align-items: center;
-  justify-content: flex-end;
-  overflow-x: hidden;
-}
-
-/* Truck body */
-.truckBody {
-  width: 26px;
-  height: fit-content;
-  margin-bottom: 1px;
-  animation: motion 1s linear infinite;
-}
-
-/* Suspension animation */
-@keyframes motion {
-  0% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(0.5px);
-  }
-
-  100% {
-    transform: translateY(0px);
-  }
-}
-
-/* Tires */
-.truckTires {
-  width: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0px 2px 0px 3px;
-  position: absolute;
-  bottom: 0;
-}
-
-.truckTires svg {
-  width: 5px;
-  height: 5px;
-}
-
-/* Road */
-.road {
-  width: 100%;
-  height: 1px;
-  background-color: #282828;
-  position: relative;
-  bottom: 0;
-  align-self: flex-end;
-  border-radius: 1px;
-}
-
-.road::before {
-  content: "";
-  position: absolute;
-  width: 4px;
-  height: 100%;
-  background-color: #282828;
-  right: -50%;
-  border-radius: 1px;
-  animation: roadAnimation 1.4s linear infinite;
-  border-left: 1px solid white;
-}
-
-.road::after {
-  content: "";
-  position: absolute;
-  width: 2px;
-  height: 100%;
-  background-color: #282828;
-  right: -65%;
-  border-radius: 1px;
-  animation: roadAnimation 1.4s linear infinite;
-  border-left: 0.5px solid white;
-}
-
-/* Lamp post */
-.lampPost {
-  position: absolute;
-  bottom: 0;
-  right: -90%;
-  height: 18px;
-  animation: roadAnimation 1.4s linear infinite;
-}
-
-@keyframes roadAnimation {
-  0% {
-    transform: translateX(0px);
-  }
-
-  100% {
-    transform: translateX(-90px);
-  }
-}
-
-.nav-link.active {
-  color: #dc3545 !important;
-  font-weight: 500;
-}
-
 .booking-form-container {
   background-color: #ffffff;
   border-radius: 0 0 .5rem .5rem;
@@ -950,14 +757,23 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 9px 12px;
-  gap: 8px;
-  height: 40px;
-  width: 201px;
+  padding: 7px;
+  height: 38px;
+  width: 187px;
   border: none;
   background: #FF342B;
   border-radius: 20px;
   cursor: pointer;
+}
+@media (max-width: 991.98px) {
+  .button {
+  height: 35px;
+  width: 190px;
+}
+#app > div.client > div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3 > div.container > nav > div > div.me-2 > button > svg{
+  width: 22px;
+  height: 22px;
+}
 }
 
 .lable {

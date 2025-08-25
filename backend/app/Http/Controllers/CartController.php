@@ -97,7 +97,16 @@ class CartController extends Controller
                             'reward_id' => $item['reward_id'] ?? null,
 
                         ]);
-
+                        if (!empty($item['combo_id'])) {
+                            $combo = Combo::find($item['combo_id']);
+                            if ($combo) {
+                                $qty = (int) ($item['quantity'] ?? 1);
+                                $currentSold = (int) ($combo->quantity_sold ?? 0);
+                                $combo->quantity_sold = $currentSold + $qty;
+                                $combo->save();
+                            }
+                        }
+                        
                         /**check flashsale */
                         if (!empty($item['food_id'])) {
                             $food = Food::find($item['food_id']);
@@ -369,20 +378,20 @@ class CartController extends Controller
                         'food_id' => $detail->food_id,
                         'food_name' => optional($detail->foods)->name,
                         'category_id' => optional($detail->foods)->category_id,
-                        'category_name' => optional($detail->foods->category)->name ?? null,
+                        'category_name' => optional(optional($detail->foods)->category)->name,
                         'quantity' => $detail->quantity,
                         'price' => $detail->price,
                         'image' => optional($detail->foods)->image,
                         'type' => $detail->type,
-                        'toppings' => $detail->toppings->map(function ($toppings) {
+                        'toppings' => $detail->toppings->map(function ($topping) {
                             return [
-                                'food_toppings_id' => $toppings->food_toppings_id,
-                                'topping_name' => $toppings->food_toppings->toppings->name ?? null,
-                                'price' => $toppings->price,
+                                'food_toppings_id' => $topping->food_toppings_id,
+                                'topping_name' => optional(optional($topping->food_toppings)->toppings)->name,
+                                'price' => $topping->price,
                             ];
-                        })
+                        }) ?? []
                     ];
-                });
+                }) ?? [];
 
                 return [
                     'id' => $order->id,
@@ -406,6 +415,7 @@ class CartController extends Controller
                     'expiration_time' => $order->expiration_time,
                     'money_reduce' => $order->money_reduce,
                     'type_order' => $order->type_order,
+                    'reservation_code' => $order->reservation_code,
                     'details' => $details,
                     'tables' => $order->tables->map(function ($table) {
                         return [
@@ -418,13 +428,13 @@ class CartController extends Controller
                             'reserved_from' => $table->pivot->reserved_from,
                             'reserved_to' => $table->pivot->reserved_to,
                         ];
-                    }),
+                    }) ?? [],
                     'payment' => [
-                        'amount_paid' => $order->payment->amount_paid ?? null,
-                        'payment_method' => $order->payment->payment_method ?? null,
-                        'payment_status' => $order->payment->payment_status ?? null,
-                        'payment_time' => $order->payment->payment_time ?? null,
-                        'payment_type' => $order->payment->payment_type ?? null,
+                        'amount_paid' => optional($order->payment->first())->amount_paid,
+                        'payment_method' => optional($order->payment->first())->payment_method,
+                        'payment_status' => optional($order->payment->first())->payment_status,
+                        'payment_time' => optional($order->payment->first())->payment_time,
+                        'payment_type' => optional($order->payment->first())->payment_type,
                     ],
                 ];
             });
@@ -442,13 +452,14 @@ class CartController extends Controller
         }
     }
 
+
     public function update_status(Request $request, $id)
     {
         $request->validate([
             'order_status' => 'required|string|max:255'
         ]);
 
-        $order = Order::with('details', 'payment')->find($id);
+        $order = Order::with('details', 'payment')->where('id', $id)->first();
 
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn hàng'], 404);
@@ -473,19 +484,22 @@ class CartController extends Controller
             //================================
             // POINT and RANK
             //================================
-            $user = $order->user;
-            $pointService = new PointService();
-            $rankService = new RanksService();
+            if ($order->user) {
+                $user = $order->user;
+                $pointService = new PointService();
+                $rankService = new RanksService();
 
-            $pointService->updateUserPointsWhenOrderCompleted($order);
-            $user->refresh();
-            $rankService->updateUserRankByPoints($user);
+                $pointService->updateUserPointsWhenOrderCompleted($order);
+                $user->refresh();
+                $rankService->updateUserRankByPoints($user);
+            }
+
 
             //================================
 
             if ($order->payment) {
-                $payment = $order->payment;
-                if ($newStatus === 'Giao thành công') {
+                $payment = $order->payment->first();
+                if ($newStatus === 'Giao thành công' || $newStatus === 'Hoàn thành') {
 
                     $payment->payment_status = 'Đã thanh toán';
                 } elseif (in_array($newStatus, ['Giao thất bại', 'Đã hủy'])) {

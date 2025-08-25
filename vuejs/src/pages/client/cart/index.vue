@@ -18,7 +18,8 @@
       <!-- Danh sách sản phẩm -->
       <div class="col-12 col-lg-8 mb-4">
         <!-- Sản phẩm -->
-        <div class="card mb-3" v-for="(item, index) in cartItems" :key="index">
+        <div class="card mb-3" v-for="(item, index) in cartItems" :key="index"
+        @click="openModalToEditTopping(item, index)">
           <div class="card-body d-flex align-items-center flex-wrap">
             <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
             <img :src="getImageUrl(item.image)" class="cart-img me-3 mb-2" alt="Mì kim chi Nha Trang" />
@@ -27,9 +28,16 @@
               <h5 class="mb-1 product-title">
                 <strong>{{ item.name }}</strong>
               </h5>
-              <h5 v-if="item.is_flash_sale" class="mb-1 product-title">
+              <template v-if="item.is_flash_sale">
+                <h5 class="mb-1 product-title">
                 <strong>Flashsale</strong>
               </h5>
+              </template>
+              <template v-else-if="item.is_deal">
+                <h5 class="mb-1 product-title">
+                <strong>Deal</strong>
+              </h5>
+              </template>
               <p class="text-muted mb-2">{{ item.spicyLevel }}</p>
 
               <p class="text-muted mb-2">
@@ -58,14 +66,6 @@
             <div class="mb-2 price text-end fixed-price-width">
               <strong class="price-text">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
             </div>
-            <!-- Nút chọn topping góc dưới bên phải -->
-            <button
-              class="btn btn-outline-primary btn-sm position-absolute m-2"
-              style="bottom: 0; right: 0"
-              @click="openModalToEditTopping(item, index)"
-            >
-              Topping
-            </button>
           </div>
         </div>
       </div>
@@ -264,7 +264,8 @@ import numeral from 'numeral'
 import { computed } from 'vue'
 import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 import { onBeforeRouteLeave } from 'vue-router'
 import { nextTick } from 'vue'
 import axios from 'axios'
@@ -275,7 +276,7 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `http://127.0.0.1:8000/storage/img/food/${image}`
+      return `${STORAGE_URL}/img/food/${image}`
     },
   },
 
@@ -474,10 +475,10 @@ export default {
       quantity.value = 1
       try {
         if (item.type === 'food') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/food/${item.id}`)
           foodDetail.value = { ...res.data, type: 'food' }
           console.log(foodDetail.value);
-          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
           toppings.value = res1.data
           console.log(toppings.value)
           spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
@@ -486,7 +487,7 @@ export default {
             item.price = item.price || 0
           })
         } else if (item.type === 'combo') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
           foodDetail.value = { ...res.data, type: 'combo' }
         }
 
@@ -509,10 +510,10 @@ export default {
         // Gọi API để lấy lại thông tin món (food hoặc combo)
         let res;
         if (item.type === 'food') {
-          res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`);
+          res = await axios.get(`${API_URL}/home/food/${item.id}`);
           foodDetail.value = { ...res.data, type: 'food' };
 
-          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
           toppings.value = res1.data
 
           spicyLevel.value = toppings.value.filter((i) => i.category_id == 15)
@@ -521,7 +522,7 @@ export default {
             i.price = i.price || 0;
           });
         } else if (item.type === 'combo') {
-          res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`);
+          res = await axios.get(`${API_URL}/home/combo/${item.id}`);
           foodDetail.value = { ...res.data, type: 'combo' };
         }
 

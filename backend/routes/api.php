@@ -3,8 +3,10 @@
 use App\Http\Controllers\AdminCategoryController;
 use App\Http\Controllers\AdminCategoryToppingController;
 use App\Http\Controllers\AdminFoodController;
+use App\Http\Controllers\AdminFoodPost;
 use App\Http\Controllers\AdminPaymentController;
 use App\Http\Controllers\AdminToppingController;
+use App\Http\Controllers\AIController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +15,7 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\ChatRealTimeController;
 use App\Http\Controllers\ClaimPrizesController;
 use App\Http\Controllers\ComboController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DealFoodsController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\FoodController;
@@ -28,6 +31,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ShippingController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\LuckyWheelController;
+use App\Http\Controllers\MessengerWebhookController;
+use App\Models\LuckyWheelPrize;
 use Google\Cloud\Dialogflow\V2\MessageEntry\Role;
 use Illuminate\Http\Request;
 
@@ -72,6 +77,9 @@ Route::get('/auto-cancel-orders', [OrderController::class, 'autoCancelOrders']);
 Route::get('/unavailable-times', [OrderController::class, 'getUnavailableTimes']);
 Route::get('/load-order-detail/{order_id}', [OrderController::class, 'showOrderDetail']);
 Route::put('/update-order-detail/{order_id}', [OrderController::class, 'updateOrderDetails']);
+Route::get('/admin/payments/vnpay-return', [PaymentController::class, 'vnpayReturnAdmin']);
+Route::post('/admin/payments/cod-payment', [PaymentController::class, 'handleCodPayAdmin']);
+
 
 
 // table-admin
@@ -114,6 +122,14 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::put('/order-history-info/cancel/{id}', [OrderController::class, 'cancelOrder']);
 Route::put('/order-history-info/update-address/{id}', [OrderController::class, 'updateAddressForOrder']);
+//huy cho guess
+Route::prefix('orders')->controller(OrderController::class)->group(function () {
+    Route::get('lookup', 'lookup')->name('orders.lookup')->middleware('throttle:30,1');
+    Route::get('{code}', 'show')->name('orders.show')->where('code', '[A-Za-z0-9\-._]+')->middleware('throttle:60,1');
+});
+Route::post('orders/{code}/cancel', [OrderController::class, 'cancelByConfirm'])
+    ->where('code', '[A-Za-z0-9\-\._]+')
+    ->middleware('throttle:15,1');
 
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {
@@ -128,6 +144,7 @@ Route::post('/insert_staff', [UserController::class, 'insertStaff']);
 // đăng ký đăng nhập quên mật khẩu
 Route::post('/register/send-code', [UserController::class, 'sendRegisterCode']);
 Route::post('/register/verify-code', [UserController::class, 'verifyRegisterCode']);
+Route::post('/quickRegister', [UserController::class, 'quickRegister']);
 
 Route::post('/login', [UserController::class, 'login'])->name('login');;
 Route::post('/forgot', [UserController::class, 'forgotPass']);
@@ -227,22 +244,25 @@ Route::put('/admin/categories/{id}', [AdminCategoryController::class, 'update'])
 // Route::post('/admin/categories/delete-multiple',
 // [AdminCategoryController::class, 'deleteMultiple']);
 
+//  ------- Thống kê admin --------
+Route::get('/admin/revenue-by-month', [DashboardController::class, 'revenueByMonth']);
+Route::get('/admin/get-dashboard-stats', [DashboardController::class, 'getDashboardStats']);
+// người dùng
+Route::get('/admin/get-total-users', [DashboardController::class, 'getTotalUser']);
+Route::get('/admin/stats-user-by-time', [DashboardController::class, 'statsUserByTime']);
+// Đặt bàn
+Route::get('/admin/get-total-res', [DashboardController::class, 'getTotalRes']);
+Route::get('/admin/stats-res-by-time', [DashboardController::class, 'statsResByTime']);
+// Đơn hàng
+Route::get('/admin/get-total-order', [DashboardController::class, 'getTotalOrder']);
+Route::get('/admin/stats-order-by-time', [DashboardController::class, 'statsOrderByTime']);
+// --------------------------------
 
-
-
-// Route::get('/admin/toppings', [AdminToppingController::class, 'index']);
-// Route::get('/admin/catetop', [AdminCategoryToppingController::class, 'getAll']);
-// Route::post('/admin/toppings', [AdminToppingController::class, 'store']);
-// });
 
 
 
 //adminfood
 Route::get('/admin/foods', [AdminFoodController::class, 'getAllFood']);
-
-//admin combo
-Route::get('/admin/combos', [ComboController::class, 'getAllCombos']);
-
 
 //paymentMethod
 Route::get('/payments/info/{id}', [PaymentController::class, 'show']);
@@ -280,5 +300,27 @@ Route::delete('/admin/combos/delete/{id}', [ComboController::class, 'deleteCombo
 Route::apiResource('ingredients', IngredientController::class);
 Route::put('/admin/combos/{id}/toggle-status', [ComboController::class, 'toggleStatusComboForAdmin']);
 
+/** Admin / FOOD_POST */
+Route::get('/get_all_post', [AdminFoodPost::class, 'index']);
+Route::get('/get_all_food', [AdminFoodPost::class, 'getAllFoods']);
+Route::get('/get_post/{id}', [AdminFoodPost::class, 'getPostById']);
+Route::post('/post/{id}/update', [AdminFoodPost::class, 'updatePost']);
+Route::post('/insert_post', [AdminFoodPost::class, 'store']);
+Route::post('/post/{id}/toggle-hide', [AdminFoodPost::class, 'hidePost']);
+
+
+/** Generate Post */
+Route::post('/generate/post', [AIController::class, 'generatePost']);
+Route::post('/check-seo', [AIController::class, 'checkSeo']);
 /** crud discounts mqua*/
 Route::get('/admin-categories', [CategoryController::class, 'getAllCategoriesForAdmin']);
+Route::post('/admin/discounts/create', [DiscountController::class, 'createDiscounts']);
+Route::get('/admin/discounts/{id}', [DiscountController::class, 'getDiscountById']);
+Route::put('/admin/discounts/update/{id}', [DiscountController::class, 'updateDiscountByAdmin']);
+Route::patch('/admin/discounts/{id}/status', [DiscountController::class, 'setStatusByAdmin']);
+/**prize */
+Route::post('/admin/luckyprize/create', [LuckyWheelController::class, 'createLuckyPrizeByAdmin']);
+Route::get('/admin/luckyprizes/{id}', [LuckyWheelController::class, 'getLuckyPrizeById']);
+Route::put('/admin/luckyprize/update/{id}', [LuckyWheelController::class, 'updateLuckyPrizeByAdmin']);
+Route::patch('/admin/luckyprize/{id}/status', [LuckyWheelController::class, 'setStatusPrizeByAdmin']);
+

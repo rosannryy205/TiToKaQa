@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import PopupBottomRight from '@/components/PopupBottomRight.vue'
+import SupportGuess from '@/components/SupportGuess.vue'
 
 const user = ref(JSON.parse(localStorage.getItem('user')) || null)
 const isLoggedIn = ref(!!user.value)
@@ -18,6 +19,7 @@ function setUser(newUser) {
 <template>
   <router-view></router-view>
   <PopupBottomRight />
+  <SupportGuess />
 </template>
 
 <style>

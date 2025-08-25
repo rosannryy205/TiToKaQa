@@ -34,7 +34,7 @@
           ]"
         >
           <img
-            :src="`/img/food/imgmenu/${category.images}`"
+               :src="getImageUrl(category.images)"
             class="category-icon me-2"
             :alt="category.name"
           />
@@ -183,32 +183,30 @@ import { Modal } from 'bootstrap'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { toast } from 'vue3-toastify'
+
 import { useUserStore } from '@/stores/userAuth'
 import { FoodList } from '@/stores/food'
 import { Discounts } from '@/stores/discount'
-
-// Stores
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 const userStore = useUserStore()
 const { getCategory, categories } = FoodList.setup()
 const { getImageByType, formatCurrency, fetchUserDiscounts, userDiscounts } = Discounts()
 
-// States
 const pointsExchangeDiscounts = ref([])
 const selectedCategory = ref(null)
 const showExpiredOnly = ref(false)
 const showOnlyFreeship = ref(false)
 const voucherCode = ref('')
 
-// Modal
 const conditionModalRef = ref(null)
 let conditionModalInstance = null
 const selectedVoucherCondition = ref('')
 const selectedVoucherName = ref('')
-
-// Fetch danh sách mã đổi xu
+const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
 const getPointExchangeDiscounts = async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/discounts', {
+    const response = await axios.get(`${API_URL}/discounts`, {
       params: { source: 'point_exchange' },
       headers: {
         Authorization: `Bearer ${userStore.token}`,
@@ -221,7 +219,6 @@ const getPointExchangeDiscounts = async () => {
   }
 }
 
-// Xử lý chọn danh mục
 const onSelectCategory = async (category) => {
   selectedCategory.value = category.id
   showExpiredOnly.value = false
@@ -261,14 +258,10 @@ const filteredDiscounts = computed(() => {
 
   return pointsExchangeDiscounts.value.filter((discount) => {
     const matchCategory = !selectedCategory.value || discount.category_id === selectedCategory.value
-
     const matchKeyword = !voucherCode.value || discount.name.toLowerCase().includes(keyword)
-
     const expired = isExpired(discount)
     const matchExpired = showExpiredOnly.value ? expired : !expired
-
     const matchFreeship = !showOnlyFreeship.value || discount.discount_type === 'freeship'
-
     return matchCategory && matchKeyword && matchExpired && matchFreeship
   })
 })
@@ -292,7 +285,7 @@ const redeemDiscount = async (discountId, code = '', points = 0) => {
 
   try {
     const response = await axios.post(
-      'http://127.0.0.1:8000/api/redeem-discount',
+      `${API_URL}/redeem-discount`,
       { discount_id: discountId },
       {
         headers: {
@@ -359,6 +352,7 @@ onMounted(async () => {
   }
 })
 </script>
+
 
 <style scoped>
 .voucher-brand-btn {

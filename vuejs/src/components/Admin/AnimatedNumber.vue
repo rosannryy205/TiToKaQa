@@ -1,9 +1,9 @@
 <template>
-  <span>{{ animatedNumber }}</span>
+  <span>{{ formattedNumber }}</span>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import TWEEN from 'tween.js'
 
 const props = defineProps({
@@ -14,10 +14,23 @@ const props = defineProps({
   duration: {
     type: Number,
     default: 500
+  },
+  format: {
+    type: String,
+    default: 'number'
   }
 })
 
 const animatedNumber = ref(0)
+
+const formattedNumber = computed(() => {
+  if (props.format === 'currency') {
+    return animatedNumber.value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+  } else if (props.format === 'number') {
+    return animatedNumber.value.toLocaleString('vi-VN')
+  }
+  return animatedNumber.value.toString()
+})
 
 function animateNumber(newValue, oldValue) {
   const tweenObj = { tweeningNumber: oldValue }

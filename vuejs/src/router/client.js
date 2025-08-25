@@ -139,12 +139,6 @@ const client = [
             component: () => import('../pages/client/user/deal-food.vue'),
             meta: { title: 'Kho Deal Đã Nhận' },
           },
-          {
-            path: 'history-order',
-            name: 'history-order',
-            component: () => import('../pages/client/user/history-order.vue'),
-            meta: { title: 'Lịch sử đơn hàng' },
-          },
         ]
       },
       {
@@ -158,6 +152,18 @@ const client = [
         name: 'delivery',
         component: () => import('../pages/client/user/delivery.vue'),
         meta: { title: 'Theo dõi đơn hàng' },
+      },
+      {
+        path: 'posts',
+        name: 'posts',
+        component: () => import('../pages/client/post/index.vue'),
+        meta: { title: 'Bài viết' },
+      },
+      {
+        path: 'posts_detail/:id',
+        name: 'posts_detail',
+        component: () => import('../pages/client/post/postdetail.vue'),
+        meta: { title: 'Chi tiết bài viết' },
       },
     ],
   },
