@@ -59,7 +59,7 @@
             <div v-if="searchResults.length > 0" class="row">
               <div v-for="item in searchResults" :key="item" @click="openModal(item)" class="col-md-3">
                 <div class="product-card">
-                  <img :src="'http://127.0.0.1:8000/storage/img/food/' + item.image"  alt="" class="product-img mx-auto d-block" width="180px" />
+                  <img :src="getImageUrl(item.image)"  alt="" class="product-img mx-auto d-block" width="180px" />
                   <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
                   <span class="product-dish-desc text-start">
                     {{ item.description }}
@@ -122,7 +122,7 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -187,18 +187,13 @@ import numeral from 'numeral';
 import { Modal } from 'bootstrap';
 import { useRoute } from 'vue-router';
 import Swal from 'sweetalert2'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 export default {
   name: 'HomePage',
   methods: {
     formatNumber(value) {
       return numeral(value).format('0,0')
-    },
-    getImageUrl(image) {
-      return `/img/food/${image}`
-    },
-    getImageMenuUrl(image) {
-      return `/img/food/imgmenu/${image}`
     },
   },
   setup() {
@@ -215,7 +210,8 @@ export default {
     const isDropdownOpen = ref(false)
     const selectedCategoryName = ref('Món Ăn')
     const selectedCategoryImage = ref('')
-
+    const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
+    const getImageMenuUrl = (image) => `${STORAGE_URL}/img/food/imgmenu/${image}`
     const currentIndex = ref(0)
     const images = [
       '/img/banner/Banner (1).webp',
@@ -491,7 +487,9 @@ export default {
       route,
       searchKeyword,
       searchResults,
-      fetchSearchResults
+      fetchSearchResults,
+      getImageUrl,
+      getImageMenuUrl
     }
   },
 }

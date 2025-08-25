@@ -222,7 +222,7 @@ import numeral from 'numeral'
 import { Permission } from '@/stores/permission'
 import { API_URL } from '@/config'
 import Swal from 'sweetalert2'
-
+import { STORAGE_URL } from '@/config'
 // ====== state ======
 const combo = ref([])
 const comboInactive = ref([])
@@ -237,7 +237,7 @@ const tabs = [
 ]
 
 // ====== utils ======
-const getImageUrl = (image) => `http://127.0.0.1:8000/storage/img/food/${image}`
+const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
 function formatNumber(value) {
   return numeral(value).format('0,0')
 }

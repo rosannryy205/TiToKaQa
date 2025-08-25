@@ -131,7 +131,7 @@ body {
 .input-wrapper .icon-search-submit:focus-within ~ .input-search,
 .input-wrapper .input-search:focus {
   box-shadow: none;
-  width: 130px;
+  width: 115px;
   border-radius: 0px;
   background-color: transparent;
   border-bottom: 3px solid #c92c3c;
@@ -203,7 +203,16 @@ body {
   background-color: #f8f9fa;
   color: #c92c3c;
 }
-
+.offcanvas.offcanvas-start {
+  width: 70% !important;
+  max-width: 50%;
+}
+@media (max-width: 991.98px) {
+  .offcanvas.offcanvas-start {
+    width: 70% !important;
+    max-width: 70%;
+  }
+}
 .offcanvas-body .mobile-actions {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
@@ -249,6 +258,9 @@ body {
   .offcanvas {
     width: 250px;
   }
+}
+#offcanvasMenu > div.offcanvas-body > div > div.d-flex.flex-column.align-items-start > a{
+text-decoration: none !important;
 }
 /**/
 
