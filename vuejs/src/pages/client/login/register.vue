@@ -7,7 +7,6 @@
       <!-- Bước 1: Form đăng ký -->
       <form v-if="step === 1" @submit.prevent="handleSendCode">
         <div class="mb-3">
-
           <input type="email" v-model="form.email" class="form-control" placeholder="Nhập địa chỉ email" required />
         </div>
 

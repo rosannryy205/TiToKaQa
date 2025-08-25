@@ -72,8 +72,12 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
+<<<<<<< HEAD
 import { API_URL } from '@/config'
 import { STORAGE_URL } from '@/config'
+=======
+
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 export default {
   name: 'ForgotPasswordForm',
   data() {
@@ -131,7 +135,11 @@ export default {
 
       this.isLoading = true;
       try {
+<<<<<<< HEAD
         await axios.post(`${API_URL}/forgot`, { email: this.email });
+=======
+        await axios.post('http://127.0.0.1:8000/api/forgot', { email: this.email });
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
         this.step = 2;
         this.codeDigits = ['', '', '', '', '', ''];

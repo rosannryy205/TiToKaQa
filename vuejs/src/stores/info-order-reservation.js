@@ -3,7 +3,10 @@ import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import numeral from 'numeral'
 import { API_URL } from '@/config'
+<<<<<<< HEAD
 import { STORAGE_URL } from '@/config'
+=======
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 export const Info = {
   setup() {
     const info = ref({});
@@ -31,7 +34,11 @@ export const Info = {
     }
 
     const getImageUrl = (image) => {
+<<<<<<< HEAD
       return `${STORAGE_URL}/img/food/${image}`
+=======
+      return `http://127.0.0.1:8000/storage/img/food/${image}`
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     }
     const formatDate = (dateStr) => {
       if (!dateStr) return '';

@@ -55,7 +55,11 @@
                     <input class="form-control rounded-0" type="file" @change="handleImageChange">
                     <div class="mb-3 p-2 text-center">
                       <img v-if="previewImage" :src="previewImage" class="w-50" />
+<<<<<<< HEAD
                       <img v-else-if="oldImage" :src="getImageUrl(oldImage)"
+=======
+                      <img v-else-if="oldImage" :src="'http://127.0.0.1:8000/storage/img/food/imgmenu/' + oldImage"
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                         class="w-50" />
                     </div>
                   </div>
@@ -78,7 +82,10 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+<<<<<<< HEAD
 import { API_URL, STORAGE_URL } from '@/config'
+=======
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
 export default {
   setup() {
@@ -95,12 +102,19 @@ export default {
     const previewImage = ref(null)
     const allParents = ref([])
     const isLoading = ref(true)
+<<<<<<< HEAD
     const getImageUrl=(image) =>{
       return `${STORAGE_URL}/img/food/imgmenu/${image}`
     }
     const fetchParents = async () => {
       try {
         const res = await axios.get(`${API_URL}/admin/categories/parents/list`, {
+=======
+
+    const fetchParents = async () => {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/api/admin/categories/parents/list', {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -113,7 +127,11 @@ export default {
 
     const getCategoryById = async () => {
       try {
+<<<<<<< HEAD
         const res = await axios.get(`${API_URL}/admin/categories/${categoryId}`, {
+=======
+        const res = await axios.get(`http://127.0.0.1:8000/api/admin/categories/${categoryId}`, {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -167,7 +185,11 @@ export default {
 
 
       try {
+<<<<<<< HEAD
         await axios.post(`${API_URL}/admin/categories/${categoryId}`, formData, {
+=======
+        await axios.post(`http://127.0.0.1:8000/api/admin/categories/${categoryId}`, formData, {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'multipart/form-data',
@@ -210,8 +232,12 @@ export default {
       isLoading,
       categoryType,
       handleImageChange,
+<<<<<<< HEAD
       updateCategory,
       getImageUrl,
+=======
+      updateCategory
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     }
   }
 }

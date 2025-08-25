@@ -59,7 +59,11 @@
                   <td>{{ item.name }}</td>
                   <td>
                     <img class="me-2 img_thumbnail"
+<<<<<<< HEAD
                       :src="item.images ?  getImageUrl(item.images) : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
+=======
+                      :src="item.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + item.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                       :alt="item.name">
                   </td>
                   <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
@@ -144,15 +148,21 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { debounce } from 'lodash'
 import Swal from 'sweetalert2'
 import { Permission } from '@/stores/permission'
+<<<<<<< HEAD
 import { API_URL } from '@/config';
 import { STORAGE_URL } from '@/config'
+=======
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
 
 export default {
   setup() {
+<<<<<<< HEAD
     const getImageUrl=  (image) =>{
       return `${STORAGE_URL}/img/food/imgmenu/${image}`
     }
+=======
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     const categories = ref([])
     const allCategories = ref([])
     const perPage = ref(10)
@@ -187,7 +197,11 @@ export default {
           params.type = selectedType.value;
         }
 
+<<<<<<< HEAD
         const response = await axios.get(`${API_URL}/admin/categories/list`, {
+=======
+        const response = await axios.get('http://127.0.0.1:8000/api/admin/categories/list', {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           params,
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -214,7 +228,11 @@ export default {
 
     const fetchAllParents = async () => {
       try {
+<<<<<<< HEAD
         const response = await axios.get(`${API_URL}/admin/categories/parents/list`, {
+=======
+        const response = await axios.get('http://127.0.0.1:8000/api/admin/categories/parents/list', {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -239,7 +257,11 @@ export default {
 
       if (result.isConfirmed) {
         try {
+<<<<<<< HEAD
           await axios.delete(`${API_URL}/admin/categories/${id}`, {
+=======
+          await axios.delete(`http://127.0.0.1:8000/api/admin/categories/${id}`, {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -290,7 +312,11 @@ export default {
 
       if (result.isConfirmed) {
         try {
+<<<<<<< HEAD
           await axios.post(`${API_URL}/admin/categories/delete-multiple`, {
+=======
+          await axios.post('http://127.0.0.1:8000/api/admin/categories/delete-multiple', {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             ids: selectedIds.value
           }, {
             headers: {
@@ -372,7 +398,10 @@ export default {
       toggleSelectAll,
       handleDeleteSelected,
       hasPermission,
+<<<<<<< HEAD
       getImageUrl,
+=======
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
       userString,
       userId
 

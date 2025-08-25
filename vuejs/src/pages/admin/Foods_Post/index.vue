@@ -45,6 +45,10 @@
                     <th>Tiêu đề</th>
                     <th>Nội dung</th>
                     <th>Thể loại</th>
+<<<<<<< HEAD
+=======
+                    <th>Người viết</th>
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                     <th>Ngày phát hành</th>
                     <th class="text-center">Hành động</th>
                   </tr>
@@ -59,20 +63,39 @@
                     <td>{{ post.title }}</td>
                     <td>{{ truncate(post.content, 100) }}</td>
                     <td class="text-center">{{ post.category }}</td>
+<<<<<<< HEAD
                     <td class="text-center">{{ formatDate(post.published_at) }}</td>
                     <td class="text-center">
                       <button class="btn btn-sm btn-primary me-2" v-if="hasPermission('edit_post')" @click="editPost(post)">
                         <i class="bi bi-pencil-square"></i>
                       </button>
                       <button v-if="hasPermission('hidden_post')" class="btn btn-sm btn-danger-custom me-2" @click="toggleHide(post)">
+=======
+                    <td class="text-center">{{ post.user?.username || 'Ẩn danh' }}</td>
+                    <td class="text-center">{{ formatDate(post.published_at) }}</td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-primary me-2" v-if="hasPermission('edit_post')"
+                        @click="editPost(post)">
+                        <i class="bi bi-pencil-square"></i>
+                      </button>
+                      <button v-if="hasPermission('hidden_post')" class="btn btn-sm btn-danger-custom me-2"
+                        @click="toggleHide(post)">
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                         <i class="fa-regular" :class="post.is_hidden ? 'fa-eye' : 'fa-eye-slash'"></i>
                       </button>
                     </td>
                   </tr>
                   <tr v-if="filteredPosts.length === 0">
+<<<<<<< HEAD
                     <td colspan="6" class="text-center text-muted py-4">Không tìm thấy kết quả.</td>
                   </tr>
                 </tbody>
+=======
+                    <td colspan="8" class="text-center text-muted py-4">Không tìm thấy kết quả.</td>
+                  </tr>
+                </tbody>
+
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
               </table>
             </div>
 
@@ -103,7 +126,11 @@ import { onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import router from '@/router'
 import { Permission } from '@/stores/permission'
+<<<<<<< HEAD
 
+=======
+const API_URL = "http://127.0.0.1:8000/api"
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -123,7 +150,11 @@ const currentPage = ref(1)
 
 const getAllPost = async () => {
   try {
+<<<<<<< HEAD
     const res = await axios.get('http://127.0.0.1:8000/api/get_all_post');
+=======
+    const res = await axios.get(`${API_URL}/get_all_post`);
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     posts.value = res.data.result
     console.log(posts.value)
   } catch (error) {
@@ -132,6 +163,16 @@ const getAllPost = async () => {
   }
 }
 
+<<<<<<< HEAD
+=======
+
+const addPost = () => {
+  router.push('/admin/add_post')
+}
+
+
+
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 // Computed: lọc bài viết theo từ khóa
 const filteredPosts = computed(() => {
   const keyword = search.value.toLowerCase()
@@ -147,7 +188,11 @@ const filteredPosts = computed(() => {
 
 const toggleHide = async (post) => {
   try {
+<<<<<<< HEAD
     const res = await axios.post(`http://127.0.0.1:8000/api/post/${post.id}/toggle-hide`)
+=======
+    const res = await axios.post(`${API_URL}/post/${post.id}/toggle-hide`)
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
     post.is_hidden = res.data.post.is_hidden
 
@@ -242,7 +287,11 @@ onMounted(() => {
   color: #fff;
 }
 
+<<<<<<< HEAD
 .btn-success-custom{
+=======
+.btn-success-custom {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
   background-color: #c92c3c;
   color: #fff;
 }

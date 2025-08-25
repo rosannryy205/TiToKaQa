@@ -166,6 +166,10 @@ import { toast } from 'vue3-toastify';
 export default {
   name: 'RolePermissionManager',
   setup() {
+<<<<<<< HEAD
+=======
+    const API_URL = "http://127.0.0.1:8000/api"
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     const currentRoleId = ref(null);
     const currentRoleAbilities = ref({});
     const originalData = ref(null);
@@ -241,7 +245,11 @@ export default {
       loading.value = true;
 
       try {
+<<<<<<< HEAD
         const response = await axios.get(`http://127.0.0.1:8000/api/role-permission/${id}`);
+=======
+        const response = await axios.get(`${API_URL}/role-permission/${id}`);
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         const roleData = response.data.data;
         const fetchedAbilities = createAbilitiesStructure(roleData.abilities);
 
@@ -351,7 +359,11 @@ export default {
             return;
           }
 
+<<<<<<< HEAD
           await axios.post('http://127.0.0.1:8000/api/role-permission-create', {
+=======
+          await axios.post(`${API_URL}/role-permission-create`, {
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             name: roleName.value,
             permissions: permissionsToSave,
           });
@@ -372,7 +384,11 @@ export default {
             permissions: permissionsToSave,
           };
 
+<<<<<<< HEAD
           await axios.put('http://127.0.0.1:8000/api/role-permission-update', payload);
+=======
+          await axios.put(`${API_URL}/role-permission-update`, payload);
+>>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
           localStorage.setItem('toastMessage', 'Cập nhật quyền thành công!');
           window.location.reload();
