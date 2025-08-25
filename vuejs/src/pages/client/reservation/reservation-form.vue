@@ -119,7 +119,7 @@
                   v-model="paymentMethod" />
                 <label class="form-check-label d-flex align-items-center" for="momo">
                   <span class="me-2">Thanh toán qua COD</span>
-                  <img src="/img/momo.png" height="20" width="20" alt="" />
+                  <img src="/img/cod.png" height="20" width="20" alt="" />
                 </label>
               </div>
 
@@ -217,7 +217,6 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { Discounts } from '@/stores/discount'
 import { Cart } from '@/stores/cart'
 import numeral from 'numeral'
-import { toast } from 'vue3-toastify'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
@@ -300,6 +299,18 @@ export default {
       isLoading.value = true
 
       try {
+        if (!cart_reservation || cart_reservation.length === 0) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Vui lòng chọn món!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
+          return
+        }
         if (!paymentMethod.value) {
           Swal.fire({
             toast: true,
@@ -380,7 +391,15 @@ export default {
           return
         }
         if (paymentMethod.value === 'MOMO') {
-          toast.info('Chức năng thanh toán MoMo đang được phát triển!');
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: 'Chức năng thanh toán MoMo đang được phát triển!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value);
           localStorage.removeItem(cartKey);
@@ -396,7 +415,15 @@ export default {
           localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey)
-          toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Đặt hàng và thanh toán bằng tiền mặt thành công!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
           router.push({
             name: 'payment-result',
             query: {
@@ -555,8 +582,15 @@ export default {
       // Reset
       editCartIndex.value = null;
       document.querySelector('#productModal .btn-close')?.click();
-
-      toast.success(' Đã cập nhật topping thành công!');
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Đã cập nhật topping thành công!',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      });
     };
 
     const increaseQuantity = () => {
@@ -566,37 +600,6 @@ export default {
     const decreaseQuantity = () => {
       if (quantity.value > 1) quantity.value--
     }
-    // const notify = async () => {
-    //   const status = info.value;
-    //   const now = new Date();
-    //   const expirationTime = new Date(status.expiration_time);
-
-    //   let message = '';
-
-    //   if (status.order_status === 'Đã hủy' || status.reservation_status === 'Đã Hủy') {
-    //     message = 'Đơn của bạn đã bị hủy! Vui lòng quay lại đặt đơn hàng khác.';
-    //   } else if (expirationTime < now) {
-    //     message = 'Đơn hàng của bạn đã hết thời hạn! Vui lòng quay lại đặt đơn hàng khác.';
-    //   } else if (status.order_status === 'Giao thành công' || status.reservation_status === 'Hoàn Thành') {
-    //     message = 'Đơn hàng đã được hoàn thành trước đó.';
-    //   }
-
-    //   if (message !== '') {
-    //     await Swal.fire({
-    //       icon: 'error',
-    //       text: message,
-    //       confirmButtonText: 'Quay lại',
-    //       confirmButtonColor: '#d32f2f',
-    //     }).then((result) => {
-    //       if (result.isConfirmed) {
-    //         router.push('/reservation');
-    //       }
-    //     });
-    //     return;
-    //   }
-
-    // };
-
     onMounted(async () => {
       try {
         await getInfo("order", orderId);

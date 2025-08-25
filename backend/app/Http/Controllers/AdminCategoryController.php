@@ -39,8 +39,6 @@ class AdminCategoryController extends Controller
         if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
-
-        // Sắp xếp mới nhất trước
         $query->orderByDesc('id');
 
         $perPage = $request->input('per_page', 10);

@@ -291,6 +291,18 @@ export default {
       return `cart_${userId}`
     }
 
+     const showToast = (message, icon = 'success') => {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: icon,
+        title: message,
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      })
+    }
+
     const loadCart = () => {
       const cartKey = getCartKey()
       const storedCart = localStorage.getItem(cartKey)
@@ -312,15 +324,7 @@ export default {
       })
       if (cartUpdated) {
         localStorage.setItem(cartKey, JSON.stringify(updatedCart))
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'info',
-          title: 'Một vài sản phẩm Flash Sale trong giỏ đã hết hạn và được cập nhật về giá gốc.',
-          showConfirmButton: false,
-          timer: 4000,
-          timerProgressBar: true,
-        })
+        showToast('Một vài sản phẩm Flash Sale trong giỏ đã hết hạn và được cập nhật về giá gốc!', 'info')
       }
 
       cartItems.value = updatedCart
@@ -369,7 +373,7 @@ export default {
     const result = await Swal.fire({
       title: '⚠️ Flash Sale giới hạn!',
       html: `Sản phẩm này chỉ áp dụng giá khuyến mãi cho 1 sản phẩm đầu tiên.<br>
-      Nếu bạn mua thêm, phần vượt sẽ tính theo <b>giá gốc</b>.`,
+        Nếu bạn mua thêm, phần vượt sẽ tính theo <b>giá gốc</b>.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Đồng ý',
@@ -377,15 +381,39 @@ export default {
     })
 
     if (!result.isConfirmed) return
+
     const newItem = { ...item }
     newItem.price = item.original_price
     newItem.quantity = 1
-    newItem.is_flash_sale = false,
+    newItem.is_flash_sale = false
     delete newItem.flash_sale_quantity
     delete newItem.flash_sale_end
     cartItems.value.push(newItem)
+  }
 
-  } else {
+  else if (item.is_deal && currentQuantity >= (item.free_quantity || 1)) {
+    const result = await Swal.fire({
+      title: '⚠️ Deal giới hạn!',
+      html: `Deal này chỉ áp dụng cho <b>số lượng sản phẩm là 1</b>.<br>
+        Nếu bạn mua thêm, phần vượt sẽ tính theo <b>giá gốc</b>.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Hủy',
+    })
+
+    if (!result.isConfirmed) return
+
+    const newItem = { ...item }
+    newItem.price = item.original_price
+    newItem.quantity = 1
+    newItem.is_deal = false
+    delete newItem.reward_id
+    delete newItem.free_quantity
+    cartItems.value.push(newItem)
+  }
+
+  else {
     cartItems.value[index].quantity++
   }
 
@@ -409,15 +437,7 @@ export default {
       if (result.isConfirmed) {
         cartItems.value.splice(index, 1)
         updateCartStorage()
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'success',
-          title: 'Đã xóa món khỏi giỏ hàng!',
-          showConfirmButton: false,
-          timer: 1500,
-          timerProgressBar: true,
-        })
+        showToast('Đã xóa món khỏi giỏ hàng!')
       }
     }
 
@@ -603,7 +623,7 @@ export default {
       editCartIndex.value = null
       document.querySelector('#productModal .btn-close')?.click()
 
-      toast.success(' Đã cập nhật topping thành công!')
+      showToast(' Đã cập nhật topping thành công!')
     }
 
     onMounted(() => {

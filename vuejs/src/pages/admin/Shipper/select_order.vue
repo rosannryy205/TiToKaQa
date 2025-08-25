@@ -23,7 +23,7 @@
             </div>
 
 
-            <div class="order-list-scroll" v-else>
+            <div v-else>
               <div class="row g-4">
                 <div class="col-md-4" v-for="order in orders" :key="order.id">
                   <div class="card order-card h-100 shadow-sm" :class="{ selected: selectedIds.includes(order.id) }">
@@ -31,7 +31,7 @@
                       <div class="d-flex justify-content-between align-items-start mb-2 w-100">
                         <h5 class="fw-bold text-dark mb-0">#{{ order.id }}</h5>
                         <i class="bi"
-                          :class="selectedIds.includes(order.id) ? 'bi-check-circle-fill text-success' : 'bi-circle text-muted'"
+                          :class="selectedIds.includes(order.id) ? 'bi-check-circle-fill text-danger' : 'bi-circle text-muted'"
                           style="font-size: 1.5rem"></i>
                       </div>
 
@@ -39,7 +39,7 @@
                       <p class="mb-1 text-dark"><i class="bi bi-person me-1 text-secondary"></i> {{ order.guest_name }}
                       </p>
                       <p class="mb-1 text-dark"><i class="bi bi-telephone me-1 text-secondary"></i> {{ order.guest_phone
-                        }}
+                      }}
                       </p>
                       <p class="mb-2 small text-muted">
                         <i class="bi bi-geo-alt me-1"></i> {{ order.guest_address }}
@@ -74,8 +74,8 @@
                           Tổng: {{ formatCurrency(order.total_price) }}
                         </div>
                         <div class="total-button text-end">
-                          <button class="btn btn-sm px-3 py-1 rounded-pill"
-                            :class="selectedIds.includes(order.id) ? 'btn-outline-danger' : 'btn-outline-primary'"
+                          <button class="btn btn-sm px-3 py-1 "
+                            :class="selectedIds.includes(order.id) ? 'btn-outline-danger' : 'btn-outline-dark'"
                             @click="toggleSelect(order.id)">
                             <i :class="selectedIds.includes(order.id) ? 'bi bi-x-lg' : 'bi bi-plus-lg'"></i>
                             {{ selectedIds.includes(order.id) ? 'Bỏ' : 'Chọn' }}
@@ -90,8 +90,9 @@
 
 
             <!-- Nút quay lại + xác nhận -->
-            <div class="d-flex justify-content-between align-items-center mt-4">
-              <button class="btn btn-outline-secondary" @click="goBack">
+            <div
+              class="d-flex flex-wrap justify-content-between justify-content-md-between align-items-center mt-4 gap-2">
+              <button class="btn btn-outline-secondary px-4 py-2 fw-medium" @click="goBack">
                 <i class="bi bi-arrow-left me-1"></i> Quay lại
               </button>
 
@@ -111,7 +112,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -119,7 +120,6 @@ const router = useRouter()
 const goBack = () => {
   router.back()
 }
-
 
 const orders = ref([])
 const selectedIds = ref([])
@@ -132,7 +132,15 @@ const getOrders = async () => {
     const res = await axios.get('http://127.0.0.1:8000/api/get_all_orders')
     orders.value = res.data.orders.filter(order => order.order_status === 'Bắt đầu giao' && order.shipper_id === null)
   } catch (e) {
-    toast.error('Không thể tải đơn hàng')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Không thể tải đơn hàng',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    })
   } finally {
     isLoading.value = false
   }
@@ -143,7 +151,15 @@ const toggleSelect = (id) => {
     selectedIds.value = selectedIds.value.filter(item => item !== id)
   } else {
     if (selectedIds.value.length >= 3) {
-      toast.warning('Chỉ chọn tối đa 3 đơn')
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'warning',
+        title: 'Chỉ chọn tối đa 3 đơn',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      })
       return
     }
     selectedIds.value.push(id)
@@ -158,15 +174,39 @@ const assignOrders = async () => {
     })
 
     if (response.data.success) {
-      toast.success('Giao đơn thành công!')
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Giao đơn thành công!',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      })
       selectedIds.value = []
       await getOrders()
       router.back()
     } else {
-      toast.error('Không thể cập nhật đơn hàng')
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'Không thể cập nhật đơn hàng',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+      })
     }
   } catch (err) {
-    toast.error('Lỗi hệ thống')
+    Swal.fire({
+      toast: true,
+      position: 'top-end',
+      icon: 'error',
+      title: 'Lỗi hệ thống',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true
+    })
   }
 }
 
@@ -190,8 +230,7 @@ onMounted(() => {
 }
 
 .order-card.selected {
-  border-color: #0d6efd;
-  background-color: #e7f1ff;
+  border-color: #c92c3c;
 }
 
 .order-detail-box {
@@ -212,22 +251,6 @@ onMounted(() => {
   border-radius: 4px;
 }
 
-.order-list-scroll {
-  max-height: 70vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 8px;
-}
-
-.order-list-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.order-list-scroll::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 4px;
-}
-
 .total-action-box {
   width: 100%;
   display: flex;
@@ -245,6 +268,34 @@ onMounted(() => {
 
 .total-button {
   text-align: right;
+}
+
+.btn-outline-dark:focus,
+.btn-outline-dark:active,
+.btn-outline-dark.active,
+.btn-outline-dark:focus-visible {
+  color: #212529 !important;
+  /* giữ màu chữ đen */
+  background-color: transparent !important;
+  /* không đổi nền */
+  box-shadow: none !important;
+  /* bỏ viền xanh */
+  outline: none !important;
+  /* bỏ outline */
+}
+
+.btn-outline-danger:focus,
+.btn-outline-danger:active,
+.btn-outline-danger.active,
+.btn-outline-danger:focus-visible {
+  color: #c92c3c !important;
+  /* giữ màu chữ đen */
+  background-color: transparent !important;
+  /* không đổi nền */
+  box-shadow: none !important;
+  /* bỏ viền xanh */
+  outline: none !important;
+  /* bỏ outline */
 }
 
 /* Responsive cho mobile */

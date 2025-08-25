@@ -100,11 +100,7 @@
             </div>
           </div>
         </div>
-        <!-- <div  class="">
-          <div class="text">Đang xử lý...</div>
-        </div> -->
-
-        <div class="loader chat-message other-message">
+        <div class="loader chat-message other-message" v-if="isLoading">
           <div class="ball"></div>
           <div class="ball"></div>
           <div class="ball"></div>
@@ -173,18 +169,17 @@
         </form>
       </div>
       <div class="chat-input">
-
         <input v-if="expectingDateInput" type="text" ref="datetimePicker" class="rounded-0" v-model="datetime"
-          placeholder="Chọn ngày và giờ" />
+          placeholder="Chọn ngày và giờ" :disabled="isInputDisabled" />
         <input v-else-if="expectingCountInput" type="number" min="1" max="20" v-model="messageInput"
-          @keyup.enter="sendMessage" required />
-        <input v-else-if="expectingEmailInput" type="email" v-model="messageInput" @keyup.enter="sendMessage"
-          required />
+          @keyup.enter="sendMessage" required :disabled="isInputDisabled" />
+        <input v-else-if="expectingEmailInput" type="email" v-model="messageInput" @keyup.enter="sendMessage" required
+          :disabled="isInputDisabled" />
 
         <input v-else v-model="messageInput" @keyup.enter="sendMessage" placeholder="Nhập tin nhắn....."
-          :disabled="isLoading" />
+          :disabled="isLoading || isInputDisabled" />
 
-        <button @click="sendMessage()" class="rounded" :disabled="isLoading">
+        <button @click="sendMessage()" class="rounded" :disabled="isLoading || isInputDisabled">
           <span>➤</span>
         </button>
       </div>
@@ -234,6 +229,7 @@ export default {
     const datetime = ref('')
     const isLoading = ref(false)
     const datetimePicker = ref(null);
+    const isInputDisabled = ref(true);
 
     let fpInstance = null;
     const showProductDetailInChat = ref(false)
@@ -315,7 +311,10 @@ export default {
         if (!hasSentWelcome.value) {
           sendWelcomeEvent();
         }
+        isInputDisabled.value = true;
         scrollToBottom()
+      } else {
+        isInputDisabled.value = true;
       }
     }
 
@@ -405,11 +404,15 @@ export default {
         expectingEmailInput.value = false
         expectingCountInput.value = false
 
-        if (messageFromChip === '✅ Hoàn tất chọn món') {
+        if (messageFromChip === '🪑 Đặt bàn') {
+          isInputDisabled.value = false;
+          messageInput.value = messageFromChip;
+        } else if (messageFromChip === '✅ Hoàn tất chọn món') {
           console.log('Calling submitCart with order ID:', currentOrderId.value);
           submitCart(currentOrderId.value);
           return;
         }
+
 
       } else if (expectingDateInput.value) {
         if (!datetime.value) {
@@ -969,7 +972,8 @@ export default {
       expectingCountInput,
       datetimePicker,
       fpInstance,
-      initializeFlatpickr
+      initializeFlatpickr,
+      isInputDisabled
     }
   },
 }
