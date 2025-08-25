@@ -28,7 +28,7 @@
         <div class="deal-card d-flex align-items-center rounded p-3 w-100 shadow-sm">
           <div class="me-3 d-flex align-items-center justify-content-center" style="width: 60px">
             <img
-              :src="`/public/img/food/${deal.food_snapshot?.image}`"
+               :src="getImageUrl(deal.food_snapshot?.image)"
               alt="food"
               class="rounded"
               style="width: 50px; height: 50px; object-fit: cover"
@@ -68,12 +68,12 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userAuth'
 import { API_URL } from '@/config'
-
+import { STORAGE_URL } from '@/config'
 const dealsFood = ref([])
 const activeTab = ref(0)
 const router = useRouter()
 const userStore = useUserStore()
-
+const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
 const tabs = ref([
   { label: 'Tất cả', count: 0 },
   { label: 'Deal hết hạn', count: 0 }

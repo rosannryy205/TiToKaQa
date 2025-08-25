@@ -284,8 +284,8 @@ import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import { useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
-
 import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 
 export default {
   name: 'HomePage',
@@ -308,10 +308,10 @@ export default {
       return numeral(value).format('0,0')
     },
     getImageUrl(image) {
-      return `/img/food/${image}`
+      return `${STORAGE_URL}/img/food/${image}`
     },
     getImageMenuUrl(image) {
-      return `/img/food/imgmenu/${image}`
+      return `${STORAGE_URL}/img/food/imgmenu/${image}`
     },
   },
   setup() {
