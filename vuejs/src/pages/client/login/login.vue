@@ -52,12 +52,8 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userAuth';
 import Swal from 'sweetalert2';
-<<<<<<< HEAD
 import { API_URL } from '@/config'
 import { STORAGE_URL } from '@/config'
-=======
-
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 export default {
   name: 'LoginForm',
 
@@ -74,17 +70,13 @@ export default {
 
   setup() {
     const router = useRouter();
-    const userStore = useUserStore(); 
+    const userStore = useUserStore();
     return { router, userStore };
   },
 
   methods: {
     async loginWithGoogle() {
-<<<<<<< HEAD
       window.location.href = `${API_URL}/auth/google/redirect`;
-=======
-      window.location.href = 'http://127.0.0.1:8000/api/auth/google/redirect';
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     },
 
     async handleLogin() {

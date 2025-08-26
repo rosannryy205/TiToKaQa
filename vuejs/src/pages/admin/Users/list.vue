@@ -241,12 +241,9 @@ import { computed } from 'vue'
 import { watch } from 'vue'
 import Swal from 'sweetalert2';
 import { Permission } from '@/stores/permission'
+import { API_URL } from '@/config'
 
 useMenu().onSelectedKeys(['admin-roles'])
-<<<<<<< HEAD
-=======
-const API_URL = "http://127.0.0.1:8000/api"
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -292,11 +289,7 @@ const isEmployee = computed(() => {
 
 const fecthAllUser = async () => {
   try {
-<<<<<<< HEAD
-    const response = await axios.get(`http://127.0.0.1:8000/api/user`);
-=======
     const response = await axios.get(`${API_URL}/user`);
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     const usersData = response.data.user;
 
     const result = [];
@@ -323,11 +316,7 @@ const fecthAllUser = async () => {
 
           if (failed_orders >= 5 && user.status !== 'Block') {
             try {
-<<<<<<< HEAD
-              await axios.put(`http://127.0.0.1:8000/api/update/${user.id}`, {
-=======
               await axios.put(`${API_URL}/update/${user.id}`, {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                 status: 'Block'
               });
               user.status = 'Block';
@@ -366,11 +355,7 @@ const getRoleName = (roles) => {
 const toggleStatus = async (user) => {
   const newStatus = user.status === 'Active' ? 'Block' : 'Active'
   try {
-<<<<<<< HEAD
-    await axios.put(`http://127.0.0.1:8000/api/update/${user.id}`, {
-=======
     await axios.put(`${API_URL}/update/${user.id}`, {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
       status: newStatus,
     })
     user.status = newStatus

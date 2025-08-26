@@ -131,11 +131,7 @@ body {
 .input-wrapper .icon-search-submit:focus-within ~ .input-search,
 .input-wrapper .input-search:focus {
   box-shadow: none;
-<<<<<<< HEAD
-  width: 115px;
-=======
   width: 130px;
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
   border-radius: 0px;
   background-color: transparent;
   border-bottom: 3px solid #c92c3c;
@@ -925,7 +921,7 @@ color: #c92c3c;
 
 .popular-searches img {
   width: 100%;
-  height: auto;      
+  height: auto;
   border-radius: 8px;
   display: block;
   object-fit: cover;
@@ -933,8 +929,8 @@ color: #c92c3c;
 
 @media (max-width: 768px) {
   .popular-searches img {
-    object-fit: contain; 
-    max-height: 200px;   
+    object-fit: contain;
+    max-height: 200px;
   }
   #app > div.client > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div > a{
     font-size: 1rem;
@@ -1054,10 +1050,10 @@ color: #000000;
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
   padding: 30px;
 }
-.product-card h3, p{
-  /* font-weight: bold; */
-  /* color: #c92c3c; */
-}
+/* .product-card h3, p{
+  font-weight: bold;
+  color: #c92c3c;
+} */
 
 
 

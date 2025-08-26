@@ -224,29 +224,16 @@ import Swal from 'sweetalert2'
 import { Info } from '@/stores/info-order-reservation'
 import { FoodList } from '@/stores/food'
 import { nextTick } from 'vue'
-<<<<<<< HEAD
 import { API_URL } from '@/config'
 import { STORAGE_URL } from '@/config'
-=======
-
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 export default {
   methods: {
     formatNumber(value) {
       return numeral(value).format("0,0");
-<<<<<<< HEAD
     },
   },
   setup() {
     const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
-=======
-    },
-    getImageUrl(image) {
-      return `/img/food/${image}`;
-    },
-  },
-  setup() {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     const note = ref("");
     const isLoading = ref(false);
     const route = useRoute();
@@ -283,11 +270,7 @@ export default {
           minutes.value = 0;
           seconds.value = 0;
           await axios.put(
-<<<<<<< HEAD
             `${API_URL}/order-history-info/cancel/${orderId}`
-=======
-            `http://127.0.0.1:8000/api/order-history-info/cancel/${orderId}`
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           );
           localStorage.removeItem(`cart_${userId}_reservation_${orderId}`)
           Swal.fire({
@@ -362,17 +345,10 @@ export default {
           })),
         };
 
-<<<<<<< HEAD
         await axios.post(`${API_URL}/reservation`, orderData);
 
         if (orderData.discount_id) {
           await axios.post(`${API_URL}/discounts/use`, {
-=======
-        await axios.post("http://127.0.0.1:8000/api/reservation", orderData);
-
-        if (orderData.discount_id) {
-          await axios.post("http://localhost:8000/api/discounts/use", {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             discount_id: orderData.discount_id,
             order_id: orderId,
           });
@@ -394,11 +370,7 @@ export default {
             });
             return;
           }
-<<<<<<< HEAD
           const paymentRes = await axios.post(`${API_URL}/payments/vnpay-init`, {
-=======
-          const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             order_id: orderId,
             amount: tableKeeping,
           })

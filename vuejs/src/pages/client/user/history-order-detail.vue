@@ -175,11 +175,8 @@ import axios from 'axios';
 import { ref } from 'vue';
 import { computed } from 'vue';
 import Swal from 'sweetalert2';
-<<<<<<< HEAD
 import { API_URL } from '@/config'
 import { STORAGE_URL } from '@/config'
-=======
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 export default {
   methods: {
     goBack() {
@@ -215,11 +212,7 @@ export default {
       if (result.isConfirmed) {
         try {
           isLoading.value = true;
-<<<<<<< HEAD
           const status = await axios.put(`${API_URL}/order-history-info/cancle/${id}`)
-=======
-          const status = await axios.put(`http://127.0.0.1:8000/api/order-history-info/cancle/${id}`)
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
           if (status) {
             Swal.fire({
               toast: true,

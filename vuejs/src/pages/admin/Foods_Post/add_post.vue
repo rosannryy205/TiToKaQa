@@ -73,12 +73,8 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import { API_URL, STORAGE_URL } from '@/config'
 
-<<<<<<< HEAD
-
-=======
-const API_URL = "http://127.0.0.1:8000/api"
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const title = ref('')
 const content = ref('')
 const selectedCategory = ref('') // Danh mục được chọn
@@ -97,56 +93,6 @@ const handleImageUpload = (event) => {
 }
 
 const savePost = async () => {
-<<<<<<< HEAD
-  if (!selectedCategory.value) {
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'warning',
-      title: 'Vui lòng chọn danh mục',
-      showConfirmButton: false,
-      timer: 2000,
-      timerProgressBar: true
-    })
-    return
-  }
-  if (!title.value) {
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'warning',
-      title: 'Vui lòng đặt tiêu đề',
-      showConfirmButton: false,
-      timer: 2000,
-      timerProgressBar: true
-    })
-    return
-  }
-  if (imageFile.value && imageFile.value.size > 2 * 1024 * 1024) { // 2MB
-    Swal.fire({
-      toast: true,
-      position: 'top-end',
-      icon: 'error',
-      title: 'Ảnh vượt quá dung lượng 2MB',
-      showConfirmButton: false,
-      timer: 2000,
-      timerProgressBar: true
-    })
-    return
-  }
-
-  try {
-    const formData = new FormData()
-    formData.append('title', title.value)
-    formData.append('content', content.value)
-    formData.append('category', selectedCategory.value)
-    if (imageFile.value) {
-      formData.append('image', imageFile.value)
-    }
-
-    await axios.post('http://127.0.0.1:8000/api/insert_post', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-=======
   try {
     const formData = new FormData()
     formData.append("title", title.value)
@@ -173,26 +119,10 @@ const savePost = async () => {
 
     await axios.post(`${API_URL}/insert_post`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     })
 
     Swal.fire({
       toast: true,
-<<<<<<< HEAD
-      position: 'top-end',
-      icon: 'success',
-      title: 'Thêm bài viết thành công',
-      showConfirmButton: false,
-      timer: 2000,
-      timerProgressBar: true
-    })
-    goBack()
-  } catch (error) {
-   console.error(error)
-    Swal.fire({
-      icon: 'error',
-      title: 'Lỗi khi thêm bài viết'
-=======
       position: "top-end",
       icon: "success",
       title: "Thêm bài viết thành công",
@@ -207,15 +137,10 @@ const savePost = async () => {
     Swal.fire({
       icon: "error",
       title: "Lỗi khi thêm bài viết",
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     })
   }
 }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 const generateWithAI = async () => {
   if (!title.value) {
     Swal.fire({
@@ -231,11 +156,7 @@ const generateWithAI = async () => {
   }
 
   try {
-<<<<<<< HEAD
-    const res = await axios.post('http://127.0.0.1:8000/api/generate/post', {
-=======
     const res = await axios.post(`${API_URL}/generate/post`, {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
       title: title.value
     })
 
@@ -280,11 +201,7 @@ const checkSEO = async () => {
   }
 
   try {
-<<<<<<< HEAD
-    const res = await axios.post('http://127.0.0.1:8000/api/check-seo', {
-=======
     const res = await axios.post(`${API_URL}/check-seo`, {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
       title: title.value,
       content: content.value
     })

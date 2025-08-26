@@ -14,13 +14,9 @@ class AdminFoodPost extends Controller
     public function index()
     {
         $foodPost = FoodPost::with(
-<<<<<<< HEAD
-            'foods'
-=======
             'foods',
             'user',
 
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         )->get();
         return response()->json([
             'result' => $foodPost
@@ -36,35 +32,6 @@ class AdminFoodPost extends Controller
     }
 
     public function updatePost(Request $request, $id)
-<<<<<<< HEAD
-{
-    $post = FoodPost::find($id);
-
-    if (!$post) {
-        return response()->json(['message' => 'Bài viết không tồn tại'], 404);
-    }
-
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'content' => 'nullable|string',
-        'category' => 'required',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB
-    ]);
-
-    $post->title = $request->title;
-    $post->content = $request->content;
-    $post->category = $request->category;
-
-    if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->getClientOriginalExtension();
-            $request->image->storeAs('public/img/post', $imageName);
-        }
-
-    $post->save();
-
-    return response()->json(['message' => 'Cập nhật bài viết thành công', 'post' => $post]);
-}
-=======
     {
         $post = FoodPost::find($id);
 
@@ -102,7 +69,6 @@ class AdminFoodPost extends Controller
         ]);
     }
 
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
 
     /**
@@ -111,17 +77,6 @@ class AdminFoodPost extends Controller
     public function store(Request $request)
     {
         $request->validate([
-<<<<<<< HEAD
-            'title' => "required|string|max:255",
-            'content' => "required|string",
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'category' => 'required'
-        ]);
-
-        $imageName = null;
-
-        //Lưu ảnh vào Storage
-=======
             'title'    => 'required|string|max:255',
             'content'  => 'required|string',
             'image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -140,43 +95,27 @@ class AdminFoodPost extends Controller
         }
 
         $imageName = null;
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         if ($request->hasFile('image')) {
             $imageName = time() . '.' . $request->image->getClientOriginalExtension();
             $request->image->storeAs('public/img/post', $imageName);
         }
 
         $post = FoodPost::create([
-<<<<<<< HEAD
-            'title' => $request->title,
-            'content' => $request->content,
-            'image' => $imageName,
-            'category' => $request->category,
-            'published_at' => now()
-=======
             'user_id'      => $uid,
             'title'        => $request->title,
             'content'      => $request->content,
             'image'        => $imageName,
             'category'     => $request->category,
             'published_at' => now(),
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         ]);
 
         return response()->json([
             'message' => 'Thêm bài viết thành công',
-<<<<<<< HEAD
-            'post' => $post
-        ]);
-    }
-
-=======
             'post'    => $post,
         ]);
     }
 
 
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
     public function hidePost($id)
     {
         $post = FoodPost::find($id);
