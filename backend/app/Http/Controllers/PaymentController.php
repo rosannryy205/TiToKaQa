@@ -543,11 +543,6 @@ class PaymentController extends Controller
                 'payment_time' => Carbon::now('Asia/Ho_Chi_Minh'),
             ]);
 
-            // $order = Order::find($validated['order_id']);
-            // if ($order && $order->order_status === 'Đang chờ xử lý') {
-            //     $order->update(['order_status' => 'Đã thanh toán']);
-            // }
-
             $order = Order::with([
                 'details.foods',
                 'details.combos',
@@ -561,14 +556,21 @@ class PaymentController extends Controller
                 ], 404);
             }
 
+            if (empty($order->order_code)) {
+                do {
+                    $code = Str::upper(Str::random(10));
+                } while (Order::where('order_code', $code)->exists());
+                $order->order_code = $code;
+                $order->save();
+            }
+
             $guestName = $order->guest_name ?? 'Khách hàng';
             $guestEmail = $order->guest_email ?? null;
             $guestPhone = $order->guest_phone ?? 'N/A';
-            $guestAddress = $order->guestAddress;
+            $guestAddress = $order->guest_address; // ⚠️ ở đây bạn ghi nhầm $order->guestAddress
 
             $orderDetailsWithNames = [];
             $subtotal = 0;
-
 
             foreach ($order->details as $orderDetail) {
                 $name = null;
@@ -606,23 +608,25 @@ class PaymentController extends Controller
                     'price' => $basePrice,
                     'type' => $orderDetail->type,
                     'toppings' => $toppingsWithNames,
-                    'item_total' => $itemSubtotal // Tổng giá của từng item bao gồm topping và số lượng
+                    'item_total' => $itemSubtotal
                 ];
             }
 
             $mailData = [
-                'order_id' => $order->id,
-                'guest_name' => $guestName,
+                'order_id'    => $order->id,
+                'order_code'  => $order->order_code, // 🔥 thêm vào đây
+                'guest_name'  => $guestName,
                 'guest_email' => $guestEmail,
                 'guest_phone' => $guestPhone,
                 'guest_address' => $guestAddress,
                 'total_price' => $order->total_price ?? null,
-                'note' => $request->note ?? null,
+                'note'        => $request->note ?? null,
                 'order_details' => $orderDetailsWithNames,
-                'subtotal' => $subtotal,
-                'order_status' =>  'Chờ xác nhận',
-                'shippingFee' =>  $order->ship_cost
+                'subtotal'    => $subtotal,
+                'order_status' => 'Chờ xác nhận',
+                'shippingFee' => $order->ship_cost
             ];
+
             if (!empty($mailData['guest_email'])) {
                 Mail::to($mailData['guest_email'])->send(new OrderMail($mailData));
             }
@@ -635,6 +639,7 @@ class PaymentController extends Controller
             return response()->json(['status' => false, 'message' => 'Lỗi khi xử lý dữ liệu thanh toán COD', 'error' => $e->getMessage()], 500);
         }
     }
+
 
     public function handleCodPayAdmin(Request $request)
     {
@@ -687,7 +692,7 @@ class PaymentController extends Controller
             $guestName = $order->guest_name ?? 'Khách hàng';
             $guestEmail = $order->guest_email ?? null;
             $guestPhone = $order->guest_phone ?? 'N/A';
-            $guestAddress = $order->guestAddress;
+            $guestAddress = $order->guest_address;
 
             $orderDetailsWithNames = [];
             $subtotal = 0;
