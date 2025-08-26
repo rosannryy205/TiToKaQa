@@ -76,6 +76,7 @@ import Swal from 'sweetalert2'
 import { useRoute } from 'vue-router'
 import { onMounted } from 'vue'
 import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 
 const route = useRoute()
 const postId = route.params.id
@@ -266,7 +267,7 @@ onMounted(async () => {
       content.value = res.data.data.content
       selectedCategory.value = res.data.data.category
       if (res.data.data.image) {
-        imagePreview.value = `http://127.0.0.1:8000/storage/img/post/${res.data.data.image}`
+        imagePreview.value = `${STORAGE_URL}/img/post/${res.data.data.image}`
       }
     } catch (error) {
       console.error('Lỗi load bài viết:', error)

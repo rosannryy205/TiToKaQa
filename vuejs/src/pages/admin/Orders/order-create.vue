@@ -333,6 +333,7 @@ export default {
       spicyLevel,
       toppingList,
     } = FoodList.setup()
+    const API_FE = 'http://titokaqarestaurant.online'
     const router = useRouter()
     const isLoading = ref(false)
     const selectfood = ref(null)
@@ -497,7 +498,7 @@ export default {
           const paymentRes = await axios.post(`${API_URL}/payments/vnpay-init`, {
             order_id: current_order_id.value,
             amount: totalPrice.value,
-            return_url: 'http://localhost:5173/admin/tables/current-order',
+            return_url: `${API_FE}/admin/tables/current-order`,
           })
           if (paymentRes.data.payment_url) {
             localStorage.setItem('payment_method', paymentMethod.value)

@@ -242,8 +242,8 @@ import { watch } from 'vue'
 import Swal from 'sweetalert2';
 import { Permission } from '@/stores/permission'
 import { API_URL } from '@/config'
-
 useMenu().onSelectedKeys(['admin-roles'])
+
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {

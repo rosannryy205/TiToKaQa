@@ -136,9 +136,9 @@ class UserController extends Controller
 
         /**xuly tang dc cho nguoi moi */
         $newUserDiscounts = Discount::where('user_level', 'new')
-        ->where('status', 'active')
-        ->where('source', 'for_users')
-        ->get();
+            ->where('status', 'active')
+            ->where('source', 'for_users')
+            ->get();
         $data = [];
         $issuedAt  = now();
         $expiryAt  = now()->addDays(7);

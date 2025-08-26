@@ -19,7 +19,7 @@
       <div class="col-12 col-lg-8 mb-4">
         <!-- Sản phẩm -->
         <div class="card mb-3" v-for="(item, index) in cartItems" :key="index"
-        @click="openModalToEditTopping(item, index)">
+      >
           <div class="card-body d-flex align-items-center flex-wrap">
             <i class="bi bi-x-circle me-3 mb-2" style="cursor: pointer" @click="removeItem(index)"></i>
             <img :src="getImageUrl(item.image)" class="cart-img me-3 mb-2" alt="Mì kim chi Nha Trang" />

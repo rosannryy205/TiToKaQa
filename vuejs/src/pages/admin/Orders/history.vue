@@ -143,7 +143,7 @@ import Swal from 'sweetalert2';
 import { API_URL } from '@/config';
 // Import các icon nếu cần cho nút hoặc các phần khác
 // import { EyeOutlined, PrinterOutlined } from '@ant-design/icons-vue';
-
+import { API_URL } from '@/config'
 import { Permission } from '@/stores/permission'
 const userId = ref(null)
 const userString = localStorage.getItem('user')

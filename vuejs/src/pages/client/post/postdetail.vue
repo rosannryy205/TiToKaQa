@@ -36,8 +36,7 @@
 <script>
 import { marked } from "marked";
 import router from "@/router";
-import { API_URL } from "@/config";
-
+import { API_URL } from '@/config'
 export default {
   data() {
     return {
@@ -51,7 +50,7 @@ export default {
   methods: {
     async fetchPost() {
       try {
-        const postId = router.currentRoute.value.params.id; // lấy id từ URL
+        const postId = router.currentRoute.value.params.id;
         const res = await fetch(`${API_URL}/get_post/${postId}`);
         const data = await res.json();
         this.post = data.data;

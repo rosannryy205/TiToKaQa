@@ -118,7 +118,7 @@ const canvasOptions = {
   lineHeight: 30,
   fontSize: 18,
   textLength: 10,
-  btnImage: '/src/assets/btn-removebg-preview.png'
+  btnImage: "/img/btn-removebg-preview.png"
 }
 
 async function fetchPrizes() {

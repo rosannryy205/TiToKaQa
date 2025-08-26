@@ -87,8 +87,7 @@ import axios from 'axios'
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2';
-import { API_URL, STORAGE_URL } from '@/config';
-
+import { API_URL } from '@/config'
 const router = useRouter()
 const isLoading = ref(false)
 
