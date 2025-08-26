@@ -70,7 +70,7 @@ export default {
 
   setup() {
     const router = useRouter();
-    const userStore = useUserStore(); 
+    const userStore = useUserStore();
     return { router, userStore };
   },
 

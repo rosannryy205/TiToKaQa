@@ -140,6 +140,7 @@ import { ref, computed, reactive, watch } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
 import Swal from 'sweetalert2';
+import { API_URL } from '@/config';
 // Import các icon nếu cần cho nút hoặc các phần khác
 // import { EyeOutlined, PrinterOutlined } from '@ant-design/icons-vue';
 import { API_URL } from '@/config'

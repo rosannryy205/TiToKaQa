@@ -108,7 +108,7 @@ import { onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import router from '@/router'
 import { Permission } from '@/stores/permission'
-const API_URL = "http://127.0.0.1:8000/api"
+import { API_URL, STORAGE_URL } from '@/config'
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {

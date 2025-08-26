@@ -58,8 +58,8 @@
                 <ul v-if="suggestions.length && showSuggestions" class="suggestion-dropdown"
                   @scroll.passive="handleScroll">
                   <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
-                    <img style="width: 50px;"   :src="getImageUrl(item.image)"
-                      :alt="item.name" class="me-2  img-search" />
+                    <img style="width: 50px;" :src="getImageUrl(item.image)" :alt="item.name"
+                      class="me-2  img-search" />
                     <div class="info-search">
                       <div class="name-search">{{ item.name }}</div>
                       <div class="price-search">{{ formatNumber(item.price) }}</div>
@@ -116,11 +116,11 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav offcanvas-nav-links mb-4">
           <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
         </ul>
         <div class="mobile-actions">
           <div class="input-wrapper position-relative mb-3">
@@ -179,8 +179,7 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="getImageUrl(foodDetail.image)"
-                  class="modal-image img-fluid" />
+                <img :src="getImageUrl(foodDetail.image)" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -754,8 +753,6 @@ onBeforeUnmount(() => {
   opacity: 0;
 }
 
-
-/*andrew-demchenk0*/
 .button {
   display: flex;
   justify-content: center;
@@ -768,15 +765,17 @@ onBeforeUnmount(() => {
   border-radius: 20px;
   cursor: pointer;
 }
+
 @media (max-width: 991.98px) {
   .button {
-  height: 35px;
-  width: 190px;
-}
-#app > div.client > div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3 > div.container > nav > div > div.me-2 > button > svg{
-  width: 22px;
-  height: 22px;
-}
+    height: 35px;
+    width: 190px;
+  }
+
+  #app>div.client>div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3>div.container>nav>div>div.me-2>button>svg {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 .lable {

@@ -71,7 +71,8 @@ import axios from 'axios'
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css';
 import { Permission } from '@/stores/permission'
-import { API_URL } from '@/config'
+import { API_URL } from '@/config';
+
 export default {
   components: {
     'v-select': vSelect,
