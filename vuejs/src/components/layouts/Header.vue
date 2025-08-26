@@ -116,19 +116,12 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav offcanvas-nav-links mb-4">
           <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-<<<<<<< HEAD
-              <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
-        </ul>
-=======
           <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
         </ul>
-
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
         <div class="mobile-actions">
           <div class="input-wrapper position-relative mb-3">
             <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24"
@@ -293,6 +286,7 @@ import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick } from 'vue'
 import { toast } from 'vue3-toastify';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
+import { API_URL } from '@/config';
 
 // const { formattedTime, isCounting, startCountdown } = useCountdown(60);
 const auth = useAuthStore();
@@ -323,7 +317,7 @@ const handleLogout = async () => {
   }
 
   try {
-    await axios.post('http://127.0.0.1:8000/api/logout', {}, {
+    await axios.post(`${API_URL}/logout`, {}, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -758,28 +752,18 @@ onBeforeUnmount(() => {
   opacity: 0;
 }
 
-
-/*andrew-demchenk0*/
 .button {
   display: flex;
   justify-content: center;
   align-items: center;
-<<<<<<< HEAD
   padding: 7px;
   height: 38px;
   width: 187px;
-=======
-  padding: 9px 12px;
-  gap: 8px;
-  height: 40px;
-  width: 201px;
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
   border: none;
   background: #FF342B;
   border-radius: 20px;
   cursor: pointer;
 }
-<<<<<<< HEAD
 @media (max-width: 991.98px) {
   .button {
   height: 35px;
@@ -790,8 +774,6 @@ onBeforeUnmount(() => {
   height: 22px;
 }
 }
-=======
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
 
 .lable {
   line-height: 22px;

@@ -210,11 +210,7 @@ export default {
         try {
           const reservations_time = `${date.value} ${time.value}`
 
-<<<<<<< HEAD
           const res = await axios.post(`${API_URL}/choose-table`, {
-=======
-          const res = await axios.post('http://127.0.0.1:8000/api/choose-table', {
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
             user_id: user.value?.id,
             table_id: table_id,
             reserved_from: reservations_time,

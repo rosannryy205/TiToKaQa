@@ -96,11 +96,7 @@
                       Thời gian tiếp nhận:
                       <strong>{{
                         formatTime(order.check_in_time ? order.check_in_time : order.order_time)
-<<<<<<< HEAD
                         }}h</strong>
-=======
-                      }}h</strong>
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                     </div>
                   </div>
 
@@ -174,13 +170,7 @@
                   <div class="date-time-info">
                     <div>
                       Thời gian tiếp nhận:
-<<<<<<< HEAD
-                      <strong>{{
-                        formatTime(order.order_time ? order.order_time : order.check_in_time)
-                        }}h</strong>
-=======
                       <strong>{{ formatTime(order.order_time ? order.order_time : order.check_in_time) }}h</strong>
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                     </div>
                   </div>
 
@@ -191,15 +181,8 @@
 
                         <div class="text-muted small" v-if="food.toppings && food.toppings.length">
                           <div v-for="(topping, i) in food.toppings" :key="i">
-<<<<<<< HEAD
-                            + {{ topping.topping_name || 'Tên topping không có' }} ({{
-                              formatNumber(topping.price)
-                            }}
-                            VNĐ)
-=======
                             + {{ topping.topping_name || 'Tên topping không có' }}
                             ({{ formatNumber(topping.price) }} VNĐ)
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
                           </div>
                         </div>
                         <div v-else class="text-muted small">Không có topping</div>
@@ -229,9 +212,6 @@
                     <div class="total-label">Tổng tiền</div>
                     <div class="total-amount">{{ formatNumber(order.total_price) }}VNĐ</div>
                   </div>
-<<<<<<< HEAD
-                </article>
-=======
 
                   <!-- 🆕 Thông tin thanh toán -->
                   <div class="payment-section mt-2">
@@ -240,7 +220,6 @@
                   </div>
                 </article>
 
->>>>>>> ffe2d1ccb4485c049b824f539d121519edaaf06f
               </div>
             </div>
 
