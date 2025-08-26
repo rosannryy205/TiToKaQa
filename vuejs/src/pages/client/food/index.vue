@@ -315,7 +315,6 @@ export default {
     },
   },
   setup() {
-    const API_URL = "http://127.0.0.1:8000/api"
     const foods = ref([])
     const categories = ref([])
     const foodDetail = ref([])
@@ -599,7 +598,7 @@ export default {
       isLoading.value = true
 
       try {
-        const res = await axios.get(`${API_URL}/home/api/foods`)
+        const res = await axios.get(`${API_URL}/home/foods`)
         foods.value = res.data
         await new Promise((resolve) => setTimeout(resolve, 5000))
       } catch (e) {

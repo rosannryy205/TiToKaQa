@@ -58,8 +58,8 @@
                 <ul v-if="suggestions.length && showSuggestions" class="suggestion-dropdown"
                   @scroll.passive="handleScroll">
                   <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
-                    <img style="width: 50px;" :src="'http://127.0.0.1:8000/storage/img/food/' + item.image"
-                      :alt="item.name" class="me-2  img-search" />
+                    <img style="width: 50px;" :src="getImageUrl(item.image)" :alt="item.name"
+                      class="me-2  img-search" />
                     <div class="info-search">
                       <div class="name-search">{{ item.name }}</div>
                       <div class="price-search">{{ formatNumber(item.price) }}</div>
@@ -179,8 +179,7 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name"
-                  class="modal-image img-fluid" />
+                <img :src="getImageUrl(foodDetail.image)" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -283,16 +282,16 @@ import { useUserStore } from '@/stores/userAuth';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick } from 'vue';
-import { toast } from 'vue3-toastify';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
-import { API_URL } from '@/config';
-
+import { API_URL } from '@/config'
+import { CSRF_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 // const { formattedTime, isCounting, startCountdown } = useCountdown(60);
 const auth = useAuthStore();
 //Google
 const loginWithGoogle = () => {
-  window.location.href = 'http://localhost:8000/api/auth/google/redirect';
+  window.location.href = `${API_URL}/auth/google/redirect`;
 };
 
 const router = useRouter();
@@ -317,6 +316,7 @@ const handleLogout = async () => {
   }
 
   try {
+    await axios.get(`${CSRF_URL}/sanctum/csrf-cookie`, { withCredentials: true })
     await axios.post(`${API_URL}/logout`, {}, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -378,7 +378,7 @@ const order_id = parseInt(localStorage.getItem('order_id'))
 
 
 const formatNumber = (num) => new Intl.NumberFormat().format(num);
-const getImageUrl = (img) => `http://127.0.0.1:8000/storage/img/food/${img}`;
+const getImageUrl = (img) => `${STORAGE_URL}/img/food/${img}`;
 
 // Hàm lấy dữ liệu từ API
 const fetchSuggestions = async () => {
@@ -386,7 +386,7 @@ const fetchSuggestions = async () => {
 
   loading.value = true;
   try {
-    const res = await axios.get('http://localhost:8000/api/search', {
+    const res = await axios.get(`${API_URL}/search`, {
       params: {
         search: searchQuery.value,
         offset: offset.value,
@@ -464,10 +464,10 @@ const openModal = async (item) => {
   quantity.value = 1
   try {
     if (item.type === 'food') {
-      const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+      const res = await axios.get(`${API_URL}/home/food/${item.id}`)
       foodDetail.value = { ...res.data, type: 'Food' }
 
-      const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+      const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
       toppings.value = res1.data
 
       spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
@@ -476,7 +476,7 @@ const openModal = async (item) => {
         item.price = item.price || 0
       })
     } else if (item.type === 'combo') {
-      const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+      const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
       foodDetail.value = { ...res.data, type: 'Combo' }
     }
 
@@ -677,7 +677,7 @@ const makeReservationQuickly = async () => {
     const reserved_from = formatDateTime(reservedFrom)
     const reserved_to = formatDateTime(reservedTo)
 
-    const res = await axios.post('http://127.0.0.1:8000/api/make-reservation-quickly', {
+    const res = await axios.post(`${API_URL}/make-reservation-quickly`, {
       reserved_from,
       reserved_to,
       number_of_guests: guest_count.value,
@@ -764,15 +764,17 @@ onBeforeUnmount(() => {
   border-radius: 20px;
   cursor: pointer;
 }
+
 @media (max-width: 991.98px) {
   .button {
-  height: 35px;
-  width: 190px;
-}
-#app > div.client > div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3 > div.container > nav > div > div.me-2 > button > svg{
-  width: 22px;
-  height: 22px;
-}
+    height: 35px;
+    width: 190px;
+  }
+
+  #app>div.client>div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3>div.container>nav>div>div.me-2>button>svg {
+    width: 22px;
+    height: 22px;
+  }
 }
 
 .lable {

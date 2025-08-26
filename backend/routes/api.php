@@ -201,8 +201,6 @@ Route::post('/shipper/update-location', [UserController::class, 'updateLocation'
 Route::get('/shipper/{id}/last-location', [UserController::class, 'getLastLocation']);
 
 
-
-
 //discount
 Route::get('/discounts', [DiscountController::class, 'getAllDiscounts']);
 Route::post('/discounts/use', [DiscountController::class, 'used']);

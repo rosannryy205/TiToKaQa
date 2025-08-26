@@ -39,7 +39,7 @@
                       <p class="mb-1 text-dark"><i class="bi bi-person me-1 text-secondary"></i> {{ order.guest_name }}
                       </p>
                       <p class="mb-1 text-dark"><i class="bi bi-telephone me-1 text-secondary"></i> {{ order.guest_phone
-                      }}
+                        }}
                       </p>
                       <p class="mb-2 small text-muted">
                         <i class="bi bi-geo-alt me-1"></i> {{ order.guest_address }}

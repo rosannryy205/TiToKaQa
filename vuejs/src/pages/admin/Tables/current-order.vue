@@ -170,7 +170,9 @@
                   <div class="date-time-info">
                     <div>
                       Thời gian tiếp nhận:
-                      <strong>{{ formatTime(order.order_time ? order.order_time : order.check_in_time) }}h</strong>
+                      <strong>{{
+                        formatTime(order.order_time ? order.order_time : order.check_in_time)
+                        }}h</strong>
                     </div>
                   </div>
 
@@ -181,8 +183,10 @@
 
                         <div class="text-muted small" v-if="food.toppings && food.toppings.length">
                           <div v-for="(topping, i) in food.toppings" :key="i">
-                            + {{ topping.topping_name || 'Tên topping không có' }}
-                            ({{ formatNumber(topping.price) }} VNĐ)
+                            + {{ topping.topping_name || 'Tên topping không có' }} ({{
+                              formatNumber(topping.price)
+                            }}
+                            VNĐ)
                           </div>
                         </div>
                         <div v-else class="text-muted small">Không có topping</div>

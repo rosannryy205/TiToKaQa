@@ -34,8 +34,6 @@ export const FoodList = {
     const getImageMenuUrl = (image) => {
       return `${STORAGE_URL}/img/food/imgmenu/${image}`
     }
-  
-
     const getCategory = async () => {
       try {
         const res = await axios.get(`${API_URL}/home/categories`)

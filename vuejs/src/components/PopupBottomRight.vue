@@ -2,7 +2,7 @@
   <div class="popup-bottom-left" v-if="visible">
     <div class="popup-inner">
       <button class="popup-close" @click="closePopup">×</button>
-      <router-link  to="/flashsale" ><img src="/public/img/flsale.png" alt="" class="wiggle-image"></router-link>
+      <router-link  to="/flashsale" ><img src="/img/flsale.png" alt="" class="wiggle-image"></router-link>
       <router-link to="/flashsale" class="popup-button">XEM NGAY ▶</router-link>
     </div>
   </div>

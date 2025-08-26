@@ -87,7 +87,6 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import { ref, onMounted, watch } from 'vue'
 import { API_URL } from '@/config'
-
 export default {
   setup() {
     const name = ref('')
