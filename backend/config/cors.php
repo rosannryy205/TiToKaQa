@@ -22,8 +22,7 @@ return [
     ],
     'allowed_methods' => ['*'],
    'allowed_origins' => [
-  'http://titokaqarestaurant.online',
-  'https://www.titokaqarestaurant.online',
+  'https://titokaqarestaurant.online',
 ],
 'supports_credentials' => true,
     'allowed_headers' => ['*'],
