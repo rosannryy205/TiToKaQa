@@ -73,8 +73,8 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import { API_URL, STORAGE_URL } from '@/config'
 
-import { API_URL } from '@/config'
 const title = ref('')
 const content = ref('')
 const selectedCategory = ref('') // Danh mục được chọn

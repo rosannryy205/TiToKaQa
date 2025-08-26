@@ -162,7 +162,8 @@ import { useRoute, useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import { Permission } from '@/stores/permission'
 import { toast } from 'vue3-toastify';
-import { API_URL } from '@/config'
+import { API_URL } from '@/config';
+
 export default {
   name: 'RolePermissionManager',
   setup() {

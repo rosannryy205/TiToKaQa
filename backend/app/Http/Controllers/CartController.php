@@ -106,7 +106,7 @@ class CartController extends Controller
                                 $combo->save();
                             }
                         }
-                        
+
                         /**check flashsale */
                         if (!empty($item['food_id'])) {
                             $food = Food::find($item['food_id']);

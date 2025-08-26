@@ -24,7 +24,7 @@ class LuckyWheelController extends Controller
             } else {
                 $query->where('status', 'active');
             }
-            $query->orderBy('created_at', 'desc');    
+            $query->orderBy('created_at', 'desc');
             return response()->json($query->get());
         } catch (\Throwable $e) {
             return response()->json(['mess' => 'Lỗi khi lấy quà', 'error' => $e->getMessage()], 500);
@@ -259,25 +259,25 @@ class LuckyWheelController extends Controller
     public function setStatusPrizeByAdmin(Request $request, $id)
     {
         $prize = LuckyWheelPrize::findOrFail($id);
-    
+
         $data = $request->validate([
             'status' => ['required', Rule::in(['active','inactive'])],
         ]);
-    
+
         if ($prize->status === $data['status']) {
             return response()->json([
                 'message' => 'Trạng thái không thay đổi',
                 'data'    => $prize,
             ], 200);
         }
-    
+
         $prize->status = $data['status'];
         $prize->save();
-    
+
         return response()->json([
             'message' => $data['status'] === 'inactive' ? 'Đã ẩn quà' : 'Đã bật lại quà',
             'data'    => $prize->fresh(),
         ], 200);
     }
-    
+
 }
