@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use App;
 use App\Mail\QuickRegisterMail;
 use App\Models\Discount;
@@ -15,7 +15,7 @@ use Exception;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-
+use App\Mail\WelcomeMail;
 use function Laravel\Prompts\error;
 
 class UserController extends Controller
@@ -401,50 +401,81 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
         ], [
             'email.required' => 'Vui lòng nhập email',
-            'email.email' => 'Email không đúng định dạng',
-            'email.unique' => 'Email đã được sử dụng',
+            'email.email'    => 'Email không đúng định dạng',
+            'email.unique'   => 'Email đã được sử dụng',
         ]);
-
+    
         try {
-            // tạo mật khẩu mạnh
-            $password = $this->generateStrongPassword(8);
-
-            // lấy name từ email
+            $password = $this->generateStrongPassword(10);
             $nameFromEmail = explode('@', $request->email)[0];
-            $name = ucfirst(substr($nameFromEmail, 0, 10));
-
-            // tạo user
-            $user = User::create([
-                'username' => $name,
-                'email' => $request->email,
-                'password' => bcrypt($password),
-            ]);
-
+            $name = ucfirst(substr($nameFromEmail, 0, 30));
+    
+            //
+            $user = DB::transaction(function () use ($request, $password, $name) {
+                $user = User::create([
+                    'username' => $name,
+                    'email'    => $request->email,
+                    'password' => bcrypt($password),
+                ]);
+                if (method_exists($user, 'assignRole')) {
+                    $user->assignRole('khachhang');
+                }
+                $newUserDiscounts = Discount::query()
+                    ->where('user_level', 'new')
+                    ->where('status', 'active')
+                    ->where('source', 'for_users')
+                    ->get();
+    
+                if ($newUserDiscounts->isNotEmpty()) {
+                    $issuedAt = now();
+                    $expiryAt = now()->addDays(7);
+    
+                    $data = [];
+                    foreach ($newUserDiscounts as $discount) {
+                        $data[$discount->id] = [
+                            'point_used'   => 0,
+                            'exchanged_at' => $issuedAt,
+                            'expiry_at'    => $expiryAt,
+                            'used_at'      => null,
+                            'source'       => 'register_reward',
+                            'created_at'   => $issuedAt,
+                            'updated_at'   => $issuedAt,
+                        ];
+                    }
+                    $user->discounts()->syncWithoutDetaching($data);
+                }
+    
+                return $user;
+            });
             try {
-                // gửi mail
-                Mail::to($user->email)->send(new QuickRegisterMail($user->username, $user->email, $password));
-
+                Mail::to($user->email)->send(new \App\Mail\QuickRegisterMail(
+                    $user->username,
+                    $user->email,
+                    $password
+                ));
+    
+                Mail::to($user->email)->send(new \App\Mail\WelcomeMail($user));
+    
                 return response()->json([
-                    'status' => 'success',
+                    'status'  => 'success',
                     'message' => 'Đăng ký thành công. Vui lòng kiểm tra email để lấy thông tin đăng nhập.',
-                ]);
-            } catch (\Exception $e) {
-                // gửi mail lỗi nhưng user đã tạo
+                ], 201);
+    
+            } catch (\Throwable $mailErr) {
                 return response()->json([
-                    'status' => 'warning',
-                    'message' => 'Tài khoản đã được tạo nhưng gửi email thất bại.',
-                    'error' => $e->getMessage() // thêm thông tin lỗi chi tiết
-                ]);
+                    'status'  => 'warning',
+                    'message' => 'Tài khoản đã được tạo và tặng mã ưu đãi, nhưng gửi email thất bại.',
+                    'error'   => $mailErr->getMessage(),
+                ], 200);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Đăng ký thất bại. Vui lòng thử lại sau.',
-                'error' => $e->getMessage() // thêm thông tin lỗi chi tiết
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
-
 
 
     private function generateStrongPassword($length = 8)

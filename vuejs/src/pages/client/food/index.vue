@@ -154,12 +154,6 @@
         class="img-fluid"
         style="border-radius: 25px; transition: opacity 0.5s ease"
       />
-      <button @click="changeSlide(-1)" class="trans-left d-none d-lg-block">
-        <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
-      </button>
-      <button @click="changeSlide(1)" class="trans-right d-none d-lg-block">
-        <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i>
-      </button>
     </div>
   </section>
 
