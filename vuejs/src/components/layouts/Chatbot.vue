@@ -411,7 +411,7 @@ export default {
 
         if (messageFromChip === '🪑 Đặt bàn') {
           isInputDisabled.value = false;
-          messageInput.value = messageFromChip;
+          messageInput.value = '';
         } else if (messageFromChip === '✅ Hoàn tất chọn món') {
           console.log('Calling submitCart with order ID:', currentOrderId.value);
           submitCart(currentOrderId.value);
