@@ -283,10 +283,10 @@ import { useUserStore } from '@/stores/userAuth';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick } from 'vue';
-import { toast } from 'vue3-toastify';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
 import { API_URL } from '@/config'
+import { CSRF_URL } from '@/config'
 import { STORAGE_URL } from '@/config'
 // const { formattedTime, isCounting, startCountdown } = useCountdown(60);
 const auth = useAuthStore();
@@ -317,6 +317,7 @@ const handleLogout = async () => {
   }
 
   try {
+    await axios.get(`${CSRF_URL}/sanctum/csrf-cookie`, { withCredentials: true })
     await axios.post(`${API_URL}/logout`, {}, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
