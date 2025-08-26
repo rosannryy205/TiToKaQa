@@ -7,6 +7,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { API_URL } from '@/config'
 
 import {
   Chart as ChartJS,
@@ -41,7 +42,7 @@ const chartData = ref([])
 
 const fetchRevenue = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/revenue-by-month')
+    const res = await axios.get(`${API_URL}/admin/revenue-by-month`)
     chartLabels.value = res.data.labels
     chartData.value = res.data.data
     renderChart()
