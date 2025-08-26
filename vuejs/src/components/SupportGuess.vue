@@ -139,17 +139,18 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { STORAGE_URL } from '@/config'
 import { API_URL } from '@/config'
+import { useRoute } from 'vue-router'
 const CANCELLABLE = ['Chờ xác nhận', 'Đã xác nhận']
 
 // UI & state
 const isModalOpen = ref(false)
 const visible = ref(true)
-
+const route = useRoute()
 const code = ref('')
 const phone = ref('')
 const orders = ref([])
@@ -158,6 +159,7 @@ const searchedByCode = ref(false)
 const loading = ref(false)
 const error = ref('')
 const cancelBusy = ref(false)
+
 
 // helpers
 const isGuest = ref(true)
@@ -356,6 +358,22 @@ function handleModalClose() {
   resetModalState()
   isModalOpen.value = false
 }
+function isHiddenRoute(path) {
+  return path.startsWith('/admin')
+}
+function checkAndTogglePopup(path) {
+  if (!isHiddenRoute(path)) {
+    visible.value = true
+  } else {
+    visible.value = false
+  }
+}
+onMounted(() => {
+  checkAndTogglePopup(route.path)
+})
+watch(() => route.path, (newPath) => {
+  checkAndTogglePopup(newPath)
+})
 </script>
 
 <style scoped>
