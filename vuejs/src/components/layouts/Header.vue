@@ -292,6 +292,7 @@ const auth = useAuthStore();
 //Google
 const loginWithGoogle = () => {
   window.location.href = `${API_URL}/auth/google/redirect`;
+  
 };
 
 const router = useRouter();
