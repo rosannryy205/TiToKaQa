@@ -247,12 +247,6 @@
                                 Tiền mặt
                               </button>
                               <button type="button" class="btn btn-payment"
-                                :class="{ active: paymentMethod === 'MOMO' }" @click="paymentMethod = 'MOMO'">
-                                <img src="/img/momo.png" alt="Cash Icon" class="payment-icon mb-1" />
-                                <br />
-                                MoMo
-                              </button>
-                              <button type="button" class="btn btn-payment"
                                 :class="{ active: paymentMethod === 'VNPAY' }" @click="paymentMethod = 'VNPAY'">
                                 <img src="/img/Logo-VNPAY-QR-1 (1).png" alt="Qris Icon" class="payment-icon mb-1" />
                                 <br />
