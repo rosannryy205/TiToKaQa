@@ -99,7 +99,6 @@
 
 
 
-
                     <button class="btn btn-outline-danger-custom mt-3" @click="goToTracking(order.id)">
                       Xem hành trình giao hàng
                     </button>
@@ -127,7 +126,7 @@ import { formatDate } from '@fullcalendar/core'
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-const API_URL = "http://127.0.0.1:8000/api"
+import { API_URL } from '@/config'
 const router = useRouter()
 const goToTracking = (orderId) => {
   router.push(`/admin/delivery_map/${orderId}`)

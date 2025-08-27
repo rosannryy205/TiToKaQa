@@ -148,7 +148,7 @@
 import { ref, computed } from 'vue'
 import { User } from '@/stores/user'
 const { form } = User.setup()
-
+import { STORAGE_URL } from '@/config'
 export default {
   setup() {
     const {
@@ -165,9 +165,9 @@ export default {
     // RANK CONFIG & LOGIC
     //=========================
     const ranks = [
-      { name: 'Bạc', min: 500, color: '#9a9a9a', icon: '/public/img/item/rank-silver.gif' },
-      { name: 'Vàng', min: 1000, color: '#f5f500', icon: '/public/img/item/rank-gold.gif' },
-      { name: 'Kim cương', min: 3000, color: '#00d0f0', icon: '/public/img/item/rank-diamond.gif' },
+      { name: 'Bạc', min: 500, color: '#9a9a9a', icon: "img/item/rank-silver.gif" },
+      { name: 'Vàng', min: 1000, color: '#f5f500', icon: "/img/item/rank-gold.gif" },
+      { name: 'Kim cương', min: 3000, color: '#00d0f0', icon: "/img/item/rank-diamond.gif" },
     ]
 
     const currentRank = computed(() => {
@@ -180,7 +180,7 @@ export default {
       return ranks.find((rank) => rank.min > form.rank_points)
     })
 
-    const rankImage = computed(() => currentRank.value?.icon || '/public/img/item/padlock.png')
+    const rankImage = computed(() => currentRank.value?.icon || "/img/item/padlock.png")
     const rankColor = computed(() => currentRank.value?.color || '#6c757d')
     const formRank = computed(() => currentRank.value?.name || 'Chưa có hạng')
 
@@ -226,6 +226,7 @@ export default {
       nextRank,
       neededPoints,
       nextRankName,
+      STORAGE_URL
     }
   },
 }

@@ -110,7 +110,7 @@
                 <tr v-for="food in foods" :key="food.id">
                   <!-- <td><input type="checkbox" :value="food.id" v-model="selectedFoods" /></td> -->
                   <td style="max-width: 220px;" class="text-start">
-                    <img :src="'http://127.0.0.1:8000/storage/img/food/' + food.image" :alt="food.name"
+                    <img :src="getImageUrl(food.image)" :alt="food.name"
                       class="me-2 img_thumbnail" style="width:80px" />
                     {{ food.name }}
                   </td>
@@ -216,7 +216,7 @@
             <div class="card mb-3" v-for="(food, index) in foods" :key="food.id">
               <div class="row g-0 align-items-center">
                 <div class="col-3 d-flex p-1">
-                  <img :src="'http://127.0.0.1:8000/storage/img/food/' + food.image" alt="Mỳ kim chi hải sản"
+                  <img :src="getImageUrl(food.image)" alt="Mỳ kim chi hải sản"
                     class="img-fluid rounded" />
                 </div>
                 <div class="col-9">
@@ -285,7 +285,12 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import * as bootstrap from 'bootstrap';
 import { Permission } from '@/stores/permission';
+import { API_URL, STORAGE_URL } from '@/config';
 
+
+const getImageUrl = (image) => {
+  return `${STORAGE_URL}/img/food/${image}`;
+};
 const userId = ref(null);
 const userString = localStorage.getItem('user');
 if (userString) {
@@ -322,7 +327,7 @@ const categories = ref([]);
 
 const fetchCategories = async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/admin/categories', {
+    const response = await axios.get(`${API_URL}/admin/categories`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -339,7 +344,7 @@ const handleImageChange = (e) => {
 
 const fetchFoods = async () => {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/admin/manage/foods', {
+    const response = await axios.get(`${API_URL}/admin/manage/foods`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       },
@@ -388,7 +393,7 @@ const deleteFood = async (id) => {
 
   if (confirmResult.isConfirmed) {
     try {
-      const response = await axios.delete(`http://127.0.0.1:8000/api/admin/food/${id}`, {
+      const response = await axios.delete(`${API_URL}/admin/food/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
@@ -432,7 +437,7 @@ const toggleStatus = async (food) => {
   const newStatus = food.status === 'active' ? 'inactive' : 'active';
 
   try {
-    await axios.put(`http://127.0.0.1:8000/api/admin/food/${food.id}/status`, {
+    await axios.put(`${API_URL}/admin/food/${food.id}/status`, {
       status: newStatus
     }, {
       headers: {
@@ -486,7 +491,7 @@ const openToppingModal = async (food) => {
 
 const fetchAllToppings = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/topping-food', {
+    const res = await axios.get(`${API_URL}/admin/topping-food`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -499,7 +504,7 @@ const fetchAllToppings = async () => {
 
 const fetchSelectedToppings = async (foodId) => {
   try {
-    const res = await axios.get(`http://127.0.0.1:8000/api/admin/food/topping/${foodId}`, {
+    const res = await axios.get(`${API_URL}/admin/food/topping/${foodId}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -513,7 +518,7 @@ const fetchSelectedToppings = async (foodId) => {
 
 const saveToppings = async () => {
   try {
-    await axios.post(`http://127.0.0.1:8000/api/admin/food/topping/${selectedFood.value.id}`, {
+    await axios.post(`${API_URL}/admin/food/topping/${selectedFood.value.id}`, {
       topping_ids: selectedToppingIds.value
     }, {
       headers: {

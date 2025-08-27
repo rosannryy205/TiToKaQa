@@ -319,7 +319,6 @@ onMounted(async () => {
   height: 50px;
   object-fit: contain;
 }
-
 .voucher-card {
   padding: 5px;
 }
@@ -349,7 +348,6 @@ onMounted(async () => {
   height: 15px !important;
   margin: 6px 5px 5px 5px !important;
 }
-
 .title-cate-discount,
 .title-discount-hot {
   color: #c92c3c;
@@ -365,44 +363,36 @@ onMounted(async () => {
     height: 120px;
   }
 }
-
 .coins-small {
   width: 24px;
   height: 24px;
 }
-
 @media (max-width: 576px) {
   .coins-small {
     width: 20px;
     height: 20px;
   }
 }
-
 .btn-sm {
   color: #c92c3c;
   border: 1px solid #c92c3c;
 }
-
 .btn-save-discount {
   color: #c92c3c;
   border: 1px solid #c92c3c;
 }
-
 .btn-save-discount:hover {
   background-color: #c92c3c;
   color: white;
 }
-
 .has-voucher {
   color: #007d00;
   border: 1px solid #007d00;
 }
-
 .btn-sm:hover {
   background-color: #c92c3c;
   color: white;
 }
-
 .voucher-brand-btn.active {
   background-color: #c92c3c;
   color: white;
@@ -412,25 +402,21 @@ onMounted(async () => {
   color: #c92c3c;
   border: 1px solid #c92c3c;
 }
-
 .btn-save-discount:hover {
   background-color: #c92c3c;
   color: white;
 }
-
 .expired-discount {
   opacity: 0.6;
   pointer-events: none;
   filter: grayscale(0.5);
 }
-
 /**tab4 */
 .voucher-row-thin {
   border: 1px solid #f0f0f0;
   border-radius: 8px;
   background-color: #fafafa;
 }
-
 .voucher-list-wrapper {
   max-height: 500px;
   overflow-y: auto;
@@ -442,7 +428,6 @@ onMounted(async () => {
   overflow-y: auto;
   padding: 6px;
 }
-
 /**an text */
 .voucher-title {
   max-width: 100%;

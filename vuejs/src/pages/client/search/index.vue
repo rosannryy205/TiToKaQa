@@ -59,7 +59,7 @@
             <div v-if="searchResults.length > 0" class="row">
               <div v-for="item in searchResults" :key="item" @click="openModal(item)" class="col-md-3">
                 <div class="product-card">
-                  <img :src="'http://127.0.0.1:8000/storage/img/food/' + item.image"  alt="" class="product-img mx-auto d-block" width="180px" />
+                  <img :src="getImageUrl(item.image)"  alt="" class="product-img mx-auto d-block" width="180px" />
                   <h3 class="product-dish-title text-center fw-bold">{{ item.name }}</h3>
                   <span class="product-dish-desc text-start">
                     {{ item.description }}
@@ -122,7 +122,7 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -187,18 +187,13 @@ import numeral from 'numeral';
 import { Modal } from 'bootstrap';
 import { useRoute } from 'vue-router';
 import Swal from 'sweetalert2'
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 export default {
   name: 'HomePage',
   methods: {
     formatNumber(value) {
       return numeral(value).format('0,0')
-    },
-    getImageUrl(image) {
-      return `/img/food/${image}`
-    },
-    getImageMenuUrl(image) {
-      return `/img/food/imgmenu/${image}`
     },
   },
   setup() {
@@ -215,7 +210,8 @@ export default {
     const isDropdownOpen = ref(false)
     const selectedCategoryName = ref('Món Ăn')
     const selectedCategoryImage = ref('')
-
+    const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
+    const getImageMenuUrl = (image) => `${STORAGE_URL}/img/food/imgmenu/${image}`
     const currentIndex = ref(0)
     const images = [
       '/img/banner/Banner (1).webp',
@@ -233,7 +229,7 @@ export default {
 
     const fetchSearchResults = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/search', {
+        const res = await axios.get(`${API_URL}/search`, {
           params: {
             search: searchKeyword.value,
             offset: 0,
@@ -263,7 +259,7 @@ export default {
 
     const getCategory = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/categories`)
+        const res = await axios.get(`${API_URL}/home/categories`)
         categories.value = res.data
         categories.value.shift()
       } catch (error) {
@@ -273,7 +269,7 @@ export default {
 
     // const getFood = async () => {
     //   try {
-    //     const res = await axios.get(`http://127.0.0.1:8000/api/home/foods`)
+    //     const res = await axios.get(`${API_URL}/home/foods`)
     //     foods.value = res.data.map((item) => ({ ...item, type: 'food' }))
     //   } catch (error) {
     //     console.error(error)
@@ -287,7 +283,7 @@ export default {
           return
         }
 
-        const res = await axios.get(`http://127.0.0.1:8000/api/home/category/${categoryId}/food`)
+        const res = await axios.get(`${API_URL}/home/category/${categoryId}/food`)
         let allFoods = res.data.map((item) => ({ ...item, type: 'food' }))
 
         let parentName = ''
@@ -322,7 +318,7 @@ export default {
         const selectedCategory = categories.value.find((c) => c.id === categoryId)
         if (selectedCategory?.children?.length) {
           const childRequests = selectedCategory.children.map((child) =>
-            axios.get(`http://127.0.0.1:8000/api/home/category/${child.id}/food`),
+            axios.get(`${API_URL}/home/category/${child.id}/food`),
           )
           const childResults = await Promise.all(childRequests)
           childResults.forEach((childRes) => {
@@ -332,7 +328,7 @@ export default {
         }
 
         if (categoryId === 14) {
-          const comboRes = await axios.get(`http://127.0.0.1:8000/api/home/combos`)
+          const comboRes = await axios.get(`${API_URL}/home/combos`)
           const combosWithType = comboRes.data.map((item) => ({ ...item, type: 'combo' }))
           allFoods = [...allFoods, ...combosWithType]
         }
@@ -350,10 +346,10 @@ export default {
       quantity.value = 1
       try {
         if (item.type === 'food') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/food/${item.id}`)
           foodDetail.value = { ...res.data, type: 'Food' }
 
-          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
           toppings.value = res1.data
 
           spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
@@ -362,7 +358,7 @@ export default {
             item.price = item.price || 0
           })
         } else if (item.type === 'combo') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
           foodDetail.value = { ...res.data, type: 'Combo' }
         }
 
@@ -491,7 +487,9 @@ export default {
       route,
       searchKeyword,
       searchResults,
-      fetchSearchResults
+      fetchSearchResults,
+      getImageUrl,
+      getImageMenuUrl
     }
   },
 }

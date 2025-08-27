@@ -87,7 +87,7 @@ import axios from 'axios'
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2';
-
+import { API_URL } from '@/config'
 const router = useRouter()
 const isLoading = ref(false)
 
@@ -109,7 +109,6 @@ const errors = reactive({
 })
 
 const submitForm = async () => {
-  const API_URL = "http://127.0.0.1:8000/api"
   isLoading.value = true
   errors.fullname = ''
   errors.phone = ''

@@ -7,14 +7,6 @@
       <!-- Bước 1: Form đăng ký -->
       <form v-if="step === 1" @submit.prevent="handleSendCode">
         <div class="mb-3">
-          <!-- <small class="text-danger" :style="{ visibility: errors.email ? 'visible' : 'hidden' }">{{ errors.email || ' '
-            }}</small>
-          <small class="text-danger" :style="{ visibility: errors.username ? 'visible' : 'hidden' }">{{ errors.username
-            || ' ' }}</small>
-          <small class="text-danger" :style="{ visibility: errors.password ? 'visible' : 'hidden' }">{{ errors.password
-            || ' ' }}</small>
-          <small class="text-danger" :style="{ visibility: errors.password_confirmation ? 'visible' : 'hidden' }">{{
-            errors.password_confirmation || ' ' }}</small> -->
           <input type="email" v-model="form.email" class="form-control" placeholder="Nhập địa chỉ email" required />
         </div>
 
@@ -85,13 +77,14 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userAuth';
 import Swal from 'sweetalert2';
-
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 
 const router = useRouter()
 
 // đăng ký bằng google
 const loginWithGoogle = () => {
-  window.location.href = 'http://127.0.0.1:8000/api/auth/google/redirect';
+  window.location.href = `${API_URL}/auth/google/redirect`;
 };
 
 // Bước form
@@ -137,7 +130,7 @@ const handleSendCode = async () => {
   loading.value = true;
 
   try {
-    const res = await axios.post('http://127.0.0.1:8000/api/register/send-code', form);
+    const res = await axios.post(`${API_URL}/register/send-code`, form);
 
     if (res.status === 200 && res.data?.message?.includes('Mã xác minh')) {
       Swal.fire({
@@ -238,7 +231,7 @@ const handleVerifyCode = async () => {
   loadingVerify.value = true;
   try {
     const email = localStorage.getItem('verify_email');
-    const res = await axios.post('http://127.0.0.1:8000/api/register/verify-code', { email, code });
+    const res = await axios.post(`${API_URL}/register/verify-code`, { email, code });
 
     userStore.setUser(res.data.user, res.data.token);
 

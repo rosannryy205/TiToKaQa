@@ -164,11 +164,11 @@ import { useRoute, useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import { Permission } from '@/stores/permission'
 import { toast } from 'vue3-toastify';
+import { API_URL } from '@/config';
 
 export default {
   name: 'RolePermissionManager',
   setup() {
-    const API_URL = "http://127.0.0.1:8000/api"
     const currentRoleId = ref(null);
     const currentRoleAbilities = ref({});
     const originalData = ref(null);

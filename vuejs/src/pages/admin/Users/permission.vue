@@ -92,13 +92,12 @@ import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css';
 import { Permission } from '@/stores/permission'
 import Swal from 'sweetalert2';
-
+import { API_URL } from '@/config'
 export default {
   components: {
     'v-select': vSelect,
   },
   setup() {
-    const API_URL = "http://127.0.0.1:8000/api"
     const permission = ref([])
     const selectpermission = ref(null)
 

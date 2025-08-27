@@ -127,7 +127,7 @@ import axios from 'axios'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 import { Permission } from '@/stores/permission'
-const API_URL = "http://127.0.0.1:8000/api"
+import { API_URL } from '@/config'
 const router = useRouter()
 const userId = ref(null)
 const userString = localStorage.getItem('user')

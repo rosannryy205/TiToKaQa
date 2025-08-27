@@ -86,7 +86,7 @@
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { ref, onMounted, watch } from 'vue'
-
+import { API_URL } from '@/config'
 export default {
   setup() {
     const name = ref('')
@@ -100,7 +100,7 @@ export default {
 
     const fetchParents = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/admin/categories/parents/list', {
+        const res = await axios.get(`${API_URL}/admin/categories/parents/list`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -146,7 +146,7 @@ export default {
       formData.append('type', categoryType.value)
 
       try {
-        await axios.post('http://127.0.0.1:8000/api/admin/categories', formData, {
+        await axios.post(`${API_URL}/admin/categories`, formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'multipart/form-data',

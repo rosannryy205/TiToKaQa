@@ -92,7 +92,7 @@
                     <img :src="previewImage" class="w-50" alt="Preview image">
                   </div>
                   <div class="mb-3 p-2 text-center" v-else-if="food.image">
-                    <img :src="'http://127.0.0.1:8000/storage/img/food/' + food.image" class="w-50" alt="Current image">
+                    <img :src="getImageUrl(food.image)" class="w-50" alt="Current image">
                   </div>
                 </div>
               </div>
@@ -116,7 +116,12 @@ import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { Permission } from '@/stores/permission'
+import { API_URL,STORAGE_URL } from '@/config'
 
+
+const getImageUrl = (image) => {
+  return `${STORAGE_URL}/img/food/${image}`;
+};
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {
@@ -147,7 +152,7 @@ let selectedFile = null
 
 const fetchCategories = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/categories', {
+    const res = await axios.get(`${API_URL}/admin/categories`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -169,7 +174,7 @@ const fetchCategories = async () => {
 
 const fetchFood = async (id) => {
   try {
-    const res = await axios.get(`http://127.0.0.1:8000/api/admin/food/${id}`, {
+    const res = await axios.get(`${API_URL}/admin/food/${id}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -223,7 +228,7 @@ const updateFood = async () => {
     }
 
     const id = route.params.id
-    await axios.post(`http://127.0.0.1:8000/api/admin/update-food/${id}`, formData, {
+    await axios.post(`${API_URL}/admin/update-food/${id}`, formData, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'multipart/form-data'

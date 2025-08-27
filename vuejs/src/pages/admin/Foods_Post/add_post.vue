@@ -73,8 +73,8 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
+import { API_URL, STORAGE_URL } from '@/config'
 
-const API_URL = "http://127.0.0.1:8000/api"
 const title = ref('')
 const content = ref('')
 const selectedCategory = ref('') // Danh mục được chọn
@@ -140,7 +140,6 @@ const savePost = async () => {
     })
   }
 }
-
 
 const generateWithAI = async () => {
   if (!title.value) {

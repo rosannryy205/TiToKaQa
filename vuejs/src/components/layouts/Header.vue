@@ -20,7 +20,6 @@
               <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
             </ul>
           </div>
@@ -58,8 +57,8 @@
                 <ul v-if="suggestions.length && showSuggestions" class="suggestion-dropdown"
                   @scroll.passive="handleScroll">
                   <li v-for="(item, index) in suggestions" :key="index" @click="selectItem(item)">
-                    <img style="width: 50px;" :src="'http://127.0.0.1:8000/storage/img/food/' + item.image"
-                      :alt="item.name" class="me-2  img-search" />
+                    <img style="width: 50px;" :src="getImageUrl(item.image)" :alt="item.name"
+                      class="me-2  img-search" />
                     <div class="info-search">
                       <div class="name-search">{{ item.name }}</div>
                       <div class="price-search">{{ formatNumber(item.price) }}</div>
@@ -115,11 +114,12 @@
       </div>
       <div class="offcanvas-body">
         <ul class="navbar-nav offcanvas-nav-links mb-4">
-          <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/home" @click.prevent="closeMenu()">Trang chủ</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/food" @click.prevent="closeMenu()">Thực đơn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/reservation" @click.prevent="closeMenu()">Đặt bàn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/luckywheel" @click.prevent="closeMenu()">Vòng quay may mắn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/posts" @click.prevent="closeMenu()">Bài viết</router-link></li>
         </ul>
-
         <div class="mobile-actions">
           <div class="input-wrapper position-relative mb-3">
             <button class="icon-search-submit" type="button"> <svg width="23px" height="23px" viewBox="0 0 24 24"
@@ -135,19 +135,19 @@
           </div>
 
           <div class="d-flex flex-column align-items-start">
-            <router-link v-if="!isLoggedIn" to="/login" class="text-decoration-none text-primary-black">
+            <router-link v-if="!isLoggedIn" to="/login" @click.prevent="closeMenu()" class="text-decoration-none text-primary-black">
               <button class="icon-btn text-dark mb-2">
                 <i class="bi bi-people me-2"></i> Đăng nhập
               </button>
             </router-link>
             <template v-else>
               <div class="mb-2">
-                <router-link to="/account/update-user" class="text-decoration-none text-primary-red me-2">
+                <router-link to="/account/update-user" @click.prevent="closeMenu()" class="text-decoration-none text-primary-red me-2">
                   <p v-if="user.username" class="mb-0 username-display"><i class="bi bi-person me-2"></i>{{
                     user.username }}</p>
                 </router-link>
               </div>
-              <button class="icon-btn text-dark mb-2" @click="handleLogout">
+              <button class="icon-btn text-dark mb-2" @click="handleLogout" @click.prevent="closeMenu()">
                 <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
               </button>
             </template>
@@ -155,7 +155,7 @@
             <!-- <router-link to="/delivery" class="icon-btn text-dark mb-2">
               <i class="bi bi-truck me-2"></i> Theo dõi đơn hàng
             </router-link> -->
-            <router-link to="/cart" class="icon-btn text-dark mb-2">
+            <router-link to="/cart" @click.prevent="closeMenu()" class="icon-btn text-dark mb-2">
               <i class="bi bi-cart me-2"></i> Giỏ hàng
             </router-link>
             <a href="tel:YOUR_PHONE_NUMBER" class="icon-btn text-dark"> <i class="bi bi-telephone me-2"></i> Liên hệ
@@ -177,8 +177,7 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="'http://127.0.0.1:8000/storage/img/food/' + foodDetail.image" :alt="foodDetail.name"
-                  class="modal-image img-fluid" />
+                <img :src="getImageUrl(foodDetail.image)" class="modal-image img-fluid" />
               </div>
               <p class="text-danger fw-bold fs-5 text-center">
                 {{ formatNumber(foodDetail.price) }} VNĐ
@@ -276,20 +275,23 @@
 
 </template>
 <script setup>
+import { Offcanvas } from 'bootstrap'
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/userAuth';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick } from 'vue';
-import { toast } from 'vue3-toastify';
 import { Modal } from 'bootstrap';
 import Swal from 'sweetalert2';
-
+import { API_URL } from '@/config'
+import { CSRF_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 // const { formattedTime, isCounting, startCountdown } = useCountdown(60);
 const auth = useAuthStore();
 //Google
 const loginWithGoogle = () => {
-  window.location.href = 'http://localhost:8000/api/auth/google/redirect';
+  window.location.href = `${API_URL}/auth/google/redirect`;
+  
 };
 
 const router = useRouter();
@@ -314,7 +316,8 @@ const handleLogout = async () => {
   }
 
   try {
-    await axios.post('http://127.0.0.1:8000/api/logout', {}, {
+    await axios.get(`${CSRF_URL}/sanctum/csrf-cookie`, { withCredentials: true })
+    await axios.post(`${API_URL}/logout`, {}, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
@@ -375,7 +378,7 @@ const order_id = parseInt(localStorage.getItem('order_id'))
 
 
 const formatNumber = (num) => new Intl.NumberFormat().format(num);
-const getImageUrl = (img) => `http://127.0.0.1:8000/storage/img/food/${img}`;
+const getImageUrl = (img) => `${STORAGE_URL}/img/food/${img}`;
 
 // Hàm lấy dữ liệu từ API
 const fetchSuggestions = async () => {
@@ -383,7 +386,7 @@ const fetchSuggestions = async () => {
 
   loading.value = true;
   try {
-    const res = await axios.get('http://localhost:8000/api/search', {
+    const res = await axios.get(`${API_URL}/search`, {
       params: {
         search: searchQuery.value,
         offset: offset.value,
@@ -461,10 +464,10 @@ const openModal = async (item) => {
   quantity.value = 1
   try {
     if (item.type === 'food') {
-      const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+      const res = await axios.get(`${API_URL}/home/food/${item.id}`)
       foodDetail.value = { ...res.data, type: 'Food' }
 
-      const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+      const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
       toppings.value = res1.data
 
       spicyLevel.value = toppings.value.filter((item) => item.category_id == 15)
@@ -473,7 +476,7 @@ const openModal = async (item) => {
         item.price = item.price || 0
       })
     } else if (item.type === 'combo') {
-      const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+      const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
       foodDetail.value = { ...res.data, type: 'Combo' }
     }
 
@@ -674,7 +677,7 @@ const makeReservationQuickly = async () => {
     const reserved_from = formatDateTime(reservedFrom)
     const reserved_to = formatDateTime(reservedTo)
 
-    const res = await axios.post('http://127.0.0.1:8000/api/make-reservation-quickly', {
+    const res = await axios.post(`${API_URL}/make-reservation-quickly`, {
       reserved_from,
       reserved_to,
       number_of_guests: guest_count.value,
@@ -717,9 +720,19 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside);
 });
+onMounted(() => {
+  const el = document.getElementById('offcanvasMenu')
+  if (el) offcanvasInst = Offcanvas.getOrCreateInstance(el)
+})
 
+let offcanvasInst = null
 
-
+function closeMenu() {
+  if (offcanvasInst) offcanvasInst.hide()
+  document.body.classList.remove('modal-open')
+  document.body.style.overflow = ''
+  document.querySelectorAll('.offcanvas-backdrop').forEach(el => el.remove())
+}
 </script>
 
 <style scoped>
@@ -749,22 +762,37 @@ onBeforeUnmount(() => {
   opacity: 0;
 }
 
-
-/*andrew-demchenk0*/
 .button {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 9px 12px;
-  gap: 8px;
-  height: 40px;
-  width: 201px;
+  padding: 7px;
+  height: 38px;
+  width: 187px;
   border: none;
   background: #FF342B;
   border-radius: 20px;
   cursor: pointer;
+  gap: 3px;
 }
 
+@media (max-width: 991.98px) {
+  .button {
+    height: 30px;
+    width: 180px;
+  }
+
+  #app>div.client>div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3>div.container>nav>div>div.me-2>button>svg {
+    width: 21px;
+    height: 21px;
+  }
+  #app > div.client > div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3 > div.container > nav > div > div.me-2 > button > span{
+    font-size: 15px;
+  }
+  #app > div.client > div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3 > div.container > nav > div > div.me-2 > button{
+    gap:5px;
+  }
+}
 .lable {
   line-height: 22px;
   font-size: 17px;
