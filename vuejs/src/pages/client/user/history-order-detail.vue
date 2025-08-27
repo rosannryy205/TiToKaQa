@@ -14,27 +14,11 @@
             <div class="col-6">Ngày đặt:</div>
             <div class="col-6 text-end">{{ formatDate(info.order_time) }}</div>
 
-            <template v-if="info.reservations_time">
-              <div class="col-6">Ngày dự kiến nhận bàn:</div>
-              <div class="col-6 text-end">{{ formatDate(info.reservations_time) }}</div>
-
-              <div class="col-6">Giờ nhận bàn dự kiến:</div>
-              <div class="col-6 text-end">
-                {{ formatTime(info.reservations_time) }} - {{ formatTime(info.expiration_time) }} giờ
-              </div>
-
-              <div class="col-6">Lượng khách:</div>
-              <div class="col-6 text-end">{{ info.guest_count }} người</div>
-
-              <div class="col-6">Bàn:</div>
-              <div class="col-6 text-end">{{ tableNumbers || 'Chưa xếp' }}</div>
-            </template>
-
             <div class="col-6">Phương thức thanh toán:</div>
-            <div class="col-6 text-end">{{ info.payment_info?.payment_method || '---' }}</div>
+            <div class="col-6 text-end">{{ info.payment_info?.[0]?.payment_method || '---' }}</div>
 
             <div class="col-6">Trạng thái thanh toán:</div>
-            <div class="col-6 text-end">{{ info.payment_info?.payment_status || '---' }}</div>
+            <div class="col-6 text-end">{{ info.payment_info?.[0]?.payment_status || '---' }}</div>
 
             <div class="col-6">Trạng thái đơn:</div>
             <div class="col-6 text-end">
@@ -212,7 +196,7 @@ export default {
       if (result.isConfirmed) {
         try {
           isLoading.value = true;
-          const status = await axios.put(`${API_URL}/order-history-info/cancle/${id}`)
+          const status = await axios.put(`${API_URL}/order-history-info/cancel/${id}`)
           if (status) {
             Swal.fire({
               toast: true,

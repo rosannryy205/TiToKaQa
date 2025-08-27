@@ -125,13 +125,19 @@ const client = [
             path: 'discount-management',
             name: 'discount-management',
             component: () => import('../pages/client/user/discount-management.vue'),
-            meta: { title: 'Trang chủ' },
+            meta: { title: 'Kho mã giảm giá' },
           },
           {
             path: 'order-management',
             name: 'order-management',
             component: () => import('../pages/client/user/order-management.vue'),
             meta: { title: 'Quản lý đơn hàng' },
+          },
+          {
+            path: 'reservation-management',
+            name: 'reservation-management',
+            component: () => import('../pages/client/user/reservation-management.vue'),
+            meta: { title: 'Quản lý đơn đặt bàn' },
           },
           {
             path: 'deal-food',
@@ -146,6 +152,12 @@ const client = [
         name: 'history-order-detail',
         component: () => import('../pages/client/user/history-order-detail.vue'),
         meta: { title: 'Chi tiết đơn hàng' },
+      },
+      {
+        path: 'history-reservation-detail/:id',
+        name: 'history-reservation-detail',
+        component: () => import('../pages/client/user/history-reservation-detail.vue'),
+        meta: { title: 'Chi tiết đơn đặt bàn' },
       },
       {
         path: 'delivery/:id',

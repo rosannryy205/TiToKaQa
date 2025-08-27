@@ -20,7 +20,6 @@
               <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
-              <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
               <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
             </ul>
           </div>
@@ -115,12 +114,11 @@
       </div>
       <div class="offcanvas-body">
         <ul class="navbar-nav offcanvas-nav-links mb-4">
-          <li class="nav-item"><router-link class="nav-link" to="/home">Trang chủ</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/food">Thực đơn</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/reservation">Đặt bàn</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/luckywheel">Vòng quay may mắn</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/flashsale">Flash Sale</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/posts">Bài viết</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/home" @click.prevent="closeMenu()">Trang chủ</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/food" @click.prevent="closeMenu()">Thực đơn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/reservation" @click.prevent="closeMenu()">Đặt bàn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/luckywheel" @click.prevent="closeMenu()">Vòng quay may mắn</router-link></li>
+          <li class="nav-item"><router-link class="nav-link" to="/posts" @click.prevent="closeMenu()">Bài viết</router-link></li>
         </ul>
         <div class="mobile-actions">
           <div class="input-wrapper position-relative mb-3">
@@ -137,19 +135,19 @@
           </div>
 
           <div class="d-flex flex-column align-items-start">
-            <router-link v-if="!isLoggedIn" to="/login" class="text-decoration-none text-primary-black">
+            <router-link v-if="!isLoggedIn" to="/login" @click.prevent="closeMenu()" class="text-decoration-none text-primary-black">
               <button class="icon-btn text-dark mb-2">
                 <i class="bi bi-people me-2"></i> Đăng nhập
               </button>
             </router-link>
             <template v-else>
               <div class="mb-2">
-                <router-link to="/account/update-user" class="text-decoration-none text-primary-red me-2">
+                <router-link to="/account/update-user" @click.prevent="closeMenu()" class="text-decoration-none text-primary-red me-2">
                   <p v-if="user.username" class="mb-0 username-display"><i class="bi bi-person me-2"></i>{{
                     user.username }}</p>
                 </router-link>
               </div>
-              <button class="icon-btn text-dark mb-2" @click="handleLogout">
+              <button class="icon-btn text-dark mb-2" @click="handleLogout" @click.prevent="closeMenu()">
                 <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
               </button>
             </template>
@@ -157,7 +155,7 @@
             <!-- <router-link to="/delivery" class="icon-btn text-dark mb-2">
               <i class="bi bi-truck me-2"></i> Theo dõi đơn hàng
             </router-link> -->
-            <router-link to="/cart" class="icon-btn text-dark mb-2">
+            <router-link to="/cart" @click.prevent="closeMenu()" class="icon-btn text-dark mb-2">
               <i class="bi bi-cart me-2"></i> Giỏ hàng
             </router-link>
             <a href="tel:YOUR_PHONE_NUMBER" class="icon-btn text-dark"> <i class="bi bi-telephone me-2"></i> Liên hệ
@@ -277,6 +275,7 @@
 
 </template>
 <script setup>
+import { Offcanvas } from 'bootstrap'
 import { useAuthStore } from '@/stores/auth';
 import { useUserStore } from '@/stores/userAuth';
 import { useRoute, useRouter } from 'vue-router';
@@ -721,9 +720,19 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside);
 });
+onMounted(() => {
+  const el = document.getElementById('offcanvasMenu')
+  if (el) offcanvasInst = Offcanvas.getOrCreateInstance(el)
+})
 
+let offcanvasInst = null
 
-
+function closeMenu() {
+  if (offcanvasInst) offcanvasInst.hide()
+  document.body.classList.remove('modal-open')
+  document.body.style.overflow = ''
+  document.querySelectorAll('.offcanvas-backdrop').forEach(el => el.remove())
+}
 </script>
 
 <style scoped>
@@ -764,20 +773,26 @@ onBeforeUnmount(() => {
   background: #FF342B;
   border-radius: 20px;
   cursor: pointer;
+  gap: 3px;
 }
 
 @media (max-width: 991.98px) {
   .button {
-    height: 35px;
-    width: 190px;
+    height: 30px;
+    width: 180px;
   }
 
   #app>div.client>div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3>div.container>nav>div>div.me-2>button>svg {
-    width: 22px;
-    height: 22px;
+    width: 21px;
+    height: 21px;
+  }
+  #app > div.client > div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3 > div.container > nav > div > div.me-2 > button > span{
+    font-size: 15px;
+  }
+  #app > div.client > div.header.position-sticky.top-0.bg-white.bg-opacity-90.shadow-sm.z-3 > div.container > nav > div > div.me-2 > button{
+    gap:5px;
   }
 }
-
 .lable {
   line-height: 22px;
   font-size: 17px;

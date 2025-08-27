@@ -155,7 +155,8 @@ export default {
           },
         }
         );
-        orders.value = res.data.orders || [];
+        const allOrders = res.data.orders || [];
+        orders.value = allOrders.filter(order => !order.reservation_code);
         console.log("Đơn hàng:", orders.value);
       } catch (error) {
         console.error("Lỗi khi lấy đơn hàng:", error);
