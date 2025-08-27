@@ -329,29 +329,6 @@
                 class="form-check-input"
                 type="radio"
                 name="payment"
-                id="momo"
-                value="MOMO"
-                v-model="paymentMethod"
-                disabled
-              />
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
-                id="momo"
-                value="MOMO"
-                v-model="paymentMethod"
-              />
-              <label class="form-check-label d-flex align-items-center" for="momo">
-                <span class="me-2">Thanh toán qua Momo</span>
-                <img src="/img/momo.png" height="20" width="20" alt="" />
-              </label>
-            </div>
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="radio"
-                name="payment"
                 id="cod"
                 value="COD"
                 v-model="paymentMethod"
@@ -472,7 +449,7 @@ export default {
     const isLoggedIn = computed(() => !!localStorage.getItem('token'))
 
 
- const selectedUserDiscountUserId = ref(null)      
+ const selectedUserDiscountUserId = ref(null)
 const isMyTab = computed(() => activeTab.value === 'Mã của tôi')
 
 const duId = (item) => item?.pivot?.id ?? null;
@@ -496,10 +473,10 @@ function chooseUserVoucher(item) {
   // toggle chọn voucher user
   if (selectedUserDiscountUserId.value === id) {
     selectedUserDiscountUserId.value = null
-    removeDiscountCode()                
+    removeDiscountCode()
   } else {
     selectedUserDiscountUserId.value = id
-    applyDiscountCode(item.code)       
+    applyDiscountCode(item.code)
     discountId.value = null
   }
 }
@@ -675,7 +652,7 @@ function chooseUserVoucher(item) {
           ship_cost: parseInt(shippingFee.value),
           money_reduce:
             discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
-            discount_user_id: selectedUserDiscountUserId.value || null,               
+            discount_user_id: selectedUserDiscountUserId.value || null,
             discount_id: selectedUserDiscountUserId.value ? null : (discountId.value || null),
           order_detail: cartItems.value.map((item) => ({
             food_id: item.type === 'food' ? item.id : null,

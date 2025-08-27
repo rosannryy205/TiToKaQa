@@ -112,13 +112,6 @@
                   <span class="flex-grow-1">Thanh toán qua VNPAY</span>
                   <img src="/img/Logo-VNPAY-QR-1 (1).png" height="22" width="70" alt="VNPAY" />
                 </label>
-                <label class="list-group-item d-flex align-items-center gap-2">
-                  <input class="form-check-input me-2" type="radio" name="payment" id="momo" value="MOMO"
-                    v-model="paymentMethod" disabled />
-                  <span class="flex-grow-1 text-muted">Thanh toán qua Momo</span>
-                  <span class="badge bg-secondary ms-2">Sắp ra mắt</span>
-                  <img src="/img/momo.png" height="22" width="22" alt="Momo" />
-                </label>
               </div>
             </div>
 

@@ -38,7 +38,7 @@
         <div class="d-grid gap-2 d-md-flex justify-content-center mt-4">
           <router-link to="/" class="btn btn-check-out">Về trang chủ</router-link>
           <router-link v-if="isLoggedIn"
-            :to="order.reservation_code ? '/reservation' : '/account/order-management'"
+            :to="order.reservation_code ? '/account/reservation-management' : '/account/order-management'"
             class="btn btn-check-out">
             {{ order.reservation_code ? 'Xem chi tiết đặt bàn' : 'Xem chi tiết đơn hàng' }}
           </router-link>
