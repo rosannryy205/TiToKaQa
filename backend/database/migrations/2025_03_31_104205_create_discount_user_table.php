@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('discount_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('discount_id')->constrained()->onDelete('cascade');
+            $table->foreignId('discount_id')->nullable()->constrained('discounts')->nullOnDelete();
             $table->integer('point_used')->default(0);
             $table->dateTime('exchanged_at');
             $table->dateTime('expiry_at');

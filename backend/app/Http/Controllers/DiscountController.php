@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Discount;
+use App\Models\DiscountUser;
+use App\Models\Order;
 use App\Services\PointService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -34,24 +38,76 @@ class DiscountController extends Controller
             return response()->json(['mess' => 'Lỗi khi lấy mã giảm giá', 'error' => $e->getMessage()], 500);
         }
     }
-
+ 
     public function used(Request $request)
     {
-        $discount = Discount::find($request->discount_id);
-
-        if (!$discount) {
-            return response()->json(['message' => 'Không tìm thấy mã giảm giá.'], 404);
+        $data = $request->validate([
+            'discount_id'       => 'nullable|exists:discounts,id',
+            'discount_user_id'  => 'nullable|exists:discount_user,id',
+            'order_id'          => 'nullable|exists:orders,id',
+        ]);
+    
+        if (($request->filled('discount_id') && $request->filled('discount_user_id'))
+            || (!$request->filled('discount_id') && !$request->filled('discount_user_id'))) {
+            return response()->json([
+                'message' => 'Chỉ được chọn 1 loại voucher: discount_id hoặc discount_user_id.'
+            ], 422);
         }
-
-        if ($discount->used >= $discount->usage_limit) {
-            return response()->json(['message' => 'Mã giảm giá đã hết lượt sử dụng.'], 400);
-        }
-
-        $discount->increment('used');
-
-        return response()->json(['message' => 'Cập nhật số lượt sử dụng thành công.']);
+    
+        return DB::transaction(function () use ($request) {
+            if ($request->filled('discount_user_id')) {
+                $du = DiscountUser::with('discount')->lockForUpdate()->find($request->discount_user_id);
+                if (!$du || !$du->discount) {
+                    return response()->json(['message' => 'Voucher của bạn không hợp lệ.'], 404);
+                }
+                if ($du->expiry_at && Carbon::now()->gt(Carbon::parse($du->expiry_at))) {
+                    return response()->json(['message' => 'Voucher của bạn đã hết hạn.'], 400);
+                }
+                if ($request->filled('order_id')) {
+                    Order::where('id', $request->order_id)->update([
+                        'discount_user_id' => $du->id,
+                        'discount_id'      => null,
+                    ]);
+                }
+                $affected = DB::table('discounts')
+                    ->where('id', $du->discount_id)
+                    ->whereRaw('used < usage_limit')
+                    ->update(['used' => DB::raw('used + 1')]);
+    
+                if ($affected === 0) {
+                    return response()->json(['message' => 'Voucher đã hết lượt sử dụng.'], 400);
+                }
+    
+                return response()->json(['message' => 'Cập nhật số lượt sử dụng thành công.']);
+            }
+    
+            // ===== Trường hợp mã public (discount_id) =====
+            if ($request->filled('discount_id')) {
+                $discount = Discount::lockForUpdate()->find($request->discount_id);
+                if (!$discount) {
+                    return response()->json(['message' => 'Không tìm thấy mã giảm giá.'], 404);
+                }
+                if ($request->filled('order_id')) {
+                    Order::where('id', $request->order_id)->update([
+                        'discount_id'      => $discount->id,
+                        'discount_user_id' => null,
+                    ]);
+                }
+                $affected = DB::table('discounts')
+                    ->where('id', $discount->id)
+                    ->whereRaw('used < usage_limit')
+                    ->update(['used' => DB::raw('used + 1')]);
+    
+                if ($affected === 0) {
+                    return response()->json(['message' => 'Mã giảm giá đã hết lượt sử dụng.'], 400);
+                }
+    
+                return response()->json(['message' => 'Cập nhật số lượt sử dụng thành công.']);
+            }
+            return response()->json(['message' => 'Yêu cầu không hợp lệ.'], 422);
+        });
     }
-
+    
     public function redeem(Request $request)
     {
         $user = auth()->user();
@@ -74,15 +130,33 @@ class DiscountController extends Controller
     return response()->json($query->get());
 }
 
-    public function getUserDiscounts(Request $request)
-    {
-        $user = auth()->user();
-        $discounts = $user->discounts()
-        ->withPivot(['point_used', 'exchanged_at', 'expiry_at', 'source'])
-        ->orderBy('pivot_exchanged_at', 'desc')
-        ->get(); 
-        return response()->json($discounts);
-    }
+public function getUserDiscounts(Request $request)
+{
+    $user = auth()->user();
+
+    $discounts = $user->discounts()
+        ->withPivot(['id', 'point_used', 'exchanged_at', 'expiry_at', 'source'])
+        ->orderByPivot('exchanged_at', 'desc') 
+        ->get();
+    $rows = $discounts->map(function ($d) {
+        return [
+            'discount_user_id' => $d->pivot->id, 
+            'discount_id'      => $d->id,        
+            'code'             => $d->code,
+            'name'             => $d->name,
+            'discount_type'    => $d->discount_type,
+            'discount_method'  => $d->discount_method,
+            'discount_value'   => $d->discount_value,
+            'min_order_value'  => $d->min_order_value,
+            'end_date'         => $d->end_date,
+            'expiry_at'        => $d->pivot->expiry_at,
+            'point_used'       => $d->pivot->point_used,
+            'source'           => $d->pivot->source,
+        ];
+    });
+
+    return response()->json($rows);
+}
 
 
     public function getDiscountById($id)
