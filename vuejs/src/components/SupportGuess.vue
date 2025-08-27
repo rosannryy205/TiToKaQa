@@ -19,23 +19,13 @@
           <div class="form-grid">
             <div>
               <label class="form-label">Số điện thoại</label>
-              <input
-                type="tel"
-                class="form-control"
-                placeholder="Số điện thoại đặt hàng"
-                v-model.trim="phone"
-                @keyup.enter="findOrder(code, phone)"
-              />
+              <input type="tel" class="form-control" placeholder="Số điện thoại đặt hàng" v-model.trim="phone"
+                @keyup.enter="findOrder(code, phone)" />
             </div>
             <div>
               <label class="form-label">Mã đơn</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="VD: SD0REBAZAN"
-                v-model.trim="code"
-                @keyup.enter="findOrder(code, phone)"
-              />
+              <input type="text" class="form-control" placeholder="VD: SD0REBAZAN" v-model.trim="code"
+                @keyup.enter="findOrder(code, phone)" />
             </div>
           </div>
 
@@ -53,18 +43,16 @@
           <section v-if="searchedByCode && order" class="order-detail-card mt-3">
             <div class="od-top">
               <div>
-                <div class="code">#{{ order.code ?? order.order_code }}</div>
+                <div class="code">#{{ order.reservation_code || order.order_code || order.code }}</div>
                 <div class="meta">
-                  <span
-                    >Trạng thái: <strong>{{ order.status }}</strong></span
-                  >
+                  <span>Trạng thái: <strong>{{ order.status }}</strong></span>
                 </div>
                 <div class="meta">
                   <span>Đặt lúc: {{ formatDate(order.order_time) }}</span>
                 </div>
               </div>
               <div class="right-actions">
-                <div class="price text-dark fw-bold">{{ formatVND(order.total_price) }}</div>
+                <div class="price text-dark fw-bold">{{ formatVND(order.total_price + (order.table_fee || 0)) }}</div>
               </div>
             </div>
 
@@ -82,20 +70,26 @@
             </ul>
 
             <div class="od-sum text-dark fw-bold">
-              <div>
-                Phí ship: <strong>{{ formatVND(order.shipping_fee || 0) }}</strong>
+              <div v-if="!order.reservation_code">
+                <div>
+                  Phí ship: <strong>{{ formatVND(order.shipping_fee || 0) }}</strong>
+                </div>
+                <div>
+                  Tổng thanh toán: <strong>{{ formatVND(order.total_price || 0) }}</strong>
+                </div>
               </div>
-              <div>
-                Tổng thanh toán: <strong>{{ formatVND(order.total_price || 0) }}</strong>
+              <div v-else>
+                <div>
+                  Phí giữ bàn: <strong>{{ formatVND(order.table_fee || 0) }}</strong>
+                </div>
+                <div>
+                  Tổng thanh toán: <strong>{{ (formatVND(order.total_price || 0)) + (formatVND(order.table_fee || 0)) }}</strong>
+                </div>
               </div>
             </div>
             <div class="od-actions">
-              <button
-                type="button"
-                class="btn btn-outline btn-sm"
-                :disabled="loading || cancelBusy || !canCancel(order)"
-                @click="cancelOrder(order)"
-              >
+              <button type="button" class="btn btn-outline btn-sm"
+                :disabled="loading || cancelBusy || !canCancel(order)" @click="cancelOrder(order)">
                 Huỷ đơn
               </button>
             </div>
@@ -106,6 +100,7 @@
               <table class="table w-100 custom-borderless-table">
                 <thead class="table-secondary">
                   <tr>
+                    <th>STT</th>
                     <th>Ngày đặt</th>
                     <th>Tổng tiền</th>
                     <th>Trạng thái</th>
@@ -114,7 +109,7 @@
                 </thead>
                 <tbody>
                   <tr v-for="(o, idx) in orders" :key="o.id">
-                    <td>#{{ idx + 1 }}</td>
+                    <td>{{ idx + 1 }}</td>
                     <td>{{ formatDate(o.order_time ?? o.created_at) }}</td>
                     <td>{{ formatVND(o.total_price) }}</td>
                     <td class="text-primary">{{ getStatus(o) }}</td>
@@ -251,9 +246,25 @@ async function findOrder(codeArg, phoneArg) {
 
     if (c) {
       const { data } = await axios.get(`${API_URL}/orders/${encodeURIComponent(c)}`)
-      order.value = data?.data ?? null
-      searchedByCode.value = true
-      orders.value = []
+      const o = data?.data ?? null;
+
+      if (!o) {
+        order.value = null;
+        orders.value = [];
+        searchedByCode.value = true;
+        return;
+      }
+      // Nếu trả về reservation_code thì là đơn đặt bàn
+      if (o.reservation_code) {
+        order.value = o;
+        orders.value = [];
+        searchedByCode.value = true;
+      } else {
+        // Nếu trả về order_code (đơn online)
+        order.value = o;
+        orders.value = [];
+        searchedByCode.value = true;
+      }
     } else {
       const { data } = await axios.get(`${API_URL}/orders/lookup`, {
         params: { phone: p, limit: 5 },
@@ -417,6 +428,7 @@ watch(
   background: #c92c3c;
   color: #fff;
 }
+
 /* ===== Floating popup ===== */
 .popup-mid-right {
   position: fixed;
@@ -424,12 +436,14 @@ watch(
   right: 5px;
   z-index: 10;
 }
+
 .popup-inner {
   position: relative;
   text-align: center;
   width: 120px;
   background: transparent;
 }
+
 .popup-close {
   cursor: pointer !important;
   z-index: 3;
@@ -453,6 +467,7 @@ watch(
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   line-height: 1;
 }
+
 .popup-button {
   margin-top: 6px;
   background-color: #c92c3c;
@@ -466,21 +481,27 @@ watch(
   display: inline-block;
   cursor: pointer;
 }
+
 @keyframes wiggle {
+
   0%,
   100% {
     transform: rotate(0deg);
   }
+
   25% {
     transform: rotate(3deg);
   }
+
   50% {
     transform: rotate(-3deg);
   }
+
   75% {
     transform: rotate(2deg);
   }
 }
+
 .wiggle-image {
   animation: wiggle 1.5s infinite ease-in-out;
   transform-origin: bottom center;
@@ -504,6 +525,7 @@ watch(
   align-items: center;
   justify-content: center;
 }
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -512,9 +534,11 @@ watch(
   z-index: 1060;
   padding: 14px;
 }
+
 .modal-overlay.is-open {
   display: grid;
 }
+
 .modal-card {
   width: 100%;
   max-width: 720px;
@@ -523,21 +547,25 @@ watch(
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
+
 .modal-header,
 .modal-footer {
   padding: 12px 16px;
   background: #fafafa;
   border-bottom: 1px solid #eee;
 }
+
 .modal-footer {
   border-top: 1px solid #eee;
   border-bottom: none;
 }
+
 .btn-close {
   border: none;
   font-size: 22px;
   cursor: default;
 }
+
 .modal-body {
   padding: 16px;
 }
@@ -546,16 +574,19 @@ watch(
   display: grid;
   gap: 12px;
 }
+
 @media (min-width: 640px) {
   .form-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
+
 .form-label {
   font-weight: 600;
   margin-bottom: 6px;
   display: block;
 }
+
 .form-control {
   width: 100%;
   padding: 10px 12px;
@@ -564,6 +595,7 @@ watch(
   background: #f7f7f7;
   color: #888;
 }
+
 .actions {
   margin-top: 10px;
   display: flex;
@@ -579,10 +611,12 @@ watch(
   padding: 10px 12px;
   border-radius: 8px;
 }
+
 .alert-danger {
   background: #ffe0e0;
   color: #8a1f1f;
 }
+
 .alert-warning {
   background: #fff7e0;
   color: #8a6d1f;
@@ -597,24 +631,29 @@ watch(
   flex-direction: column;
   gap: 10px;
 }
+
 .order-item {
   border: 1px solid #eee;
   border-radius: 10px;
   padding: 10px 12px;
 }
+
 .order-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
 }
+
 .order-row .left {
   min-width: 0;
 }
+
 .code {
   color: #c92c3c;
   font-weight: 700;
 }
+
 .meta {
   display: flex;
   gap: 6px;
@@ -623,14 +662,17 @@ watch(
   font-size: 13px;
   flex-wrap: wrap;
 }
+
 .price {
   font-weight: 700;
 }
+
 .order-details {
   margin-top: 8px;
   border-top: 1px dashed #eee;
   padding-top: 8px;
 }
+
 .items {
   list-style: none;
   padding: 0;
@@ -638,12 +680,14 @@ watch(
   display: grid;
   gap: 6px;
 }
+
 .items li {
   display: grid;
   grid-template-columns: 1fr auto auto;
   gap: 10px;
   align-items: center;
 }
+
 .single-order .top {
   display: flex;
   align-items: center;
@@ -651,24 +695,29 @@ watch(
   gap: 10px;
   margin-bottom: 8px;
 }
+
 .sum {
   margin-top: 10px;
   line-height: 1.6;
 }
+
 .order-detail-card {
   border: 1px solid #eee;
   border-radius: 12px;
   padding: 12px;
 }
+
 .od-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
+
 .od-top .code {
   font-weight: 700;
 }
+
 .meta {
   display: flex;
   gap: 8px;
@@ -677,6 +726,7 @@ watch(
   font-size: 13px;
   flex-wrap: wrap;
 }
+
 .right-actions .price {
   font-weight: 700;
 }
@@ -688,6 +738,7 @@ watch(
   display: grid;
   gap: 10px;
 }
+
 .od-row {
   display: grid;
   grid-template-columns: 64px 1fr auto;
@@ -696,6 +747,7 @@ watch(
   padding: 8px 0;
   border-bottom: 1px dashed #eee;
 }
+
 .od-row:last-child {
   border-bottom: none;
 }
@@ -707,18 +759,22 @@ watch(
   border-radius: 8px;
   background: #f5f5f5;
 }
+
 .od-thumb--empty {
   display: block;
 }
+
 .od-info .od-name {
   font-weight: 600;
 }
+
 .od-qty {
   min-width: 56px;
   text-align: right;
   font-weight: 600;
   color: #333;
 }
+
 .od-actions {
   display: flex;
   justify-content: flex-end;

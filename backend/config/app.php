@@ -61,7 +61,7 @@ return [
     'asset_url' => env('ASSET_URL'),
 
 
-    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+    'frontend_url' => env('FRONTEND_URL', 'https://titokaqarestaurant.online'),
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
@@ -172,6 +172,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
+        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
 
     ])->toArray(),
 
@@ -188,6 +189,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
 
     ])->toArray(),
 

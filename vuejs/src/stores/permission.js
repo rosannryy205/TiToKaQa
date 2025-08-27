@@ -1,13 +1,13 @@
-import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import axios from 'axios'
+import { ref, onMounted } from 'vue'
 import { API_URL } from '@/config'
-const _permissions = ref([]);
-const _isLoadingPermissions = ref(false);
+const _permissions = ref([])
+const _isLoadingPermissions = ref(false)
 
 export const checkPermission = (permission) => {
-  if (!permission) return true;
-  return _permissions.value.includes(permission);
-};
+  if (!permission) return true
+  return _permissions.value.includes(permission)
+}
 
 export function Permission(useridRef) {
   onMounted(async () => {
@@ -33,5 +33,5 @@ export function Permission(useridRef) {
     permissions: _permissions,
     hasPermission: checkPermission,
     isLoadingPermissions: _isLoadingPermissions,
-  };
+  }
 }

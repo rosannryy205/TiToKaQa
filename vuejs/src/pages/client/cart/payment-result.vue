@@ -10,12 +10,12 @@
 
     <!-- Thành công -->
     <div v-else>
-      <template v-if="isPaidSuccess">
+      <div v-if="isPaidSuccess">
         <OrderSummary :orders="orders" :methodLabel="methodLabel" :paymentMessage="paymentMessage" />
-      </template>
+      </div>
 
       <!-- Thất bại -->
-      <template v-else class="container py-5">
+      <div v-else class="container py-5">
         <div class="d-flex justify-content-center align-items-center">
           <div style="max-width: 500px; width: 100%;">
             <div class="d-flex flex-column align-items-center mb-3">
@@ -28,7 +28,7 @@
             </div>
           </div>
         </div>
-      </template>
+      </div>
     </div>
   </div>
 </template>
