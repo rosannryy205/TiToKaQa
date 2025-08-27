@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Mail\OrderMail;
 use App\Models\Combo;
+use App\Models\Discount;
+use App\Models\DiscountUser;
 use App\Models\Food;
 use App\Models\FoodReward;
 use App\Models\Food_topping;
@@ -14,6 +16,7 @@ use App\Models\Reservation_table;
 use App\Models\User;
 use App\Services\PointService;
 use App\Services\RanksService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -38,7 +41,8 @@ class CartController extends Controller
                     'tpoint_used' => 'nullable|numeric',
                     'ship_cost' => 'nullable|numeric',
                     'order_detail' => 'nullable|array',
-                    'discount_id' => 'nullable|numeric',
+                    'discount_id' => 'nullable|exists:discounts,id',
+                    'discount_user_id' => 'nullable|exists:discount_user,id',
                     'note' => 'nullable|string',
                 ],
                 [
@@ -58,6 +62,48 @@ class CartController extends Controller
             );
 
             try {
+                $applied = ['discount_id' => null, 'discount_user_id' => null];
+                if ($request->filled('discount_user_id') && $request->filled('discount_id')) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => 'Chỉ được chọn 1 loại voucher (mã public hoặc mã của tôi).'
+                    ], 422);
+                }
+                
+                if ($request->filled('discount_user_id')) {
+                    $du = DiscountUser::query()
+                        ->where('id', $request->discount_user_id)
+                        ->when($request->filled('user_id'), fn($q) => $q->where('user_id', $request->user_id))
+                        ->where(function ($q) {
+                            $q->whereNull('expiry_at')
+                              ->orWhere('expiry_at', '>=', Carbon::now());
+                        })
+                        ->first();
+                
+                    if (!$du) {
+                        return response()->json([
+                            'status'  => false,
+                            'message' => 'Voucher của bạn không hợp lệ hoặc đã hết hạn.'
+                        ], 422);
+                    }
+                
+                    $applied['discount_user_id'] = $du->id;
+                }
+                elseif ($request->filled('discount_id')) {
+                    $d = Discount::query()
+                        ->where('id', $request->discount_id)
+                        ->first();
+                
+                    if (!$d) {
+                        return response()->json([
+                            'status'  => false,
+                            'message' => 'Mã giảm giá không hợp lệ.'
+                        ], 422);
+                    }
+                
+                    $applied['discount_id'] = $d->id;
+                }
+
                 $order = Order::create([
                     'user_id' => $data['user_id'] ?? null,
                     'guest_name' => $data['guest_name'],
@@ -68,7 +114,8 @@ class CartController extends Controller
                     'money_reduce' => $data['money_reduce'],
                     'tpoint_used' => $data['tpoint_used'],
                     'ship_cost' => $data['ship_cost'],
-                    'discount_id' => $data['discount_id'],
+                    'discount_id'      => $applied['discount_id'],
+                    'discount_user_id' => $applied['discount_user_id'],
                     'note' => $data['note'] ?? null,
 
                 ]);

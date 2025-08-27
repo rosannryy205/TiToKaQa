@@ -27,6 +27,7 @@ class Order extends Model
         'table_fee',
         'user_id',
         'discount_id',
+        'discount_user_id',
         'guest_address',
         'order_time',
         'order_status',
