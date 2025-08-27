@@ -38,7 +38,7 @@ class RolePermission extends Seeder
 
         $manager   = Role::firstOrCreate(['name' => 'quanly']);
         $staff     = Role::firstOrCreate(['name' => 'nhanvien']);
-        $warehouse = Role::firstOrCreate(['name' => 'nhanvienkho']);
+        
         $customer  = Role::firstOrCreate(['name' => 'khachhang']);
 
         $manager->givePermissionTo(Permission::all());
@@ -49,15 +49,6 @@ class RolePermission extends Seeder
             'view_table',
             'view_food',
             'view_combo',
-        ]);
-
-        $warehouse->givePermissionTo([
-            'view_food',
-            'view_topping',
-            'view_combo',
-            'view_category',
-            'create_food',
-            'edit_food',
         ]);
 
         $customer->givePermissionTo([
