@@ -144,6 +144,8 @@ public function getUserDiscounts(Request $request)
             'discount_id'      => $d->id,        
             'code'             => $d->code,
             'name'             => $d->name,
+            'usage_limit'      => $d->usage_limit,
+            'used'             => $d->used,
             'discount_type'    => $d->discount_type,
             'discount_method'  => $d->discount_method,
             'discount_value'   => $d->discount_value,
