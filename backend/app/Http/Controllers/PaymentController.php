@@ -1,19 +1,23 @@
 <?php
 
+
 namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
+
+use App\Models\Order;
+use App\Models\Payment;
+
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 use App\Mail\OrderMail;
 use App\Mail\ReservationMail;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
-use App\Models\Order;
-use App\Models\Payment;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -431,7 +435,7 @@ class PaymentController extends Controller
 
 
                         $qr_url = $order->qr_code_url ?? null;
-                        $qrImage = QrCode::format('png')->size(250)->generate('http://localhost:5173/history-order-detail/' . $order->id);
+                        $qrImage = QrCode::format('png')->size(250)->generate('https://titokaqarestaurant.online/history-order-detail/' . $order->id);
 
                         $filename = 'qr_' . $order->id . '.png';
                         $tempPath = storage_path('app/public/' . $filename);
