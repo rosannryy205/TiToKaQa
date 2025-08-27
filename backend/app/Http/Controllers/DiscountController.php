@@ -20,15 +20,15 @@ class DiscountController extends Controller
             } else {
                 $query->where('status', 'active');
             }
-            //lay theo source    
+            //lay theo source
             if ($request->has('source')) {
                 $query->where('source', $request->get('source'));
-            } 
-            //lay theo danh muc    
+            }
+            //lay theo danh muc
             if ($request->has('category_id')) {
                 $query->where('category_id', $request->get('category_id'));
-            }   
-            $query->orderBy('created_at', 'desc');    
+            }
+            $query->orderBy('created_at', 'desc');
             return response()->json($query->get());
         } catch (\Throwable $e) {
             return response()->json(['mess' => 'Lỗi khi lấy mã giảm giá', 'error' => $e->getMessage()], 500);
@@ -69,7 +69,7 @@ class DiscountController extends Controller
     if ($request->has('category_id') && $request->category_id !== null) {
         $query->where('category_id', $request->category_id);
     }
-    $query->where('source', 'point_exchange'); 
+    $query->where('source', 'point_exchange');
 
     return response()->json($query->get());
 }
@@ -80,7 +80,7 @@ class DiscountController extends Controller
         $discounts = $user->discounts()
         ->withPivot(['point_used', 'exchanged_at', 'expiry_at', 'source'])
         ->orderBy('pivot_exchanged_at', 'desc')
-        ->get(); 
+        ->get();
         return response()->json($discounts);
     }
 
@@ -124,25 +124,25 @@ class DiscountController extends Controller
             'status' => 'required|in:active,inactive',
             'usage_limit' => 'required|integer|min:1',
             'source' => 'required|in:system,point_exchange,lucky_wheel,for_users',
-            
+
 
             'user_level' => 'nullable|in:new,silver,gold,diamond|required_if:source,for_users',
-            
+
 
             'cost' => 'nullable|integer|min:0|required_if:source,point_exchange',
-    
+
             'condition' => 'nullable|string|max:255',
             'custom_condition_note' => 'nullable|string|max:255',
         ]);
-    
+
         try {
             $discount = Discount::create($data);
-    
+
             return response()->json([
                 'message' => 'Tạo mã giảm giá thành công',
                 'data' => $discount
             ], 201);
-    
+
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => 'Có lỗi xảy ra khi tạo mã giảm giá',
@@ -150,7 +150,7 @@ class DiscountController extends Controller
             ], 500);
         }
     }
-    
+
     public function updateDiscountByAdmin(Request $request, $id)
     {
         try {
@@ -229,21 +229,21 @@ class DiscountController extends Controller
 {
     {
         $discount = Discount::findOrFail($id);
-    
+
         $data = $request->validate([
             'status' => ['required', Rule::in(['active','inactive'])],
         ]);
-    
+
         if ($discount->status === $data['status']) {
             return response()->json([
                 'message' => 'Trạng thái không thay đổi',
                 'data'    => $discount,
             ], 200);
         }
-    
+
         $discount->status = $data['status'];
         $discount->save();
-    
+
         return response()->json([
             'message' => $data['status'] === 'inactive' ? 'Đã ẩn quà' : 'Đã bật lại quà',
             'data'    => $discount->fresh(),

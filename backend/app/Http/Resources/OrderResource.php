@@ -30,11 +30,12 @@ class OrderResource extends JsonResource
 
         return [
             'id'           => $this->id,
-            'code'         => $this->order_code,            
+            'code'         => $this->order_code ?? $this->reservation_code,
             'status'       => $this->order_status,
-            'order_time'       => $this->order_time,
+            'order_time'   => $this->order_time,
             'shipping_fee' => (int) ($this->ship_cost ?? 0),
             'total_price'  => (int) ($this->total_price ?? 0),
+            'table_fee'    => (int) ($this->table_fee ?? 0),
             'details'      => $items ?? [],
         ];
     }

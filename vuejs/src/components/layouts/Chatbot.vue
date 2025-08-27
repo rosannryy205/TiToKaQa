@@ -202,6 +202,8 @@ import { toast } from 'vue3-toastify'
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import { Vietnamese } from 'flatpickr/dist/l10n/vn.js';
+import { API_URL } from '@/config'
+import { STORAGE_URL } from '@/config'
 export default {
   setup() {
     const {
@@ -265,10 +267,10 @@ export default {
       quantity1.value = 1
       try {
         if (item.type === 'food') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/food/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/food/${item.id}`)
           foodDetail1.value = { ...res.data, type: 'food' }
 
-          const res1 = await axios.get(`http://127.0.0.1:8000/api/home/topping/${item.id}`)
+          const res1 = await axios.get(`${API_URL}/home/topping/${item.id}`)
           toppings1.value = res1.data
 
           spicyLevel1.value = toppings1.value.filter((top) => top.category_id == 15)
@@ -277,7 +279,7 @@ export default {
             top.price = top.price || 0
           })
         } else if (item.type === 'combo') {
-          const res = await axios.get(`http://127.0.0.1:8000/api/home/combo/${item.id}`)
+          const res = await axios.get(`${API_URL}/home/combo/${item.id}`)
           foodDetail1.value = { ...res.data, type: 'combo' }
         }
 
@@ -476,7 +478,7 @@ export default {
       isLoading.value = true
 
       try {
-        await axios.post('http://127.0.0.1:8000/api/messages/send', {
+        await axios.post(`${API_URL}/messages/send`, {
           session_id: currentUser.id,
           message: messageContent,
         })
@@ -795,11 +797,11 @@ export default {
           calculatedTotalAmount += (itemBasePrice + itemToppingsPrice);
         });
 
-        await axios.put(`http://127.0.0.1:8000/api/update-order-detail/${orderIdToSubmit}`, {
+        await axios.put(`${API_URL}/update-order-detail/${orderIdToSubmit}`, {
           details: payloadDetails,
         });
 
-        const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+        const paymentRes = await axios.post(`${API_URL}/payments/vnpay-init`, {
           order_id: orderIdToSubmit,
           amount: calculatedTotalAmount,
         });

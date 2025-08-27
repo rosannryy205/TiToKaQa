@@ -6,7 +6,7 @@
     </div>
   </div>
   <div class="col-12 col-md-8 col-lg-9">
-    <h4 class="fw-bold mb-4">Đơn hàng đã mua</h4>
+    <h4 class="fw-bold mb-4">Lịch sử đơn đặt bàn</h4>
     <!-- Tabs -->
     <div class="order-tabs d-flex flex-nowrap overflow-auto gap-3 mb-4">
       <div v-for="tab in tabs" :key="tab" :class="['tab-item', { active: activeTab === tab }]" @click="setActive(tab)">
@@ -32,10 +32,10 @@
             <tr v-for="order in paginatedOrders" :key="order.id">
               <td>#{{ order.id }}</td>
               <td>{{ formatDate(order.order_time || order.reservations_time) }}</td>
-              <td>{{ formatNumber(order.total_price) }} VND</td>
+              <td>{{ formatNumber((Number(order.total_price) || 0) + (Number(order.table_fee) || 0)) }} VND</td>
               <td class="text-primary">{{ order.order_status || order.order_reservation_time }}</td>
               <td>
-                <router-link :to="{ name: 'history-order-detail', params: { id: order.id } }"
+                <router-link :to="{ name: 'history-reservation-detail', params: { id: order.id } }"
                   class="btn btn-outline-primary btn-sm">Xem</router-link>
               </td>
             </tr>
@@ -54,7 +54,7 @@
                 <strong>Ngày đặt:</strong> {{ formatDate(order.order_time || order.reservations_time) }}
               </div>
               <div class="mb-1 small text-muted">
-                <strong>Tổng tiền:</strong> {{ formatNumber(order.total_price) }} VND
+                <strong>Tổng tiền:</strong> {{ formatNumber((Number(order.total_price) || 0) + (Number(order.table_fee) || 0)) }} VND
               </div>
               <div class="mb-2 d-flex align-items-center gap-2 flex-wrap">
                 <strong>Trạng thái:</strong>
@@ -98,7 +98,7 @@
         style="width: 80px; height: 80px">
         <i class="bi bi-receipt fs-2 text-muted"></i>
       </div>
-      <p class="text-muted mt-3">Bạn chưa có đơn hàng nào.</p>
+      <p class="text-muted mt-3">Bạn chưa có đơn đặt bàn nào.</p>
     </div>
   </div>
 </template>
@@ -127,8 +127,7 @@ export default {
       "Chờ xác nhận",
       "Đã xác nhận",
       "Đang xử lý",
-      "Bắt đầu giao",
-      "Giao thành công",
+      "Hoàn thành",
       "Đã hủy",
     ];
 
@@ -156,8 +155,8 @@ export default {
         }
         );
         const allOrders = res.data.orders || [];
-        orders.value = allOrders.filter(order => !order.reservation_code);
-        console.log("Đơn hàng:", orders.value);
+        orders.value = allOrders.filter(order => order.reservation_code);
+        console.log("Đơn bàn:", orders.value);
       } catch (error) {
         console.error("Lỗi khi lấy đơn hàng:", error);
       } finally {
