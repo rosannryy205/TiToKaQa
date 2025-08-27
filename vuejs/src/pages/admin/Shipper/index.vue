@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('view_shipper')">
   <div class="row">
     <div class="col-md-12">
       <div class="card card-stats card-raised">
@@ -13,7 +13,7 @@
               <h2 class="fw-bold fs-4 mb-0 text-primary d-flex align-items-center">
                 Đơn hàng đang giao
               </h2>
-              <router-link to="/admin/select_order" class="ms-auto">
+              <router-link to="/admin/select_order" class="ms-auto" v-if="hasPermission('create_shipper')">
                 <button class="btn btn-ship fw-semibold">
                   <i class="bi bi-list-check me-1"></i> Chọn đơn giao
                 </button>
@@ -122,6 +122,7 @@
 </template>
 
 <script setup>
+import { Permission } from '@/stores/permission'
 import { formatDate } from '@fullcalendar/core'
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
@@ -131,7 +132,13 @@ const router = useRouter()
 const goToTracking = (orderId) => {
   router.push(`/admin/delivery_map/${orderId}`)
 }
-
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) userId.value = user.id
+}
+const { hasPermission } = Permission(userId)
 const isLoading = ref(false)
 const orders = ref([])
 

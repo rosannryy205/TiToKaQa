@@ -1,4 +1,4 @@
-<template>
+<template v-if="hasPermission('edit_shipper')">
   <div class="row">
     <div class="col-md-12">
       <div class="card card-stats card-raised">
@@ -108,7 +108,7 @@
                 <i class="bi bi-arrow-left me-1"></i> Quay lại
               </button>
 
-              <button class="btn btn-success px-4 py-2 fw-semibold" :disabled="selectedIds.length === 0"
+              <button v-if="hasPermission('edit_shipper')" class="btn btn-success px-4 py-2 fw-semibold" :disabled="selectedIds.length === 0"
                 @click="assignOrders">
                 <i class="bi bi-check-circle me-1"></i> Xác nhận {{ selectedIds.length }} đơn
               </button>
@@ -126,9 +126,16 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
+import { Permission } from '@/stores/permission'
 const API_URL = "http://127.0.0.1:8000/api"
 const router = useRouter()
-
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) userId.value = user.id
+}
+const { hasPermission } = Permission(userId)
 const goBack = () => {
   router.back()
 }

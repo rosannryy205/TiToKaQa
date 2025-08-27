@@ -129,7 +129,7 @@ Route::prefix('orders')->controller(OrderController::class)->group(function () {
 });
 Route::post('orders/{code}/cancel', [OrderController::class, 'cancelByConfirm'])
     ->where('code', '[A-Za-z0-9\-\._]+')
-    ->middleware('throttle:15,1'); 
+    ->middleware('throttle:15,1');
 
 // Route::resource('user', UserController::class);
 Route::middleware('auth:sanctum')->group(function () {

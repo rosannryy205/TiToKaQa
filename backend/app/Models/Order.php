@@ -9,7 +9,7 @@ class Order extends Model
 {
     use HasFactory;
     protected $table = "orders";
-    public $timestamps = false; 
+    public $timestamps = false;
 
     protected $fillable = [
         'guest_name',
@@ -54,5 +54,4 @@ class Order extends Model
     {
         return $this->hasMany(Payment::class, 'order_id', 'id');
     }
-
 }
