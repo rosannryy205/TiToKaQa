@@ -929,7 +929,7 @@ color: #c92c3c;
 @media (max-width: 768px) {
   .popular-searches img {
     object-fit: contain;
-    max-height: 200px;
+    max-height: 145px;
   }
   #app > div.client > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div > a{
     font-size: 1rem;

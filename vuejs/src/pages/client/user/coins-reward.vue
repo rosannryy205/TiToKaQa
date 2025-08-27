@@ -5,46 +5,50 @@
       <div class="d-flex align-items-center mb-3">
         <h5 class="fw-bold mb-0 title-cate-discount">Chọn danh mục bạn quan tâm</h5>
       </div>
+
       <div class="d-flex flex-wrap gap-2">
         <button
           @click="selectAll"
           :class="[
-            'voucher-brand-btn d-flex align-items-center',
-            selectedCategory === null && !showExpiredOnly ? 'active' : '',
+            'voucher-chip d-flex align-items-center',
+            selectedCategory === null && !showExpiredOnly ? 'voucher-chip--active' : '',
           ]"
         >
           Tất cả
         </button>
+
         <button
           @click="selectFreeshipOnly"
           :class="[
-            'voucher-brand-btn d-flex align-items-center btn-sm',
-            showOnlyFreeship ? 'active' : '',
+            'voucher-chip d-flex align-items-center voucher-chip--outline',
+            showOnlyFreeship ? 'voucher-chip--active' : '',
           ]"
         >
           Freeship
         </button>
+
         <button
-          @click="onSelectCategory(category)"
           v-for="category in categories"
           :key="category.id"
+          @click="onSelectCategory(category)"
           :class="[
-            'voucher-brand-btn d-flex align-items-center btn-sm',
-            selectedCategory === category.id ? 'active' : '',
+            'voucher-chip d-flex align-items-center voucher-chip--outline',
+            selectedCategory === Number(category.id) ? 'voucher-chip--active' : '',
           ]"
         >
           <img
-               :src="getImageUrl(category.images)"
+            :src="getImageUrl(category.images)"
             class="category-icon me-2"
             :alt="category.name"
           />
           {{ category.name }}
         </button>
+
         <button
           @click="selectExpiredOnly"
           :class="[
-            'voucher-brand-btn d-flex align-items-center btn-sm',
-            showExpiredOnly ? 'active' : '',
+            'voucher-chip d-flex align-items-center voucher-chip--outline',
+            showExpiredOnly ? 'voucher-chip--active' : '',
           ]"
         >
           Mã hết hạn
@@ -92,9 +96,11 @@
             <!-- Cột phải -->
             <div class="flex-grow-1 px-3 py-2" style="width: 72%">
               <div class="fw-bold mb-1 text-truncate">Mã: {{ discount.name }}</div>
+
               <div class="text-muted small mb-1 text-truncate d-block">
                 <i class="bi bi-clock me-1"></i>{{ discount.custom_condition_note }}
               </div>
+
               <div class="text-muted small mb-1 text-truncate">
                 <a
                   href="#"
@@ -110,16 +116,17 @@
                   {{ formatCurrency(discount.cost) }}
                   <img class="coins ms-1" src="/img/xubac.png" alt="coin" />
                 </div>
+
                 <button
                   class="btn"
                   @click="redeemDiscount(discount.id, discount.code, discount.cost)"
                   :class="[
-                    'btn-sm',
+                    'btn-xs-outline',
                     isExpired(discount)
-                      ? 'btn-secondary text-muted'
+                      ? 'btn-xs-outline--disabled'
                       : hasVoucher(discount.code)
-                        ? 'has-voucher'
-                        : 'btn-outline-danger',
+                        ? 'btn-xs-outline--owned'
+                        : 'btn-xs-outline--danger',
                   ]"
                   :disabled="isExpired(discount) || hasVoucher(discount.code)"
                 >
@@ -133,6 +140,7 @@
                 </button>
               </div>
             </div>
+
             <div
               v-if="isExpired(discount)"
               class="expired-overlay position-absolute top-0 start-0 w-100 h-100"
@@ -157,13 +165,9 @@
             <h6 class="modal-title fw-bold me-5" id="voucherConditionModalLabel">
               Điều kiện voucher
             </h6>
-            <button
-              type="button"
-              class="btn-close"
-              @click="hideConditionModal"
-              aria-label="Close"
-            ></button>
+            <button type="button" class="btn-close" @click="hideConditionModal" aria-label="Close"></button>
           </div>
+
           <div class="modal-body">
             <p class="mb-0 text-dark fs-5 text-center">Mã: {{ selectedVoucherName }}</p>
           </div>
@@ -177,6 +181,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { onMounted, ref, computed } from 'vue'
 import { Modal } from 'bootstrap'
@@ -187,14 +192,14 @@ import { toast } from 'vue3-toastify'
 import { useUserStore } from '@/stores/userAuth'
 import { FoodList } from '@/stores/food'
 import { Discounts } from '@/stores/discount'
-import { API_URL } from '@/config'
-import { STORAGE_URL } from '@/config'
+import { API_URL, STORAGE_URL } from '@/config'
+
 const userStore = useUserStore()
 const { getCategory, categories } = FoodList.setup()
 const { getImageByType, formatCurrency, fetchUserDiscounts, userDiscounts } = Discounts()
 
 const pointsExchangeDiscounts = ref([])
-const selectedCategory = ref(null)
+const selectedCategory = ref(null) // null = tất cả
 const showExpiredOnly = ref(false)
 const showOnlyFreeship = ref(false)
 const voucherCode = ref('')
@@ -203,24 +208,45 @@ const conditionModalRef = ref(null)
 let conditionModalInstance = null
 const selectedVoucherCondition = ref('')
 const selectedVoucherName = ref('')
-const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
+
+const getImageUrl = (image) => {
+  if (!image) return '/img/placeholder.png'
+  if (/^https?:\/\//i.test(image)) return image
+  return `${STORAGE_URL}/img/food/imgmenu/${image}`
+}
+
 const getPointExchangeDiscounts = async () => {
   try {
     const response = await axios.get(`${API_URL}/discounts`, {
-      params: { source: 'point_exchange' },
+      params: {
+        source: 'point_exchange',
+        category_id: selectedCategory.value ?? undefined, // BE lọc nếu có
+      },
       headers: {
         Authorization: `Bearer ${userStore.token}`,
-        category_id: selectedCategory.value || undefined,
+        Accept: 'application/json',
       },
     })
-    pointsExchangeDiscounts.value = response.data
+
+    const list = Array.isArray(response.data?.data)
+      ? response.data.data
+      : Array.isArray(response.data)
+        ? response.data
+        : []
+
+    // Chuẩn hóa category_id thành number để so sánh === an toàn
+    pointsExchangeDiscounts.value = list.map((d) => ({
+      ...d,
+      category_id: d.category_id != null ? Number(d.category_id) : d.category_id,
+    }))
   } catch (err) {
+    console.error('[discounts fetch error]', err?.response?.status, err?.response?.data)
     toast.error('Không thể tải mã giảm giá đổi xu!')
   }
 }
 
 const onSelectCategory = async (category) => {
-  selectedCategory.value = category.id
+  selectedCategory.value = Number(category.id)
   showExpiredOnly.value = false
   showOnlyFreeship.value = false
   await getPointExchangeDiscounts()
@@ -252,16 +278,24 @@ const isExpired = (discount) => {
   return discount.end_date && new Date(discount.end_date) < new Date()
 }
 
-// Lọc danh sách mã
+// Lọc danh sách mã (client-side bổ sung)
 const filteredDiscounts = computed(() => {
   const keyword = voucherCode.value.toLowerCase()
 
   return pointsExchangeDiscounts.value.filter((discount) => {
-    const matchCategory = !selectedCategory.value || discount.category_id === selectedCategory.value
-    const matchKeyword = !voucherCode.value || discount.name.toLowerCase().includes(keyword)
+    const dCat = discount?.category_id != null ? Number(discount.category_id) : null
+
+    const matchCategory =
+      selectedCategory.value === null || dCat === Number(selectedCategory.value)
+
+    const matchKeyword =
+      !voucherCode.value || String(discount.name || '').toLowerCase().includes(keyword)
+
     const expired = isExpired(discount)
     const matchExpired = showExpiredOnly.value ? expired : !expired
+
     const matchFreeship = !showOnlyFreeship.value || discount.discount_type === 'freeship'
+
     return matchCategory && matchKeyword && matchExpired && matchFreeship
   })
 })
@@ -280,7 +314,6 @@ const redeemDiscount = async (discountId, code = '', points = 0) => {
     confirmButtonColor: '#e3342f',
     cancelButtonColor: '#6c757d',
   })
-
   if (!confirm.isConfirmed) return
 
   try {
@@ -293,10 +326,10 @@ const redeemDiscount = async (discountId, code = '', points = 0) => {
           Accept: 'application/json',
         },
         withCredentials: true,
-      },
+      }
     )
 
-    const isSuccess = response.data?.status?.toString().toLowerCase() === 'success'
+    const isSuccess = String(response.data?.status || '').toLowerCase() === 'success'
 
     if (isSuccess) {
       await Swal.fire({
@@ -312,15 +345,15 @@ const redeemDiscount = async (discountId, code = '', points = 0) => {
       await Swal.fire({
         icon: 'warning',
         title: 'Không thể đổi mã!',
-        text: response.data.message || 'Vui lòng thử lại.',
+        text: response.data?.message || 'Vui lòng thử lại.',
       })
     }
   } catch (error) {
-    console.error(error)
+    console.error('[redeem error]', error?.response?.status, error?.response?.data)
     await Swal.fire({
       icon: 'error',
       title: 'Lỗi hệ thống!',
-      text: error.response?.data?.message || 'Đổi mã thất bại!',
+      text: error?.response?.data?.message || 'Đổi mã thất bại!',
     })
   }
 }
@@ -336,7 +369,6 @@ const showConditionModal = (condition, name) => {
   selectedVoucherName.value = name
   conditionModalInstance?.show()
 }
-
 const hideConditionModal = () => {
   conditionModalInstance?.hide()
 }
@@ -353,9 +385,9 @@ onMounted(async () => {
 })
 </script>
 
-
 <style scoped>
-.voucher-brand-btn {
+/* ==== chips (đổi tên class) ==== */
+.voucher-chip {
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -364,37 +396,53 @@ onMounted(async () => {
   font-size: 14px;
   transition: all 0.2s ease;
 }
+.voucher-chip:hover { background: #f0f0f0; }
 
-.voucher-brand-btn:hover {
-  background: #f0f0f0;
-}
-
-.voucher-brand-btn.active {
-  background-color: #c92c3c;
-  color: white;
-}
-
-.btn-sm {
+.voucher-chip--outline {
   color: #c92c3c;
-  border: 1px solid #c92c3c;
+  border-color: #c92c3c;
 }
-
-.btn-sm:hover {
+.voucher-chip--outline:hover {
   background-color: #c92c3c;
-  color: white;
+  color: #fff;
 }
 
-.has-voucher {
+.voucher-chip--active {
+  background-color: #c92c3c;
+  color: #fff;
+  border-color: #c92c3c;
+}
+
+/* ==== mini outline button (đổi tên để tránh đè bootstrap .btn-sm) ==== */
+.btn-xs-outline {
+  background: #fff;
+  border: 1px solid #c92c3c;
+  color: #c92c3c;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.btn-xs-outline--danger:hover {
+  background-color: #c92c3c;
+  color: #fff;
+}
+.btn-xs-outline--disabled {
+  color: #999;
+  border-color: #bbb;
+  cursor: not-allowed;
+}
+.btn-xs-outline--owned {
   color: #007d00;
-  border: 1px solid #007d00;
+  border-color: #007d00;
 }
 
+/* ==== cards / list ==== */
 .expired-discount {
   opacity: 0.6;
   pointer-events: none;
   filter: grayscale(0.6);
 }
-
 .expired-overlay {
   background-color: rgba(255, 255, 255, 0.05);
   z-index: 2;
@@ -416,6 +464,8 @@ onMounted(async () => {
 .title-discount-hot {
   color: #c92c3c;
 }
+
+/* scroll for list container (giữ lại rule của bạn) */
 #app
   > div
   > div.container.mt-5.fade-in

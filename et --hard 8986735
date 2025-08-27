@@ -1,0 +1,692 @@
+[33m0763255[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m8986735[m sửa thanh toán và thêm quản lý đơn đặt bàn, tra cứu bàn
+[33me00efdc[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m46a72b9[m update seeder, and permission
+[33m2b29fcb[m update seeder, and permission
+[33mc5fb159[m chatbot
+[33m1a4b363[m Update RolePermission.php
+[33m9e18167[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mb8dff3a[m huy don cho khach khong co tai khoan
+[33m49afb73[m Update Chatbot.vue
+[33ma6050cb[m fix loi
+[33me142ef4[m nt
+[33m749826e[m fix code cũ
+[33m443c031[m err csrf
+[33mdba9d61[m .loi csrf
+[33m240d64a[m fix conflic
+[33m3834c0c[m fix conflic
+[33m914803c[m fix conflic
+[33mf5c6fec[m thêm đăng ký nhanh
+[33m014773e[m tạm lưu
+[33mffe2d1c[m update frontend url
+[33m4cca1ad[m update frontend url
+[33m3822303[m Update Chatbot.vue
+[33mf6c3ddc[m Update MessageSent.php
+[33m75a8293[m update code
+[33m4755f1a[m update host
+[33maaadcc8[m fix code up host
+[33mcc8ebf3[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m091b115[m responsive voucher
+[33mb7e646b[m update
+[33mf52d3d0[m update
+[33m85c5988[m temp
+[33m0371eec[m link api
+[33m14e822f[m link api
+[33mf7ce84e[m update
+[33m26de254[m STORAGE_URL
+[33mf7719ed[m STORAGE_URL
+[33m5b4beef[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m46afcda[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m88c7b7a[m sửa text deal
+[33m1a7a4a9[m sửa text deal
+[33m9fc7db8[m cancel order for guesst
+[33mf620809[m cancel order for guesst
+[33m379100e[m Update reservation-form.vue
+[33m6a7cdc7[m Update reservation-form.vue
+[33m77541fe[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33ma5d574f[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mdfbbc54[m huy don cho khach khong tai khoan
+[33m131b71b[m huy don cho khach khong tai khoan
+[33me5ad921[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m62d7397[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m2957a33[m Sửa lại thanh toán admin, phí giữ bàn, thống kê
+[33m6171395[m Sửa lại thanh toán admin, phí giữ bàn, thống kê
+[33m38acf1d[m fix
+[33m46e77c0[m fix
+[33m9bc5c05[m fix chatbot
+[33m4ace4be[m fix chatbot
+[33mb5a463b[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33md6f5e89[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m1d42e66[m rft url api
+[33m8940ef8[m rft url api
+[33m0e67c53[m update
+[33mf6ef52e[m cập nhật lại thanh toán đặt bàn admin
+[33mc7d5df7[m cập nhật lại thanh toán đặt bàn admin
+[33m8e5b41d[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mccd4954[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m8d3c996[m edit Discount.index, Luckyprize.index
+[33mfa002c9[m edit Discount.index, Luckyprize.index
+[33m94f481c[m Update detail.vue
+[33me19deb9[m Update detail.vue
+[33mf364c34[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m8e84577[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mf9eaa0f[m crud discoutn & prize
+[33m746a17f[m crud discoutn & prize
+[33m32fc962[m add permission
+[33me10c0c3[m add permission
+[33m7f5c1f1[m hidden_post
+[33mf47a4fc[m hidden_post
+[33m5e70e22[m show bai viet
+[33m912ea2f[m show bai viet
+[33m1c032e6[m update
+[33m8f8761c[m update
+[33m776259c[m CRUD POST
+[33m78a1865[m CRUD POST
+[33m5a84b3f[m merge code
+[33m640f603[m merge code
+[33m570d29b[m temp
+[33m4db5740[m temp
+[33m2e33039[m temp
+[33m9c939ab[m temp
+[33mcd7d869[m edit add, and edit permission
+[33m4a0c3ba[m edit add, and edit permission
+[33m97c6dd7[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m0248af2[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mcd635e2[m sửa dashboard
+[33mb487fcb[m sửa dashboard
+[33m7caf70f[m tamp
+[33mf6893dc[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mdec635b[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m75878c3[m combo
+[33m6790589[m combo
+[33mbb863d6[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa Merge remote-tracking branch 'origin/main' into main
+[33me908f67[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa Merge remote-tracking branch 'origin/main' into main
+[33mec90d38[m đồng bộ swal
+[33m09d5ce2[m đồng bộ swal
+[33mcedb593[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m1dcc197[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mc073d0b[m combo
+[33m0ee0f37[m combo
+[33m05ce75f[m Resolve merge conflicts and complete merge
+[33m3e9c96f[m Resolve merge conflicts and complete merge
+[33m91df541[m fix lỗi thanh toán không có tài khoản
+[33m46f9d6a[m fix lỗi thanh toán không có tài khoản
+[33m2c41730[m reup
+[33m317b6b6[m reup
+[33m42880a7[m reup
+[33m8edc221[m reup
+[33m64e2876[m temp
+[33m5ce072c[m temp
+[33mcb9ffae[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m2aa53e3[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m1870f7d[m fix email
+[33m7525642[m fix email
+[33mc10a36e[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m02b5993[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m3d6a3a6[m lưu chỉnh sửa ẩn hiện món
+[33m9aebbb7[m lưu chỉnh sửa ẩn hiện món
+[33m95d3bac[m fix thông báo đặt hàng
+[33me2c11a9[m fix thông báo đặt hàng
+[33me5a03e2[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m6047aa6[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m5e770fb[m .fix combo
+[33m0e87500[m .fix combo
+[33me62cf06[m tam luu de sua
+[33m4f9d73f[m tam luu de sua
+[33m040d9c3[m notify-reservation
+[33m9bf617d[m notify-reservation
+[33m4698f80[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m4e8b8d1[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m094f8a0[m temp
+[33m0560e4d[m temp
+[33mcdc3147[m fix lần cuối
+[33m2865a93[m fix lần cuối
+[33m6e33ee2[m fix giao dien admin
+[33m7e9454c[m fix giao dien admin
+[33m2f8db40[m fix order create
+[33mda7b8ce[m fix order create
+[33m97ef8ed[m fix order
+[33m685ef36[m fix order
+[33m3168d10[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mc463932[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m07018c6[m fix combo + phantrang
+[33m9611aed[m fix combo + phantrang
+[33ma68d971[m fix giao dien
+[33m16ffa93[m fix giao dien
+[33mca6c2b1[m make reservation quickly
+[33m368d37c[m make reservation quickly
+[33m9c45db5[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mfcada31[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33ma3078f9[m flashsale+update home ....
+[33m5e51e2e[m flashsale+update home ....
+[33mb0682f5[m keo code ve
+[33m37b0a05[m keo code ve
+[33mf1f8d90[m chinh sua loi
+[33m44cd1a6[m chinh sua loi
+[33md712935[m bo sung giao dien shipper
+[33m6dc521f[m bo sung giao dien shipper
+[33m7af3919[m Update README.md
+[33m84f1257[m Update README.md
+[33m739fafa[m fix reservation and create component chatbot
+[33mf848110[m fix reservation and create component chatbot
+[33m47425c7[m chatbox-reservation
+[33m8cf1d37[m chatbox-reservation
+[33mb93200b[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m2bbdc43[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m30b8560[m update
+[33ma29c959[m update
+[33m8d41a12[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33me9baff5[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mfe5ec09[m nt
+[33mafd8161[m nt
+[33m76fa888[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33medeb075[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33me6e9c23[m Lưu thay đổi tạm để pull
+[33m7b77575[m Lưu thay đổi tạm để pull
+[33m741fca5[m Đồng bộ lại thông báo
+[33m8b374dd[m Đồng bộ lại thông báo
+[33m359c149[m fix skeleton loading
+[33md888cc4[m fix skeleton loading
+[33mc192bcc[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mea19030[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m762fc6e[m reup
+[33mcae763f[m reup
+[33m5438bfb[m WIP: lưu thay đổi trước khi pull
+[33m5ae24b5[m WIP: lưu thay đổi trước khi pull
+[33m4495d1c[m Xoá controller cũ: AdminCategoryToppingController và cập nhật các file khác
+[33m9f4f2ad[m Xoá controller cũ: AdminCategoryToppingController và cập nhật các file khác
+[33m48208f2[m Thêm: sidebar mới, logo, admin.css, TopNavbar và DashboardHeader
+[33m01144d4[m Thêm: sidebar mới, logo, admin.css, TopNavbar và DashboardHeader
+[33mabda261[m Config: cập nhật cấu hình package và Vite
+[33mc432449[m Config: cập nhật cấu hình package và Vite
+[33mc8a18b4[m Admin: cập nhật layout, trang dashboard, sản phẩm, combo, đặt bàn
+[33m58aed75[m Admin: cập nhật layout, trang dashboard, sản phẩm, combo, đặt bàn
+[33m4fd2170[m Client: cập nhật giao diện user, cart, thanh toán, reservation
+[33mc999b1c[m Client: cập nhật giao diện user, cart, thanh toán, reservation
+[33m024f528[m Backend: cập nhật Order, Payment, User controller và route
+[33m7c6a0cd[m Backend: cập nhật Order, Payment, User controller và route
+[33m46a3a4b[m sửa cấu hình mail
+[33ma78ae7f[m sửa cấu hình mail
+[33m3b5c231[m cap nhat ty le va skeleton loading
+[33mc3adc8d[m cap nhat ty le va skeleton loading
+[33m71c9db5[m xong
+[33ma2d497d[m xong
+[33m10bc770[m đặt lại đơn, chọn topping trong giỏ hàng
+[33md143d08[m đặt lại đơn, chọn topping trong giỏ hàng
+[33mb7a43e6[m temp
+[33me4ace78[m temp
+[33m036a855[m chatbot part 2
+[33m5b7eb4e[m chatbot part 2
+[33m1bc9bfa[m fix deal
+[33m4407cab[m fix deal
+[33mb82a1e5[m tam luu
+[33m7e99680[m tam luu
+[33m7326355[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mcc3e193[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m1ad80dc[m vong quay, deal, giam gia xu
+[33mb58bb81[m vong quay, deal, giam gia xu
+[33m1b9a83c[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m476d23a[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m40d7c9d[m chatbot part 1
+[33m0576acd[m chatbot part 1
+[33m6c0a3ab[m fix lỗi
+[33m987a3ca[m fix lỗi
+[33m20045a9[m shipper
+[33m317213a[m shipper
+[33m5faeb72[m update
+[33m39dfd05[m update
+[33m79f608c[m Update README.md
+[33m4520e6f[m Update README.md
+[33mf414272[m fix package
+[33mb572a7a[m fix package
+[33m3ac5cd9[m qr checkin
+[33m2edf919[m qr checkin
+[33m530b087[m nut vuot
+[33ma6d163b[m nut vuot
+[33m8a18a61[m update
+[33m41434f7[m update
+[33mf2a4b1f[m send mail, invoice, loading
+[33m3b77e40[m send mail, invoice, loading
+[33m7c059d8[m loi dat ban
+[33m9458a4e[m loi dat ban
+[33m5bc2ae2[m add permission
+[33ma9cb1c9[m add permission
+[33m80c4028[m temp
+[33md71433a[m temp
+[33m31c97ad[m permission
+[33m6c51166[m permission
+[33me8a96bf[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mbf5fedf[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m5b0f490[m ..
+[33m9e7db73[m ..
+[33ma14079d[m shipper
+[33m0bf12a2[m shipper
+[33m36a1b00[m update
+[33mfa7adfc[m update
+[33m8d1cb8f[m sửa xong combo
+[33m4f0bf06[m sửa xong combo
+[33ma401f52[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m4f17ae6[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33md6bf135[m sửa combo
+[33me480f2b[m sửa combo
+[33mfacf25a[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mfc7e763[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mc1e2145[m async discount
+[33mfc3af8b[m async discount
+[33m1b02c41[m giao dien va chuc nang shipper
+[33mdde3c7f[m giao dien va chuc nang shipper
+[33m51aa9c6[m temp
+[33m51590a5[m temp
+[33m37ff3dd[m chat real-time (temp)
+[33m19e29f8[m chat real-time (temp)
+[33m86dcbe5[m thêm chọn topping
+[33m6cb7208[m thêm chọn topping
+[33me4b09f1[m chọn topping, update migrate
+[33m7ab4e41[m chọn topping, update migrate
+[33m21a4d1f[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33md16b46d[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mafc0227[m rank+point+discount
+[33m8515d4a[m rank+point+discount
+[33m88ef873[m .
+[33mb64a07f[m .
+[33md171820[m sidebar Account
+[33m59ff329[m sidebar Account
+[33m70a00d0[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33meb4938f[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m78cac12[m lưu tạm sửa danh mục
+[33mefe5f59[m lưu tạm sửa danh mục
+[33mf41cbb2[m tim kiem phan trang User list
+[33m95ba9d1[m tim kiem phan trang User list
+[33mfa4e2ec[m tim kiem phan trang list User
+[33m5106c10[m tim kiem phan trang list User
+[33mb16cd4e[m image combo
+[33m46a8e94[m image combo
+[33mce53477[m update
+[33m5792fa0[m update
+[33mc21a4a0[m admin role-based part2
+[33md0792d6[m admin role-based part2
+[33m177c6ca[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m1c066e3[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m46046cb[m api đổi xu + delete combo
+[33md0ccd91[m api đổi xu + delete combo
+[33md4e673e[m fix combo
+[33me0d91e8[m fix combo
+[33md51b7f3[m fix combo
+[33ma5e48a7[m fix combo
+[33m0076507[m hiện avt thay avt gg nếu đã đổi ảnh
+[33mcdd6250[m hiện avt thay avt gg nếu đã đổi ảnh
+[33mb3fa77d[m CRUD Topping
+[33m374cc82[m CRUD Topping
+[33md472739[m CRUD Topping
+[33m66bd5df[m CRUD Topping
+[33m040697c[m fix loi totalPrice
+[33m16818c8[m fix loi totalPrice
+[33mdcc7028[m them nhan vien
+[33me38118d[m them nhan vien
+[33mc6b9fd7[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m6cbf463[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m5475406[m CRUD danh mục món ăn
+[33m69237cb[m CRUD danh mục món ăn
+[33m46e6473[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33ma08ed88[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m75c761a[m up template doi xu va update user
+[33m395e09a[m up template doi xu va update user
+[33m09b30e3[m admin role-based
+[33m8cfebcf[m admin role-based
+[33mc9a900c[m lưu tạm có thêm xóa sửa danh mục
+[33m740e630[m lưu tạm có thêm xóa sửa danh mục
+[33m3b507f3[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33me377d8d[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33maab8029[m template doi xu
+[33mb647109[m template doi xu
+[33m0b641b1[m update readme
+[33m379050c[m update readme
+[33me02ef0a[m temp: fix tomorrow
+[33md7fc930[m temp: fix tomorrow
+[33mf111661[m phân quyền user
+[33m2ae3797[m phân quyền user
+[33mcc476dd[m Quan ly nguoi dung nha may cung
+[33m47da94e[m Quan ly nguoi dung nha may cung
+[33m9662501[m update
+[33m54b587d[m update
+[33m051ec52[m thanh toán đơn hàng admin
+[33m82235eb[m thanh toán đơn hàng admin
+[33m788ead9[m thanh toán đơn hàng admin
+[33m8e6d58e[m thanh toán đơn hàng admin
+[33m0c295cc[m update đơn hàng
+[33m25818a4[m update đơn hàng
+[33meb5ceaf[m fix
+[33mb42e782[m fix
+[33m1d76dea[m update
+[33m253c287[m update
+[33m0d59f7c[m update
+[33m54e6873[m update
+[33m53b8a90[m tìm kiếm món lọc số lượng và cập nhật trang thái
+[33m3dfb039[m tìm kiếm món lọc số lượng và cập nhật trang thái
+[33mb85f550[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m23ce36d[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m73cb411[m .fix crud combo
+[33mc3b1e86[m .fix crud combo
+[33m54727f1[m sua quan li mon an
+[33m4db5429[m sua quan li mon an
+[33m187c077[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m74ba877[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m47b6a72[m crud combo
+[33m935aa2a[m crud combo
+[33mce87def[m update migrate
+[33mcf551d6[m update migrate
+[33m6156f97[m crud table
+[33m55344c6[m crud table
+[33mc760436[m crud table
+[33m25ede51[m crud table
+[33m852a0f2[m Show đơn hàng theo token và load avatar quản lý đơn hàng, chỉnh sửa API route
+[33med8f5b3[m Show đơn hàng theo token và load avatar quản lý đơn hàng, chỉnh sửa API route
+[33m2d34b0e[m order take away
+[33m0da21f1[m order take away
+[33m227b047[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m1057467[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m0fd96fd[m updateUser
+[33m3a993ed[m updateUser
+[33m29253a9[m update
+[33m127d6a7[m update
+[33mf1268e6[m muamangve
+[33m4738510[m muamangve
+[33me74047a[m update
+[33mbdc223b[m update
+[33m73ec0b4[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m9ee4aee[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m5837a48[m fix cart
+[33m6c8a84b[m fix cart
+[33mddbb1e0[m filterUser
+[33md0d7e79[m filterUser
+[33m1e99d30[m update status account
+[33m911e1d4[m update status account
+[33m65e2b30[m update
+[33maa4bd58[m update
+[33m8fa5a71[m theo doi don hang
+[33m9247d99[m theo doi don hang
+[33md1973e9[m thêm nút dk dn google
+[33meb00834[m thêm nút dk dn google
+[33maaee62a[m thêm nút đk đn google và facebook
+[33mb8a182f[m thêm nút đk đn google và facebook
+[33m0dcc33d[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mccf139b[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m8026c54[m update
+[33m19e7105[m update
+[33m9cb5121[m ..
+[33mf28934a[m ..
+[33m356c610[m fix part2
+[33m6a449ca[m fix part2
+[33mf4c036b[m api ghn, rft discount, api cr combo
+[33m0fa23ae[m api ghn, rft discount, api cr combo
+[33mcbb275e[m fixxxx
+[33mae70f69[m fixxxx
+[33m465ac96[m add calendar, food selection, and table setup features
+[33m65f0834[m add calendar, food selection, and table setup features
+[33mcf962bc[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m58ed723[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m690b154[m thanh toán đặt bàn
+[33m028fbcc[m thanh toán đặt bàn
+[33m3a1e4fc[m dang ky dang nhap quen mat khau
+[33m78ee9a6[m dang ky dang nhap quen mat khau
+[33m431f325[m xong dang ky dang nhap quen mat khau
+[33mbafe0ef[m xong dang ky dang nhap quen mat khau
+[33m395b471[m update
+[33mf4a7d4b[m update
+[33mc54de27[m list product
+[33m07cafb9[m list product
+[33m8036e23[m api lấy đơn hàng
+[33mc461045[m api lấy đơn hàng
+[33m22ce379[m sua template
+[33m48219b4[m sua template
+[33m5a67496[m load ảnh user
+[33mc22980e[m load ảnh user
+[33m4f031ff[m update
+[33md5888bf[m update
+[33m97f31c5[m fix lỗi fullname bị null
+[33m644d892[m fix lỗi fullname bị null
+[33mfca7b99[m thong tin khach hang
+[33m9e29d1c[m thong tin khach hang
+[33m546dd0a[m sua thong tin khach hang
+[33m889ac45[m sua thong tin khach hang
+[33m8d62833[m remove cartitem
+[33m6f10758[m remove cartitem
+[33m7cb8bf1[m update shippingfee
+[33mc347ba2[m update shippingfee
+[33mae50e26[m update
+[33mb0fbb42[m update
+[33m19905ae[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33meca0f25[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m06b0a7b[m sửa btn admin
+[33m2a291b7[m sửa btn admin
+[33m348c0e3[m fix
+[33m6222542[m fix
+[33mdac1a8d[m update
+[33mc695bc4[m update
+[33m725575b[m sửa upload ảnh
+[33m844a12a[m sửa upload ảnh
+[33mc53eced[m sửa upload ảnh
+[33me1f00cd[m sửa upload ảnh
+[33me4e8c0d[m xong đăng ký đăng nhập quên mật khẩu
+[33m5c84ea9[m fix template(admin)
+[33mf06b93a[m fix template(admin)
+[33m9c4847e[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mbf9ee61[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m04ab117[m sửa 1 chút
+[33mb7b3521[m sửa 1 chút
+[33m4c5f3c8[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33ma8b0fe3[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mfe8994d[m infor-user xong
+[33ma4779f2[m infor-user xong
+[33m549b473[m update
+[33m44ae0f3[m update
+[33md569fe0[m table
+[33m2f40055[m table
+[33m4bcde2f[m order
+[33meb184df[m order
+[33m2cf7cb3[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m7c2a769[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m44b8d03[m sua thong tin user
+[33m03b273a[m delivery
+[33m9be3f4e[m layout admin
+[33m6d1fba3[m layout admin
+[33m89148a1[m update
+[33me2341b9[m update
+[33mf88505f[m pull code
+[33m10b764e[m Update style.css
+[33mb190092[m Update style.css
+[33m1efb90d[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mb84dd0f[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mcc3ec62[m refactor discount, header
+[33mdc3ab04[m Update reservation.vue
+[33m4021da8[m Update reservation.vue
+[33m8206261[m done
+[33m49522c9[m update
+[33m01c5bc7[m change
+[33m5e417d0[m lưu tạm để sửa đk đn
+[33m4ffc907[m sua voucher rsvsform, login gg, login(dung voucher), template login moi
+[33m6e27dc8[m Delete datban.vue
+[33m562f294[m template datban
+[33mbc8d3a9[m pmi4, rsvt
+[33m38ea181[m lưu tạm để sửa sau
+[33mc53d2f6[m update
+[33mced5942[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m485b713[m xoa payment js sua pmi4, rsvf(chưa)
+[33mef2acf7[m update logo tab
+[33mad14b1f[m changed
+[33mf8a0b8e[m change
+[33m3e37048[m update payment_if
+[33mbe6ff52[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m158aae4[m fix tt
+[33mb6159e6[m sua loi pull code
+[33mcecc8e8[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m4c31179[m listsp  + discount
+[33mbb2d903[m fix conflic
+[33mc3c0953[m update
+[33m6a122d6[m Cập nhật chức năng thanh toán và các component liên quan
+[33m49910a0[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mef0b33c[m payment
+[33m60e7537[m thêm món ăn
+[33m568f6a7[m fix lỗi
+[33ma4f49a5[m thêm phân quyền
+[33m58a535d[m lưu tạm
+[33mbddfe25[m discount-re-form
+[33md78ef9f[m commit part 2
+[33mb91dff7[m history-order-detail-admin
+[33m097dae7[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m7a2faa0[m discount
+[33m0490f74[m fix
+[33m1c10984[m update reservationAdmin-part1
+[33m93e3bec[m fix đăng ký
+[33m84bc642[m update
+[33m4274599[m fix button admin
+[33m95c4b88[m hoàn thiện quên mật khẩu
+[33m010cf08[m hoàn thiện quên mật khẩu
+[33m86f0de7[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m2dd529c[m order_detail
+[33m8ab3119[m update
+[33m87482a1[m lưu tạm
+[33mf73e5b8[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33me67f35e[m code ton kho (update giao dien,.v.v.)
+[33mc0ce32f[m update
+[33m31c4c41[m quantity cart
+[33m2765a44[m update
+[33m8cc9172[m total_price
+[33m1a9b2e5[m reservation total_price
+[33m99e4667[m update
+[33mdc71920[m update
+[33m1aacd3c[m Fix merge conflict in cart page
+[33m146e2d7[m Chỉnh sửa giỏ hàng và style loading
+[33mc7fb592[m update
+[33m7ab6bcc[m cart thực đơn
+[33m9272c11[m update
+[33m34a1622[m update
+[33m821d4fa[m update
+[33m50a8c1c[m cart theo user
+[33mb2b69fe[m update
+[33mfbb5d3c[m tạm commit quên mật khẩu
+[33m402e7e4[m update
+[33mb42d923[m update database
+[33mfb1d50f[m load cart theo id
+[33m13b7f55[m cart
+[33m771d35b[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33med5bb40[m fix modal + payment
+[33m60d63b7[m update
+[33mabb2d5f[m update
+[33ma92b5e2[m thanh toán
+[33mb645e8c[m update
+[33m286725f[m update dat mon
+[33m28ca33a[m update
+[33mb31ca7f[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m7b9cff5[m ..
+[33m096f92f[m check out user
+[33mbe4916f[m update
+[33ma3109c4[m update
+[33m8c92b9d[m check_out
+[33m010361b[m update
+[33m9de9ee1[m lich su mua hang, mail thong bao
+[33m04744c9[m đăng ký với phone và kiểm tra  user đăng nhập
+[33m11b5391[m kiểm tra user and fix user
+[33m549cef1[m roi ne may con ga
+[33m1e9bfcd[m Xong giao diện lịch sử đơn hàng cho chị đại
+[33mce0b804[m Đổi tên history-oder.vue thành history-order.vue, cập nhật UserController
+[33m8616790[m Update style.css
+[33mdd9c5c5[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m05c35ab[m fix popup food, add combo
+[33m24820ed[m fix cart part 3
+[33m47e3934[m cập nhật thông tin
+[33meba866f[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m7871222[m icon search
+[33m67067cd[m done
+[33m266c01d[m fix error reservation
+[33m25e1930[m fix cart
+[33m4139389[m add section combo
+[33md80c9b2[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m7752bbb[m menu+slider
+[33m8001afb[m fix error
+[33m759adb6[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m7719148[m guest reservation
+[33mad9aea4[m fix cart
+[33m8dd1335[m cart
+[33m51172ca[m cart
+[33m9c9b032[m update database - api reservation
+[33m7c22f73[m Resolve merge conflicts
+[33m2897b6a[m fix error
+[33m6c82f05[m update
+[33meb79761[m update
+[33m2b5e8a8[m Fix merge conflict
+[33m82dcec3[m đăng ký đăng nhập đăng xuất
+[33m30968df[m Add reservation feature (partial)
+[33m9729b0b[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mf92ca2e[m .
+[33mebb65f0[m popup đặt món
+[33m2b50eb3[m update
+[33md282c96[m unfinished topping
+[33mac8b784[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m0531b87[m upd fetch client.home(food, category(80%)
+[33m2358748[m update
+[33m42030fc[m update form
+[33m93dfb89[m Update style.css
+[33m6fe6379[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m1c49753[m updata client.home.index
+[33m4925ad6[m update css cart
+[33m67840f5[m add countDown.js
+[33me0c8c1d[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33mea53dc4[m ..api home
+[33m6327c03[m Thêm file countDown.js
+[33m2fde6c3[m Thêm countDown.js cho form mã xác nhận
+[33m47ea311[m Thêm js cho form mã xác nhận
+[33mf5b1bfc[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m0ea012d[m ..
+[33m5fe8af5[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m50d4dd2[m update migrate, seeder
+[33mdef43bf[m upodate
+[33m38f8172[m update
+[33m8149733[m Thêm giao diện quên mật khẩu
+[33mc6b04bb[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33maa09f90[m update readme
+[33m0216451[m Merge branch 'main' of https://github.com/rosannryy205/TiToKaQa
+[33m24b6b15[m update  home.index
+[33md50abfc[m update readme
+[33m91c045b[m pull ve duoc roi ne Tien
+[33m0a35e11[m update
+[33m9ac3f18[m ..
+[33m84dd03e[m update
+[33m7493d6f[m ...
+[33m7e5ea04[m update
+[33mc2d486e[m ..
+[33m41b0a6e[m update
+[33m7547daf[m update
+[33m18e4089[m update
+[33m1916d77[m update
+[33m147eb9f[m update vuejs
+[33m1c3a703[m update
+[33m792b5bb[m thanhtoan
+[33m51a70f8[m modal
+[33m0b47b1e[m update
+[33mc307316[m update
+[33m442692e[m update
+[33m1bce930[m update
+[33m1391dde[m update
+[33m28e4bf1[m /*update home*/
+[33m28e955c[m thieu folder vendor
+[33mbea1760[m update
+[33m412c41b[m done
+[33mc7ddfae[m update
+[33m95019b6[m update admin
+[33me0cb5be[m update
+[33me06710e[m update login register
+[33m2c44842[m update
+[33m846eac6[m update
+[33m18bb98c[m sua loi
+[33m84a442d[m Giải quyết xung đột và đồng bộ với remote
+[33m5f4de08[m xong giao diện danh mục, thống kê, sản phẩm
+[33m73cd0ee[m update
+[33m087450f[m update
+[33m069cf18[m delete folder fe
+[33m8de0aeb[m update
+[33mc6dc21f[m fix
+[33m2076792[m ..
+[33mbecc376[m update-bt
+[33mea30e17[m up
+[33m17cb790[m first commit
