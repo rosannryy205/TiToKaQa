@@ -154,12 +154,6 @@
         class="img-fluid"
         style="border-radius: 25px; transition: opacity 0.5s ease"
       />
-      <button @click="changeSlide(-1)" class="trans-left d-none d-lg-block">
-        <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
-      </button>
-      <button @click="changeSlide(1)" class="trans-right d-none d-lg-block">
-        <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i>
-      </button>
     </div>
   </section>
 
@@ -199,9 +193,22 @@
               <div class="text-center mb-3">
                 <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
-              <p class="text-danger fw-bold fs-5 text-center">
-                {{ formatNumber(foodDetail.price) }} VNĐ
-              </p>
+              <div class="text-center mb-2">
+  <template v-if="isFlashSaleNow">
+    <div class="fw-bold fs-4 text-danger">
+    Giảm còn: {{ formatNumber(foodDetail.flash_sale_price) }} VNĐ
+    </div>
+    <div class="text-muted">
+      <s> Giá gốc: {{ formatNumber(foodDetail.price) }} VNĐ</s>
+    </div>
+  </template>
+  <template v-else>
+    <div class="text-danger fw-bold fs-5">
+      {{ formatNumber(foodDetail.price) }} VNĐ
+    </div>
+  </template>
+</div>
+
               <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
             </div>
             <div class="col-md-6 d-flex flex-column">
@@ -611,6 +618,12 @@ export default {
     onBeforeUnmount(() => {
       clearInterval(intervalId)
     })
+    const isFlashSaleNow = computed(() => {
+  const i = foodDetail.value
+  if (!i || !i.flash_sale_price || !i.flash_sale_start || !i.flash_sale_end) return false
+  const now = Date.now()
+  return new Date(i.flash_sale_start).getTime() <= now && now <= new Date(i.flash_sale_end).getTime()
+})
 
     return {
       foods,
@@ -636,6 +649,7 @@ export default {
       isReservation,
       calculateDiscount,
       addToCart,
+      isFlashSaleNow
     }
   },
 }

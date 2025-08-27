@@ -21,12 +21,10 @@ return [
         'login', 'logout', 'user' // nếu dùng route web cho auth
     ],
     'allowed_methods' => ['*'],
-    'allowed_origins' => [
-        'http://titokaqarestaurant.online',   // FE hiện tại
-        // Khuyến nghị chuyển FE sang HTTPS:
-        'https://titokaqarestaurant.online',
-        'https://www.titokaqarestaurant.online',
-    ],
+   'allowed_origins' => [
+  'https://titokaqarestaurant.online',
+],
+'supports_credentials' => true,
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
     'max_age' => 0,
