@@ -69,8 +69,8 @@
             </Dropdown>
           </div>
           <div class="chart-area">
-            <LineChart :labels="charts.users.labels" :data="charts.users.data"
-              :color="charts.users.color" :height="200" />
+            <LineChart :labels="charts.users.labels" :data="charts.users.data" :color="charts.users.color"
+              :height="200" />
           </div>
         </card>
       </div>
@@ -153,8 +153,8 @@
             </Dropdown>
           </div>
           <div class="chart-area">
-            <LineChart :labels="charts.orders.labels" :data="charts.orders.data"
-              :color="charts.orders.color" :height="200" />
+            <LineChart :labels="charts.orders.labels" :data="charts.orders.data" :color="charts.orders.color"
+              :height="200" />
           </div>
         </card>
       </div>
@@ -173,6 +173,7 @@ import LineChart from '@/components/Admin/Charts/LineChart.vue';
 import { Table } from 'ant-design-vue'
 import { Permission } from '@/stores/permission'
 import { h } from 'vue'
+import { API_URL } from '@/config';
 import {
   ShoppingCartOutlined,
   DollarCircleOutlined,
@@ -206,7 +207,7 @@ const stats = ref([])
 
 const fetchStats = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/get-dashboard-stats')
+    const res = await axios.get(`${API_URL}/admin/get-dashboard-stats`)
     OrdersToday.value = res.data.orders_today
     RevenueToday.value = res.data.revenue_today
     ReservationsToday.value = res.data.reservations_today
@@ -254,7 +255,7 @@ const filteredUsers = ref(0)
 const filterLabel = ref('')
 const fetchStatsUsers = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/get-total-users')
+    const res = await axios.get(`${API_URL}/admin/get-total-users`)
     totalUsers.value = res.data.total
   } catch (error) {
     console.error(error)
@@ -262,14 +263,14 @@ const fetchStatsUsers = async () => {
 }
 const fetchStatsUsersByTime = async (filter = 'today') => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/stats-user-by-time',
+    const res = await axios.get(`${API_URL}/admin/stats-user-by-time`,
       { params: { filter } }
     )
     charts.value.users.labels = res.data.labels
     charts.value.users.data = res.data.data
     filteredUsers.value = Array.isArray(res.data.data)
-      ? res.data.data.reduce((sum, val) => sum + val, 0)
-      : 0
+      ? res.data.data.reduce((sum, val) => sum + Number(val), 0)
+      : Object.values(res.data.data || {}).reduce((sum, val) => sum + Number(val), 0)
     switch (filter) {
       case 'today':
         filterLabel.value = 'Hôm nay'
@@ -294,7 +295,7 @@ const filteredRes = ref(0)
 const filterLabelRes = ref('')
 const getTotalRes = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/get-total-res')
+    const res = await axios.get(`${API_URL}/admin/get-total-res`)
     totalRes.value = res.data.total
   } catch (error) {
     console.error(error)
@@ -302,7 +303,7 @@ const getTotalRes = async () => {
 }
 const getResStats = async (filter = 'today') => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/stats-res-by-time',
+    const res = await axios.get(`${API_URL}/admin/stats-res-by-time`,
       { params: { filter } }
     )
     charts.value.reservations.labels = res.data.labels
@@ -334,7 +335,7 @@ const filteredOrder = ref(0)
 const filterLabelOrder = ref('')
 const getTotalOrder = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/get-total-order')
+    const res = await axios.get(`${API_URL}/admin/get-total-order`)
     totalOrder.value = res.data.total
   } catch (error) {
     console.error(error)
@@ -342,7 +343,7 @@ const getTotalOrder = async () => {
 }
 const getOrderStats = async (filter = 'today') => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/stats-order-by-time',
+    const res = await axios.get(`${API_URL}/admin/stats-order-by-time`,
       { params: { filter } }
     )
     charts.value.orders.labels = res.data.labels

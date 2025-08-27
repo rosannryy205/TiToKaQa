@@ -831,23 +831,27 @@ class OrderController extends Controller
     public function lookup(Request $request)
     {
         $request->validate([
-            'phone' => ['nullable','string','min:4','max:20'],
-            'code'  => ['nullable','string','max:64'],
-            'limit' => ['nullable','integer','min:1','max:5'],
+            'phone' => ['nullable', 'string', 'min:4', 'max:20'],
+            'code'  => ['nullable', 'string', 'max:64'],
+            'limit' => ['nullable', 'integer', 'min:1', 'max:5'],
         ]);
-    
+
         if (!$request->filled('phone') && !$request->filled('code')) {
             return response()->json(['message' => 'Vui lòng nhập SĐT hoặc mã đơn.'], 422);
         }
-    
-        $q = Order::query()->select(['id','order_code','order_status','ship_cost','total_price', 'order_time'])
-        ->orderByDesc('order_time');
-    
+
+        $q = Order::query()->select(['id', 'order_code', 'order_status', 'ship_cost', 'total_price', 'order_time', 'reservation_code', 'table_fee'])
+            ->orderByDesc('order_time');
+
         if ($request->filled('phone')) {
-            $q->where('guest_phone', 'like', '%'.$request->input('phone').'%');
+            $q->where('guest_phone', 'like', '%' . $request->input('phone') . '%');
         }
         if ($request->filled('code')) {
-            $q->where('order_code', $request->input('code'));
+            $code = $request->input('code');
+            $q->where(function ($query) use ($code) {
+                $query->where('order_code', $code)
+                    ->orWhere('reservation_code', $code);
+            });
             $q->with([
                 'details:id,order_id,food_id,combo_id,quantity,price,is_flash_sale',
                 'details.foods:id,name,image',
@@ -856,65 +860,67 @@ class OrderController extends Controller
         } else {
             $q->limit($request->integer('limit', 5));
         }
-    
+
         return OrderResource::collection($q->get());
     }
-    
+
     public function show(Request $request, string $code)
     {
         $q = Order::query()
-          ->select(['id','order_code','order_status','ship_cost','total_price','order_time'])
-          ->where('order_code', $code)
-          ->orderByDesc('order_time');
-    
+            ->select(['id', 'order_code', 'order_status', 'ship_cost', 'total_price', 'order_time', 'reservation_code', 'table_fee'])
+            ->where('order_code', $code)
+            ->orWhere('reservation_code', $code)
+            ->orderByDesc('order_time');
+
         if ($request->filled('phone')) {
-            $q->where('guest_phone', 'like', '%'.$request->input('phone').'%');
+            $q->where('guest_phone', 'like', '%' . $request->input('phone') . '%');
         }
-    
+
         $q->with([
             'details:id,order_id,food_id,combo_id,quantity,price,is_flash_sale',
             'details.foods:id,name,image',
             'details.combos:id,name,image',
         ]);
-    
+
         $order = $q->first();
-    
+
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn.'], 404);
         }
-    
+
         return new OrderResource($order);
     }
-    
+
     public function cancelByConfirm(Request $request, string $code)
     {
         $data = $request->validate([
-            'confirm' => ['required','string','max:32'],
-            'reason'  => ['nullable','string','max:255'],
+            'confirm' => ['required', 'string', 'max:32'],
+            'reason'  => ['nullable', 'string', 'max:255'],
         ]);
-    
+
         $confirm = mb_strtolower(trim($data['confirm']));
         if ($confirm !== 'xacnhan') {
             return response()->json(['message' => 'Vui lòng gõ đúng "xacnhan" để huỷ đơn.'], 422);
         }
         $order = Order::query()
             ->where('order_code', $code)
+            ->orWhere('reservation_code', $code)
             ->with([
                 'details:id,order_id,food_id,combo_id,quantity,price,is_flash_sale',
-                'details.foods:id', 
+                'details.foods:id',
             ])
             ->first();
-    
+
         if (!$order) {
             return response()->json(['message' => 'Không tìm thấy đơn.'], 404);
         }
-    
+
         $status = trim((string) $order->order_status);
         $cancellable = ['Chờ xác nhận', 'Đã xác nhận'];
         if (!in_array($status, $cancellable, true)) {
             return response()->json(['message' => 'Đơn không thể huỷ ở trạng thái hiện tại.'], 400);
         }
-    
+
         DB::transaction(function () use ($order, $data) {
             $order = Order::whereKey($order->id)->lockForUpdate()->first();
 
@@ -923,7 +929,7 @@ class OrderController extends Controller
                     $food = Food::whereKey($detail->food_id)->lockForUpdate()->first();
                     if ($food) {
                         $qty = (int) $detail->quantity;
-    
+
                         if ((bool) $detail->is_flash_sale) {
                             $food->flash_sale_quantity = (int) $food->flash_sale_quantity + $qty;
                             $newSold = (int) $food->flash_sale_sold - $qty;
@@ -945,7 +951,7 @@ class OrderController extends Controller
             if (Schema::hasColumn($order->getTable(), 'cancel_reason')) {
                 $order->cancel_reason = $data['reason'] ?? 'Khách gõ "xacnhan" huỷ';
             }
-    
+
             $order->save();
         });
         $order->load([
@@ -953,7 +959,7 @@ class OrderController extends Controller
             'details.foods:id,name,image',
             'details.combos:id,name,image',
         ]);
-    
+
         return new OrderResource($order);
     }
 
@@ -998,13 +1004,14 @@ class OrderController extends Controller
             $order->order_status = 'Đã hủy';
             $order->save();
 
-            if ($order->payment) {
-                if (in_array($order->payment->payment_method, ['VNPAY', 'MOMO'])) {
-                    $order->payment->payment_status = 'Đã hoàn tiền';
+            if ($order->payment->isNotEmpty()) {
+                $payment = $order->payment->first();
+                if (in_array($payment->payment_method, ['VNPAY', 'MOMO'])) {
+                    $payment->payment_status = 'Đã hoàn tiền';
                 } else {
-                    $order->payment->payment_status = 'Thanh toán thất bại';
+                    $payment->payment_status = 'Thanh toán thất bại';
                 }
-                $order->payment->save();
+                $payment->save();
             }
 
             DB::commit();
