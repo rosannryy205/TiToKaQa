@@ -1,19 +1,23 @@
 <?php
 
+
 namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
+
+use App\Models\Order;
+use App\Models\Payment;
+
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 use App\Mail\OrderMail;
 use App\Mail\ReservationMail;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
-use App\Models\Order;
-use App\Models\Payment;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -220,7 +224,7 @@ class PaymentController extends Controller
 
 
                         $qr_url = $order->qr_code_url ?? null;
-                        $qrImage = QrCode::format('png')->size(250)->generate('https://titokaqarestaurant.online/history-order-detail/' . $order->id);
+                        $qrImage = QrCode::format('png')->size(250)->generate('https://titokaqarestaurant.online/history-reservation-detail/' . $order->id);
 
                         $filename = 'qr_' . $order->id . '.png';
                         $tempPath = storage_path('app/public/' . $filename);
@@ -254,6 +258,7 @@ class PaymentController extends Controller
                     } else {
                         $mailData = [
                             'order_id' => $order->id,
+                            'order_code'   => $order->order_code,
                             'guest_name' => $guestName,
                             'guest_email' => $guestEmail,
                             'guest_phone' => $guestPhone,
@@ -431,7 +436,7 @@ class PaymentController extends Controller
 
 
                         $qr_url = $order->qr_code_url ?? null;
-                        $qrImage = QrCode::format('png')->size(250)->generate('http://localhost:5173/history-order-detail/' . $order->id);
+                        $qrImage = QrCode::format('png')->size(250)->generate('https://titokaqarestaurant.online/history-order-detail/' . $order->id);
 
                         $filename = 'qr_' . $order->id . '.png';
                         $tempPath = storage_path('app/public/' . $filename);
@@ -465,6 +470,7 @@ class PaymentController extends Controller
                     } else {
                         $mailData = [
                             'order_id' => $order->id,
+                            'order_code'   => $order->order_code,
                             'guest_name' => $guestName,
                             'guest_email' => $guestEmail,
                             'guest_phone' => $guestPhone,
@@ -527,6 +533,7 @@ class PaymentController extends Controller
     {
         Log::info('🔥 DỮ LIỆU THANH TOÁN COD ĐÃ NHẬN', $request->all());
 
+
         try {
             $validated = $request->validate([
                 'order_id'    => 'required|exists:orders,id',
@@ -542,7 +549,6 @@ class PaymentController extends Controller
                 'payment_status' => 'Đang chờ xử lý',
                 'payment_time'   => \Carbon\Carbon::now('Asia/Ho_Chi_Minh'),
             ]);
-
 
             $order = Order::with([
                 'details.foods',
@@ -572,7 +578,6 @@ class PaymentController extends Controller
 
             $orderDetailsWithNames = [];
             $subtotal = 0;
-
 
             foreach ($order->details as $orderDetail) {
                 $name      = null;
@@ -629,6 +634,8 @@ class PaymentController extends Controller
                 'order_status' => 'Chờ xác nhận',
                 'shippingFee'  => (int) ($order->ship_cost ?? 0),
             ];
+
+            DB::commit();
             if (!empty($mailData['guest_email'])) {
                 try {
                     Mail::to($mailData['guest_email'])->send(new \App\Mail\OrderMail($mailData));

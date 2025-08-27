@@ -118,6 +118,15 @@
                 <i class="bi bi-chevron-right text-secondary"></i>
               </li>
             </router-link>
+            <router-link to="/account/reservation-management" class="text-decoration-none text-dark">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-bold">Quản lý đơn đặt bàn</div>
+                  <div class="small text-muted">Đơn đặt bàn của tôi</div>
+                </div>
+                <i class="bi bi-chevron-right text-secondary"></i>
+              </li>
+            </router-link>
             <router-link to="/account/discount-management" class="text-decoration-none text-dark">
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>

@@ -42,7 +42,7 @@
             </div>
 
             <!-- Nút thao tác -->
-            <div class="action-buttons mt-4">
+            <div class="action-buttons mt-4" v-if="hasPermission('edit_shipper')">
 
               <SwipeToConfirm v-if="order?.data?.order_status === 'Bắt đầu giao'" label="Bắt đầu giao" color="#28a745"
                 @confirm="() => changeStatus('Đang giao hàng')" />
@@ -82,6 +82,7 @@ import Swal from 'sweetalert2'
 import { set, ref as dbRef } from 'firebase/database'
 import { database } from '@/stores/firebase'
 import { remove } from 'firebase/database'
+import { Permission } from '@/stores/permission'
 import { API_URL } from '@/config'
 const goBack = () => window.history.back()
 const route = useRoute()
@@ -98,7 +99,13 @@ const shipper = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 let map = null
 let shipperMarker = null
 let routeLine = null
-
+const userId = ref(null)
+const userString = localStorage.getItem('user')
+if (userString) {
+  const user = JSON.parse(userString)
+  if (user && user.id !== undefined) userId.value = user.id
+}
+const { hasPermission } = Permission(userId)
 const initMap = () => {
   map = L.map('deliveryMap', {
     zoomControl: false

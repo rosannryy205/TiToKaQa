@@ -20,10 +20,9 @@ function isHiddenRoute(path) {
 }
 
 function checkAndTogglePopup(path) {
-  const today = new Date().toDateString()
-  const dismissedDate = localStorage.getItem('popupDismissed')
 
-  if (!isHiddenRoute(path) && dismissedDate !== today) {
+
+  if (!isHiddenRoute(path)) {
     visible.value = true
   } else {
     visible.value = false
@@ -39,7 +38,6 @@ watch(() => route.path, (newPath) => {
 
 function closePopup() {
   visible.value = false
-  localStorage.setItem('popupDismissed', new Date().toDateString())
 }
 </script>
 
