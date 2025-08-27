@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div  v-if="visible && isGuest" class="popup-mid-right">
+    <div v-if="visible && isGuest" class="popup-mid-right">
       <div class="popup-inner">
         <button class="popup-close" @click="closePopup">×</button>
 
@@ -10,7 +10,6 @@
         <a class="popup-button" @click="openModal">TRA CỨU ĐƠN</a>
       </div>
     </div>
-
     <div v-if="isModalOpen" class="modal-overlay" @click.self="handleModalClose">
       <div class="modal-card">
         <div class="modal-header">
@@ -114,16 +113,43 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="o in orders" :key="o.id">
+                  <tr v-for="(o, idx) in orders" :key="o.id">
+                    <td>#{{ idx + 1 }}</td>
                     <td>{{ formatDate(o.order_time ?? o.created_at) }}</td>
                     <td>{{ formatVND(o.total_price) }}</td>
-                    <td class="text-primary">{{ o.status }}</td>
+                    <td class="text-primary">{{ getStatus(o) }}</td>
                     <td>
                       <button class="btn btn-outline btn-sm" @click="openOrder(o)">Xem</button>
                     </td>
                   </tr>
                 </tbody>
               </table>
+            </template>
+            <template v-else>
+              <div class="text-center"><span>Vui lòng nhập mã hoặc SĐT để tra cứu</span></div>
+            </template>
+          </div>
+
+          <div class="d-block d-md-none" v-if="!searchedByCode">
+            <template v-if="orders && orders.length">
+              <div class="orders-list">
+                <div class="order-item" v-for="(o, idx) in orders" :key="o.id">
+                  <div class="order-row">
+                    <div class="left">
+                      <div class="code">#{{ idx + 1 }}</div>
+                      <div class="meta">
+                        <span>{{ formatDate(o.order_time ?? o.created_at) }}</span>
+                        <span>•</span>
+                        <span class="text-primary">{{ getStatus(o) }}</span>
+                      </div>
+                      <div class="price">{{ formatVND(o.total_price) }}</div>
+                    </div>
+                    <div>
+                      <button class="btn btn-outline btn-sm" @click="openOrder(o)">Xem</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </template>
             <template v-else>
               <div class="text-center"><span>Vui lòng nhập mã hoặc SĐT để tra cứu</span></div>
@@ -140,17 +166,18 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import axios from 'axios'
 import Swal from 'sweetalert2'
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
-const ASSET_BASE = import.meta.env.VITE_ASSET_BASE || 'http://127.0.0.1:8000'
+import { STORAGE_URL } from '@/config'
+import { API_URL } from '@/config'
+import { useRoute } from 'vue-router'
 const CANCELLABLE = ['Chờ xác nhận', 'Đã xác nhận']
 
 // UI & state
 const isModalOpen = ref(false)
 const visible = ref(true)
-
+const route = useRoute()
 const code = ref('')
 const phone = ref('')
 const orders = ref([])
@@ -195,7 +222,7 @@ function formatDate(iso) {
   const d = new Date(iso)
   return isNaN(d) ? '' : d.toLocaleString('vi-VN')
 }
-const getImageUrl = (image) => (image ? `${ASSET_BASE}/storage/img/food/${image}` : null)
+const getImageUrl = (image) => (image ? `${STORAGE_URL}/img/food/${image}` : null)
 function getItemImage(d) {
   const img = d?.food?.image || d?.foods?.image || d?.combo?.image || d?.combos?.image || d?.image
   return getImageUrl(img)
@@ -357,6 +384,25 @@ function handleModalClose() {
   resetModalState()
   isModalOpen.value = false
 }
+function isHiddenRoute(path) {
+  return path.startsWith('/admin')
+}
+function checkAndTogglePopup(path) {
+  if (!isHiddenRoute(path)) {
+    visible.value = true
+  } else {
+    visible.value = false
+  }
+}
+onMounted(() => {
+  checkAndTogglePopup(route.path)
+})
+watch(
+  () => route.path,
+  (newPath) => {
+    checkAndTogglePopup(newPath)
+  },
+)
 </script>
 
 <style scoped>
@@ -678,4 +724,3 @@ function handleModalClose() {
   justify-content: flex-end;
 }
 </style>
-]

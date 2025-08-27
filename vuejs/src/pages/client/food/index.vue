@@ -133,7 +133,7 @@
                     </span>
                     <p class="text-center mt-1 fw-bold" v-if="isAvailableInFlashSale(item)">
                       <span class="text-danger">
-                        Đã bán: {{ item.flash_sale_sold }}/{{ item.flash_sale_quantity }} sản phẩm
+                        Đã bán: {{ item.flash_sale_sold }}/{{ fsTotal(item) }} sản phẩm
                       </span>
                     </p>
                   </div>
@@ -154,12 +154,6 @@
         class="img-fluid"
         style="border-radius: 25px; transition: opacity 0.5s ease"
       />
-      <button @click="changeSlide(-1)" class="trans-left d-none d-lg-block">
-        <i class="fa-solid fa-arrow-left" style="color: #ffffff"></i>
-      </button>
-      <button @click="changeSlide(1)" class="trans-right d-none d-lg-block">
-        <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i>
-      </button>
     </div>
   </section>
 
@@ -197,18 +191,37 @@
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <h5 v-if="false">{{ foodDetail.category_id }}</h5>
               <div class="text-center mb-3">
-                <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
+                <img
+                  :src="getImageUrl(foodDetail.image)"
+                  :alt="foodDetail.name"
+                  class="modal-image img-fluid"
+                />
               </div>
-              <p class="text-danger fw-bold fs-5 text-center">
-                {{ formatNumber(foodDetail.price) }} VNĐ
-              </p>
+              <div class="text-center mb-2">
+                <template v-if="isFlashSaleNow">
+                  <div class="fw-bold fs-4 text-danger">
+                    Giảm còn: {{ formatNumber(foodDetail.flash_sale_price) }} VNĐ
+                  </div>
+                  <div class="text-muted">
+                    <s> Giá gốc: {{ formatNumber(foodDetail.price) }} VNĐ</s>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="text-danger fw-bold fs-5">
+                    {{ formatNumber(foodDetail.price) }} VNĐ
+                  </div>
+                </template>
+              </div>
+
               <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
             </div>
             <div class="col-md-6 d-flex flex-column">
               <form @submit.prevent="addToCart" class="d-flex flex-column h-100">
                 <div class="flex-grow-1">
-                  <div class="topping-container mb-3" v-if="toppingList.length
-                    || spicyLevel.length">
+                  <div
+                    class="topping-container mb-3"
+                    v-if="toppingList.length || spicyLevel.length"
+                  >
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" id="spicyLevel">
@@ -217,9 +230,14 @@
                         </option>
                       </select>
                     </div>
-                    <label v-if="toppingList.length" class="form-label fw-bold">🧀 Chọn Topping:</label>
-                    <div v-for="topping in toppingList" :key="topping.id"
-                      class="d-flex justify-content-between align-items-center mb-2">
+                    <label v-if="toppingList.length" class="form-label fw-bold"
+                      >🧀 Chọn Topping:</label
+                    >
+                    <div
+                      v-for="topping in toppingList"
+                      :key="topping.id"
+                      class="d-flex justify-content-between align-items-center mb-2"
+                    >
                       <label class="d-flex align-items-center">
                         <input type="checkbox" :value="topping.id" name="topping[]" class="me-2" />
                         {{ topping.name }}
@@ -315,7 +333,6 @@ export default {
     },
   },
   setup() {
-    const API_URL = "http://127.0.0.1:8000/api"
     const foods = ref([])
     const categories = ref([])
     const foodDetail = ref([])
@@ -581,6 +598,8 @@ export default {
       })
     }
 
+    const fsTotal = (item) =>
+      (Number(item.flash_sale_sold) || 0) + (Number(item.flash_sale_quantity) || 0)
     /**tinh % giam tu flashsale */
     function calculateDiscount(originalPrice, salePrice) {
       if (!originalPrice || !salePrice) return 0
@@ -599,7 +618,7 @@ export default {
       isLoading.value = true
 
       try {
-        const res = await axios.get(`${API_URL}/home/api/foods`)
+        const res = await axios.get(`${API_URL}/home/foods`)
         foods.value = res.data
         await new Promise((resolve) => setTimeout(resolve, 5000))
       } catch (e) {
@@ -611,6 +630,14 @@ export default {
 
     onBeforeUnmount(() => {
       clearInterval(intervalId)
+    })
+    const isFlashSaleNow = computed(() => {
+      const i = foodDetail.value
+      if (!i || !i.flash_sale_price || !i.flash_sale_start || !i.flash_sale_end) return false
+      const now = Date.now()
+      return (
+        new Date(i.flash_sale_start).getTime() <= now && now <= new Date(i.flash_sale_end).getTime()
+      )
     })
 
     return {
@@ -637,6 +664,8 @@ export default {
       isReservation,
       calculateDiscount,
       addToCart,
+      isFlashSaleNow,
+      fsTotal,
     }
   },
 }

@@ -203,7 +203,7 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import { Vietnamese } from 'flatpickr/dist/l10n/vn.js';
 import { API_URL } from '@/config'
-
+import { STORAGE_URL } from '@/config'
 export default {
   setup() {
     const {
@@ -413,7 +413,7 @@ export default {
 
         if (messageFromChip === '🪑 Đặt bàn') {
           isInputDisabled.value = false;
-          messageInput.value = messageFromChip;
+          messageInput.value = '';
         } else if (messageFromChip === '✅ Hoàn tất chọn món') {
           console.log('Calling submitCart with order ID:', currentOrderId.value);
           submitCart(currentOrderId.value);
@@ -478,7 +478,7 @@ export default {
       isLoading.value = true
 
       try {
-        await axios.post('${API_URL}/messages/send', {
+        await axios.post(`${API_URL}/messages/send`, {
           session_id: currentUser.id,
           message: messageContent,
         })
@@ -801,7 +801,7 @@ export default {
           details: payloadDetails,
         });
 
-        const paymentRes = await axios.post('${API_URL}/payments/vnpay-init', {
+        const paymentRes = await axios.post(`${API_URL}/payments/vnpay-init`, {
           order_id: orderIdToSubmit,
           amount: calculatedTotalAmount,
         });

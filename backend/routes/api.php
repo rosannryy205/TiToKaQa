@@ -144,6 +144,7 @@ Route::post('/insert_staff', [UserController::class, 'insertStaff']);
 // đăng ký đăng nhập quên mật khẩu
 Route::post('/register/send-code', [UserController::class, 'sendRegisterCode']);
 Route::post('/register/verify-code', [UserController::class, 'verifyRegisterCode']);
+Route::post('/quickRegister', [UserController::class, 'quickRegister']);
 
 Route::post('/login', [UserController::class, 'login'])->name('login');;
 Route::post('/forgot', [UserController::class, 'forgotPass']);
@@ -198,8 +199,6 @@ Route::post('/selected_orders', [OrderController::class, 'assignShipper']);
 Route::get('/shipper/{id}/active-orders', [OrderController::class, 'getShipperOrders']);
 Route::post('/shipper/update-location', [UserController::class, 'updateLocation']);
 Route::get('/shipper/{id}/last-location', [UserController::class, 'getLastLocation']);
-
-
 
 
 //discount

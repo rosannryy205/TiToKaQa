@@ -140,11 +140,10 @@ import { ref, computed, reactive, watch } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
 import Swal from 'sweetalert2';
+import { API_URL } from '@/config';
 // Import các icon nếu cần cho nút hoặc các phần khác
 // import { EyeOutlined, PrinterOutlined } from '@ant-design/icons-vue';
-
 import { Permission } from '@/stores/permission'
-const API_URL = "http://127.0.0.1:8000/api"
 const userId = ref(null)
 const userString = localStorage.getItem('user')
 if (userString) {

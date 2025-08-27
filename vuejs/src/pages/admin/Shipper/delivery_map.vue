@@ -83,7 +83,7 @@ import { set, ref as dbRef } from 'firebase/database'
 import { database } from '@/stores/firebase'
 import { remove } from 'firebase/database'
 import { Permission } from '@/stores/permission'
-const API_URL = "http://127.0.0.1:8000/api"
+import { API_URL } from '@/config'
 const goBack = () => window.history.back()
 const route = useRoute()
 const order_id = route.params.id

@@ -59,7 +59,7 @@
                   <td>{{ item.name }}</td>
                   <td>
                     <img class="me-2 img_thumbnail"
-                      :src="item.images ? 'http://127.0.0.1:8000/storage/img/food/imgmenu/' + item.images : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
+                      :src="item.images ?  getImageUrl(item.images) : 'https://cdn-icons-png.flaticon.com/512/1375/1375106.png'"
                       :alt="item.name">
                   </td>
                   <td>{{ item.parent_name || 'Không có (Danh mục cha)' }}</td>
@@ -144,10 +144,15 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { debounce } from 'lodash'
 import Swal from 'sweetalert2'
 import { Permission } from '@/stores/permission'
+import { API_URL } from '@/config';
+import { STORAGE_URL } from '@/config'
 
 
 export default {
   setup() {
+    const getImageUrl=  (image) =>{
+      return `${STORAGE_URL}/img/food/imgmenu/${image}`
+    }
     const categories = ref([])
     const allCategories = ref([])
     const perPage = ref(10)
@@ -182,7 +187,7 @@ export default {
           params.type = selectedType.value;
         }
 
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/categories/list', {
+        const response = await axios.get(`${API_URL}/admin/categories/list`, {
           params,
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -209,7 +214,7 @@ export default {
 
     const fetchAllParents = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/categories/parents/list', {
+        const response = await axios.get(`${API_URL}/admin/categories/parents/list`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -234,7 +239,7 @@ export default {
 
       if (result.isConfirmed) {
         try {
-          await axios.delete(`http://127.0.0.1:8000/api/admin/categories/${id}`, {
+          await axios.delete(`${API_URL}/admin/categories/${id}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`
             }
@@ -285,7 +290,7 @@ export default {
 
       if (result.isConfirmed) {
         try {
-          await axios.post('http://127.0.0.1:8000/api/admin/categories/delete-multiple', {
+          await axios.post(`${API_URL}/admin/categories/delete-multiple`, {
             ids: selectedIds.value
           }, {
             headers: {
@@ -367,6 +372,7 @@ export default {
       toggleSelectAll,
       handleDeleteSelected,
       hasPermission,
+      getImageUrl,
       userString,
       userId
 

@@ -27,7 +27,7 @@
         <div class="col-12 col-lg-8">
           <div class="images-foods-banner">
             <img
-              src="../../../../public/img/Bannerfoods.webp"
+              src="/public/img/Bannerfoods.webp"
               alt="foods-banner"
               class="img-fluid"
             />
@@ -282,16 +282,16 @@
       <hr />
       <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
         <div class="col img-post">
-          <img src="../../../../public/img/bv1.webp" alt="post1" class="img-fluid rounded" />
+          <img src="/public/img/bv1.webp" alt="post1" class="img-fluid rounded" />
         </div>
         <div class="col img-post">
-          <img src="../../../../public/img/bv2.png" alt="post2" class="img-fluid rounded" />
+          <img src="/public/img/bv2.png" alt="post2" class="img-fluid rounded" />
         </div>
         <div class="col img-post">
-          <img src="../../../../public/img/bv3.png" alt="post3" class="img-fluid rounded" />
+          <img src="/public/img/bv3.png" alt="post3" class="img-fluid rounded" />
         </div>
         <div class="col img-post">
-          <img src="../../../../public/img/bv1.webp" alt="post4" class="img-fluid rounded" />
+          <img src="/public/img/bv1.webp" alt="post4" class="img-fluid rounded" />
         </div>
       </div>
     </section>
@@ -392,7 +392,6 @@ import axios from 'axios'
 import numeral from 'numeral'
 import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
-import { toast } from 'vue3-toastify'
 import { API_URL } from '@/config'
 import { STORAGE_URL } from '@/config'
 

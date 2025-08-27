@@ -11,22 +11,23 @@ export const checkPermission = (permission) => {
 
 export function Permission(useridRef) {
   onMounted(async () => {
-    _isLoadingPermissions.value = true
-    try {
-      if (useridRef.value) {
-        const response = await axios.get(`${API_URL}/api/role-permission-user/${useridRef.value}`)
-        _permissions.value = response.data.permissions
-      } else {
-        console.warn('Không có User ID được cung cấp để tải quyền.')
-        _permissions.value = []
+      _isLoadingPermissions.value = true;
+      try {
+        if (useridRef.value) {
+          const response = await axios.get(`${API_URL}/role-permission-user/${useridRef.value}`);
+            _permissions.value = response.data.permissions;
+            // console.log("Quyền người dùng đã được tải từ API:", _permissions.value);
+        } else {
+          console.warn("Không có User ID được cung cấp để tải quyền.");
+          _permissions.value = [];
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải quyền người dùng:', error);
+        _permissions.value = [];
+      } finally {
+        _isLoadingPermissions.value = false;
       }
-    } catch (error) {
-      console.error('Lỗi khi tải quyền người dùng:', error)
-      _permissions.value = []
-    } finally {
-      _isLoadingPermissions.value = false
-    }
-  })
+  });
 
   return {
     permissions: _permissions,

@@ -13,7 +13,6 @@
 }
 
 body {
-  background: url('../img/Background.png') no-repeat center center;
   background-size: cover;
   font-family: 'Barlow', sans-serif;
 }
@@ -203,7 +202,16 @@ body {
   background-color: #f8f9fa;
   color: #c92c3c;
 }
-
+.offcanvas.offcanvas-start {
+  width: 70% !important;
+  max-width: 50%;
+}
+@media (max-width: 991.98px) {
+  .offcanvas.offcanvas-start {
+    width: 70% !important;
+    max-width: 70%;
+  }
+}
 .offcanvas-body .mobile-actions {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
@@ -249,6 +257,9 @@ body {
   .offcanvas {
     width: 250px;
   }
+}
+#offcanvasMenu > div.offcanvas-body > div > div.d-flex.flex-column.align-items-start > a{
+text-decoration: none !important;
 }
 /**/
 
@@ -909,7 +920,7 @@ color: #c92c3c;
 
 .popular-searches img {
   width: 100%;
-  height: auto;      
+  height: auto;
   border-radius: 8px;
   display: block;
   object-fit: cover;
@@ -917,8 +928,8 @@ color: #c92c3c;
 
 @media (max-width: 768px) {
   .popular-searches img {
-    object-fit: contain; 
-    max-height: 200px;   
+    object-fit: contain;
+    max-height: 145px;
   }
   #app > div.client > section.populars-infors-pots > section.popular-searches.container.py-4 > div > div > div > div > a{
     font-size: 1rem;
@@ -1038,10 +1049,10 @@ color: #000000;
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
   padding: 30px;
 }
-.product-card h3, p{
-  /* font-weight: bold; */
-  /* color: #c92c3c; */
-}
+/* .product-card h3, p{
+  font-weight: bold;
+  color: #c92c3c;
+} */
 
 
 

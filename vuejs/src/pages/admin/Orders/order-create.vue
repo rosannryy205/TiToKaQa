@@ -297,7 +297,7 @@ import { FoodList } from '@/stores/food'
 import { useRouter } from 'vue-router'
 import { Permission } from '@/stores/permission'
 import Swal from 'sweetalert2';
-
+import { API_URL } from '@/config'
 
 export default {
   components: {
@@ -333,7 +333,7 @@ export default {
       spicyLevel,
       toppingList,
     } = FoodList.setup()
-    const API_URL = "http://127.0.0.1:8000/api"
+    const API_FE = 'http://titokaqarestaurant.online'
     const router = useRouter()
     const isLoading = ref(false)
     const selectfood = ref(null)
@@ -498,7 +498,7 @@ export default {
           const paymentRes = await axios.post(`${API_URL}/payments/vnpay-init`, {
             order_id: current_order_id.value,
             amount: totalPrice.value,
-            return_url: 'http://localhost:5173/admin/tables/current-order',
+            return_url: `${API_FE}/admin/tables/current-order`,
           })
           if (paymentRes.data.payment_url) {
             localStorage.setItem('payment_method', paymentMethod.value)

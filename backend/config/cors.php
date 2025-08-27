@@ -15,20 +15,18 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
-
+    'paths' => [
+        'api/*',
+        'sanctum/csrf-cookie',
+        'login', 'logout', 'user' // nếu dùng route web cho auth
+    ],
     'allowed_methods' => ['*'],
-
-    'allowed_origins' => ['*'],
-
-    'allowed_origins_patterns' => [],
-
+   'allowed_origins' => [
+  'https://titokaqarestaurant.online',
+],
+'supports_credentials' => true,
     'allowed_headers' => ['*'],
-
     'exposed_headers' => [],
-
     'max_age' => 0,
-
     'supports_credentials' => true,
-
 ];
