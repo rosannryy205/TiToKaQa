@@ -222,60 +222,60 @@
               </div>
             </div>
             <div class="discount-scroll-wrapper" v-if="isLoggedIn">
-              <div v-for="item in displayedDiscounts" :key="item.id">
+              <div v-for="discount in displayedDiscounts" :key="discount.id">
                 <div
                   class="voucher-card mb-3"
                   :class="{
                     'disabled-voucher':
-                      totalPrice < item.min_order_value ||
-                      item.used >= item.usage_limit ||
-                      (item.discount_type === 'freeship' && !hasShippingFee) ||
-                      (item.category_id &&
+                      totalPrice < discount.min_order_value ||
+                      discount.used >= discount.usage_limit ||
+                      (discount.discount_type === 'freeship' && !hasShippingFee) ||
+                      (discount.category_id &&
                         !cartItems.some((item) =>
-                          getAllChildCategoryIds(item.category_id).includes(
+                          getAllChildCategoryIds(discount.category_id).includes(
                             Number(item.category_id),
                           ),
                         )) ||
                       finalTotal <= 0,
                   }"
                   @click="
-                    totalPrice >= item.min_order_value &&
-                    item.used < item.usage_limit &&
-                    !(item.discount_type === 'freeship' && !hasShippingFee) &&
+                    totalPrice >= discount.min_order_value &&
+                    discount.used < discount.usage_limit &&
+                    !(discount.discount_type === 'freeship' && !hasShippingFee) &&
                     finalTotal > 0 &&
-                    (selectedDiscount === item.code
+                    (selectedDiscount === discount.code
                       ? removeDiscountCode()
-                      : applyDiscountCode(item.code))
+                      : applyDiscountCode(discount.code))
                   "
                 >
                   <!-- Cột trái -->
                   <div
                     class="voucher-card-left"
-                    :class="item.discount_type === 'freeship' ? 'freeship' : 'salefood'"
+                    :class="discount.discount_type === 'freeship' ? 'freeship' : 'salefood'"
                   >
                     <img
                       :src="
-                        item.discount_type === 'freeship'
+                        discount.discount_type === 'freeship'
                           ? '/img/freeship-icon.png'
                           : '/img/discount-icon.png'
                       "
                       alt="icon"
                     />
                     <div class="voucher-card-label">
-                      {{ item.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
+                      {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
                     </div>
                   </div>
 
                   <!-- Cột phải -->
                   <div class="voucher-card-right">
                     <div>
-                      <div class="voucher-code">Mã: {{ item.code }}</div>
+                      <div class="voucher-code">Mã: {{ discount.code }}</div>
                       <div class="voucher-condition">
                         <i class="fa-regular fa-clock me-1"></i>
                         Hết hạn: {{ formatDate(displayExpiry(item)) }}
                       </div>
                       <div class="voucher-condition">
-                        {{ item.name }}
+                        {{ discount.name }}
                       </div>
 
                       <div v-if="finalTotal <= 0" class="text-danger small">
@@ -285,21 +285,23 @@
 
                     <div class="voucher-footer">
                       <div class="voucher-coins">
-                        Đã dùng: {{ item.used }}/{{ item.usage_limit }}
+                        Đã dùng: {{ discount.used }}/{{ discount.usage_limit }}
                       </div>
                       <button
-            class="voucher-button"
-            :class="{ 'has-voucher': isSelected(item) }"
-            :disabled="
-              totalPrice < (item.min_order_value ?? 0) ||
-              (item.used ?? 0) >= (item.usage_limit ?? Infinity) ||
-              (item.discount_type === 'freeship' && !hasShippingFee) ||
-              finalTotal <= 0
-            "
-            @click.stop="isMyTab ? chooseUserVoucher(item) : choosePublicVoucher(item)"
-          >
-            {{ isSelected(item) ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
-          </button>
+                        class="voucher-button"
+                        :class="{ 'has-voucher': selectedDiscount === discount.code }"
+                        :disabled="
+                          totalPrice < discount.min_order_value ||
+                          discount.used >= discount.usage_limit ||
+                          (discount.discount_type === 'freeship' && !hasShippingFee) ||
+                          finalTotal <= 0
+                        "
+                        @click.stop="
+                          isMyTab ? chooseUserVoucher(discount) : choosePublicVoucher(discount)
+                        "
+                      >
+                        {{ isVoucherSelected(discount) ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -455,8 +457,44 @@ export default {
       if (activeTab.value === 'Mã của tôi') return userDiscounts.value
       return []
     })
+    const selectedUserDiscountUserId = ref(null)
+    const isMyTab = computed(() => activeTab.value === 'Mã của tôi')
 
-    const removeDiscountCode = () => {
+    const voucherUserId = (d) => d?.discount_user_id ?? d?.pivot?.id ?? null
+
+    const isVoucherSelected = (d) =>
+      isMyTab.value
+        ? selectedUserDiscountUserId.value === voucherUserId(d) // Mã của tôi
+        : selectedDiscount.value === d.code // Public
+
+    function choosePublicVoucher(d) {
+      if (isVoucherSelected(d)) {
+        selectedDiscount.value = null
+        discountId.value = null
+      } else {
+        selectedDiscount.value = d.code
+        discountId.value = d.id
+        selectedUserDiscountUserId.value = null
+      }
+    }
+
+    function chooseUserVoucher(d) {
+      const id = voucherUserId(d)
+      if (selectedUserDiscountUserId.value === id) {
+        selectedUserDiscountUserId.value = null
+        selectedDiscount.value = null
+      } else {
+        selectedUserDiscountUserId.value = id
+        selectedDiscount.value = d.code
+        discountId.value = null
+      }
+    }
+    const displayExpiry = (d) =>
+      isMyTab.value ? d?.expiry_at || d?.pivot?.expiry_at || null : d?.end_date || null
+
+    const formatDate = (val) => (val ? dayjs(val).format('DD/MM/YYYY HH:mm') : '—')
+
+    function removeDiscountCode() {
       selectedDiscount.value = null
       discountId.value = null
       selectedUserDiscountUserId.value = null
@@ -470,46 +508,6 @@ export default {
     })
 
     const isLoggedIn = computed(() => !!localStorage.getItem('token'))
-
-
- const selectedUserDiscountUserId = ref(null)      
-const isMyTab = computed(() => activeTab.value === 'Mã của tôi')
-
-const duId = (item) => item?.pivot?.id ?? null;
-function isSelected(item) {
-  return isMyTab.value
-    ? selectedUserDiscountUserId.value === duId(item)
-    : selectedDiscount.value === item.code
-}
-
-function choosePublicVoucher(item) {
-  selectedUserDiscountUserId.value = null
-  if (selectedDiscount.value === item.code) {
-    removeDiscountCode()
-  } else {
-    applyDiscountCode(item.code)
-  }
-}
-
-function chooseUserVoucher(item) {
-  const id = duId(item)
-  // toggle chọn voucher user
-  if (selectedUserDiscountUserId.value === id) {
-    selectedUserDiscountUserId.value = null
-    removeDiscountCode()                
-  } else {
-    selectedUserDiscountUserId.value = id
-    applyDiscountCode(item.code)       
-    discountId.value = null
-  }
-}
-
-    const displayExpiry = (d) =>
-  isMyTab.value
-    ? (d?.expiry_at || d?.pivot?.expiry_at || null)   // Mã của tôi
-    : (d?.end_date || null);                          // Public
-
-  const formatDate = (val) => val ? dayjs(val).format('DD/MM/YYYY HH:mm') : '—';
 
     //==============
     // ORDER & PAYMENT
@@ -675,8 +673,8 @@ function chooseUserVoucher(item) {
           ship_cost: parseInt(shippingFee.value),
           money_reduce:
             discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
-            discount_user_id: selectedUserDiscountUserId.value || null,               
-            discount_id: selectedUserDiscountUserId.value ? null : (discountId.value || null),
+          discount_user_id: selectedUserDiscountUserId.value || null,
+          discount_id: selectedUserDiscountUserId.value ? null : discountId.value || null,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.type === 'food' ? item.id : null,
             combo_id: item.type === 'combo' ? item.id : null,
@@ -706,16 +704,16 @@ function chooseUserVoucher(item) {
             timerProgressBar: true,
           })
           if (orderData.discount_user_id) {
-  await axios.post(`${API_URL}/discounts/use`, {
-    discount_user_id: orderData.discount_user_id,
-    order_id: res.data.order_id,
-  })
-} else if (orderData.discount_id) {
-  await axios.post(`${API_URL}/discounts/use`, {
-    discount_id: orderData.discount_id,
-    order_id: res.data.order_id,
-  })
-}
+            await axios.post(`${API_URL}/discounts/use`, {
+              discount_user_id: orderData.discount_user_id,
+              order_id: res.data.order_id,
+            })
+          } else if (orderData.discount_id) {
+            await axios.post(`${API_URL}/discounts/use`, {
+              discount_id: orderData.discount_id,
+              order_id: res.data.order_id,
+            })
+          }
           await check_out(res.data.order_id)
         } else {
           Swal.fire({
@@ -852,13 +850,13 @@ function chooseUserVoucher(item) {
     // LIFECYCLE
     //==============
     onMounted(() => {
-  Swal.fire({
-    icon: 'info',
-    title: 'Thông báo',
-    text: 'Chúng tôi chỉ giao hàng trong khu vực TP.HCM',
-    confirmButtonColor: '#c92c3c'
-  })
-})
+      Swal.fire({
+        icon: 'info',
+        title: 'Thông báo',
+        text: 'Chúng tôi chỉ giao hàng trong khu vực TP.HCM',
+        confirmButtonColor: '#c92c3c',
+      })
+    })
     onMounted(async () => {
       await getAllDiscount({ source: 'system' })
       await fetchUserDiscounts()
@@ -932,9 +930,13 @@ function chooseUserVoucher(item) {
       hasShippingFee,
 
       pointsDiscountAmount,
-
-      displayExpiry,formatDate,
-      chooseUserVoucher,choosePublicVoucher,isSelected
+      isMyTab,
+      selectedUserDiscountUserId,
+      isVoucherSelected,
+      choosePublicVoucher,
+      chooseUserVoucher,
+      formatDate,
+      displayExpiry,
     }
   },
 }
