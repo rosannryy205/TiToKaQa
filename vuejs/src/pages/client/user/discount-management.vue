@@ -182,42 +182,41 @@ const tabs = [
   { label: 'Mã hết hạn', count: 0 },
 ]
 
-const isExpired = (discount) => {
-  const expiry = discount.pivot?.expiry_at
-  return expiry && new Date(expiry) < new Date()
-}
+const isExpired = (d) => {
+  const deadline = d?.expiry_at ?? d?.end_date; 
+  return deadline ? new Date(deadline) < new Date() : false;
+};
 
 const formatDate = (dateStr) => {
-  if (!dateStr) return null
-  const date = new Date(dateStr)
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
   return date.toLocaleString('vi-VN', {
     hour: '2-digit',
     minute: '2-digit',
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
-  })
-}
+  });
+};
 
 const filterUserDiscount = computed(() => {
-  const currentTab = activeTab.value
-  const all = userDiscounts.value || []
-
-  switch (currentTab) {
-    case 1:
-      return all.filter((d) => d.discount_type === 'salefood' && !isExpired(d))
-    case 2:
-      return all.filter((d) => d.discount_type === 'freeship' && !isExpired(d))
-    case 3:
-      return all.filter((d) => d.category_id !== null && !isExpired(d))
-    case 4:
-      return all.filter((d) => d.pivot?.exchanged_at && !isExpired(d))
-    case 5:
-      return all.filter((d) => isExpired(d))
+  const all = userDiscounts.value || []; 
+  switch (activeTab.value) {
+    case 1: 
+      return all.filter(d => d.discount_type === 'salefood' && !isExpired(d));
+    case 2: 
+      return all.filter(d => d.discount_type === 'freeship' && !isExpired(d));
+    case 3: 
+      return all.filter(d => d.category_id != null && !isExpired(d)); 
+    case 4: 
+      return all.filter(d => !!d.exchanged_at);
+    case 5: 
+      return all.filter(d => isExpired(d));
     default:
-      return all.filter((d) => !isExpired(d))
+      return all.filter(d => !isExpired(d));
   }
-})
+});
+
 
 const handleVoucherCode = async () => {
   const code = voucherCode.value.trim().toUpperCase()

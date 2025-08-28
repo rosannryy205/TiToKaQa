@@ -135,13 +135,14 @@ public function getUserDiscounts(Request $request)
     $user = auth()->user();
 
     $discounts = $user->discounts()
-        ->withPivot(['id', 'point_used', 'exchanged_at', 'expiry_at', 'source'])
-        ->orderByPivot('exchanged_at', 'desc') 
+        ->withPivot(['id','point_used','exchanged_at','expiry_at','source'])
+        ->orderByPivot('exchanged_at', 'desc')
         ->get();
+
     $rows = $discounts->map(function ($d) {
         return [
-            'discount_user_id' => $d->pivot->id, 
-            'discount_id'      => $d->id,        
+            'discount_user_id' => $d->pivot->id,
+            'discount_id'      => $d->id,
             'code'             => $d->code,
             'name'             => $d->name,
             'usage_limit'      => $d->usage_limit,
@@ -150,8 +151,11 @@ public function getUserDiscounts(Request $request)
             'discount_method'  => $d->discount_method,
             'discount_value'   => $d->discount_value,
             'min_order_value'  => $d->min_order_value,
+            'category_id'      => $d->category_id,     
+            'start_date'       => $d->start_date,
             'end_date'         => $d->end_date,
             'expiry_at'        => $d->pivot->expiry_at,
+            'exchanged_at'     => $d->pivot->exchanged_at,
             'point_used'       => $d->pivot->point_used,
             'source'           => $d->pivot->source,
         ];
@@ -159,6 +163,7 @@ public function getUserDiscounts(Request $request)
 
     return response()->json($rows);
 }
+
 
 
     public function getDiscountById($id)
