@@ -110,6 +110,7 @@ import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { nextTick } from 'vue'
 import Swal from 'sweetalert2'
+import { API_URL, STORAGE_URL } from '@/config'
 
 export default {
   setup() {
@@ -155,7 +156,7 @@ export default {
 
       try {
         const res = await axios.post(
-          'http://127.0.0.1:8000/api/messages/send',
+          `${API_URL}/messages/send`,
           {
             sender_id: user.id,
             sender_name: user.username,
@@ -188,7 +189,7 @@ export default {
 
     const getConversation = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/conversations', {
+        const res = await axios.get(`${API_URL}/conversations`, {
           params: {
             status: selectedStatus.value,
             receiver_id: selectedStatus.value !== 'Chờ xử lý' ? user.id : null,
@@ -226,19 +227,19 @@ export default {
       }
 
       try {
-        await axios.put(`http://127.0.0.1:8000/api/mark-read/${conversation.id}`)
+        await axios.put(`${API_URL}/mark-read/${conversation.id}`)
         const currentConversationInList = conversations.value.find(c => c.id === conversation.id);
         if (currentConversationInList) {
           currentConversationInList.is_read = 1; // Đánh dấu là đã đọc
         }
 
-        await axios.put(`http://127.0.0.1:8000/api/assign-conversation-admin/${conversation.id}`, {
+        await axios.put(`${API_URL}/assign-conversation-admin/${conversation.id}`, {
           receiver_id: user.id,
         })
 
         await getConversation()
 
-        const res1 = await axios.get('http://127.0.0.1:8000/api/messages', {
+        const res1 = await axios.get(`${API_URL}/messages`, {
           params: { conversation_id: conversation.id },
         })
         messages.value = res1.data

@@ -48,6 +48,28 @@ let shipperMarker = null
 let animationFrameId = null
 let previousLatLng = null
 
+const shipperIcon = L.icon({
+  iconUrl: '/shipper.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 25],
+  popupAnchor: [0, -20]
+})
+
+const restaurantIcon = L.icon({
+  iconUrl: '/restaurant.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 25],
+  popupAnchor: [0, -20]
+})
+
+const customerIcon = L.icon({
+  iconUrl: '/customer.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 25],
+  popupAnchor: [0, -20]
+})
+
+
 function animateMarker(marker, fromLatLng, toLatLng, duration = 1000) {
   if (fromLatLng.lat === toLatLng.lat && fromLatLng.lng === toLatLng.lng) return
 
@@ -121,24 +143,22 @@ const listenToShipperLocation = (shipperId, map, icon) => {
 
 
 //Heigit
-async function getRoutePolyline(start, end) {
+const getRoutePolyline = async (start, end) => {
   const response = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImY2N2UzNGY1YmFmZWVhODlmZmQyZTI4M2M0YjVjNTZjNGQxYTcyZjI4Yzg3YjRiYzIwNDk0ZmZlIiwiaCI6Im11cm11cjY0In0='
+      Authorization: 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImY2N2UzNGY1YmFmZWVhODlmZmQyZTI4M2M0YjVjNTZjNGQxYTcyZjI4Yzg3YjRiYzIwNDk0ZmZlIiwiaCI6Im11cm11cjY0In0='
     },
     body: JSON.stringify({
-     coordinates: [
+      coordinates: [
         [start.lng, start.lat],
         [end.lng, end.lat]
       ]
     })
   })
-
   const data = await response.json()
-  if (!data.features || data.features.length === 0) return { coords: [], distance: 0 }
-
+  if (!data.features?.length) return { coords: [], distance: 0 }
   const coords = data.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]])
   const distance = data.features[0].properties.summary.distance
   return { coords, distance }
@@ -198,11 +218,12 @@ onMounted(async () => {
 
     L.control.zoom({ position: 'bottomright' }).addTo(map)
 
-    L.marker([restaurant.value.lat, restaurant.value.lng])
+    L.marker([restaurant.value.lat, restaurant.value.lng], { icon: restaurantIcon })
       .addTo(map)
       .bindPopup('<b>🏠 Nhà hàng</b>')
 
-    L.marker([customer.value.lat, customer.value.lng])
+    // Khách hàng
+    L.marker([customer.value.lat, customer.value.lng], { icon: customerIcon })
       .addTo(map)
       .bindPopup('<b>👤 Khách hàng</b>')
 
@@ -225,12 +246,7 @@ onMounted(async () => {
       }
     }
 
-    const shipperIcon = L.icon({
-      iconUrl: '/shipper.png',
-      iconSize: [50, 50],
-      iconAnchor: [25, 25],
-      popupAnchor: [0, -20]
-    })
+
 
     listenToShipperLocation(shipperId, map, shipperIcon)
 

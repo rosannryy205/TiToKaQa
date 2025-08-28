@@ -96,6 +96,30 @@ const restaurant = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 const customer = ref({})
 const shipper = ref({ lat: 10.854113664188024, lng: 106.6262030926953 })
 
+// Icon cho Shipper
+const shipperIcon = L.icon({
+  iconUrl: '/shipper.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 25],
+  popupAnchor: [0, -20]
+})
+
+// Icon cho Nhà hàng
+const restaurantIcon = L.icon({
+  iconUrl: '/restaurant.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 25],
+  popupAnchor: [0, -20]
+})
+
+// Icon cho Khách hàng
+const customerIcon = L.icon({
+  iconUrl: '/customer.png',
+  iconSize: [50, 50],
+  iconAnchor: [25, 25],
+  popupAnchor: [0, -20]
+})
+
 let map = null
 let shipperMarker = null
 let routeLine = null
@@ -117,10 +141,11 @@ const initMap = () => {
 
   L.control.zoom({ position: 'bottomright' }).addTo(map)
 
-  L.marker([restaurant.value.lat, restaurant.value.lng])
+  L.marker([restaurant.value.lat, restaurant.value.lng], { icon: restaurantIcon })
     .addTo(map)
     .bindPopup('<b>🏠 Nhà hàng</b>')
 }
+
 
 const updateMap = async () => {
   const address = order.value.data.guest_address
@@ -144,9 +169,10 @@ const updateMap = async () => {
     shipperMarker = null
   }
 
-  L.marker([customer.value.lat, customer.value.lng])
+  L.marker([customer.value.lat, customer.value.lng], { icon: customerIcon })
     .addTo(map)
     .bindPopup('<b>👤 Khách hàng</b>')
+
 
   routeLine = L.polyline(polylineCoords, {
     color: '#C92C3C',
@@ -164,12 +190,8 @@ const updateMap = async () => {
     showDistanceBox.value = true
   }
 
-  const shipperIcon = L.icon({
-    iconUrl: '/shipper.png',
-    iconSize: [50, 50],
-    iconAnchor: [25, 25],
-    popupAnchor: [0, -20]
-  })
+
+
 
   if (order.value.data.order_status === 'Đang giao hàng') {
     const latlngs = routeLine.getLatLngs()

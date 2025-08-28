@@ -197,7 +197,7 @@ const assignOrders = async () => {
         toast: true,
         position: 'top-end',
         icon: 'success',
-        title: 'Giao đơn thành công!',
+        title: 'Chọn thành công!',
         showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true

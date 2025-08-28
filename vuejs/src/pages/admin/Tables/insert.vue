@@ -341,6 +341,7 @@ import { useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
+import { API_URL, STORAGE_URL } from '@/config'
 
 export default {
   components: {
@@ -471,7 +472,7 @@ export default {
     // hàm lấy tất cả người dùng
     const getAllUser = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/user')
+        const res = await axios.get(`${API_URL}/user`)
 
         const guestDefaultOption = {
           id: 'guest',
@@ -552,14 +553,14 @@ export default {
           const reserved_from = formatDateTime(reservedFrom)
           const reserved_to = formatDateTime(reservedTo)
 
-          const res = await axios.post('http://127.0.0.1:8000/api/available-tables', {
+          const res = await axios.post(`${API_URL}/available-tables`, {
             reserved_from,
             reserved_to,
             number_of_guests: guest_count.value,
           })
           availableTables.value = res.data.tables
         } else {
-          const res = await axios.get('http://127.0.0.1:8000/api/tables')
+          const res = await axios.get(`${API_URL}/tables`)
           availableTables.value = res.data.tables
         }
 
@@ -728,7 +729,7 @@ export default {
           return
         }
 
-        const orderCreationResponse = await axios.post('http://127.0.0.1:8000/api/reservation', {
+        const orderCreationResponse = await axios.post(`${API_URL}/reservation`, {
           user_id: selectguest.value.id === 'guest' ? null : selectguest.value.id,
           guest_name: guest_name.value,
           guest_phone: guest_phone.value,

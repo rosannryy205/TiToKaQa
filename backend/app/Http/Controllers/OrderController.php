@@ -1543,13 +1543,16 @@ class OrderController extends Controller
                         'reserved_to' => $table->pivot->reserved_to,
                     ];
                 }),
-                'payment' => [
-                    'amount_paid' => $order->payment->amount_paid ?? null,
-                    'payment_method' => $order->payment->payment_method ?? null,
-                    'payment_status' => $order->payment->payment_status ?? null,
-                    'payment_time' => $order->payment->payment_time ?? null,
-                    'payment_type' => $order->payment->payment_type ?? null,
-                ],
+                // ✅ sửa lại payment để tránh lỗi 500
+                'payment' => $order->payment->map(function ($p) {
+                    return [
+                        'amount_paid' => $p->amount_paid,
+                        'payment_method' => $p->payment_method,
+                        'payment_status' => $p->payment_status,
+                        'payment_time' => $p->payment_time,
+                        'payment_type' => $p->payment_type,
+                    ];
+                }),
             ];
         });
 
@@ -1559,6 +1562,7 @@ class OrderController extends Controller
             'orders' => $data
         ]);
     }
+
 
     public function assignShipper(Request $request)
     {

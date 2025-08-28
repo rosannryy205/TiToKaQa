@@ -217,6 +217,7 @@ import numeral from 'numeral';
 import { toast } from "vue3-toastify";
 import Swal from 'sweetalert2';
 import { Permission } from '@/stores/permission'
+import { API_URL, STORAGE_URL } from '@/config';
 
 
 export default {
@@ -254,7 +255,7 @@ export default {
     const token = localStorage.getItem('token');
     const fetchTopping = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/admin/toppings`, {
+        const res = await axios.get(`${API_URL}/admin/toppings`, {
           headers: {
             Authorization: `Bearer ${token}`,
           }
@@ -280,7 +281,7 @@ export default {
     const fetchCategoryToppings = async () => {
       if (!token) return;
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/admin/categories`, {
+        const res = await axios.get(`${API_URL}/admin/categories`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         category_toppings.value = res.data;
@@ -297,7 +298,7 @@ export default {
 
     const addTopping = async () => {
       try {
-        await axios.post(`http://127.0.0.1:8000/api/admin/toppings`, formTopping.value, {
+        await axios.post(`${API_URL}/admin/toppings`, formTopping.value, {
           headers: {
             Authorization: `Bearer ${token}`,
           }
@@ -325,7 +326,7 @@ export default {
 
     const getToppingById = async (id) => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/admin/toppingById/${id}`, {
+        const res = await axios.get(`${API_URL}/admin/toppingById/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           }
@@ -348,7 +349,7 @@ export default {
 
     const updateTopping = async (id) => {
       try {
-        await axios.patch(`http://127.0.0.1:8000/api/admin/toppings/${id}`, formTopping.value, {
+        await axios.patch(`${API_URL}/admin/toppings/${id}`, formTopping.value, {
           headers: {
             Authorization: `Bearer ${token}`,
           }
