@@ -195,6 +195,7 @@ import { useRouter } from 'vue-router'
 import { Permission } from '@/stores/permission'
 import { Html5QrcodeScanner } from 'html5-qrcode'
 import { nextTick } from 'vue'
+import { API_URL, STORAGE_URL } from '@/config'
 
 const userId = ref(null)
 const userString = localStorage.getItem('user')
@@ -244,7 +245,7 @@ const onScanSuccess = async (decodedText, decodedResult) => {
     const orderId = match[1]
 
     try {
-      await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
+      await axios.post(`${API_URL}/reservation-update-status`, {
         id: orderId,
         order_status: 'Khách đã đến',
       })
@@ -292,7 +293,7 @@ const orderOfTable = ref([])
 const getOrderOfTable = async (selectedDate) => {
   isLoading.value = true
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/order-tables')
+    const response = await axios.get(`${API_URL}/order-tables`)
 
     const today = new Date()
     const year = today.getFullYear()
@@ -342,7 +343,7 @@ const updateStatus = async (id, status) => {
       cancelButtonText: 'Hủy',
     })
     if (result.isConfirmed) {
-      await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
+      await axios.post(`${API_URL}/reservation-update-status`, {
         id: id,
         order_status: status,
       })

@@ -35,7 +35,7 @@ class Order extends Model
         'reservation_code',
         'canceled_at',
         'canceled_reason',
-
+        'shipper_id'
     ];
     public function details()
     {

@@ -9,6 +9,7 @@
 
 <script>
 import axios from 'axios';
+import { API_URL } from '@/config';
 
 export default {
   data() {
@@ -24,7 +25,7 @@ export default {
   this.messages.push({ role: 'user', content: this.message });
 
   try {
-    const res = await axios.post('http://127.0.0.1:8000/api/chatbot', { message: this.message });
+    const res = await axios.post(`${API_URL}/chatbot`, { message: this.message });
     this.messages.push({ role: 'bot', content: res.data.reply }); // Đúng key trả về từ API
   } catch (error) {
     console.error('Lỗi:', error);

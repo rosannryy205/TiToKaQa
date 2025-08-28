@@ -70,20 +70,21 @@
             </ul>
 
             <div class="od-sum text-dark fw-bold">
-              <div v-if="!order.reservation_code">
+              <div v-if="order.reservation_code">
+                <div>
+                  Phí giữ bàn: <strong>{{ formatVND(order.table_fee || 0) }}</strong>
+                </div>
+                <div>
+                  Tổng thanh toán: <strong>{{ (formatVND(order.total_price || 0)) + (formatVND(order.table_fee || 0))
+                    }}</strong>
+                </div>
+              </div>
+              <div v-else>
                 <div>
                   Phí ship: <strong>{{ formatVND(order.shipping_fee || 0) }}</strong>
                 </div>
                 <div>
                   Tổng thanh toán: <strong>{{ formatVND(order.total_price || 0) }}</strong>
-                </div>
-              </div>
-              <div v-else>
-                <div>
-                  Phí giữ bàn: <strong>{{ formatVND(order.table_fee || 0) }}</strong>
-                </div>
-                <div>
-                  Tổng thanh toán: <strong>{{ (formatVND(order.total_price || 0)) + (formatVND(order.table_fee || 0)) }}</strong>
                 </div>
               </div>
             </div>

@@ -237,6 +237,7 @@ import { Cart } from '@/stores/cart'
 import { computed } from 'vue'
 import vSelect from 'vue-select'
 import Swal from 'sweetalert2'
+import { API_URL, STORAGE_URL } from '@/config'
 
 export default {
   components: {
@@ -355,7 +356,7 @@ export default {
         return
       }
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/load-order-detail/${id}`)
+        const response = await axios.get(`${API_URL}/load-order-detail/${id}`)
         const orderDetails = response.data.data
         cartItems.value = []
 
@@ -453,7 +454,7 @@ export default {
           };
         });
 
-        await axios.put(`http://127.0.0.1:8000/api/update-order-detail/${orderIdToSubmit}`, {
+        await axios.put(`${API_URL}/update-order-detail/${orderIdToSubmit}`, {
           details: payloadDetails,
         });
         Swal.fire({

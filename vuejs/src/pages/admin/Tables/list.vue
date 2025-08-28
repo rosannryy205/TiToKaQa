@@ -646,6 +646,7 @@ import draggable from 'vuedraggable'
 import { Permission } from '@/stores/permission'
 import { Info } from '@/stores/info-order-reservation'
 import { useRoute } from 'vue-router'
+import { API_URL, STORAGE_URL } from '@/config'
 
 export default {
   components: {
@@ -746,7 +747,7 @@ export default {
       }
 
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/tables', {
+        const res = await axios.get(`${API_URL}/tables`, {
           params: {
             date: date.value,
             status: filterStatus.value,
@@ -842,7 +843,7 @@ export default {
       try {
         isLoading.value = true
         if (!table_id) {
-          await axios.post(`http://127.0.0.1:8000/api/insert-table`, {
+          await axios.post(`${API_URL}/insert-table`, {
             table_number: table_number.value,
             capacity: capacity.value,
           })
@@ -855,7 +856,7 @@ export default {
             timer: 2000,
           })
         } else {
-          await axios.put(`http://127.0.0.1:8000/api/tables/${table_id}`, {
+          await axios.put(`${API_URL}/tables/${table_id}`, {
             table_number: table_number.value,
             capacity: capacity.value,
           })
@@ -954,7 +955,7 @@ export default {
 
       try {
         isLoading.value = true
-        const response = await axios.post(`http://127.0.0.1:8000/api/insert-table`, {
+        const response = await axios.post(`${API_URL}/insert-table`, {
           table_number: addedTableData.table_number,
           capacity: addedTableData.capacity,
         })
@@ -1014,7 +1015,7 @@ export default {
 
     //   try {
     //     isLoading.value = true
-    //     await axios.delete(`http://127.0.0.1:8000/api/tables/${table_id}`)
+    //     await axios.delete(`${API_URL}/tables/${table_id}`)
     //     await getTable()
     //     toast.success('Xoá bàn thành công')
     //   } catch (error) {
@@ -1085,7 +1086,7 @@ export default {
           if (result.isConfirmed) {
             try {
               isLoading.value = true
-              await axios.put('http://127.0.0.1:8000/api/change-table', {
+              await axios.put(`${API_URL}/change-table`, {
                 id: orderId,
                 table_id: id,
               })
@@ -1152,7 +1153,7 @@ export default {
 
           try {
             const res = await axios.get(
-              `http://127.0.0.1:8000/api/get-orders-tables/${selected.id}`,
+              `${API_URL}/get-orders-tables/${selected.id}`,
             )
             tableOrder.value = res.data.data.reserversations
           } catch (error) {
@@ -1200,7 +1201,7 @@ export default {
 
       try {
         isLoading.value = true
-        await axios.post('http://127.0.0.1:8000/api/set-up/order-tables', {
+        await axios.post(`${API_URL}/set-up/order-tables`, {
           order_id: orderId,
           table_ids: tableIds,
           reserved_from: reserved_from,
@@ -1276,7 +1277,7 @@ export default {
           cancelButtonText: 'Hủy',
         })
         if (result.isConfirmed) {
-          await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
+          await axios.post(`${API_URL}/reservation-update-status`, {
             id: id,
             order_status: status,
           })

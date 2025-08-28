@@ -240,6 +240,7 @@ import { Info } from '@/stores/info-order-reservation'
 import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router'
 import { Permission } from '@/stores/permission'
+import { API_URL, STORAGE_URL } from '@/config'
 
 const userId = ref(null)
 const userString = localStorage.getItem('user')
@@ -262,7 +263,7 @@ const getTable = async () => {
   }
 
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/all-tables')
+    const res = await axios.get(`${API_URL}/all-tables`)
     tables.value = res.data;
 
     calendarOptions.value.resources = tables.value.map((table) => ({
@@ -289,7 +290,7 @@ const getOrderOfTable = async () => {
     isLoading.value = true;
   }
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/order-tables')
+    const res = await axios.get(`${API_URL}/order-tables`)
     orderOfTable.value = res.data.orders
     calendarOptions.value.events = orderOfTable.value.map((order) => ({
       id: order.id,
@@ -343,7 +344,7 @@ const payMoney = async () => {
     }
     if (paymentMethod.value === 'VNPAY') {
       isLoading.value = false
-      const paymentRes = await axios.post('http://127.0.0.1:8000/api/payments/vnpay-init', {
+      const paymentRes = await axios.post(`${API_URL}/payments/vnpay-init`, {
         order_id: info.value.id,
         amount: info.value.total_price,
         return_url: 'http://localhost:5173/admin/tables/booking-schedule',
@@ -381,12 +382,12 @@ const payMoney = async () => {
     }
     if (paymentMethod.value === 'COD') {
       await new Promise((resolve) => setTimeout(resolve, 300))
-      await axios.post('http://127.0.0.1:8000/api/admin/payments/cod-payment', {
+      await axios.post(`${API_URL}/admin/payments/cod-payment`, {
         order_id: info.value.id,
         amount_paid: info.value.total_price,
       })
 
-      await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
+      await axios.post(`${API_URL}/reservation-update-status`, {
         id: info.value.id,
         order_status: 'Hoàn thành',
         payment_status: 'Đã thanh toán'
@@ -470,7 +471,7 @@ const updateStatus = async (id, status) => {
       allowEscapeKey: false,
     })
     if (result.isConfirmed) {
-      await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
+      await axios.post(`${API_URL}/reservation-update-status`, {
         id: id,
         order_status: status,
       })
@@ -560,7 +561,7 @@ onMounted(async () => {
   const hasVnpParams = params.has('vnp_TransactionStatus') || params.has('vnp_TxnRef')
   isLoading.value = true
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/admin/payments/vnpay-return', { params })
+    const res = await axios.get(`${API_URL}/admin/payments/vnpay-return`, { params })
     if (hasVnpParams) {
       if (res.data.success) {
         Swal.fire({

@@ -1,44 +1,61 @@
 <template>
   <div class="container col-12 col-md-8 col-lg-9 py-4">
     <h4 class="fw-bold mb-3">Kho mã giảm giá</h4>
-
-    <!-- Nhập mã voucher -->
     <div class="d-flex align-items-center mb-3" style="gap: 10px">
-      <input v-model="voucherCode" type="text" class="form-control" placeholder="Nhập mã voucher tại đây"
-        style="max-width: 400px; font-size: 14px; border-radius: 0.25rem" />
+      <input
+        v-model="voucherCode"
+        type="text"
+        class="form-control"
+        placeholder="Nhập mã voucher tại đây"
+        style="max-width: 400px; font-size: 14px; border-radius: 0.25rem"
+      />
       <button class="btn btn-save-discount px-4" @click="handleVoucherCode">Lưu</button>
     </div>
-
-    <!-- Tabs -->
     <div class="order-tabs d-flex flex-nowrap overflow-auto gap-3 mb-4">
-      <div v-for="(tab, index) in tabs" :key="index" @click="activeTab = index"
-        :class="['tab-item', {active : activeTab === index}]" style="cursor: pointer">
+      <div
+        v-for="(tab, index) in tabs"
+        :key="index"
+        @click="activeTab = index"
+        :class="['tab-item', { active: activeTab === index }]"
+        style="cursor: pointer"
+      >
         {{ tab.label }}
         <span v-if="tab.count" class="text-secondary">({{ tab.count }})</span>
-        <!-- <span v-if="activeTab === index" class="position-absolute start-0 bottom-0 w-100"
-          style="height: 2px; background-color: #d9363e"></span> -->
       </div>
     </div>
+
     <div class="row g-3">
-      <div v-for="discount in filterUserDiscount" :key="discount.id" class="col-md-6">
-        <div v-if="activeTab === 4" class="d-flex align-items-center bg-white shadow-sm rounded p-3 w-100">
+      <div
+        v-for="discount in filterUserDiscount"
+        :key="discount.discount_user_id || discount.id"
+        class="col-md-6"
+      >
+        <div
+          v-if="activeTab === 4"
+          class="d-flex align-items-center bg-white shadow-sm rounded p-3 w-100"
+        >
           <i class="bi bi-ticket-perforated text-danger fs-4 me-3"></i>
           <div class="flex-grow-1" style="min-width: 0">
             <div class="fw-semibold mb-1 text-truncate d-block">
-              {{ getVoucherHistoryLabel(discount.pivot?.source) }}
+              {{ getVoucherHistoryLabel(discount.source || discount.pivot?.source) }}
               <span class="text-primary">"{{ discount.name }}"</span>
             </div>
 
             <div class="text-muted small">
-              🕒 {{ formatDate(discount.pivot?.exchanged_at) || 'Không rõ' }}
+              🕒 {{ formatDate(discount.exchanged_at || discount.pivot?.exchanged_at) || 'Không rõ' }}
             </div>
           </div>
         </div>
-
-        <div v-else class="d-flex shadow-sm bg-white rounded overflow-hidden"
-          :class="{ 'expired-discount': isExpired(discount) }" style="min-height: 110px">
-          <div class="text-white d-flex flex-column justify-content-center align-items-center" :style="`background-color: ${discount.discount_type === 'freeship' ? '#00bfa5' : '#f44336'
-            }; width: 28%`">
+        <div
+          v-else
+          class="d-flex shadow-sm bg-white rounded overflow-hidden"
+          :class="{ 'expired-discount': isExpired(discount) }"
+          style="min-height: 110px"
+        >
+          <div
+            class="text-white d-flex flex-column justify-content-center align-items-center"
+            :style="`background-color: ${discount.discount_type === 'freeship' ? '#00bfa5' : '#f44336'}; width: 28%`"
+          >
             <img :src="getImageByType(discount.discount_type)" alt="icon" style="width: 40px" />
             <div class="fw-bold small mt-2 text-center" style="font-size: 12px">
               {{ discount.discount_type === 'freeship' ? 'FREESHIP' : 'GIẢM GIÁ' }}
@@ -46,25 +63,44 @@
           </div>
 
           <div class="flex-grow-1 px-3 py-2" style="width: 72%">
-            <div class="fw-bold mb-1 text-truncate">Mã: {{ discount.name }}</div>
-            <div class="text-muted small mb-1 text-truncate d-block">
-              <i class="bi bi-clock me-1"></i>Hạn dùng: {{ discount.pivot.expiry_at }}
+            <div class="fw-bold mb-1 text-truncate" :title="discount.code">
+              Mã: {{ discount.code }}
             </div>
+            <div class="text-muted small mb-1 text-truncate d-block" :title="discount.name">
+              {{ discount.name }}
+            </div>
+            <div class="text-muted small mb-1 text-truncate d-block">
+              <i class="bi bi-clock me-1"></i>
+              Hạn dùng:
+              {{ formatDate(discount.expiry_at || discount.end_date || discount.pivot?.expiry_at) || '—' }}
+            </div>
+
+            <!-- Điều kiện -->
             <div class="text-muted small mb-1 text-truncate">
-              <a href="#" class="ms-1 text-primary"
-                @click.prevent="showConditionModal(discount.condition, discount.name)">
+              <a
+                href="#"
+                class="ms-1 text-primary"
+                @click.prevent="showConditionModal(discount.condition, discount.name)"
+              >
                 Điều kiện
               </a>
             </div>
+
             <div class="d-flex justify-content-between align-items-center">
-              <div class="fw-bold coins-exchange d-flex align-items-center" :class="{ invisible: activeTab !== 4 }">
+              <div
+                class="fw-bold coins-exchange d-flex align-items-center"
+                :class="{ invisible: activeTab !== 4 }"
+              >
                 {{ formatCurrency(discount.cost) }}
                 <img class="coins ms-1" src="/img/xubac.png" alt="coin" />
               </div>
-              <router-link v-if="!isExpired(discount)" to="/food" class="btn btn-outline-danger btn-sm float-end">
+              <router-link
+                v-if="!isExpired(discount)"
+                to="/food"
+                class="btn btn-outline-danger btn-sm float-end"
+              >
                 Dùng Ngay
               </router-link>
-
               <button v-else class="btn btn-outline-danger btn-sm float-end" disabled>
                 Hết hạn
               </button>
@@ -72,8 +108,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Trống -->
       <div v-if="filterUserDiscount.length === 0" class="col-12">
         <div class="text-center text-muted py-5">
           <i class="bi bi-ticket-perforated fs-1 mb-3 d-block"></i>
@@ -87,8 +121,15 @@
       </div>
     </div>
   </div>
-  <div class="modal fade" id="voucherConditionModal" tabindex="-1" aria-labelledby="voucherConditionModalLabel"
-    aria-hidden="true" ref="conditionModalRef">
+  <!-- Modal điều kiện -->
+  <div
+    class="modal fade"
+    id="voucherConditionModal"
+    tabindex="-1"
+    aria-labelledby="voucherConditionModalLabel"
+    aria-hidden="true"
+    ref="conditionModalRef"
+  >
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -107,6 +148,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'

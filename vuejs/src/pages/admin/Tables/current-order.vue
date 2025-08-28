@@ -250,6 +250,7 @@ import { useRouter } from 'vue-router'
 import { Permission } from '@/stores/permission'
 import { Html5QrcodeScanner } from 'html5-qrcode'
 import { nextTick } from 'vue'
+import { API_URL, STORAGE_URL } from '@/config'
 export default {
   setup() {
     const { formatNumber, formatTime } = Info.setup()
@@ -289,7 +290,7 @@ export default {
     const orderTakeAway = ref([])
     const getOrderTakeAway = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/get_all_orders')
+        const res = await axios.get(`${API_URL}/get_all_orders`)
         orderTakeAway.value = res.data.orders.filter((order) => order.type_order === 'takeaway')
       } catch (error) {
         console.log(error)
@@ -324,7 +325,7 @@ export default {
           cancelButtonText: 'Hủy',
         })
         if (result.isConfirmed) {
-          await axios.put(`http://127.0.0.1:8000/api/update/${id}/status`, {
+          await axios.put(`${API_URL}/update/${id}/status`, {
             order_status: status,
           })
           Swal.fire({
@@ -426,7 +427,7 @@ export default {
     const orderOfTable = ref([])
     const getOrderOfTable = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/order-current-tables')
+        const res = await axios.get(`${API_URL}/order-current-tables`)
         orderOfTable.value = res.data.orders
         // console.log(orderOfTable.value);
 
@@ -463,7 +464,7 @@ export default {
           cancelButtonText: 'Hủy',
         })
         if (result.isConfirmed) {
-          await axios.post('http://127.0.0.1:8000/api/reservation-update-status', {
+          await axios.post(`${API_URL}/reservation-update-status`, {
             id: id,
             order_status: status,
           })
@@ -522,7 +523,7 @@ export default {
       const hasVnpParams = params.has('vnp_TransactionStatus') || params.has('vnp_TxnRef')
 
       axios
-        .get('http://127.0.0.1:8000/api/payments/vnpay-return', { params })
+        .get(`${API_URL}/payments/vnpay-return`, { params })
         .then((res) => {
           if (hasVnpParams) {
             if (res.data.success) {
