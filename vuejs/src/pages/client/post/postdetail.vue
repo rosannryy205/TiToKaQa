@@ -3,7 +3,7 @@
     <div v-if="post" class="card border-0 shadow-lg rounded-4 overflow-hidden">
       <!-- Ảnh bài viết -->
       <img
-        :src="`http://127.0.0.1:8000/storage/img/post/${post.image}`"
+        :src="getImageUrl(post.image)"
         :alt="post.title"
         class="post-image"
       />
@@ -36,7 +36,8 @@
 <script>
 import { marked } from "marked";
 import router from "@/router";
-import { API_URL } from '@/config'
+import { API_URL, STORAGE_URL } from '@/config'
+
 export default {
   data() {
     return {
@@ -66,6 +67,9 @@ export default {
         month: "2-digit",
         year: "numeric",
       });
+    },
+    getImageUrl(image) {
+      return `${STORAGE_URL}/img/post/${image}`;
     },
   },
 };

@@ -441,7 +441,7 @@ const createCombosByAdmin = async () => {
     })
 
     resetForm()
-    router.push('/admin/discounts')
+    router.push('/admin/products/combo')
   } catch (error) {
     if (error.response?.status === 422 && error.response.data.errors) {
       const messages = Object.values(error.response.data.errors).flat().join('<br>')

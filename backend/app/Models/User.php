@@ -70,10 +70,9 @@ class User extends Authenticatable
     public function discounts()
     {
         return $this->belongsToMany(Discount::class, 'discount_user', 'user_id', 'discount_id')
-            ->withPivot(['point_used', 'exchanged_at', 'expiry_at', 'source'])
+            ->withPivot(['point_used', 'exchanged_at', 'expiry_at', 'source', 'category_id'])
             ->withTimestamps();
     }
-
     public function foodPosts()
     {
         return $this->hasMany(FoodPost::class, 'user_id');

@@ -1,0 +1,60 @@
+.btn-new {
+  background-color: #c92c3c;
+  color: #fff;
+}
+
+.btn-new:hover {
+  border: 1px solid #c92c3c;
+  color: #c92c3c;
+}
+
+.btn-checkseo {
+  background-color: rgb(46, 46, 175);
+  color: #fff;
+}
+
+.btn-checkseo:hover {
+  border: 1px solid rgb(46, 46, 175);
+  color: rgb(46, 46, 175);
+}
+
+.typing-box {
+  border: 1px solid #ddd;
+  padding: 10px;
+  min-height: 150px;
+  white-space: pre-wrap;
+}
+
+.cursor {
+  display: inline-block;
+  width: 1px;
+  background-color: black;
+  animation: blink 0.8s infinite;
+}
+
+.no-radius {
+  border-radius: 0 !important;
+}
+
+.btn-goback {
+  background-color: gray;
+  color: #fff;
+}
+
+.btn-goback:hover {
+  border: 1px solid gray;
+  color: gray;
+}
+
+@keyframes blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  50.1%,
+  100% {
+    opacity: 0;
+  }
+}

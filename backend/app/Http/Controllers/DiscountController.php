@@ -135,13 +135,30 @@ public function getUserDiscounts(Request $request)
     $user = auth()->user();
 
     $discounts = $user->discounts()
-        ->withPivot(['id', 'point_used', 'exchanged_at', 'expiry_at', 'source'])
-        ->orderByPivot('exchanged_at', 'desc') 
+        ->withPivot(['id','point_used','exchanged_at','expiry_at','source'])
+        ->orderByPivot('exchanged_at', 'desc')
         ->get();
+
     $rows = $discounts->map(function ($d) {
+        $expiryAt = $d->pivot->expiry_at ? Carbon::parse($d->pivot->expiry_at) : null;
+        $endDate  = $d->end_date ? Carbon::parse($d->end_date) : null;
+        $deadline = $expiryAt ?: $endDate;
+        $isExpired = $deadline ? $deadline->isPast() : false;
+
+        $sourceKey = $d->pivot->source;
+        $sourceLabel = match ($sourceKey) {
+            'point_exchange' => 'Bạn đã đổi mã bằng Tcoin',
+            'tpoint'         => 'Bạn đã đổi mã bằng Tcoin',
+            'discount'       => 'Bạn đã lưu mã',
+            'lucky_wheel'    => 'Nhận từ vòng quay',
+            'redeem_code'    => 'Nhập mã đổi thưởng',
+            'system_grant'   => 'Hệ thống tặng',
+            default          => 'Bạn đã nhận mã',
+        };
+
         return [
-            'discount_user_id' => $d->pivot->id, 
-            'discount_id'      => $d->id,        
+            'discount_user_id' => $d->pivot->id,
+            'discount_id'      => $d->id,
             'code'             => $d->code,
             'name'             => $d->name,
             'usage_limit'      => $d->usage_limit,
@@ -150,15 +167,23 @@ public function getUserDiscounts(Request $request)
             'discount_method'  => $d->discount_method,
             'discount_value'   => $d->discount_value,
             'min_order_value'  => $d->min_order_value,
+            'category_id'      => $d->category_id ?? null,
+            'start_date'       => $d->start_date,
             'end_date'         => $d->end_date,
             'expiry_at'        => $d->pivot->expiry_at,
+            'exchanged_at'     => $d->pivot->exchanged_at,
+            'exchanged_at_iso' => $d->pivot->exchanged_at ? Carbon::parse($d->pivot->exchanged_at)->toIso8601String() : null,
             'point_used'       => $d->pivot->point_used,
-            'source'           => $d->pivot->source,
+            'source'           => $sourceKey,
+            'source_key'       => $sourceKey,
+            'source_label'     => $sourceLabel,
+            'is_expired'       => $isExpired,
         ];
     });
 
-    return response()->json($rows);
+    return response()->json($rows->values());
 }
+
 
 
     public function getDiscountById($id)

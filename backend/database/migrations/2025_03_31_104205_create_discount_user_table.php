@@ -18,7 +18,6 @@ return new class extends Migration
             $table->integer('point_used')->default(0);
             $table->dateTime('exchanged_at');
             $table->dateTime('expiry_at');
-            $table->dateTime('used_at')->nullable();
             $table->string('source')->nullable();
             $table->timestamps();
             $table->unique(['user_id', 'discount_id']);

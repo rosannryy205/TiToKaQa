@@ -140,7 +140,7 @@ import { API_URL } from '@/config'
 import { STORAGE_URL } from '@/config'
 
 
-const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
+const getImageUrl = (image) => `${STORAGE_URL}/img/post/${image}`
 // Filters
 const filters = ref({
   search: "",
@@ -188,7 +188,7 @@ const fetchPosts = async () => {
       posts = res.data.result.data || [];
     }
     // Lọc chỉ lấy bài viết không ẩn
-    allPosts.value = posts.filter(post => post.is_hidden === 0);
+    allPosts.value = posts.filter(post => post.is_hidden == 0);
     console.log(allPosts.value);
   } catch (err) {
     error.value = "Không thể tải dữ liệu";

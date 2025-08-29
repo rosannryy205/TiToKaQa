@@ -129,6 +129,12 @@
               />
               <div class="flex-grow-1">
                 <strong>{{ item.name }}</strong>
+                <template v-if="item.is_flash_sale">
+                  <strong>{{ item.name }} Flashsale</strong>
+              </template>
+              <template v-else-if="item.is_deal">
+                <strong>Deal {{ item.name }}</strong>
+              </template>
                 <div>Loại: {{ item.type }}</div>
                 <div>{{ item.spicyLevel }}</div>
                 <div v-if="item.toppings.length" class="text-muted small">
@@ -224,30 +230,10 @@
             <div class="discount-scroll-wrapper" v-if="isLoggedIn">
               <div v-for="discount in displayedDiscounts" :key="discount.id">
                 <div
-                  class="voucher-card mb-3"
-                  :class="{
-                    'disabled-voucher':
-                      totalPrice < discount.min_order_value ||
-                      discount.used >= discount.usage_limit ||
-                      (discount.discount_type === 'freeship' && !hasShippingFee) ||
-                      (discount.category_id &&
-                        !cartItems.some((item) =>
-                          getAllChildCategoryIds(discount.category_id).includes(
-                            Number(item.category_id),
-                          ),
-                        )) ||
-                      finalTotal <= 0,
-                  }"
-                  @click="
-                    totalPrice >= discount.min_order_value &&
-                    discount.used < discount.usage_limit &&
-                    !(discount.discount_type === 'freeship' && !hasShippingFee) &&
-                    finalTotal > 0 &&
-                    (selectedDiscount === discount.code
-                      ? removeDiscountCode()
-                      : applyDiscountCode(discount.code))
-                  "
-                >
+  class="voucher-card mb-3"
+  :class="{ 'disabled-voucher': !canUseDiscount(discount) }"
+  @click="toggleDiscount(discount)"
+>
                   <!-- Cột trái -->
                   <div
                     class="voucher-card-left"
@@ -271,9 +257,9 @@
                     <div>
                       <div class="voucher-code">Mã: {{ discount.code }}</div>
                       <div class="voucher-condition">
-                        <i class="fa-regular fa-clock me-1"></i>
-                        Hết hạn: {{ formatDate(displayExpiry(item)) }}
-                      </div>
+  <i class="fa-regular fa-clock me-1"></i>
+  Hết hạn: {{ formatDate(displayExpiry(discount)) }}
+</div>
                       <div class="voucher-condition">
                         {{ discount.name }}
                       </div>
@@ -288,20 +274,13 @@
                         Đã dùng: {{ discount.used }}/{{ discount.usage_limit }}
                       </div>
                       <button
-                        class="voucher-button"
-                        :class="{ 'has-voucher': selectedDiscount === discount.code }"
-                        :disabled="
-                          totalPrice < discount.min_order_value ||
-                          discount.used >= discount.usage_limit ||
-                          (discount.discount_type === 'freeship' && !hasShippingFee) ||
-                          finalTotal <= 0
-                        "
-                        @click.stop="
-                          isMyTab ? chooseUserVoucher(discount) : choosePublicVoucher(discount)
-                        "
-                      >
-                        {{ isVoucherSelected(discount) ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
-                      </button>
+  class="voucher-button"
+  :class="{ 'has-voucher': isVoucherSelected(discount) }"
+  :disabled="!canUseDiscount(discount)"
+  @click.stop="toggleDiscount(discount)"
+>
+  {{ isVoucherSelected(discount) ? 'Bỏ dùng ❌' : 'Dùng ngay' }}
+</button>
                     </div>
                   </div>
                 </div>
@@ -346,7 +325,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import { onMounted, computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -354,6 +332,8 @@ import numeral from 'numeral'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import { toast } from 'vue3-toastify'
+import Swal from 'sweetalert2'
+import { storeToRefs } from 'pinia'
 
 import { FoodList } from '@/stores/food'
 import { Discounts } from '@/stores/discount'
@@ -361,17 +341,10 @@ import { Cart } from '@/stores/cart'
 import { User } from '@/stores/user'
 import { useShippingStore } from '@/stores/shippingStore'
 import { useUserStore } from '@/stores/userAuth'
-import Swal from 'sweetalert2'
-import { storeToRefs } from 'pinia'
-import { API_URL } from '@/config'
-import { STORAGE_URL } from '@/config'
-const shippingStore = useShippingStore()
-const { shippingFee } = storeToRefs(shippingStore)
+import { API_URL, STORAGE_URL } from '@/config'
 
 export default {
-  //==============
-  // METHODS FORMAT
-  //==============
+  // giữ lại 2 helper cũ để template dùng
   methods: {
     formatNumber(value) {
       return numeral(value).format('0,0')
@@ -380,116 +353,204 @@ export default {
       return `${STORAGE_URL}/img/food/${image}`
     },
   },
+
   setup() {
     const router = useRouter()
 
-    //==============
-    // STATE & REF
-    //==============
+    // ========= STATE =========
     const note = ref('')
     const paymentMethod = ref('')
     const activeTab = ref('Tất cả mã')
-    const showAllVoucher = ref(false)
     const today = dayjs().format('YYYY-MM-DD')
+
+    // ========= STORES =========
     const auth = useUserStore()
-    //==============
-    // STORE
-    //==============
     const { user, form } = User.setup()
     const { cartItems, cartKey } = Cart()
     const { isLoading } = FoodList.setup()
+    const shippingStore = useShippingStore()
+    const { shippingFee } = storeToRefs(shippingStore)
 
+    // Store Discounts (đã normalize & lọc hiệu lực)
     const {
-      discounts,
+      discounts,            // mã hệ thống
+      userDiscounts,        // mã cá nhân
       discountInput,
-      selectedDiscount,
-      discountId,
-      totalPrice,
+      selectedDiscount,     // code đang chọn
+      discountId,           // id submit (ưu tiên discount_user_id) - để tương thích
       getAllDiscount,
-      discountInputId,
-      showMoreDiscounts,
       applyDiscountCode,
       handleDiscountInput,
       finalTotal,
       discountFoodAmount,
       totalQuantity,
+      totalPrice,
       totalPriceItem,
       loadCart,
       discountShipAmount,
       getAllChildCategoryIds,
       fetchUserDiscounts,
-      userDiscounts,
       pointsDiscountAmount,
     } = Discounts()
 
-    //==============
-    // TAB DISCOUNT
-    //==============
+    // ========= TABS =========
     const tabs = ['Tất cả mã', 'Mã của tôi']
-    const setActive = (tab) => {
-      activeTab.value = tab
-    }
+    const setActive = (tab) => { activeTab.value = tab }
+
     const displayedDiscounts = computed(() => {
-      if (activeTab.value === 'Tất cả mã') return discountsFiltered.value
-      if (activeTab.value === 'Mã của tôi') return userDiscounts.value
-      return []
-    })
-    const selectedUserDiscountUserId = ref(null)
-    const isMyTab = computed(() => activeTab.value === 'Mã của tôi')
-
-    const voucherUserId = (d) => d?.discount_user_id ?? d?.pivot?.id ?? null
-
-    const isVoucherSelected = (d) =>
-      isMyTab.value
-        ? selectedUserDiscountUserId.value === voucherUserId(d) // Mã của tôi
-        : selectedDiscount.value === d.code // Public
-
-    function choosePublicVoucher(d) {
-      if (isVoucherSelected(d)) {
-        selectedDiscount.value = null
-        discountId.value = null
-      } else {
-        selectedDiscount.value = d.code
-        discountId.value = d.id
-        selectedUserDiscountUserId.value = null
-      }
-    }
-
-    function chooseUserVoucher(d) {
-      const id = voucherUserId(d)
-      if (selectedUserDiscountUserId.value === id) {
-        selectedUserDiscountUserId.value = null
-        selectedDiscount.value = null
-      } else {
-        selectedUserDiscountUserId.value = id
-        selectedDiscount.value = d.code
-        discountId.value = null
-      }
-    }
-    const displayExpiry = (d) =>
-      isMyTab.value ? d?.expiry_at || d?.pivot?.expiry_at || null : d?.end_date || null
-
-    const formatDate = (val) => (val ? dayjs(val).format('DD/MM/YYYY HH:mm') : '—')
-
-    function removeDiscountCode() {
-      selectedDiscount.value = null
-      discountId.value = null
-      selectedUserDiscountUserId.value = null
-    }
-
-    const discountsFiltered = computed(() => {
-      return discounts.value.filter((discount) => {
-        const endDate = dayjs(discount.end_date).format('YYYY-MM-DD')
-        return discount.used < discount.usage_limit && endDate >= today
-      })
+      // Lấy trực tiếp từ store (store đã filter hiệu lực theo start/end/expiry/usage)
+      return activeTab.value === 'Mã của tôi' ? userDiscounts.value : discounts.value
     })
 
     const isLoggedIn = computed(() => !!localStorage.getItem('token'))
 
-    //==============
-    // ORDER & PAYMENT
-    //==============
+    // ========= EXPIRY / DATE =========
+    const displayExpiry = (d) =>
+      activeTab.value === 'Mã của tôi' ? d?.expiry_at ?? null : d?.end_date ?? null
 
+    const formatDate = (val) => (val ? dayjs(val).format('DD/MM/YYYY HH:mm') : '—')
+
+    // ========= SHIPPING =========
+    const hasShippingFee = computed(() => Number(shippingFee.value) > 0)
+
+    // Kiểm tra có món thuộc cây danh mục của mã không (chỉ xét item type === 'food')
+    const hasItemInCategoryTree = (discount) => {
+      if (!discount?.category_id) return true
+      const targetIds = getAllChildCategoryIds(Number(discount.category_id))
+      return cartItems.value.some(
+        (it) => it.type === 'food' && targetIds.includes(Number(it.category_id))
+      )
+    }
+
+    // usage_limit = 0 => không giới hạn
+    const overLimit = (d) => (Number(d.usage_limit) > 0) && (Number(d.used) >= Number(d.usage_limit))
+
+    // Có thể dùng mã?
+    const canUseDiscount = (d) => {
+      if (!d) return false
+      if (finalTotal.value <= 0) return false
+      if (totalPrice.value < Number(d.min_order_value)) return false
+      if (!hasItemInCategoryTree(d)) return false
+      if (d.discount_type === 'freeship' && !hasShippingFee.value) return false
+      if (overLimit(d)) return false
+      return true
+    }
+
+    // Toggle chọn/bỏ theo code (dùng chung cho user/public)
+    function toggleDiscount(d) {
+      if (!d || !canUseDiscount(d)) return
+      if (selectedDiscount.value === d.code) {
+        // bỏ mã
+        selectedDiscount.value = null
+        discountId.value = null
+      } else {
+        // áp mã -> store tự set id (ưu tiên discount_user_id)
+        applyDiscountCode(d.code)
+      }
+    }
+
+    // Đối tượng mã đang chọn (để xác định id khi submit)
+    const selectedDiscountObj = computed(() => {
+      if (!selectedDiscount.value) return null
+      const all = [...userDiscounts.value, ...discounts.value]
+      return all.find(d => d.code === selectedDiscount.value) || null
+    })
+
+    const isVoucherSelected = (d) => selectedDiscount.value === d.code
+
+    // ======== GHN - ĐỊA CHỈ & VẬN CHUYỂN ========
+    const provinces = ref([])
+    const districts = ref([])
+    const wards = ref([])
+
+    const selectedProvince = ref('')
+    const selectedDistrict = ref('')
+    const selectedWard = ref('')
+
+    const shippingServices = ref([])
+    const selectedService = ref(null)
+    const ghnToken = 'ce7a164e-3e1c-11f0-a700-860cdd37d888'
+
+    const fetchProvinces = async () => {
+      try {
+        const res = await axios.get(
+          'https://online-gateway.ghn.vn/shiip/public-api/master-data/province',
+          { headers: { Token: ghnToken } }
+        )
+        provinces.value = res.data.data
+        const hcm = provinces.value.find((p) =>
+          p.ProvinceName.toLowerCase().includes('hồ chí minh')
+        )
+        if (hcm) {
+          selectedProvince.value = hcm.ProvinceID
+          fetchDistricts()
+        }
+      } catch (err) {
+        console.error('fetchProvinces error:', err)
+      }
+    }
+
+    const fetchDistricts = async () => {
+      shippingServices.value = []
+      selectedService.value = null
+      selectedDistrict.value = ''
+      selectedWard.value = ''
+      districts.value = []
+      wards.value = []
+      try {
+        const res = await axios.post(
+          'https://online-gateway.ghn.vn/shiip/public-api/master-data/district',
+          { province_id: selectedProvince.value },
+          { headers: { Token: ghnToken } }
+        )
+        districts.value = res.data.data
+      } catch (err) {
+        console.error('fetchDistricts error:', err)
+      }
+      watch(selectedDistrict, (newVal) => { if (newVal) fetchShippingServices() })
+    }
+
+    const fetchWards = async () => {
+      selectedWard.value = ''
+      wards.value = []
+      try {
+        const res = await axios.post(
+          'https://online-gateway.ghn.vn/shiip/public-api/master-data/ward',
+          { district_id: selectedDistrict.value },
+          { headers: { Token: ghnToken } }
+        )
+        wards.value = res.data.data
+      } catch (err) {
+        console.error('fetchWards error:', err)
+      }
+    }
+
+    const fetchShippingServices = async () => {
+      if (!selectedDistrict.value) return
+      try {
+        const res = await axios.post(`${API_URL}/ghn/service`, {
+          to_district_id: selectedDistrict.value,
+        })
+        shippingServices.value = res.data || []
+        selectedService.value = shippingServices.value[0] || null
+      } catch (err) {
+        console.error('fetchShippingServices error:', err)
+      }
+    }
+
+    // Tự tính phí ship khi đủ điều kiện
+    watch([selectedDistrict, selectedWard, selectedService], () => {
+      if (selectedDistrict.value && selectedWard.value && selectedService.value) {
+        shippingStore.calculateShippingFee({
+          toDistrictId: selectedDistrict.value,
+          toWardCode: selectedWard.value,
+          serviceId: selectedService.value.service_id,
+          insuranceValue: finalTotal.value || 0,
+        })
+      }
+    })
+
+    // ======== THANH TOÁN ========
     const check_out = async (orderId) => {
       try {
         if (paymentMethod.value === 'VNPAY') {
@@ -540,7 +601,6 @@ export default {
             timer: 1500,
             timerProgressBar: true,
           })
-          // localStorage.setItem('order_id', orderId)
           localStorage.setItem('payment_method', paymentMethod.value)
           localStorage.removeItem(cartKey.value)
           return
@@ -569,10 +629,7 @@ export default {
           toast.success('Đặt hàng và thanh toán bằng tiền mặt thành công!')
           router.push({
             name: 'payment-result',
-            query: {
-              type: 'order_id',
-              value: orderId,
-            },
+            query: { type: 'order_id', value: orderId },
           })
         }
       } catch (error) {
@@ -581,7 +638,7 @@ export default {
           toast: true,
           position: 'top-end',
           icon: 'error',
-          title: 'Thanh toán thất bại: ' + error.response.data.message,
+          title: 'Thanh toán thất bại: ' + (error.response?.data?.message || ''),
           showConfirmButton: false,
           timer: 1500,
           timerProgressBar: true,
@@ -618,10 +675,10 @@ export default {
           isLoading.value = false
           return
         }
+
         const province = provinces.value.find((p) => p.ProvinceID === selectedProvince.value)
         const district = districts.value.find((d) => d.DistrictID === selectedDistrict.value)
         const ward = wards.value.find((w) => w.WardCode === selectedWard.value)
-
         const fullAddress = `${form.address}, ${ward?.WardName}, ${district?.DistrictName}, ${province?.ProvinceName}`
 
         if (!fullAddress || cartItems.value.length === 0) {
@@ -638,6 +695,11 @@ export default {
           return
         }
 
+        // LẤY ID MÃ THEO ĐỐI TƯỢNG ĐANG CHỌN
+        const s = selectedDiscountObj.value
+        const discount_user_id = s?.discount_user_id ?? null
+        const discount_id = s && !s.discount_user_id ? s.discount_id : null
+
         const orderData = {
           user_id: user.value?.id || null,
           guest_name: form.fullname,
@@ -650,8 +712,8 @@ export default {
           ship_cost: parseInt(shippingFee.value),
           money_reduce:
             discountFoodAmount.value > 0 ? discountFoodAmount.value : discountShipAmount.value,
-          discount_user_id: selectedUserDiscountUserId.value || null,
-          discount_id: selectedUserDiscountUserId.value ? null : discountId.value || null,
+          discount_user_id,
+          discount_id,
           order_detail: cartItems.value.map((item) => ({
             food_id: item.type === 'food' ? item.id : null,
             combo_id: item.type === 'combo' ? item.id : null,
@@ -680,17 +742,20 @@ export default {
             timer: 1500,
             timerProgressBar: true,
           })
-          if (orderData.discount_user_id) {
+
+          // đánh dấu đã dùng mã (nếu có)
+          if (discount_user_id) {
             await axios.post(`${API_URL}/discounts/use`, {
-              discount_user_id: orderData.discount_user_id,
+              discount_user_id,
               order_id: res.data.order_id,
             })
-          } else if (orderData.discount_id) {
+          } else if (discount_id) {
             await axios.post(`${API_URL}/discounts/use`, {
-              discount_id: orderData.discount_id,
+              discount_id,
               order_id: res.data.order_id,
             })
           }
+
           await check_out(res.data.order_id)
         } else {
           Swal.fire({
@@ -709,7 +774,6 @@ export default {
 
         if (err.response?.status === 422 && err.response?.data?.errors) {
           const errors = err.response.data.errors
-
           const formattedErrors = Object.values(errors)
             .map((messages) => messages.join('<br>'))
             .join('<hr>')
@@ -734,98 +798,7 @@ export default {
       }
     }
 
-    //==============
-    // GHN - ĐỊA CHỈ & VẬN CHUYỂN
-    //==============
-    const provinces = ref([])
-    const districts = ref([])
-    const wards = ref([])
-
-    const selectedProvince = ref('')
-    const selectedDistrict = ref('')
-    const selectedWard = ref('')
-    const shippingServices = ref([])
-    const selectedService = ref(null)
-    const ghnToken = 'ce7a164e-3e1c-11f0-a700-860cdd37d888'
-    const hasShippingFee = computed(() => shippingFee.value > 0)
-
-    const fetchProvinces = async () => {
-      try {
-        const res = await axios.get(
-          'https://online-gateway.ghn.vn/shiip/public-api/master-data/province',
-          {
-            headers: { Token: ghnToken },
-          },
-        )
-        provinces.value = res.data.data
-        const hcm = provinces.value.find((p) =>
-          p.ProvinceName.toLowerCase().includes('hồ chí minh'),
-        )
-        if (hcm) {
-          selectedProvince.value = hcm.ProvinceID
-          fetchDistricts()
-        }
-      } catch (err) {
-        console.error('fetchProvinces error:', err)
-      }
-    }
-
-    const fetchDistricts = async () => {
-      shippingServices.value = []
-      selectedService.value = null
-      selectedDistrict.value = ''
-      selectedWard.value = ''
-      districts.value = []
-      wards.value = []
-
-      try {
-        const res = await axios.post(
-          'https://online-gateway.ghn.vn/shiip/public-api/master-data/district',
-          { province_id: selectedProvince.value },
-          { headers: { Token: ghnToken } },
-        )
-        districts.value = res.data.data
-      } catch (err) {
-        console.error('fetchDistricts error:', err)
-      }
-
-      watch(selectedDistrict, (newVal) => {
-        if (newVal) fetchShippingServices()
-      })
-    }
-
-    const fetchWards = async () => {
-      selectedWard.value = ''
-      wards.value = []
-
-      try {
-        const res = await axios.post(
-          'https://online-gateway.ghn.vn/shiip/public-api/master-data/ward',
-          { district_id: selectedDistrict.value },
-          { headers: { Token: ghnToken } },
-        )
-        wards.value = res.data.data
-      } catch (err) {
-        console.error('fetchWards error:', err)
-      }
-    }
-
-    const fetchShippingServices = async () => {
-      if (!selectedDistrict.value) return
-      try {
-        const res = await axios.post(`${API_URL}/ghn/service`, {
-          to_district_id: selectedDistrict.value,
-        })
-        shippingServices.value = res.data || []
-        selectedService.value = shippingServices.value[0] || null
-      } catch (err) {
-        console.error('fetchShippingServices error:', err)
-      }
-    }
-
-    //==============
-    // LIFECYCLE
-    //==============
+    // ========= LIFECYCLE =========
     onMounted(() => {
       Swal.fire({
         icon: 'info',
@@ -841,20 +814,7 @@ export default {
       fetchProvinces()
     })
 
-    watch([selectedDistrict, selectedWard, selectedService], () => {
-      if (selectedDistrict.value && selectedWard.value && selectedService.value) {
-        shippingStore.calculateShippingFee({
-          toDistrictId: selectedDistrict.value,
-          toWardCode: selectedWard.value,
-          serviceId: selectedService.value.service_id,
-          insuranceValue: finalTotal.value || 0,
-        })
-      }
-    })
-
-    //==============
-    // RETURN
-    //==============
+    // ========= RETURN =========
     return {
       user,
       form,
@@ -863,7 +823,6 @@ export default {
       setActive,
       activeTab,
       displayedDiscounts,
-      showAllVoucher,
       isLoggedIn,
       paymentMethod,
       check_out,
@@ -877,20 +836,17 @@ export default {
       finalTotal,
 
       discounts,
+      userDiscounts,
       discountInput,
       selectedDiscount,
       discountId,
-      discountInputId,
-      showMoreDiscounts,
       applyDiscountCode,
       handleDiscountInput,
       discountFoodAmount,
       discountShipAmount,
-      removeDiscountCode,
-      discountsFiltered,
+
       today,
       getAllChildCategoryIds,
-      userDiscounts,
 
       provinces,
       districts,
@@ -907,13 +863,11 @@ export default {
       hasShippingFee,
 
       pointsDiscountAmount,
-      isMyTab,
-      selectedUserDiscountUserId,
       isVoucherSelected,
-      choosePublicVoucher,
-      chooseUserVoucher,
+      toggleDiscount,
       formatDate,
       displayExpiry,
+      canUseDiscount,
     }
   },
 }

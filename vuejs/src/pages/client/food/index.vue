@@ -198,20 +198,19 @@
                 />
               </div>
               <div class="text-center mb-2">
-                <template v-if="isFlashSaleNow">
-                  <div class="fw-bold fs-4 text-danger">
-                    Giảm còn: {{ formatNumber(foodDetail.flash_sale_price) }} VNĐ
-                  </div>
-                  <div class="text-muted">
-                    <s> Giá gốc: {{ formatNumber(foodDetail.price) }} VNĐ</s>
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="text-danger fw-bold fs-5">
-                    {{ formatNumber(foodDetail.price) }} VNĐ
-                  </div>
-                </template>
-              </div>
+  <div v-if="isFlashSaleNow && foodDetail?.flash_sale_price" 
+       class="d-inline-flex align-items-baseline gap-2 flex-wrap">
+    <span class="text-decoration-line-through text-dark">
+      {{ formatNumber(foodDetail.price) }} VNĐ
+    </span>
+    <span class="fw-bold text-danger fs-4">
+      {{ formatNumber(foodDetail.flash_sale_price) }} VNĐ
+    </span>
+  </div>
+  <div v-else class="text-danger fw-bold fs-5">
+    {{ formatNumber(foodDetail.price) }} VNĐ
+  </div>
+</div>
 
               <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
             </div>

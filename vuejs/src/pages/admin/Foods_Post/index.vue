@@ -54,7 +54,7 @@
                   <tr v-for="post in paginatedPosts" :key="post.id">
                     <td class="text-center">{{ post.id }}</td>
                     <td class="text-center">
-                      <img :src="`http://127.0.0.1:8000/storage/img/post/${post.image}`" alt="Ảnh"
+                      <img :src="getImageUrl(post.image)" alt="Ảnh"
                         class="rounded border" style="width: 100px; height: 100px; object-fit: cover;" />
                     </td>
                     <td>{{ post.title }}</td>
@@ -119,7 +119,7 @@ if (userString) {
 }
 const { hasPermission } = Permission(userId)
 
-
+const getImageUrl = (image) => `${STORAGE_URL}/img/post/${image}`
 // Props hoặc dữ liệu giả lập
 const posts = ref([]) // Bạn có thể gán dữ liệu từ API sau
 const search = ref('')
