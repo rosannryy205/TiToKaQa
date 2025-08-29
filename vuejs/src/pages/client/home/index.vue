@@ -209,12 +209,23 @@
     <section class="pots-section container">
       <h2 class="text-center text-md-start mb-3 fw-bold">Thông Báo & Bài Viết<span>📢</span></h2>
       <hr />
-      <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
-        <router-link :to="`/posts_detail/${post.id}`">
-          <div class="col img-post">
-            <img v-if="post.image" :src="getImageUrl(post.image)" :alt="post.title" class="img-fluid rounded" loading="lazy"/>
-          </div>
-        </router-link>
+      <div v-if="loadingPosts" class="text-center">
+        <span>Đang tải bài viết...</span>
+      </div>
+
+      <div v-else-if="postError" class="text-danger">
+        {{ postError }}
+      </div>
+
+      <div v-else class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3">
+        <div v-for="post in allPosts" :key="post.id" class="col">
+          <router-link :to="`/posts_detail/${post.id}`">
+            <div class="img-post">
+              <img v-if="post.image" :src="getImageUrl(post.image)" :alt="post.title" class="img-fluid rounded"
+                loading="lazy" />
+            </div>
+          </router-link>
+        </div>
       </div>
     </section>
   </section>
@@ -555,7 +566,7 @@ export default {
       }
     }
 
-    const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
+    const getImageUrl = (image) => `${STORAGE_URL}/img/post/${image}`
 
     const shuffleArray = (array) => {
       return array
@@ -577,7 +588,7 @@ export default {
         }
 
         // Lọc bài viết không ẩn và lấy 4 bài ngẫu nhiên
-        const visiblePosts = posts.filter(post => post.is_hidden === 0)
+        const visiblePosts = posts.filter(post => post.is_hidden == 0)
         allPosts.value = shuffleArray(visiblePosts).slice(0, 4)
       } catch (err) {
         postError.value = "Không thể tải dữ liệu"
@@ -641,6 +652,10 @@ export default {
       quantity,
       increaseQuantity,
       decreaseQuantity,
+      allPosts,       // <-- thêm
+      loadingPosts,   // <-- thêm
+      postError,      // <-- thêm
+      getImageUrl,
     }
   },
 }

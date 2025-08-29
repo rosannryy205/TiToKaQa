@@ -42,8 +42,8 @@
             </div>
 
             <div class="text-muted small">
-              🕒 {{ formatDate(discount.exchanged_at || discount.pivot?.exchanged_at) || 'Không rõ' }}
-            </div>
+  🕒 {{ formatDate(discount.exchanged_at_iso || discount.exchanged_at) || 'Không rõ' }}
+</div>
           </div>
         </div>
         <div
@@ -62,7 +62,7 @@
             </div>
           </div>
 
-          <div class="flex-grow-1 px-3 py-2" style="width: 72%">
+          <div class="flex-grow-1 px-3" style="width: 72%">
             <div class="fw-bold mb-1 text-truncate" :title="discount.code">
               Mã: {{ discount.code }}
             </div>
@@ -162,29 +162,24 @@ import { API_URL } from '@/config'
 const {
   getImageByType,
   formatCurrency,
-  userDiscounts,
+  userDiscounts,     // từ store: đã normalizeUser
+  discounts,         // từ store: đã normalizeSystem
   getAllDiscount,
   fetchUserDiscounts,
-  discounts,
 } = Discounts()
 
 const userStore = useUserStore()
 const systemDiscounts = ref([])
 
 const voucherCode = ref('')
-const activeTab = ref(0)
-const tabs = [
-  { label: 'Tất cả', count: 0 },
-  { label: 'Mã Giảm Món', count: 0 },
-  { label: 'Mã FreeShip', count: 0 },
-  { label: 'Mã Theo Danh Mục', count: 0 },
-  { label: 'Lịch Sử Đổi Mã', count: 0 },
-  { label: 'Mã hết hạn', count: 0 },
-]
+const activeTab = ref(0) // 0: tất cả | 1: salefood | 2: freeship | 3: theo danh mục | 4: lịch sử | 5: hết hạn
 
-const isExpired = (discount) => {
-  const expiry = discount.pivot?.expiry_at
-  return expiry && new Date(expiry) < new Date()
+// ===== Helpers thời gian
+const isExpired = (d) => {
+  // Ưu tiên BE nếu đã trả is_expired
+  if (typeof d?.is_expired === 'boolean') return d.is_expired
+  const deadline = d?.expiry_at ?? d?.end_date
+  return deadline ? new Date(deadline).getTime() < Date.now() : false
 }
 
 const formatDate = (dateStr) => {
@@ -199,135 +194,58 @@ const formatDate = (dateStr) => {
   })
 }
 
-const filterUserDiscount = computed(() => {
-  const currentTab = activeTab.value
-  const all = userDiscounts.value || []
+// ===== Tập dữ liệu người dùng
+const allUser = computed(() => userDiscounts.value ?? [])
+const userActive  = computed(() => allUser.value.filter(d => !isExpired(d)))
+const userByCategory = computed(() => userActive.value.filter(d => d.category_id != null))
+const userExpired = computed(() => allUser.value.filter(isExpired))
+const userSalefood   = computed(() => userActive.value.filter(d => d.discount_type === 'salefood'))
+const userFreeship   = computed(() => userActive.value.filter(d => d.discount_type === 'freeship'))
 
-  switch (currentTab) {
-    case 1:
-      return all.filter((d) => d.discount_type === 'salefood' && !isExpired(d))
-    case 2:
-      return all.filter((d) => d.discount_type === 'freeship' && !isExpired(d))
-    case 3:
-      return all.filter((d) => d.category_id !== null && !isExpired(d))
-    case 4:
-      return all.filter((d) => d.pivot?.exchanged_at && !isExpired(d))
-    case 5:
-      return all.filter((d) => isExpired(d))
-    default:
-      return all.filter((d) => !isExpired(d))
+const userHistory = computed(() =>
+  (userDiscounts.value ?? []).filter(d => !!d.exchanged_at || !!d.source)
+)
+
+// Tabs + counts động
+const tabs = computed(() => ([
+  { label: 'Tất cả',            count: userActive.value.length },
+  { label: 'Mã Giảm Món',       count: userSalefood.value.length },
+  { label: 'Mã FreeShip',       count: userFreeship.value.length },
+  { label: 'Mã Theo Danh Mục',  count: userByCategory.value.length },
+  { label: 'Lịch Sử Đổi Mã',    count: userHistory.value.length },
+  { label: 'Mã hết hạn',        count: userExpired.value.length },
+]))
+
+
+// Danh sách hiển thị theo tab
+const filterUserDiscount = computed(() => {
+  switch (activeTab.value) {
+    case 1: return userSalefood.value
+    case 2: return userFreeship.value
+    case 3: return userByCategory.value
+    case 4: return userHistory.value
+    case 5: return userExpired.value
+    default: return userActive.value
   }
 })
 
-const handleVoucherCode = async () => {
-  const code = voucherCode.value.trim().toUpperCase()
-  if (!code) {
-    return Swal.fire({
-      icon: 'warning',
-      title: 'Vui lòng nhập mã voucher!',
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 1500,
-      timerProgressBar: true,
-    })
+// ===== Điều kiện hiển thị (build nếu BE chưa trả)
+function buildConditionText(d) {
+  if (!d) return ''
+  const parts = []
+  if (d.min_order_value) parts.push(`ĐH tối thiểu ${Number(d.min_order_value).toLocaleString('vi-VN')}đ`)
+  if (d.discount_type === 'salefood') {
+    parts.push(d.discount_method === 'percent'
+      ? `Giảm ${d.discount_value}%`
+      : `Giảm ${Number(d.discount_value).toLocaleString('vi-VN')}đ`)
   }
-
-  const exists = userDiscounts.value.find((d) => d.code.toUpperCase() === code)
-  if (exists) {
-    return Swal.fire({
-      icon: 'info',
-      title: 'Bạn đã có mã này rồi!',
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 1500,
-      timerProgressBar: true,
-    })
+  if (d.discount_type === 'freeship') {
+    parts.push(d.discount_method === 'percent'
+      ? `Giảm phí ship ${d.discount_value}%`
+      : `Giảm phí ship ${Number(d.discount_value).toLocaleString('vi-VN')}đ`)
   }
-
-  const found = systemDiscounts.value.find((d) => d.code.toUpperCase() === code)
-  if (!found) {
-    return Swal.fire({
-      icon: 'error',
-      title: 'Không tìm thấy mã trong hệ thống!',
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 1500,
-      timerProgressBar: true,
-    })
-  }
-
-  const confirm = await Swal.fire({
-    title: 'Bạn chắc chắn muốn đổi mã này?',
-    text: `Mã: ${code}`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Đổi mã',
-    cancelButtonText: 'Hủy',
-  })
-
-  if (!confirm.isConfirmed) return
-
-  try {
-    const res = await axios.post(
-      `${API_URL}/redeem-discount`,
-      { discount_id: found.id },
-      {
-        headers: { Authorization: `Bearer ${userStore.token}` },
-      },
-    )
-
-    if (res.data.status) {
-      await fetchUserDiscounts()
-      voucherCode.value = ''
-
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Đổi mã thành công!',
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
-      })
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: res.data.message || 'Đổi mã thất bại!',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
-      })
-    }
-  } catch (err) {
-    console.error(err)
-    Swal.fire({
-      icon: 'error',
-      title: 'Lỗi khi gửi yêu cầu đổi mã!',
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 1500,
-      timerProgressBar: true,
-    })
-  }
-}
-
-const getVoucherHistoryLabel = (source) => {
-  switch (source) {
-    case 'discount':
-      return 'Bạn đã lưu mã'
-    case 'tpoint':
-      return 'Bạn đã đổi mã'
-    case 'lucky_wheel':
-      return 'Nhận từ vòng quay mã'
-    default:
-      return 'Bạn đã nhận mã'
-  }
+  if (d.category_id != null) parts.push('Áp dụng theo danh mục')
+  return parts.join(' • ')
 }
 
 const conditionModalRef = ref(null)
@@ -335,24 +253,121 @@ let conditionModalInstance = null
 const selectedVoucherCondition = ref('')
 const selectedVoucherName = ref('')
 
-const showConditionModal = (condition, name) => {
-  selectedVoucherCondition.value = condition
+const showConditionModal = (conditionFromBE, name, discountObj = null) => {
+  selectedVoucherCondition.value = conditionFromBE || buildConditionText(discountObj)
   selectedVoucherName.value = name
   conditionModalInstance?.show()
 }
-const hideConditionModal = () => {
-  conditionModalInstance?.hide()
+const hideConditionModal = () => conditionModalInstance?.hide()
+
+// ===== Lưu/đổi mã theo code
+const handleVoucherCode = async () => {
+  const code = voucherCode.value.trim().toUpperCase()
+  if (!code) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Vui lòng nhập mã voucher!',
+      toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, timerProgressBar: true,
+    })
+  }
+
+  // đã có trong kho cá nhân?
+  const exists = (userDiscounts.value || []).find(d => (d.code || '').toUpperCase() === code)
+  if (exists) {
+    return Swal.fire({
+      icon: 'info',
+      title: 'Bạn đã có mã này rồi!',
+      toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, timerProgressBar: true,
+    })
+  }
+
+  // tìm trong hệ thống
+  const found = (systemDiscounts.value || []).find(d => (d.code || '').toUpperCase() === code)
+  if (!found) {
+    return Swal.fire({
+      icon: 'error',
+      title: 'Không tìm thấy mã trong hệ thống!',
+      toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, timerProgressBar: true,
+    })
+  }
+
+  const confirm = await Swal.fire({
+    title: 'Bạn chắc chắn muốn lưu/đổi mã này?',
+    text: `Mã: ${code}`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Xác nhận',
+    cancelButtonText: 'Hủy',
+  })
+  if (!confirm.isConfirmed) return
+
+  try {
+    const res = await axios.post(
+      `${API_URL}/redeem-discount`,
+      { discount_id: found.id },               // normalizeSystem.id = discount gốc
+      { headers: { Authorization: `Bearer ${userStore.token}` } },
+    )
+
+    if (res.data?.status) {
+      await fetchUserDiscounts()
+      voucherCode.value = ''
+      Swal.fire({
+        toast: true, position: 'top-end', icon: 'success',
+        title: 'Đổi/Lưu mã thành công!', showConfirmButton: false, timer: 1500, timerProgressBar: true,
+      })
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: res.data?.message || 'Đổi/Lưu mã thất bại!',
+        toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, timerProgressBar: true,
+      })
+    }
+  } catch (err) {
+    console.error(err)
+    Swal.fire({
+      icon: 'error',
+      title: err?.response?.data?.message || 'Lỗi khi gửi yêu cầu!',
+      toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, timerProgressBar: true,
+    })
+  }
 }
 
+// ===== Nhãn lịch sử
+const getVoucherHistoryLabel = (source) => {
+  switch ((source || '').toLowerCase()) {
+    case 'point_exchange':
+    case 'tpoint':
+      return 'Bạn đã đổi mã bằng Tcoin'
+    case 'discount':
+      return 'Bạn đã lưu mã'
+    case 'lucky_wheel':
+      return 'Nhận từ vòng quay'
+    case 'redeem_code':
+      return 'Nhập mã đổi thưởng'
+    case 'system_grant':
+      return 'Hệ thống tặng'
+    default:
+      return 'Bạn đã nhận mã'
+  }
+}
+
+// ===== Lifecycle
 onMounted(async () => {
+  // nạp mã hệ thống (store đã lọc hiệu lực theo start/end)
   await getAllDiscount({ source: 'system' })
-  systemDiscounts.value = discounts.value
+  systemDiscounts.value = discounts.value.slice()
+
+  // nạp kho mã cá nhân (store đã normalize: category_id là Number hoặc null; exchanged_at/source nằm trên root)
   await fetchUserDiscounts()
+
+  // init modal
   if (conditionModalRef.value) {
     conditionModalInstance = new Modal(conditionModalRef.value)
   }
 })
 </script>
+
+
 
 
 <style scoped>

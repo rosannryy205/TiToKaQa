@@ -66,6 +66,13 @@
             <div class="mb-2 price text-end fixed-price-width">
               <strong class="price-text">{{ formatNumber(totalPriceItem(item)) }} VNĐ</strong>
             </div>
+            <button
+              class="btn text-dark btn-sm position-absolute m-2"
+              style="bottom: 0; right: 0"
+              @click="openModalToEditTopping(item, index)"
+            >
+              Chỉnh sửa
+            </button>
           </div>
         </div>
       </div>
@@ -165,15 +172,25 @@
             aria-label="Close"
           ></button>
           <div class="row">
-            <!-- Cột hình ảnh -->
             <div class="col-md-6 border-end">
               <h5 class="fw-bold text-danger text-center mb-3">{{ foodDetail.name }}</h5>
               <div class="text-center mb-3">
                 <img :src="getImageUrl(foodDetail.image)" :alt="foodDetail.name" class="modal-image img-fluid" />
               </div>
-              <p class="text-danger fw-bold fs-5 text-center">
-                {{ formatNumber(foodDetail.price) }} VNĐ
-              </p>
+              <div class="text-center mb-2">
+  <div v-if="isFlashSaleNow && foodDetail?.flash_sale_price" 
+       class="d-inline-flex align-items-baseline gap-2 flex-wrap">
+    <span class="text-decoration-line-through text-dark">
+      {{ formatNumber(foodDetail.price) }} VNĐ
+    </span>
+    <span class="fw-bold text-danger fs-4">
+      {{ formatNumber(foodDetail.flash_sale_price) }} VNĐ
+    </span>
+  </div>
+  <div v-else class="text-danger fw-bold fs-5">
+    {{ formatNumber(foodDetail.price) }} VNĐ
+  </div>
+</div>
               <p class="text-dark text-center text-lg fw-bold mb-3">{{ foodDetail.description }}</p>
             </div>
 
@@ -188,7 +205,6 @@
                     class="topping-container mb-3"
                     v-if="toppingList.length || spicyLevel.length"
                   >
-                    <!-- Mức cay -->
                     <div class="mb-3" v-if="spicyLevel.length">
                       <label for="spicyLevel" class="form-label fw-bold">🌶 Mức độ cay:</label>
                       <select class="form-select" id="spicyLevel">
@@ -197,8 +213,6 @@
                         </option>
                       </select>
                     </div>
-
-                    <!-- Topping -->
                     <label v-if="toppingList.length" class="form-label fw-bold"
                       >🧀 Chọn Topping:</label
                     >
@@ -219,8 +233,6 @@
                     <p class="text-center text-muted">Không có topping cho món này.</p>
                   </div>
                 </div>
-
-                <!-- Nút điều khiển -->
                 <div class="mt-auto">
                   <div class="text-center mb-2">
                     <div class="qty-control px-2 py-1">
@@ -243,8 +255,6 @@
                       </button>
                     </div>
                   </div>
-
-                  <!-- Nút động -->
                   <button type="submit" class="btn btn-danger w-100 fw-bold">
                     Cập nhật topping
                   </button>
@@ -303,6 +313,15 @@ export default {
         timerProgressBar: true,
       })
     }
+
+    const isFlashSaleNow = computed(() => {
+      const i = foodDetail.value
+      if (!i || !i.flash_sale_price || !i.flash_sale_start || !i.flash_sale_end) return false
+      const now = Date.now()
+      return (
+        new Date(i.flash_sale_start).getTime() <= now && now <= new Date(i.flash_sale_end).getTime()
+      )
+    })
 
     const loadCart = () => {
       const cartKey = getCartKey()
@@ -673,6 +692,7 @@ export default {
       editCartIndex,
       openModalToEditTopping,
       updateToppingInCart,
+      isFlashSaleNow
     }
   },
 }

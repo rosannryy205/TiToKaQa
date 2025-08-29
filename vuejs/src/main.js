@@ -28,6 +28,7 @@ import './assets/base.css'
 
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import 'vue3-toastify/dist/index.css'
+import './assets/custom_btn_add_post.css'
 
 const app = createApp(App)
 
