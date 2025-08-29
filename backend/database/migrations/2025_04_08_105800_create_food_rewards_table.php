@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('food_rewards', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('spin_id')->nullable()->constrained('lucky_wheel_spins')->nullOnDelete();
             $table->json('food_snapshot')->nullable();
             $table->string('code')->unique();
             $table->string('name');
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->boolean('is_used')->default(false);
             $table->timestamp('used_at')->nullable();
             $table->foreign('food_id')->references('id')->on('foods')->onDelete('cascade');
+            $table->unique(['spin_id']);
         });
     }
 
