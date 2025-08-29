@@ -69,8 +69,8 @@ class User extends Authenticatable
     }
     public function discounts()
     {
-        return $this->belongsToMany(Discount::class, 'discount_user', 'user_id', 'discount_id')
-            ->withPivot(['point_used', 'exchanged_at', 'expiry_at', 'source', 'category_id'])
+        return $this->belongsToMany(Discount::class, 'discount_user', 'user_id', 'discount_id',)
+            ->withPivot(['spin_id', 'point_used', 'exchanged_at', 'expiry_at', 'source',])
             ->withTimestamps();
     }
     public function foodPosts()
