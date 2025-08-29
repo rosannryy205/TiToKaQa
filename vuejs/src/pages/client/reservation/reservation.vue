@@ -64,7 +64,7 @@
               d="M3 9l4-4h10l4 4v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9h18M9 13l3 3 3-3" />
           </svg>
-          <p>Vui lòng liên hệ để được xếp bàn!</p>
+          <p>Vui lòng sử dụng chức năng đặt bàn nhanh để được ghép bàn tự động hoặc liên hệ qua 0123456789 để được hỗ trợ tốt hơn!</p>
         </div>
 
         <div v-if="combine == false" class="no-table-alert text-center my-4">
