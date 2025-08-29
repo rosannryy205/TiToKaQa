@@ -19,8 +19,9 @@ return new class extends Migration
             $table->dateTime('exchanged_at');
             $table->dateTime('expiry_at');
             $table->string('source')->nullable();
+            $table->foreignId('spin_id')->nullable()->constrained('lucky_wheel_spins')->nullOnDelete();
             $table->timestamps();
-            $table->unique(['user_id', 'discount_id']);
+            $table->unique(['user_id', 'discount_id', 'spin_id']);
         });
 
     }

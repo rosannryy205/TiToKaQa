@@ -28,11 +28,11 @@
         <div class="deal-card d-flex align-items-center rounded p-3 w-100 shadow-sm">
           <div class="me-3 d-flex align-items-center justify-content-center" style="width: 60px">
             <img
-               :src="getImageUrl(deal.food_snapshot?.image)"
-              alt="food"
-              class="rounded"
-              style="width: 50px; height: 50px; object-fit: cover"
-            />
+  :src="getImageSrc(deal.food_snapshot)"
+  alt="food"
+  class="rounded"
+  style="width: 50px; height: 50px; object-fit: cover"
+/>
           </div>
           <div class="flex-grow-1">
             <div class="fw-bold text-dark mb-1">
@@ -67,30 +67,43 @@ import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/userAuth'
-import { API_URL } from '@/config'
-import { STORAGE_URL } from '@/config'
+import { API_URL, STORAGE_URL } from '@/config'
+
 const dealsFood = ref([])
 const activeTab = ref(0)
 const router = useRouter()
 const userStore = useUserStore()
-const getImageUrl = (image) => `${STORAGE_URL}/img/food/${image}`
+
+const getImageSrc = (snap) => {
+  const img = snap?.image_url ?? snap?.image
+  if (!img) return '/img/placeholder-food.png'   
+  if (/^https?:\/\//i.test(img)) return img      
+  return `${STORAGE_URL}/img/food/${img}`         
+}
+
 const tabs = ref([
   { label: 'Tất cả', count: 0 },
   { label: 'Deal hết hạn', count: 0 }
 ])
 
 const getDealsFood = async () => {
-  const res = await axios.get(`${API_URL}/deals-food`, {
-    headers: { Authorization: `Bearer ${userStore.token}` },
-  })
-
-  if (res.data.status) {
-    dealsFood.value = res.data.data
+  try {
+    const token = userStore.token || localStorage.getItem('token')
+    const res = await axios.get(`${API_URL}/deals-food`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+    const payload = Array.isArray(res.data) ? res.data : (res.data?.data ?? [])
+    dealsFood.value = payload
 
     const now = new Date()
     const expiredCount = dealsFood.value.filter((d) => new Date(d.expired_at) < now).length
     tabs.value[0].count = dealsFood.value.length
     tabs.value[1].count = expiredCount
+  } catch (e) {
+    console.error('getDealsFood error:', e)
+    dealsFood.value = []
+    tabs.value[0].count = 0
+    tabs.value[1].count = 0
   }
 }
 
@@ -119,31 +132,46 @@ const filteredDealsFood = computed(() => {
 })
 
 const useDealNow = (deal) => {
-  const userId = userStore.user.id
+  const userId = userStore.user?.id || 'guest'
   const cartKey = `cart_${userId}`
-  const food = deal.food_snapshot
-  if (!food) return alert('Thông tin món ăn không hợp lệ.')
+  const snap = deal.food_snapshot
+  if (!snap?.id) {
+    alert('Thông tin món ăn không hợp lệ.')
+    return
+  }
 
-  let cart = JSON.parse(localStorage.getItem(cartKey) || '[]')
-  const existingIndex = cart.findIndex((item) => item.id === food.id && item.type === 'Food')
+  // chuẩn hoá dữ liệu
+  const originalPrice = Number(snap.price_at_win ?? snap.price ?? 0)
+  const name = snap.name ?? deal.name ?? 'Món ưu đãi'
+  const image = snap.image_url ?? snap.image ?? null
+  const categoryId = snap.category_id ?? null
 
-  if (existingIndex !== -1) {
-    cart[existingIndex].quantity += 1
-    cart[existingIndex].free_quantity = 1
+  let cart = []
+  try {
+    cart = JSON.parse(localStorage.getItem(cartKey) || '[]')
+  } catch {
+    cart = []
+  }
+
+  const idx = cart.findIndex((item) => item.id === snap.id && item.type === 'food')
+
+  if (idx !== -1) {
+    cart[idx].quantity += 1
+    cart[idx].free_quantity = (cart[idx].free_quantity ?? 0) + 1
   } else {
     cart.push({
-      id: food.id,
-      name: food.name,
-      image: food.image,
-      price: '0',
-      original_price: food.price,
+      id: snap.id,
+      name,
+      image,                      
+      price: 0,                   
+      original_price: originalPrice,
       toppings: [],
       quantity: 1,
-      type: 'Food',
-      category_id: food.category_id,
-      free_quantity: 1,
+      type: 'food',                
+      category_id: categoryId,
+      free_quantity: 1,           
       is_deal: true,
-      reward_id: deal.id,
+      reward_id: deal.id,         
     })
   }
 
@@ -155,6 +183,7 @@ onMounted(() => {
   getDealsFood()
 })
 </script>
+
 
 <style scoped>
 .deal-card {
