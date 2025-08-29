@@ -17,6 +17,7 @@ class FoodReward extends Model
         'expired_at',
         'is_used',
         'used_at',
+        'spin_id'
     ];
     protected $casts = [
         'food_snapshot' => 'array',
@@ -36,4 +37,6 @@ class FoodReward extends Model
 {
     return $this->hasMany(Order_detail::class, 'reward_id');
 }
+
+public function spin() { return $this->belongsTo(LuckyWheelSpin::class, 'spin_id'); }
 }

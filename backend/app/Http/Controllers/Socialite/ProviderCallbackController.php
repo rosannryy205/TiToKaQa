@@ -20,7 +20,7 @@ class ProviderCallbackController extends Controller
             return response()->json(['message' => 'Invalid provider'], 422);
         }
     
-        $isNew = false; // <- cờ đánh dấu user mới
+        $isNew = false;
     
         try {
             $socialUser = Socialite::driver($provider)->stateless()->user();

@@ -19,7 +19,7 @@ class Discount extends Model
     public function users()
 {
     return $this->belongsToMany(User::class, 'discount_user')
-        ->withPivot(['used', 'created_at'])
+        ->withPivot(['used', 'created_at', 'spin_id'])
         ->withTimestamps();
 }
 
