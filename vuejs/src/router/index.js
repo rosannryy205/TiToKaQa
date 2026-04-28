@@ -26,7 +26,7 @@ router.beforeEach((to, from, next) => {
     user = JSON.parse(userString);
 
     if (to.meta.requiresAdmin) {
-        if (token && user && user.role && ['quanly', 'nhanvien', 'nhanvienkho'].includes(user.role)) {
+        if (token && user && user.role && ['quanly', 'nhanvien', 'nhanvienkho', 'nguoigiaohang'].includes(user.role)) {
             next();
         } else {
             next('/');

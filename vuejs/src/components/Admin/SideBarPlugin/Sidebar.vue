@@ -225,7 +225,7 @@ const menuItems = [
         to: '/admin/delivery',
         label: 'Danh sách đơn hàng',
         icon: AppstoreOutlined,
-        permission: 'view_order',
+        permission: 'view_shipper',  // 🔥 sửa lại từ view_order → view_shipper
       },
     ],
   },

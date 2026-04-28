@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('lucky_wheel_prizes', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('type'); 
+            $table->string('type');
             $table->json('data')->nullable();
             $table->unsignedInteger('probability');
-            $table->enum('status', ['active', 'inactive'])->default('active'); 
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }

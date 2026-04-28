@@ -221,7 +221,7 @@
         <div v-for="post in allPosts" :key="post.id" class="col">
           <router-link :to="`/posts_detail/${post.id}`">
             <div class="img-post">
-              <img v-if="post.image" :src="getImageUrl(post.image)" :alt="post.title" class="img-fluid rounded"
+              <img v-if="post.image" :src="getImageUrlPost(post.image)" :alt="post.title" class="img-fluid rounded"
                 loading="lazy" />
             </div>
           </router-link>
@@ -315,6 +315,9 @@ export default {
     },
     getImageUrl(image) {
       return `${STORAGE_URL}/img/food/${image}`
+    },
+    getImageUrlPost(image) {
+      return `${STORAGE_URL}/img/post/${image}`
     },
   },
   setup() {
@@ -566,8 +569,6 @@ export default {
       }
     }
 
-    const getImageUrl = (image) => `${STORAGE_URL}/img/post/${image}`
-
     const shuffleArray = (array) => {
       return array
         .map(value => ({ value, sort: Math.random() }))
@@ -655,7 +656,6 @@ export default {
       allPosts,       // <-- thêm
       loadingPosts,   // <-- thêm
       postError,      // <-- thêm
-      getImageUrl,
     }
   },
 }
@@ -750,6 +750,20 @@ export default {
   border-radius: 6px;
   height: 16px;
 }
+
+.img-post img {
+  width: 100%;             /* chiếm hết chiều rộng của col */
+  height: 200px;           /* cố định chiều cao */
+  object-fit: cover;       /* ảnh cắt vừa khung */
+  border-radius: 10px;
+}
+
+/* chỉnh khoảng cách giữa các ảnh (ghi đè g-3 = 16px mặc định) */
+.row.g-3 {
+  --bs-gutter-x: 20px;
+  --bs-gutter-y: 20px;
+}
+
 
 /* Responsive cho màn nhỏ */
 @media (max-width: 576px) {
