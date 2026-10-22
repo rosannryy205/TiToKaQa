@@ -1,3 +1,5 @@
-laravel.zip 
-laravel.zip 
+laravel.zip
 node_modules/
+.env
+.env.*
+!.env.example
